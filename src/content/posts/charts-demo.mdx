@@ -1,0 +1,65 @@
+---
+title: "Using Charts in Posts"
+date: "2026-03-11"
+description: "How to embed interactive charts using Chart.js."
+---
+
+import Chart from '../../components/Chart.astro';
+
+This blog supports interactive charts via [Chart.js](https://www.chartjs.org/). Use the `<Chart />` component in any `.mdx` post.
+
+## Bar Chart
+
+<Chart
+  type="bar"
+  title="Quarterly Revenue"
+  labels={['Q1', 'Q2', 'Q3', 'Q4']}
+  datasets={[{
+    label: '2025',
+    data: [42, 58, 71, 65],
+    backgroundColor: '#1a1a1a',
+    borderWidth: 0,
+  }, {
+    label: '2026',
+    data: [55, 73, 0, 0],
+    backgroundColor: '#999',
+    borderWidth: 0,
+  }]}
+/>
+
+## Line Chart
+
+<Chart
+  type="line"
+  title="Weekly Active Users"
+  labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
+  datasets={[{
+    label: 'Users',
+    data: [120, 190, 170, 250, 220, 310, 290],
+    borderColor: '#1a1a1a',
+    backgroundColor: 'rgba(26, 26, 26, 0.05)',
+    fill: true,
+    tension: 0.3,
+    borderWidth: 2,
+  }]}
+/>
+
+## How to add a chart
+
+In any `.mdx` file, import the component and pass your data:
+
+```mdx
+import Chart from '../../components/Chart.astro';
+
+<Chart
+  type="bar"
+  labels={['A', 'B', 'C']}
+  datasets={[{
+    label: 'My Data',
+    data: [10, 20, 30],
+    backgroundColor: '#1a1a1a',
+  }]}
+/>
+```
+
+Supported chart types: `bar`, `line`, `pie`, `doughnut`, `radar`, `scatter`.

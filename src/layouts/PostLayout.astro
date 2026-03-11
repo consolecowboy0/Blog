@@ -1,0 +1,51 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  frontmatter: {
+    title: string;
+    date: string;
+    description?: string;
+  };
+}
+
+const { frontmatter } = Astro.props;
+const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+  <article>
+    <header class="post-header">
+      <time datetime={frontmatter.date}>{dateStr}</time>
+      <h1>{frontmatter.title}</h1>
+    </header>
+    <div class="post-content">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .post-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .post-header time {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-header h1 {
+    margin-top: 0.5rem;
+  }
+
+  .post-content {
+    font-size: 1rem;
+  }
+</style>

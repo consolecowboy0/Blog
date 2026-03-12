@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const items = (await getCollection('library'))
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title="Library · dustinlanders.com" description="Reference documents, papers, and notes.">
+  <section class="library">
+    <h1>Library</h1>
+    <p class="library-intro">Reference documents, papers, interactive visualizations, and notes — things worth keeping around.</p>
+
+    <ul class="library-list">
+      {items.map((item) => {
+        const dateStr = new Date(item.data.date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+        const href = item.data.type === 'pdf' ? item.data.file : `/library/${item.id}`;
+        const isPdf = item.data.type === 'pdf';
+        const tagLabels = { pdf: 'PDF', interactive: 'INTERACTIVE', html: 'HTML/JS', markdown: 'DOC' } as const;
+        const tagLabel = tagLabels[item.data.type];
+        return (
+          <li>
+            <a
+              href={href}
+              class="library-item"
+              {...(isPdf ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <div class="library-item-meta">
+                <span class={`library-tag ${item.data.type === 'interactive' || item.data.type === 'html' ? 'library-tag-interactive' : ''}`}>{tagLabel}</span>
+                <time datetime={item.data.date}>{dateStr}</time>
+              </div>
+              <h2>{item.data.title}</h2>
+              {item.data.description && <p>{item.data.description}</p>}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .library h1 {
+    margin-top: 1rem;
+  }
+
+  .library-intro {
+    color: var(--fg-muted);
+    margin-bottom: 2rem;
+  }
+
+  .library-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .library-item {
+    display: block;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  .library-list li:first-child .library-item {
+    border-top: 1px solid var(--border);
+  }
+
+  .library-item:hover h2 {
+    opacity: 0.6;
+  }
+
+  .library-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .library-tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15em 0.5em;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+  }
+
+  .library-tag-interactive {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+
+  .library-item time {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .library-item h2 {
+    font-size: 1.15rem;
+    margin: 0.15rem 0 0.3rem;
+    transition: opacity 0.2s;
+  }
+
+  .library-item p {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+</style>

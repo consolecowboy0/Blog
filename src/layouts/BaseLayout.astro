@@ -20,6 +20,9 @@ const { title, description = 'A blog.' } = Astro.props;
     <header>
       <nav>
         <a href="/" class="site-title">dustinlanders.com</a>
+        <div class="nav-links">
+          <a href="/library">Library</a>
+        </div>
       </nav>
     </header>
     <main>
@@ -70,6 +73,25 @@ const { title, description = 'A blog.' } = Astro.props;
     letter-spacing: -0.02em;
     text-transform: uppercase;
     border: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .nav-links a {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+    border: none;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--fg);
   }
 
   main {

@@ -1,0 +1,49 @@
+---
+interface Props {
+  type: 'bar' | 'line' | 'pie' | 'doughnut' | 'radar' | 'scatter';
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor?: string | string[];
+    borderColor?: string | string[];
+    borderWidth?: number;
+    fill?: boolean;
+    tension?: number;
+  }[];
+  title?: string;
+}
+
+const { type, labels, datasets, title } = Astro.props;
+const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
+const config = JSON.stringify({ type, data: { labels, datasets }, options: {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: { labels: { font: { family: 'Inter, sans-serif', size: 13 }, color: '#1a1a1a' } },
+    title: title ? { display: true, text: title, font: { family: 'Inter, sans-serif', size: 16, weight: 800 }, color: '#1a1a1a' } : { display: false },
+  },
+  scales: type !== 'pie' && type !== 'doughnut' && type !== 'radar' ? {
+    x: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
+    y: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
+  } : undefined,
+}});
+---
+
+<div class="chart-container">
+  <canvas id={chartId}></canvas>
+</div>
+
+<script define:vars={{ chartId, config }}>
+  async function initChart() {
+    const { Chart, registerables } = await import('chart.js');
+    Chart.register(...registerables);
+    const ctx = document.getElementById(chartId);
+    new Chart(ctx, JSON.parse(config));
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initChart);
+  } else {
+    initChart();
+  }
+</script>

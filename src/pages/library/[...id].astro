@@ -4,7 +4,7 @@ import PostLayout from '../../layouts/PostLayout.astro';
 
 export async function getStaticPaths() {
   const items = (await getCollection('library')).filter(
-    (item) => item.data.type === 'markdown'
+    (item) => item.data.type === 'markdown' || item.data.type === 'interactive'
   );
   return items.map((item) => ({
     params: { id: item.id },

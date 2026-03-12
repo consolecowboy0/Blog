@@ -9,7 +9,7 @@ const items = (await getCollection('library'))
 <BaseLayout title="Library · dustinlanders.com" description="Reference documents, papers, and notes.">
   <section class="library">
     <h1>Library</h1>
-    <p class="library-intro">Reference documents, papers, and notes — things worth keeping around.</p>
+    <p class="library-intro">Reference documents, papers, interactive visualizations, and notes — things worth keeping around.</p>
 
     <ul class="library-list">
       {items.map((item) => {
@@ -20,6 +20,7 @@ const items = (await getCollection('library'))
         });
         const href = item.data.type === 'pdf' ? item.data.file : `/library/${item.id}`;
         const isPdf = item.data.type === 'pdf';
+        const tagLabel = item.data.type === 'pdf' ? 'PDF' : item.data.type === 'interactive' ? 'INTERACTIVE' : 'DOC';
         return (
           <li>
             <a
@@ -28,7 +29,7 @@ const items = (await getCollection('library'))
               {...(isPdf ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               <div class="library-item-meta">
-                <span class="library-tag">{isPdf ? 'PDF' : 'DOC'}</span>
+                <span class={`library-tag ${item.data.type === 'interactive' ? 'library-tag-interactive' : ''}`}>{tagLabel}</span>
                 <time datetime={item.data.date}>{dateStr}</time>
               </div>
               <h2>{item.data.title}</h2>
@@ -90,6 +91,11 @@ const items = (await getCollection('library'))
     padding: 0.15em 0.5em;
     border: 1px solid var(--border);
     color: var(--fg-muted);
+  }
+
+  .library-tag-interactive {
+    border-color: #3b82f6;
+    color: #3b82f6;
   }
 
   .library-item time {

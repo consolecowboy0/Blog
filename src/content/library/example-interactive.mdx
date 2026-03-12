@@ -1,0 +1,65 @@
+---
+title: "Example: Lap Time Comparison"
+type: "interactive"
+description: "An interactive chart comparing lap times across different setups."
+date: "2026-03-12"
+---
+
+import Chart from '../../components/Chart.astro';
+
+# Lap Time Comparison
+
+This is an example interactive library entry. Use `.mdx` files with the `interactive` type to embed live Chart.js visualizations (or any Astro component) directly in a library page.
+
+## Setup Comparison
+
+<Chart
+  type="bar"
+  title="Average Lap Time by Setup (seconds)"
+  labels={['Baseline', 'Low DF', 'High DF', 'Soft Springs', 'Stiff Springs']}
+  datasets={[
+    {
+      label: 'Dry',
+      data: [92.4, 91.8, 93.1, 92.9, 91.5],
+      backgroundColor: '#1a1a1a',
+    },
+    {
+      label: 'Wet',
+      data: [97.2, 98.5, 95.3, 96.1, 99.0],
+      backgroundColor: '#888',
+    },
+  ]}
+/>
+
+## Pace Over a Stint
+
+<Chart
+  type="line"
+  title="Lap Time Degradation Over Stint"
+  labels={['Lap 1', 'Lap 5', 'Lap 10', 'Lap 15', 'Lap 20', 'Lap 25']}
+  datasets={[
+    {
+      label: 'Soft Compound',
+      data: [91.2, 91.5, 92.0, 93.1, 94.8, 96.5],
+      borderColor: '#e63946',
+      fill: false,
+      tension: 0.3,
+    },
+    {
+      label: 'Medium Compound',
+      data: [92.1, 92.2, 92.3, 92.6, 93.0, 93.5],
+      borderColor: '#1a1a1a',
+      fill: false,
+      tension: 0.3,
+    },
+    {
+      label: 'Hard Compound',
+      data: [93.0, 93.0, 92.9, 92.9, 93.0, 93.1],
+      borderColor: '#457b9d',
+      fill: false,
+      tension: 0.3,
+    },
+  ]}
+/>
+
+These are placeholder charts — replace with your real data.

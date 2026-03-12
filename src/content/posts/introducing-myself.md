@@ -6,18 +6,18 @@ description: "A little about who I am and what this blog is about."
 
 Hey, I'm Dustin Landers. Welcome to my corner of the internet.
 
-I'm a builder at heart — I love making things, whether that's software, side projects, or something entirely different. I've spent years working in tech and I started this blog as a place to share what I'm learning, thinking about, and working on.
+I'm a tech guy with an obsession with racing and sim-racing. I've spent years working in software and engineering, but when I'm not writing code, you'll probably find me either at a track or glued to a racing sim rig. This blog is where those two worlds collide.
 
 ## What to expect here
 
-I plan to write about a mix of topics:
+This is a place to bring data journalism to racing and sim-racing. I plan to dig into the numbers behind the sport: lap times, telemetry, strategy, setups, and tell stories with data. Expect a mix of:
 
-- **Software and engineering** — things I'm building, tools I find useful, technical deep dives
-- **Side projects** — experiments, ideas, and lessons from shipping stuff
-- **Whatever else is on my mind** — sometimes you just need to write things down
+- **Racing analytics** - data-driven breakdowns of real-world and sim racing
+- **Sim-racing deep dives** - setups, telemetry analysis, and performance optimization
+- **Tech and tools** - the software and engineering behind the analysis
 
 ## Why a blog?
 
-Social media is fine for quick takes, but I wanted a space for longer thoughts. Something I own, something simple. So here it is — built with [Astro](https://astro.build), kept minimal on purpose.
+Social media is fine for quick takes, but data journalism needs room to breathe. I wanted a space for longer, more in-depth pieces where I can really dig into the numbers and lay things out properly. So here it is, built with [Astro](https://astro.build), kept minimal on purpose.
 
 Thanks for stopping by. More to come.

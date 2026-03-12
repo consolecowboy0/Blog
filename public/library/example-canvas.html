@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Map Visualization</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Inter, system-ui, sans-serif; background: #fafaf8; color: #1a1a1a; padding: 2rem; }
+    h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+    canvas { border: 1px solid #e0e0db; background: #fff; display: block; margin: 0 auto; }
+    .controls { text-align: center; margin-top: 1rem; }
+    .controls button {
+      font-family: inherit; font-size: 0.85rem; font-weight: 600;
+      padding: 0.5em 1.25em; margin: 0 0.25rem;
+      border: 1px solid #1a1a1a; background: #fff; color: #1a1a1a;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .controls button:hover { background: #1a1a1a; color: #fff; }
+    .controls button.active { background: #1a1a1a; color: #fff; }
+  </style>
+</head>
+<body>
+  <h2>Racing Line Comparison (interactive — drag to rotate)</h2>
+  <canvas id="track" width="600" height="400"></canvas>
+  <div class="controls">
+    <button class="active" onclick="setLine('geometric')">Geometric Line</button>
+    <button onclick="setLine('racing')">Racing Line</button>
+    <button onclick="setLine('both')">Compare</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('track');
+    const ctx = canvas.getContext('2d');
+    let currentLine = 'geometric';
+    let offsetX = 0, offsetY = 0, dragging = false, lastX, lastY;
+
+    canvas.addEventListener('mousedown', (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    canvas.addEventListener('mousemove', (e) => {
+      if (!dragging) return;
+      offsetX += e.clientX - lastX;
+      offsetY += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      draw();
+    });
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => dragging = false);
+
+    function setLine(type) {
+      currentLine = type;
+      document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      draw();
+    }
+
+    function drawCorner(cx, cy, r, startAngle, endAngle, color, width) {
+      ctx.beginPath();
+      ctx.arc(cx + offsetX, cy + offsetY, r, startAngle, endAngle);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.stroke();
+    }
+
+    function drawTrack() {
+      // Track edges (outer and inner)
+      ctx.strokeStyle = '#ccc';
+      ctx.lineWidth = 1;
+      // Outer boundary
+      drawCorner(300, 300, 180, Math.PI * 1.0, Math.PI * 1.5, '#ccc', 1);
+      drawCorner(300, 100, 180, Math.PI * 1.5, Math.PI * 2.0, '#ccc', 1);
+      // Inner boundary
+      drawCorner(300, 300, 80, Math.PI * 1.0, Math.PI * 1.5, '#ccc', 1);
+      drawCorner(300, 100, 80, Math.PI * 1.5, Math.PI * 2.0, '#ccc', 1);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawTrack();
+
+      if (currentLine === 'geometric' || currentLine === 'both') {
+        // Geometric line — largest constant radius
+        drawCorner(300, 300, 130, Math.PI * 1.0, Math.PI * 1.5, currentLine === 'both' ? '#aaa' : '#1a1a1a', 3);
+        drawCorner(300, 100, 130, Math.PI * 1.5, Math.PI * 2.0, currentLine === 'both' ? '#aaa' : '#1a1a1a', 3);
+      }
+      if (currentLine === 'racing' || currentLine === 'both') {
+        // Racing line — late apex, wider entry, tighter exit
+        drawCorner(270, 310, 150, Math.PI * 1.05, Math.PI * 1.3, '#e63946', 3);
+        drawCorner(320, 280, 90, Math.PI * 1.3, Math.PI * 1.55, '#e63946', 3);
+        drawCorner(270, 110, 150, Math.PI * 1.55, Math.PI * 1.8, '#e63946', 3);
+        drawCorner(320, 80, 90, Math.PI * 1.8, Math.PI * 2.0, '#e63946', 3);
+      }
+    }
+
+    draw();
+  </script>
+</body>
+</html>

@@ -4,17 +4,11 @@ date: "2026-03-12"
 description: "A little about who I am and what this blog is about."
 ---
 
-Hey, I'm Dustin Landers. Welcome to my corner of the internet.
+Hey, I'm Dustin Landers (if you didn't guess). Welcome to my corner of the internet.
 
-I'm a data guy with an obsession with racing and sim-racing. My background is in data science, mathematics, and statistics - I've spent years working with data technologies, building models, and finding stories hidden in numbers. When I'm not crunching data, you'll probably find me either at a track or glued to a racing sim rig. This blog is where those two worlds collide.
+The deal with this page is simple: data journalism. I plan to do a bit on motorsport, politics, but always with this data journalism bent. I think anyway.
 
-## What to expect here
-
-This is a place to bring data journalism to racing and sim-racing. I plan to dig into the numbers behind the sport: lap times, telemetry, strategy, setups, and tell stories with data. Expect a mix of:
-
-- **Racing analytics** - data-driven breakdowns of real-world and sim racing
-- **Sim-racing deep dives** - setups, telemetry analysis, and performance optimization
-- **Tech and tools** - the data science stack and technologies behind the analysis
+I have a background in data, tech, math, stats, politics, biology- and that stuff is all fun. But I used to write stories when I was kid. This blog is as much about the content as it is about the act of writing at all.
 
 ## Why a blog?
 

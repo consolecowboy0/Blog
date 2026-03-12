@@ -8,10 +8,10 @@ This is the first post on the blog. Everything here is built with [Astro](https:
 
 ## What this blog supports
 
-- **Markdown** posts — just drop a `.md` file in `src/content/posts/`
-- **MDX** posts — use `.mdx` to embed interactive components like charts
-- **Images** — drop PNGs/JPGs in `public/images/` and reference them in your posts
-- **Code blocks** — syntax highlighted by default
+- **Markdown** posts - just drop a `.md` file in `src/content/posts/`
+- **MDX** posts - use `.mdx` to embed interactive components like charts
+- **Images** - drop PNGs/JPGs in `public/images/` and reference them in your posts
+- **Code blocks** - syntax highlighted by default
 
 Here's an example code block:
 

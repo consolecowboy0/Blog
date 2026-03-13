@@ -78,7 +78,7 @@ I tested everything: straight length, corner radius, track width, speed differen
 
 One ratio outperformed them all.
 
-Take the length of the preceding straight. Divide it by the radius of the corner at the end. L/R. A pure ratio with no units — the same type of number as Mach number (which tells you when you've broken the sound barrier). L/R tells you whether an overtake is going to stick.
+Take the length of the preceding straight. Divide it by the radius of the corner at the end. L/R. A pure ratio with no units -- the same type of number as Mach number (which tells you when you've broken the sound barrier). L/R tells you whether an overtake is going to stick.
 
 I pulled four full seasons of F1 timing data (2022-2025) through FastF1 and programmatically extracted nearly 2,000 overtakes from 77 race sessions. I measured success rates at all 120 corners across 16 circuits- not just the famous ones- but every unremarkable mid-speed kink and chicane that rarely makes the highlight reel. I catalogued 803,140 close-following events- with the help of AI of course. Who also made this plot below, with a title I do not approve of. I willl leave it as a cautionary tale of letting Claude make plots for you (I'm kidding).
 
@@ -90,7 +90,7 @@ And when I switched the y-axis from success rate to raw overtakes per race- the 
 ![Where Passes Actually Happen](/images/charts/regression_lr_overtakes.png)
 *Same corners, different question. L/R doesn't just predict whether a pass succeeds- it predicts whether anyone even attempts one.*
 
-I ran event-level logistic regression — a statistical model that predicts whether a pass succeeds or fails based on multiple variables at once — on 247,813 individual close-following observations, controlling for DRS availability, gap distance, all the confounders you'd want to throw at it. L/R was significant at p below 10 to the negative sixteenth.
+I ran event-level logistic regression -- a statistical model that predicts whether a pass succeeds or fails based on multiple variables at once -- on 247,813 individual close-following observations, controlling for DRS availability, gap distance, all the confounders you'd want to throw at it. L/R was significant at p below 10 to the negative sixteenth.
 
 ![What Predicts an Overtake?](/images/charts/regression_logistic_coefs.png)
 *The three things that matter most in a quarter-million observations. Gap is king (get close or go home), DRS nearly doubles your odds, and L/R quietly governs which corners produce passes at all.*
@@ -156,9 +156,9 @@ The first is a **grip-limit pass**. The attacker tucks in behind the leading car
 
 The second is a **battery pass**. The attacker deploys stored electrical energy on a straight. The advantage has nothing to do with aerodynamic proximity, braking precision, or cornering commitment. The leading car's energy depletes, it slows by fifty kilometers per hour, and the trailing car sails past at full power. The pass was over before the braking zone arrived. The attacker didn't need to be brave. They needed to have charge.
 
-My expanded dataset — 1,971 overtakes across four seasons — lets me test the two-kinds hypothesis directly by stratifying on DRS. When DRS is *not* active, the pass has to be earned through physics: slipstream, proximity, commitment. Across those 120 corners, L/R predicts success beautifully (Spearman rho = 0.39, p < 10 to the minus fifth). Geometry and car control decide. But when DRS *is* active — the artificial speed boost switched on — L/R loses its predictive power entirely (rho = 0.13, not significant, N = 35). The regulatory mechanism overwhelms the geometric contest.
+My expanded dataset -- 1,971 overtakes across four seasons -- lets me test the two-kinds hypothesis directly by stratifying on DRS. When DRS is *not* active, the pass has to be earned through physics: slipstream, proximity, commitment. Across those 120 corners, L/R predicts success beautifully (Spearman rho = 0.39, p < 10 to the minus fifth). Geometry and car control decide. But when DRS *is* active -- the artificial speed boost switched on -- L/R loses its predictive power entirely (rho = 0.13, not significant, N = 35). The regulatory mechanism overwhelms the geometric contest.
 
-That's the empirical fingerprint of two different sports hiding inside the same race. When the speed differential comes from physics — from drafting, from driving, from being genuinely faster — geometry governs the outcome. When it comes from a button, geometry becomes secondary. The distinction isn't rhetoric. It's measurable.
+That's the empirical fingerprint of two different sports hiding inside the same race. When the speed differential comes from physics -- from drafting, from driving, from being genuinely faster -- geometry governs the outcome. When it comes from a button, geometry becomes secondary. The distinction isn't rhetoric. It's measurable.
 
 ![The Smoking Gun](/images/charts/regression_drs_split.png)
 *Same corners, same data, split by DRS. Left: without DRS, geometry decides- clear upward trend, strong correlation. Right: with DRS on, the trend vanishes. The artificial aid overwhelms the physics.*
@@ -179,7 +179,7 @@ The diagnosis is clear. The math also points toward a cure.
 
 The physics of overtaking is not broken. It is being bypassed. The DRS stratification is the smoking gun. A 13 km/h DRS boost was already enough to wash out the geometric signal. What do you think a 50 km/h battery differential does? It doesn't just bypass the geometry. It erases it. Like- completely. Gone. The whole beautiful structure just disappears under that much artificial speed delta.
 
-So what do we do? The same thing the math has been saying from the start. Bound the energy differentials. Keep them comparable to the old DRS effect — roughly 10 to 15 km/h, enough to enable, not enough to decide. Target L/R values between 20 and 50 in designated overtaking zones- the contested middle where the attacker's speed buys proximity but not position- where the pass still has to be completed under braking. Calibrate circuit by circuit, corner by corner, exactly the way DRS zones were tuned for a decade. And restore the asymmetry — the attacking driver earns the advantage rather than simply deploying it.
+So what do we do? The same thing the math has been saying from the start. Bound the energy differentials. Keep them comparable to the old DRS effect -- roughly 10 to 15 km/h, enough to enable, not enough to decide. Target L/R values between 20 and 50 in designated overtaking zones- the contested middle where the attacker's speed buys proximity but not position- where the pass still has to be completed under braking. Calibrate circuit by circuit, corner by corner, exactly the way DRS zones were tuned for a decade. And restore the asymmetry -- the attacking driver earns the advantage rather than simply deploying it.
 
 The balance point is still out there. It always is- that is what the theorem guarantees. For every corner on every circuit, there exists a configuration where speed and geometry fight to a draw- where the driver who brakes later and commits harder gets rewarded instead of the driver who simply carried more energy down the straight.
 

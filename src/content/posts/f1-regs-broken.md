@@ -4,11 +4,13 @@ date: "2026-03-12"
 description: "I analyzed nearly 2,000 overtakes across four seasons of F1 data and found the mathematical balance that made wheel-to-wheel racing possible- and the regulation change that shattered it."
 ---
 
+Check out the visualization of this dataset in the Library section.
+
 ## The Worst Cars Ever Made
 
-That's unfair to say, of course. I just said it so you'd keep reading. But if you've been paying attention to the 2026 Formula 1 season, you know there's real controversy behind the clickbait- and when I started poking at it with math, what I found was stranger than any headline.
+That's unfair to say, of course. I just said it so you'd keep reading. But if you've been paying attention to the 2026 Formula 1 season, you know there's real controversy behind the clickbait- and when I started poking at it with math, what I found- well- prettty interesting I thought. So I'm here to share.
 
-Thirty-eight milliseconds. That's the gap between two Formula 1 cars after six hundred meters of straight-line battle and a full 180-degree hairpin, as modeled by a simulation I built in Python. One driver had the aerodynamic advantage on the straight, the other clawed it all back through the corner, and after all that fury- the turbulent air, the mechanical screaming- they ended up separated by less time than a single frame of cinema film sits on the screen.
+38ms. That's the gap between two Formula 1 cars after six hundred meters of straight-line battle and a full 180-degree hairpin, as modeled by a simulation I built in Python. One driver had the aerodynamic advantage on the straight, the other clawed it all back through the corner, and after all that fury- the turbulent air, the mechanical screaming- they ended up separated by less time than a single frame of cinema film sits on the screen.
 
 For years, the physics of trailing one F1 car behind another produced something bordering on the eerie: a near-perfect equilibrium between straight-line attack and cornering defense, a knife-edge so fine that overtaking came down to human skill, bravery, and the quality of a late-braking lunge. The car behind gained on the straights, the car ahead pulled back in the corners, and the whole violent negotiation hovered around zero-sum. That balance isn't a coincidence. It's a theorem. And it's not just a model prediction- I validated it against 1,971 real overtakes pulled from four full seasons of F1 timing data. Nearly two thousand passes, 120 corners, 16 circuits, every unremarkable chicane and every famous hairpin.
 
@@ -54,7 +56,7 @@ After 600 meters of straight-line battle and a full 180-degree hairpin- all that
 
 ---
 
-## The Theorem Nobody Expected
+## The Theorem Nobody Expected, Wanted, or Cares About
 
 Imagine a dial. Turn it all the way left: zero slipstream. The trailing car gets no draft whatsoever. The leader wins every time, cornering speed and racing line doing all her work. The time ratio sits below one.
 
@@ -62,7 +64,7 @@ Crank it all the way right: maximum slipstream. The trailing car arrives at the 
 
 As you sweep that dial from left to right, the time ratio doesn't jump or stutter. It rises smoothly, continuously. And a continuous curve that starts below a line and ends above it must cross that line somewhere.
 
-That's it. The intermediate value theorem, a piece of mathematics so elementary it lives in the first month of calculus. And it proves something no one in motorsport had formally stated before: for every hairpin geometry, every car, every track width, there exists a slipstream strength at which the overtaking pass neither gains nor loses time. A perfect balance point. Always. Guaranteed by the logic of smooth curves.
+That's it. The intermediate value theorem, a piece of mathematics so elementary it lives in the first month of calculus. Essentially, we have a situation where we can guarantee there is a perfect spot for "fairness" so-to-speak.
 
 The theorem doesn't care about your track. Monza's Variante del Rettifilo, Bahrain's Turn 1, a hairpin sketched on a napkin: each one has a balance point hiding somewhere along that dial.
 
@@ -98,7 +100,7 @@ I tried every close-following threshold from 0.1 to 1.0 seconds; the correlation
 ![The Correlation Barely Moves](/images/charts/regression_threshold_stability.png)
 *Change the definition of "close following" by 10x and the correlation moves by 0.02. The green band is the leave-one-circuit-out range- drop any circuit and the result holds.*
 
-The logic is physical. A long straight gives the trailing car more time to build a speed advantage. A tight corner demands heavy braking- which opens a wider window for a late dive. Long straight, tight corner: high L/R, high success. Short straight, sweeping bend: low L/R, the defender holds.
+The logic is physical. A long straight gives the trailing car more time to build a speed advantage. A tight corner demands heavy braking- which opens a wider window for a late dive. Long straight, tight corner: high L/R, high success. Short straight, sweeping bend: low L/R, the defender holds. Which- for anyone who has messed around in racing video games can tell you thats pretty intuitive.
 
 Suzuka's hairpin sits at L/R of 8. Success rate: 22 percent. Baku's Turn 1 sits at L/R of 79- success rate 58 percent- because a two-kilometer blast down the Caspian seafront feeds into a tight left-hander where even a cautious dive has room to work. The geometry just... tells you.
 
@@ -119,8 +121,6 @@ The masterwork was DRS. Introduced in 2011, the Drag Reduction System was breath
 Without DRS, drafting gave roughly 4 km/h of extra speed- real but often not enough to complete a pass. With DRS, that jumped to approximately 13 km/h. A near-tripling of the effective straight-line advantage.
 
 What made DRS elegant was the counterbalance it preserved. The trailing car gained on the straight, yes. But the leading car still owned the corners- where clean air and the geometric privilege of the racing line clawed back time. Attack answered by defense. The ancient duel, recalibrated for the aerodynamic age.
-
-It was also a tacit admission- and kind of a weirdly honest one for a sport that hates admitting anything: without artificial help, the leader's aerodynamic advantage was simply too large. The sport needed intervention to breathe. The FIA's introduction of DRS acknowledged this honestly, then tuned it obsessively, circuit by circuit, for over a decade.
 
 And then 2026 threw it all away.
 
@@ -150,7 +150,7 @@ But the deepest problem isn't speed differentials or battery depletion. It's tha
 
 ## Two Kinds of Passing
 
-Strip away the jargon and two fundamentally different kinds of overtaking emerge- two acts that look identical on a timing screen but feel nothing alike from the cockpit- and reward entirely different virtues.
+Let's make up two kinds of passes you can observe in the current F1 season. These passes require different skills.
 
 The first is a **grip-limit pass**. The attacker tucks in behind the leading car through a fast corner- fighting turbulent air that wants to rip the front axle loose. They hold on anyway: braking later, committing harder, threading a tighter line into the next bend. They pull alongside under braking, and for a few hundred meters two cars occupy the space that physics would prefer to give to one. The pass is resolved by who has more feel in their fingertips, more trust in their front tires, more willingness to dance at the adhesion limit. Both drivers are tested on the same fundamental skill. That's the good stuff. That's what we tune in for.
 

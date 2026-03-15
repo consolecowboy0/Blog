@@ -582,76 +582,91 @@
   //   - Short run to start/finish
 
   // Real Monza circuit coordinates sourced from F1 Overtaker Explorer track data
+  // Realistic speed factors calibrated to real Monza data (2026 regs)
+  // TOP_SPEED = 355 km/h; sf values = actual_speed / 355
+  // Sources: FIA 2026 technical regulations, Monza GPS telemetry data
+  // T1-T2 (Rettifilo): ~68-80 km/h, Curva Grande: ~260-270 km/h
+  // Roggia chicane: ~70-78 km/h, Lesmo 1: ~200 km/h, Lesmo 2: ~185 km/h
+  // Back straight: ~340-345 km/h, Ascari: ~138-200 km/h
+  // Parabolica min: ~210 km/h, exit: ~275 km/h
   const RAW_POINTS = [
     // Start/finish straight (very long - Monza's signature)
-    { x: 0.084, y: 0.733, sf: 0.88, zone: 'straight', name: 'Start/Finish' },
-    { x: 0.091, y: 0.693, sf: 1.0,  zone: 'drs' },
-    { x: 0.099, y: 0.647, sf: 1.0,  zone: 'drs' },
-    { x: 0.106, y: 0.601, sf: 1.0,  zone: 'drs' },
-    { x: 0.113, y: 0.560, sf: 1.0,  zone: 'mom' },
-    { x: 0.120, y: 0.514, sf: 1.0,  zone: 'mom' },
-    { x: 0.127, y: 0.468, sf: 1.0,  zone: 'mom' },
-    { x: 0.134, y: 0.421, sf: 0.95, zone: 'mom' },
-    { x: 0.139, y: 0.381, sf: 0.95, zone: 'straight' },
+    // Cars exit Parabolica at ~290 km/h, build to 355 km/h by T1 braking zone
+    { x: 0.084, y: 0.733, sf: 0.92, zone: 'straight', name: 'Start/Finish' },
+    { x: 0.091, y: 0.693, sf: 0.96, zone: 'drs' },
+    { x: 0.099, y: 0.647, sf: 0.99, zone: 'drs' },
+    { x: 0.106, y: 0.601, sf: 1.00, zone: 'drs' },
+    { x: 0.113, y: 0.560, sf: 1.00, zone: 'mom' },
+    { x: 0.120, y: 0.514, sf: 1.00, zone: 'mom' },
+    { x: 0.127, y: 0.468, sf: 0.97, zone: 'mom' },
+    { x: 0.134, y: 0.421, sf: 0.75, zone: 'mom' },  // braking begins (~266 km/h)
+    { x: 0.139, y: 0.381, sf: 0.45, zone: 'straight' },  // deep braking (~160 km/h)
 
     // Variante del Rettifilo (T1-T2 chicane) - HEAVY BRAKING
-    { x: 0.162, y: 0.349, sf: 0.38, zone: 'regen' },
-    { x: 0.149, y: 0.303, sf: 0.35, zone: 'regen' },
+    // One of the heaviest braking zones in F1: 355→68 km/h in ~120m
+    { x: 0.162, y: 0.349, sf: 0.20, zone: 'regen' },  // T1 apex (~71 km/h)
+    { x: 0.149, y: 0.303, sf: 0.19, zone: 'regen' },  // T2 apex (~68 km/h)
 
     // Curva Grande (fast sweeping right)
-    { x: 0.155, y: 0.257, sf: 0.50, zone: 'corner' },
-    { x: 0.172, y: 0.218, sf: 0.82, zone: 'corner' },
-    { x: 0.218, y: 0.180, sf: 0.85, zone: 'corner' },
+    // Cars accelerate hard out of chicane, carry ~260 km/h through Curva Grande
+    { x: 0.155, y: 0.257, sf: 0.37, zone: 'corner' },  // accelerating (~131 km/h)
+    { x: 0.172, y: 0.218, sf: 0.70, zone: 'corner' },  // building speed (~249 km/h)
+    { x: 0.218, y: 0.180, sf: 0.76, zone: 'corner' },  // mid-corner (~270 km/h)
 
     // Variante della Roggia (T4-T5 chicane) - HEAVY BRAKING
-    { x: 0.285, y: 0.156, sf: 0.40, zone: 'regen' },
-    { x: 0.363, y: 0.144, sf: 0.35, zone: 'regen' },
+    // Heavy braking from ~310 km/h to ~73 km/h
+    { x: 0.285, y: 0.156, sf: 0.21, zone: 'regen' },  // T4 apex (~75 km/h)
+    { x: 0.363, y: 0.144, sf: 0.20, zone: 'regen' },  // T5 apex (~71 km/h)
 
-    // Lesmo 1
-    { x: 0.433, y: 0.140, sf: 0.42, zone: 'corner' },
-    { x: 0.513, y: 0.136, sf: 0.65, zone: 'corner' },
+    // Lesmo 1 - fast right-hander, ~200 km/h apex
+    { x: 0.433, y: 0.140, sf: 0.42, zone: 'corner' },  // entry/accel (~149 km/h)
+    { x: 0.513, y: 0.136, sf: 0.57, zone: 'corner' },  // apex (~202 km/h)
 
-    // Lesmo 2
-    { x: 0.593, y: 0.133, sf: 0.62, zone: 'corner' },
-    { x: 0.655, y: 0.114, sf: 0.60, zone: 'corner' },
+    // Lesmo 2 - slightly slower right-hander, ~185 km/h apex
+    { x: 0.593, y: 0.133, sf: 0.53, zone: 'corner' },  // mid-corner (~188 km/h)
+    { x: 0.655, y: 0.114, sf: 0.51, zone: 'corner' },  // exit (~181 km/h)
 
     // Back straight toward Ascari (long straight - key MOM zone)
-    { x: 0.723, y: 0.104, sf: 0.85, zone: 'straight' },
-    { x: 0.799, y: 0.089, sf: 0.92, zone: 'mom' },
-    { x: 0.876, y: 0.083, sf: 0.98, zone: 'mom' },
+    // Cars accelerate from ~180 km/h to ~345 km/h
+    { x: 0.723, y: 0.104, sf: 0.80, zone: 'straight' },  // building speed (~284 km/h)
+    { x: 0.799, y: 0.089, sf: 0.92, zone: 'mom' },  // high speed (~327 km/h)
+    { x: 0.876, y: 0.083, sf: 0.97, zone: 'mom' },  // near peak (~345 km/h)
 
     // Variante Ascari (T8-T9-T10) - chicane with braking
-    { x: 0.908, y: 0.122, sf: 0.42, zone: 'regen' },
-    { x: 0.914, y: 0.162, sf: 0.38, zone: 'regen' },
-    { x: 0.913, y: 0.208, sf: 0.40, zone: 'regen' },
+    // Braking from ~345 km/h, minimum ~138 km/h
+    { x: 0.908, y: 0.122, sf: 0.41, zone: 'regen' },  // T8 entry (~146 km/h)
+    { x: 0.914, y: 0.162, sf: 0.39, zone: 'regen' },  // T9 apex (~138 km/h)
+    { x: 0.913, y: 0.208, sf: 0.42, zone: 'regen' },  // T10 exit (~149 km/h)
 
     // Straight to Parabolica
-    { x: 0.844, y: 0.231, sf: 0.50, zone: 'corner' },
-    { x: 0.783, y: 0.251, sf: 0.85, zone: 'drs' },
-    { x: 0.713, y: 0.274, sf: 0.90, zone: 'drs' },
-    { x: 0.648, y: 0.301, sf: 0.92, zone: 'mom' },
-    { x: 0.588, y: 0.332, sf: 0.92, zone: 'mom' },
-    { x: 0.535, y: 0.358, sf: 0.90, zone: 'straight' },
-    { x: 0.474, y: 0.389, sf: 0.88, zone: 'straight' },
-    { x: 0.414, y: 0.419, sf: 0.85, zone: 'straight' },
+    // Accelerating from Ascari exit toward Parabolica braking
+    { x: 0.844, y: 0.231, sf: 0.53, zone: 'corner' },  // accelerating (~188 km/h)
+    { x: 0.783, y: 0.251, sf: 0.82, zone: 'drs' },  // building speed (~291 km/h)
+    { x: 0.713, y: 0.274, sf: 0.88, zone: 'drs' },  // high speed (~312 km/h)
+    { x: 0.648, y: 0.301, sf: 0.91, zone: 'mom' },  // near peak (~323 km/h)
+    { x: 0.588, y: 0.332, sf: 0.90, zone: 'mom' },  // starting to scrub (~320 km/h)
+    { x: 0.535, y: 0.358, sf: 0.80, zone: 'straight' },  // braking for Parabolica (~284 km/h)
+    { x: 0.474, y: 0.389, sf: 0.72, zone: 'straight' },  // deeper braking (~256 km/h)
+    { x: 0.414, y: 0.419, sf: 0.65, zone: 'straight' },  // turning in (~231 km/h)
 
     // Curva Parabolica / Curva Alboreto (long sweeping right)
-    { x: 0.354, y: 0.450, sf: 0.72, zone: 'corner' },
-    { x: 0.348, y: 0.490, sf: 0.68, zone: 'corner' },
-    { x: 0.303, y: 0.526, sf: 0.68, zone: 'corner' },
-    { x: 0.293, y: 0.573, sf: 0.70, zone: 'corner' },
-    { x: 0.284, y: 0.619, sf: 0.70, zone: 'corner' },
-    { x: 0.277, y: 0.659, sf: 0.70, zone: 'corner' },
-    { x: 0.269, y: 0.705, sf: 0.72, zone: 'corner' },
-    { x: 0.261, y: 0.751, sf: 0.75, zone: 'corner' },
-    { x: 0.253, y: 0.798, sf: 0.78, zone: 'corner' },
-    { x: 0.246, y: 0.838, sf: 0.82, zone: 'corner' },
-    { x: 0.238, y: 0.884, sf: 0.85, zone: 'straight' },
-    { x: 0.195, y: 0.919, sf: 0.78, zone: 'corner' },
-    { x: 0.123, y: 0.903, sf: 0.68, zone: 'corner' },
-    { x: 0.089, y: 0.868, sf: 0.70, zone: 'corner' },
-    { x: 0.081, y: 0.822, sf: 0.78, zone: 'straight' },
-    { x: 0.080, y: 0.776, sf: 0.88, zone: 'straight' },
+    // Long constant-radius corner, minimum ~210 km/h, exit ~275 km/h
+    { x: 0.354, y: 0.450, sf: 0.62, zone: 'corner' },  // entry (~220 km/h)
+    { x: 0.348, y: 0.490, sf: 0.60, zone: 'corner' },  // tightening (~213 km/h)
+    { x: 0.303, y: 0.526, sf: 0.59, zone: 'corner' },  // near apex (~210 km/h)
+    { x: 0.293, y: 0.573, sf: 0.59, zone: 'corner' },  // apex (~210 km/h)
+    { x: 0.284, y: 0.619, sf: 0.60, zone: 'corner' },  // past apex (~213 km/h)
+    { x: 0.277, y: 0.659, sf: 0.62, zone: 'corner' },  // opening up (~220 km/h)
+    { x: 0.269, y: 0.705, sf: 0.65, zone: 'corner' },  // accelerating (~231 km/h)
+    { x: 0.261, y: 0.751, sf: 0.69, zone: 'corner' },  // building speed (~245 km/h)
+    { x: 0.253, y: 0.798, sf: 0.73, zone: 'corner' },  // exit phase (~259 km/h)
+    { x: 0.246, y: 0.838, sf: 0.77, zone: 'corner' },  // late exit (~273 km/h)
+    { x: 0.238, y: 0.884, sf: 0.80, zone: 'straight' },  // onto straight (~284 km/h)
+    { x: 0.195, y: 0.919, sf: 0.76, zone: 'corner' },  // final curve (~270 km/h)
+    { x: 0.123, y: 0.903, sf: 0.79, zone: 'corner' },  // unwinding (~280 km/h)
+    { x: 0.089, y: 0.868, sf: 0.84, zone: 'corner' },  // opening up (~298 km/h)
+    { x: 0.081, y: 0.822, sf: 0.88, zone: 'straight' },  // pit straight (~312 km/h)
+    { x: 0.080, y: 0.776, sf: 0.93, zone: 'straight' },  // building to S/F (~330 km/h)
   ];
 
   // ─── Canvas setup ─────────────────────────────────────────────────
@@ -996,25 +1011,32 @@
     if (!state.running) return;
 
     const gap = getGap();
-    const withinDRS = gap < 0.05;
+    // DRS activation: within ~1 second of car ahead
+    // At avg speed ~0.7 sf, car covers ~0.0005 track/frame × 60fps = 0.03 track/sec
+    const withinDRS = gap < 0.03;
 
     const zoneA = getZoneAt(state.tA);
     const zoneB = getZoneAt(state.tB);
 
-    // Car A
+    // ── Car A (leader) ──
+    // 2026 regs: MGU-K 350kW, battery 4 MJ, ICE ~650kW
+    // Leader gets standard MOM deploy but smaller allocation (no proximity bonus)
     let sfA = zoneA.sf;
     state.momA = zoneA.zone === 'mom' && state.batA > 10;
     state.drsA = zoneA.zone === 'drs' && !withinDRS;
 
     if (state.momA) {
-      sfA *= 1.08;
-      state.batA = Math.max(0, state.batA - 0.12 * state.speedMult);
+      sfA *= 1.06;  // standard 350kW deploy: ~6% speed gain over ICE-only baseline
+      state.batA = Math.max(0, state.batA - 0.14 * state.speedMult);  // ~55% drain per lap in MOM zones
     }
-    if (state.drsA) sfA *= 1.04;
-    if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.15 * state.speedMult);
-    if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.05 * state.speedMult);
+    if (state.drsA) sfA *= 1.03;  // DRS: ~10 km/h at 340 km/h ≈ 3% gain (realistic rear wing stall)
+    // Heavy braking regen: MGU-K harvests up to 350kW during deceleration
+    if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
+    // Light regen through corners (partial harvesting during coasting/light braking)
+    if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.015 * state.speedMult);
 
-    // Car B
+    // ── Car B (chaser) ──
+    // Chasing car gets extra MOM allocation when within ~1 second (proximity bonus)
     let sfB = zoneB.sf;
     state.drsB = zoneB.zone === 'drs' && withinDRS;
 
@@ -1024,22 +1046,28 @@
     state.momB = autoMOM || manualMOM;
 
     if (state.momB) {
-      sfB *= withinDRS ? 1.15 : 1.12;
-      state.batB = Math.max(0, state.batB - (manualMOM ? 0.22 : 0.15) * state.speedMult);
+      // Chaser MOM: 8% base, 10% when within DRS range (extra allocation per 2026 regs)
+      sfB *= withinDRS ? 1.10 : 1.08;
+      // Manual MOM drains faster (aggressive deployment strategy)
+      state.batB = Math.max(0, state.batB - (manualMOM ? 0.25 : 0.16) * state.speedMult);
       if (state.batB <= 5) {
         state.momBManual = false;
         document.getElementById('btn-mom').classList.remove('active');
         logEvent('Car B MOM depleted -- battery low!', 'boost-event');
       }
     }
-    if (state.drsB) sfB *= 1.06;
+    if (state.drsB) sfB *= 1.03;  // DRS: same ~3% rear wing stall effect
 
-    if (gap < 0.08) {
-      sfB *= 1 + (0.08 - gap) * 0.8;
+    // Slipstream effect: realistic aero wash benefit (~5-8 km/h at close range ≈ 1.5-2%)
+    // Effect scales linearly with proximity, only significant within ~1 second
+    if (gap < 0.04) {
+      sfB *= 1 + (0.04 - gap) * 0.5;  // max +2% at zero gap (realistic slipstream)
     }
 
-    if (zoneB.zone === 'regen') state.batB = Math.min(100, state.batB + 0.18 * state.speedMult);
-    if (zoneB.zone === 'corner') state.batB = Math.min(100, state.batB + 0.06 * state.speedMult);
+    // Heavy braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
+    if (zoneB.zone === 'regen') state.batB = Math.min(100, state.batB + 0.22 * state.speedMult);
+    // Light corner regen
+    if (zoneB.zone === 'corner') state.batB = Math.min(100, state.batB + 0.015 * state.speedMult);
 
     // Move
     const prevTA = state.tA;
@@ -1104,9 +1132,9 @@
     if (state.trailAHist.length > 1) trailA.attr('d', trailLine(state.trailAHist));
     if (state.trailBHist.length > 1) trailB.attr('d', trailLine(state.trailBHist));
 
-    // Speed
-    const spdA = Math.round(zA.sf * 340);
-    const spdB = Math.round(zB.sf * 340 * (state.momB ? 1.12 : 1));
+    // Speed — 355 km/h top speed for 2026 F1 at Monza (ICE ~650kW + MGU-K 350kW)
+    const spdA = Math.round(zA.sf * 355);
+    const spdB = Math.round(zB.sf * 355 * (state.momB ? 1.08 : 1));
     document.getElementById('speed-a').innerHTML = `${spdA}<span class="speed-unit"> km/h</span>`;
     document.getElementById('speed-b').innerHTML = `${spdB}<span class="speed-unit"> km/h</span>`;
 

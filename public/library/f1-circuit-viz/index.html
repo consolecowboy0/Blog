@@ -581,62 +581,77 @@
   //   - Curva Parabolica (long right-hander, now Curva Alboreto)
   //   - Short run to start/finish
 
+  // Real Monza circuit coordinates sourced from F1 Overtaker Explorer track data
   const RAW_POINTS = [
     // Start/finish straight (very long - Monza's signature)
-    { x: 0.28, y: 0.92, sf: 1.0,  zone: 'straight', name: 'Start/Finish' },
-    { x: 0.38, y: 0.92, sf: 1.0,  zone: 'drs' },
-    { x: 0.48, y: 0.92, sf: 1.0,  zone: 'drs' },
-    { x: 0.56, y: 0.92, sf: 1.0,  zone: 'mom' },
-    { x: 0.64, y: 0.92, sf: 1.0,  zone: 'mom' },
-    { x: 0.72, y: 0.91, sf: 0.95, zone: 'mom' },
+    { x: 0.084, y: 0.733, sf: 0.88, zone: 'straight', name: 'Start/Finish' },
+    { x: 0.091, y: 0.693, sf: 1.0,  zone: 'drs' },
+    { x: 0.099, y: 0.647, sf: 1.0,  zone: 'drs' },
+    { x: 0.106, y: 0.601, sf: 1.0,  zone: 'drs' },
+    { x: 0.113, y: 0.560, sf: 1.0,  zone: 'mom' },
+    { x: 0.120, y: 0.514, sf: 1.0,  zone: 'mom' },
+    { x: 0.127, y: 0.468, sf: 1.0,  zone: 'mom' },
+    { x: 0.134, y: 0.421, sf: 0.95, zone: 'mom' },
+    { x: 0.139, y: 0.381, sf: 0.95, zone: 'straight' },
 
     // Variante del Rettifilo (T1-T2 chicane) - HEAVY BRAKING
-    { x: 0.79, y: 0.88, sf: 0.38, zone: 'regen' },
-    { x: 0.82, y: 0.84, sf: 0.35, zone: 'regen' },
-    { x: 0.80, y: 0.80, sf: 0.40, zone: 'regen' },
-    { x: 0.78, y: 0.77, sf: 0.50, zone: 'corner' },
+    { x: 0.162, y: 0.349, sf: 0.38, zone: 'regen' },
+    { x: 0.149, y: 0.303, sf: 0.35, zone: 'regen' },
 
     // Curva Grande (fast sweeping right)
-    { x: 0.80, y: 0.70, sf: 0.82, zone: 'corner' },
-    { x: 0.84, y: 0.62, sf: 0.85, zone: 'corner' },
-    { x: 0.86, y: 0.54, sf: 0.80, zone: 'corner' },
+    { x: 0.155, y: 0.257, sf: 0.50, zone: 'corner' },
+    { x: 0.172, y: 0.218, sf: 0.82, zone: 'corner' },
+    { x: 0.218, y: 0.180, sf: 0.85, zone: 'corner' },
 
     // Variante della Roggia (T4-T5 chicane) - HEAVY BRAKING
-    { x: 0.85, y: 0.46, sf: 0.40, zone: 'regen' },
-    { x: 0.82, y: 0.42, sf: 0.35, zone: 'regen' },
-    { x: 0.80, y: 0.38, sf: 0.42, zone: 'corner' },
+    { x: 0.285, y: 0.156, sf: 0.40, zone: 'regen' },
+    { x: 0.363, y: 0.144, sf: 0.35, zone: 'regen' },
 
     // Lesmo 1
-    { x: 0.76, y: 0.33, sf: 0.65, zone: 'corner' },
-    { x: 0.72, y: 0.29, sf: 0.62, zone: 'corner' },
+    { x: 0.433, y: 0.140, sf: 0.42, zone: 'corner' },
+    { x: 0.513, y: 0.136, sf: 0.65, zone: 'corner' },
 
     // Lesmo 2
-    { x: 0.67, y: 0.26, sf: 0.60, zone: 'corner' },
-    { x: 0.62, y: 0.24, sf: 0.65, zone: 'corner' },
+    { x: 0.593, y: 0.133, sf: 0.62, zone: 'corner' },
+    { x: 0.655, y: 0.114, sf: 0.60, zone: 'corner' },
 
     // Back straight toward Ascari (long straight - key MOM zone)
-    { x: 0.55, y: 0.23, sf: 0.85, zone: 'straight' },
-    { x: 0.48, y: 0.22, sf: 0.92, zone: 'mom' },
-    { x: 0.40, y: 0.21, sf: 0.95, zone: 'mom' },
-    { x: 0.33, y: 0.21, sf: 0.98, zone: 'mom' },
+    { x: 0.723, y: 0.104, sf: 0.85, zone: 'straight' },
+    { x: 0.799, y: 0.089, sf: 0.92, zone: 'mom' },
+    { x: 0.876, y: 0.083, sf: 0.98, zone: 'mom' },
 
     // Variante Ascari (T8-T9-T10) - chicane with braking
-    { x: 0.26, y: 0.22, sf: 0.42, zone: 'regen' },
-    { x: 0.22, y: 0.25, sf: 0.38, zone: 'regen' },
-    { x: 0.20, y: 0.29, sf: 0.40, zone: 'regen' },
-    { x: 0.22, y: 0.33, sf: 0.50, zone: 'corner' },
+    { x: 0.908, y: 0.122, sf: 0.42, zone: 'regen' },
+    { x: 0.914, y: 0.162, sf: 0.38, zone: 'regen' },
+    { x: 0.913, y: 0.208, sf: 0.40, zone: 'regen' },
 
     // Straight to Parabolica
-    { x: 0.20, y: 0.40, sf: 0.85, zone: 'drs' },
-    { x: 0.18, y: 0.48, sf: 0.90, zone: 'drs' },
-    { x: 0.16, y: 0.55, sf: 0.92, zone: 'mom' },
+    { x: 0.844, y: 0.231, sf: 0.50, zone: 'corner' },
+    { x: 0.783, y: 0.251, sf: 0.85, zone: 'drs' },
+    { x: 0.713, y: 0.274, sf: 0.90, zone: 'drs' },
+    { x: 0.648, y: 0.301, sf: 0.92, zone: 'mom' },
+    { x: 0.588, y: 0.332, sf: 0.92, zone: 'mom' },
+    { x: 0.535, y: 0.358, sf: 0.90, zone: 'straight' },
+    { x: 0.474, y: 0.389, sf: 0.88, zone: 'straight' },
+    { x: 0.414, y: 0.419, sf: 0.85, zone: 'straight' },
 
     // Curva Parabolica / Curva Alboreto (long sweeping right)
-    { x: 0.14, y: 0.63, sf: 0.72, zone: 'corner' },
-    { x: 0.13, y: 0.72, sf: 0.68, zone: 'corner' },
-    { x: 0.14, y: 0.80, sf: 0.70, zone: 'corner' },
-    { x: 0.18, y: 0.86, sf: 0.78, zone: 'corner' },
-    { x: 0.22, y: 0.90, sf: 0.88, zone: 'straight' },
+    { x: 0.354, y: 0.450, sf: 0.72, zone: 'corner' },
+    { x: 0.348, y: 0.490, sf: 0.68, zone: 'corner' },
+    { x: 0.303, y: 0.526, sf: 0.68, zone: 'corner' },
+    { x: 0.293, y: 0.573, sf: 0.70, zone: 'corner' },
+    { x: 0.284, y: 0.619, sf: 0.70, zone: 'corner' },
+    { x: 0.277, y: 0.659, sf: 0.70, zone: 'corner' },
+    { x: 0.269, y: 0.705, sf: 0.72, zone: 'corner' },
+    { x: 0.261, y: 0.751, sf: 0.75, zone: 'corner' },
+    { x: 0.253, y: 0.798, sf: 0.78, zone: 'corner' },
+    { x: 0.246, y: 0.838, sf: 0.82, zone: 'corner' },
+    { x: 0.238, y: 0.884, sf: 0.85, zone: 'straight' },
+    { x: 0.195, y: 0.919, sf: 0.78, zone: 'corner' },
+    { x: 0.123, y: 0.903, sf: 0.68, zone: 'corner' },
+    { x: 0.089, y: 0.868, sf: 0.70, zone: 'corner' },
+    { x: 0.081, y: 0.822, sf: 0.78, zone: 'straight' },
+    { x: 0.080, y: 0.776, sf: 0.88, zone: 'straight' },
   ];
 
   // ─── Canvas setup ─────────────────────────────────────────────────
@@ -792,17 +807,17 @@
   // ─── Corner & zone labels ─────────────────────────────────────────
   // Monza corner names with approximate sample positions
   const cornerLabels = [
-    { text: 'Rettifilo', idx: Math.floor(NUM_SAMPLES * 0.17), dy: -16 },
-    { text: 'T1', idx: Math.floor(NUM_SAMPLES * 0.195), dy: 16 },
-    { text: 'T2', idx: Math.floor(NUM_SAMPLES * 0.22), dy: 16 },
-    { text: 'Curva Grande', idx: Math.floor(NUM_SAMPLES * 0.30), dy: -16 },
-    { text: 'Roggia', idx: Math.floor(NUM_SAMPLES * 0.37), dy: -16 },
-    { text: 'T4', idx: Math.floor(NUM_SAMPLES * 0.375), dy: 16 },
-    { text: 'Lesmo 1', idx: Math.floor(NUM_SAMPLES * 0.44), dy: -14 },
-    { text: 'Lesmo 2', idx: Math.floor(NUM_SAMPLES * 0.49), dy: 16 },
-    { text: 'Ascari', idx: Math.floor(NUM_SAMPLES * 0.65), dy: -14 },
-    { text: 'T8', idx: Math.floor(NUM_SAMPLES * 0.66), dy: 16 },
-    { text: 'Parabolica', idx: Math.floor(NUM_SAMPLES * 0.85), dy: 18 },
+    { text: 'Rettifilo', idx: Math.floor(NUM_SAMPLES * 0.18), dx: 20, dy: 0 },
+    { text: 'T1', idx: Math.floor(NUM_SAMPLES * 0.19), dx: 18, dy: 12 },
+    { text: 'T2', idx: Math.floor(NUM_SAMPLES * 0.20), dx: 18, dy: 8 },
+    { text: 'Curva Grande', idx: Math.floor(NUM_SAMPLES * 0.24), dx: 0, dy: -16 },
+    { text: 'Roggia', idx: Math.floor(NUM_SAMPLES * 0.29), dx: 0, dy: -16 },
+    { text: 'T4', idx: Math.floor(NUM_SAMPLES * 0.28), dx: 0, dy: 16 },
+    { text: 'Lesmo 1', idx: Math.floor(NUM_SAMPLES * 0.34), dx: 0, dy: -14 },
+    { text: 'Lesmo 2', idx: Math.floor(NUM_SAMPLES * 0.38), dx: 0, dy: 16 },
+    { text: 'Ascari', idx: Math.floor(NUM_SAMPLES * 0.47), dx: 16, dy: 0 },
+    { text: 'T8', idx: Math.floor(NUM_SAMPLES * 0.46), dx: 16, dy: 12 },
+    { text: 'Parabolica', idx: Math.floor(NUM_SAMPLES * 0.82), dx: -20, dy: 0 },
   ];
 
   for (const c of cornerLabels) {
@@ -810,22 +825,22 @@
     const isCornerNum = c.text.startsWith('T');
     svg.append('text')
       .attr('class', isCornerNum ? 'turn-label' : 'zone-label')
-      .attr('x', p.x)
-      .attr('y', p.y + c.dy)
+      .attr('x', p.x + (c.dx || 0))
+      .attr('y', p.y + (c.dy || 0))
       .attr('fill', isCornerNum ? '#b4b4b0' : '#888')
       .text(c.text);
   }
 
   // Zone type labels
   const zoneLabelData = [
-    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.07), dy: -18 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.13), dy: -18 },
-    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.20), dy: -20 },
-    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.36), dy: -20 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.56), dy: -16 },
-    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.67), dy: -18 },
-    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.76), dy: -16 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.80), dy: -16 },
+    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
+    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.11), dx: -22, dy: 0 },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.19), dx: 22, dy: 0 },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.29), dx: 0, dy: -18 },
+    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.43), dx: 0, dy: -16 },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.48), dx: 16, dy: 0 },
+    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.56), dx: 0, dy: -16 },
+    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.61), dx: 0, dy: -16 },
   ];
 
   for (const z of zoneLabelData) {
@@ -833,8 +848,8 @@
     const colors = { MOM: '#3b82f6', DRS: '#b45309', REGEN: '#16a34a' };
     svg.append('text')
       .attr('class', 'zone-label')
-      .attr('x', p.x)
-      .attr('y', p.y + z.dy)
+      .attr('x', p.x + (z.dx || 0))
+      .attr('y', p.y + (z.dy || 0))
       .attr('fill', colors[z.text] || '#888')
       .attr('opacity', 0.6)
       .text(z.text);

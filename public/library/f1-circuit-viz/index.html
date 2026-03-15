@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>F1 2026 Monza Simulator — Overtake &amp; Boost Systems</title>
+  <title>F1 2026 Monza Simulator — Overtake Mode, Boost &amp; Active Aero</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -367,6 +367,7 @@
     .hl-blue { font-weight: 600; color: var(--accent-blue); }
     .hl-red { font-weight: 600; color: var(--accent-red); }
     .hl-green { font-weight: 600; color: var(--accent-green); }
+    .hl-gold { font-weight: 600; color: var(--accent-gold); }
 
     /* Tooltip */
     .tooltip {
@@ -431,7 +432,7 @@
 <div class="header">
   <div class="header-title">
     <h1>Monza 2026 Simulator</h1>
-    <span class="subtitle">Overtake &amp; Boost System — Manual Override Mode (MOM) + Energy Management</span>
+    <span class="subtitle">Overtake Mode + Boost — Active Aero &amp; Energy Management (2026 Regs)</span>
   </div>
 </div>
 
@@ -454,9 +455,9 @@
       <div class="legend-bar">
         <div class="legend-item"><div class="legend-swatch" style="background:#e10600"></div> Car A (Leader)</div>
         <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Car B (Chaser)</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.25)"></div> MOM Zone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.25)"></div> Boost Zone</div>
         <div class="legend-item"><div class="legend-swatch" style="background:rgba(22,163,74,0.25)"></div> Regen Zone</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> DRS Zone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> X-Mode Zone</div>
       </div>
     </div>
 
@@ -471,7 +472,7 @@
         </div>
         <div class="battery-section">
           <div class="battery-header">
-            <div class="battery-label">ERS Battery</div>
+            <div class="battery-label">Energy Store</div>
             <div class="battery-pct" id="bat-a-pct" style="color:#e10600">100%</div>
           </div>
           <div class="battery-track">
@@ -480,11 +481,11 @@
         </div>
         <div class="status-grid">
           <div class="status-item">
-            <div class="label">MOM</div>
+            <div class="label">BOOST</div>
             <div class="value off" id="mom-a">OFF</div>
           </div>
           <div class="status-item">
-            <div class="label">DRS</div>
+            <div class="label">X-MODE</div>
             <div class="value off" id="drs-a">OFF</div>
           </div>
         </div>
@@ -499,7 +500,7 @@
         </div>
         <div class="battery-section">
           <div class="battery-header">
-            <div class="battery-label">ERS Battery</div>
+            <div class="battery-label">Energy Store</div>
             <div class="battery-pct" id="bat-b-pct" style="color:#3b82f6">100%</div>
           </div>
           <div class="battery-track">
@@ -508,21 +509,21 @@
         </div>
         <div class="status-grid">
           <div class="status-item">
-            <div class="label">MOM</div>
+            <div class="label">BOOST</div>
             <div class="value off" id="mom-b">OFF</div>
           </div>
           <div class="status-item">
-            <div class="label">DRS</div>
+            <div class="label">X-MODE</div>
             <div class="value off" id="drs-b">OFF</div>
           </div>
         </div>
       </div>
 
-      <!-- MOM Control -->
+      <!-- Boost Control -->
       <div class="panel">
-        <div class="panel-title">Manual Override</div>
-        <p class="mom-helper">Activate MOM boost for Car B (chaser). Uses extra battery but gives a speed advantage on straights. Press <strong>B</strong> to toggle.</p>
-        <button class="boost-btn" id="btn-mom">Activate MOM Boost (Car B)</button>
+        <div class="panel-title">Boost Button</div>
+        <p class="mom-helper">Activate Boost for Car B (chaser). Triggers maximum electrical deployment -- drains the Energy Store faster but gives a speed advantage on straights. Press <strong>B</strong> to toggle.</p>
+        <button class="boost-btn" id="btn-mom">Activate Boost (Car B)</button>
       </div>
 
       <!-- Event log -->
@@ -535,26 +536,28 @@
 
   <!-- Explainer -->
   <div class="explainer">
-    <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
+    <h3>How the 2026 F1 Overtake Mode &amp; Boost Systems Work</h3>
     <p>
       The <span class="hl">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
-      <span class="hl-blue">350kW</span>, meaning nearly half the car's power comes from the electric motor. This creates a new strategic layer:
-      <span class="hl-blue">Manual Override Mode (MOM)</span>.
+      <span class="hl-blue">350kW</span>, meaning nearly half the car's ~750kW total comes from the electric motor. DRS is gone, replaced by
+      <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system.
     </p>
     <p>
-      <span class="hl-blue">MOM</span> replaces the old simple ERS deploy button. Drivers can choose when to unleash the full 350kW electrical
-      boost on straights, but it <span class="hl-red">drains the battery faster</span>. The chasing car gets an advantage: when within
-      ~1 second of the car ahead, they receive <span class="hl-blue">extra MOM allocation</span> -- similar to how DRS currently works, but
-      with far more driver control over when and how to deploy the energy.
+      Cars switch between <span class="hl">Z-Mode</span> (maximum downforce in corners) and <span class="hl-gold">X-Mode</span> (minimum drag
+      on straights, with front and rear wing flaps opening automatically). On top of this, the
+      <span class="hl-blue">Boost</span> button lets drivers trigger maximum electrical deployment at will -- but it
+      <span class="hl-red">drains the Energy Store faster</span>. When within ~1 second of the car ahead,
+      <span class="hl-blue">Overtake Mode</span> activates: the chasing car receives an extra <span class="hl-blue">+0.5 MJ</span> of energy
+      and the MGU-K ramp-down is delayed from 290 km/h to 337 km/h, giving a significant straight-line advantage.
     </p>
     <p>
-      <span class="hl-green">Regenerative braking zones</span> become critical -- heavy braking areas recharge the battery, and drivers must
-      balance aggressive deployment on straights with ensuring enough energy is harvested in braking zones. The leading car must also manage their
-      battery carefully, as they get a <span class="hl-red">smaller MOM allocation</span> to defend with.
+      <span class="hl-green">Regenerative braking zones</span> become critical -- heavy braking areas recharge the Energy Store via the MGU-K
+      (harvesting up to 350kW), and drivers must balance aggressive deployment on straights with ensuring enough energy is harvested in braking zones.
+      The leading car must manage their Energy Store carefully, as they get <span class="hl-red">no Overtake Mode bonus</span> to defend with.
     </p>
     <p>
-      <span class="hl">Monza</span> is the perfect test for this system -- its long straights reward aggressive MOM deployment, while the
-      chicanes and Parabolica provide critical regen opportunities. Watch how Car B can use MOM strategically to close up through the
+      <span class="hl">Monza</span> is the perfect test for this system -- its long straights reward aggressive Boost deployment, while the
+      chicanes and Parabolica provide critical regen opportunities. Watch how Car B can use Boost strategically to close up through the
       main straight and attempt overtakes into the Variante del Rettifilo.
     </p>
   </div>
@@ -848,19 +851,19 @@
 
   // Zone type labels
   const zoneLabelData = [
-    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.11), dx: -22, dy: 0 },
+    { text: 'X-MODE', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
+    { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.11), dx: -22, dy: 0 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.19), dx: 22, dy: 0 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.29), dx: 0, dy: -18 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.43), dx: 0, dy: -16 },
+    { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.43), dx: 0, dy: -16 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.48), dx: 16, dy: 0 },
-    { text: 'DRS', idx: Math.floor(NUM_SAMPLES * 0.56), dx: 0, dy: -16 },
-    { text: 'MOM', idx: Math.floor(NUM_SAMPLES * 0.61), dx: 0, dy: -16 },
+    { text: 'X-MODE', idx: Math.floor(NUM_SAMPLES * 0.56), dx: 0, dy: -16 },
+    { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.61), dx: 0, dy: -16 },
   ];
 
   for (const z of zoneLabelData) {
     const p = sampledPoints[z.idx];
-    const colors = { MOM: '#3b82f6', DRS: '#b45309', REGEN: '#16a34a' };
+    const colors = { BOOST: '#3b82f6', 'X-MODE': '#b45309', REGEN: '#16a34a' };
     svg.append('text')
       .attr('class', 'zone-label')
       .attr('x', p.x + (z.dx || 0))
@@ -1011,34 +1014,34 @@
     if (!state.running) return;
 
     const gap = getGap();
-    // DRS activation: within ~1 second of car ahead
+    // Overtake Mode activation: within ~1 second of car ahead (same proximity rule as old DRS)
     // At avg speed ~0.7 sf, car covers ~0.0005 track/frame × 60fps = 0.03 track/sec
-    const withinDRS = gap < 0.03;
+    const withinOvertake = gap < 0.03;
 
     const zoneA = getZoneAt(state.tA);
     const zoneB = getZoneAt(state.tB);
 
     // ── Car A (leader) ──
-    // 2026 regs: MGU-K 350kW, battery 4 MJ (SOC delta), ICE ~400kW
-    // Leader gets standard MOM deploy but smaller allocation (no proximity bonus)
+    // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
+    // Leader gets standard Boost deploy but no Overtake Mode bonus
     let sfA = zoneA.sf;
     state.momA = zoneA.zone === 'mom' && state.batA > 10;
-    state.drsA = zoneA.zone === 'drs' && !withinDRS;
+    state.drsA = zoneA.zone === 'drs' && !withinOvertake;
 
     if (state.momA) {
       sfA *= 1.06;  // standard 350kW deploy: ~6% speed gain over ICE-only baseline
       state.batA = Math.max(0, state.batA - 0.14 * state.speedMult);  // ~55% drain per lap in MOM zones
     }
-    if (state.drsA) sfA *= 1.03;  // DRS: ~10 km/h at 340 km/h ≈ 3% gain (realistic rear wing stall)
+    if (state.drsA) sfA *= 1.03;  // X-Mode: active aero opens wings, ~3% drag reduction on straights
     // Heavy braking regen: MGU-K harvests up to 350kW during deceleration
     if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
     // Light regen through corners (partial harvesting during coasting/light braking)
     if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.015 * state.speedMult);
 
     // ── Car B (chaser) ──
-    // Chasing car gets extra MOM allocation when within ~1 second (proximity bonus)
+    // Chasing car in Overtake Mode: +0.5 MJ extra energy, MGU-K ramps to 337 km/h (vs 290 for leader)
     let sfB = zoneB.sf;
-    state.drsB = zoneB.zone === 'drs' && withinDRS;
+    state.drsB = zoneB.zone === 'drs' && withinOvertake;
 
     const autoMOM = zoneB.zone === 'mom' && state.batB > 5;
     const manualMOM = state.momBManual && state.batB > 5 &&
@@ -1046,17 +1049,17 @@
     state.momB = autoMOM || manualMOM;
 
     if (state.momB) {
-      // Chaser MOM: 8% base, 10% when within DRS range (extra allocation per 2026 regs)
-      sfB *= withinDRS ? 1.10 : 1.08;
-      // Manual MOM drains faster (aggressive deployment strategy)
+      // Chaser Boost: 8% base, 10% in Overtake Mode (extra +0.5 MJ per 2026 regs)
+      sfB *= withinOvertake ? 1.10 : 1.08;
+      // Manual Boost drains faster (aggressive deployment strategy)
       state.batB = Math.max(0, state.batB - (manualMOM ? 0.25 : 0.16) * state.speedMult);
       if (state.batB <= 5) {
         state.momBManual = false;
         document.getElementById('btn-mom').classList.remove('active');
-        logEvent('Car B MOM depleted -- battery low!', 'boost-event');
+        logEvent('Car B Boost depleted -- Energy Store low!', 'boost-event');
       }
     }
-    if (state.drsB) sfB *= 1.03;  // DRS: same ~3% rear wing stall effect
+    if (state.drsB) sfB *= 1.03;  // X-Mode: active aero straight configuration, ~3% drag reduction
 
     // Slipstream effect: realistic aero wash benefit (~5-8 km/h at close range ≈ 1.5-2%)
     // Effect scales linearly with proximity, only significant within ~1 second
@@ -1189,7 +1192,7 @@
   momBtn.addEventListener('click', () => {
     state.momBManual = !state.momBManual;
     momBtn.classList.toggle('active', state.momBManual);
-    logEvent(state.momBManual ? 'Car B manual MOM boost activated!' : 'Car B manual MOM boost deactivated', state.momBManual ? 'boost-event' : '');
+    logEvent(state.momBManual ? 'Car B Boost activated!' : 'Car B Boost deactivated', state.momBManual ? 'boost-event' : '');
   });
 
   document.addEventListener('keydown', (e) => {
@@ -1202,11 +1205,11 @@
   const tooltip = document.getElementById('tooltip');
 
   const zoneDesc = {
-    mom: '<strong>MOM Zone</strong><br>Manual Override Mode -- drivers deploy full 350kW electrical boost here. Chasing car gets extra allocation.',
-    drs: '<strong>DRS Zone</strong><br>Drag Reduction System -- rear wing opens to reduce drag. Chasing car (within 1s) gets the biggest advantage.',
-    regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests kinetic energy to recharge the battery. Critical for energy strategy.',
-    corner: '<strong>Corner</strong><br>Medium/high speed section -- slight regeneration. Aerodynamic grip matters.',
-    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available ERS energy.',
+    mom: '<strong>Boost Zone</strong><br>Drivers deploy full 350kW electrical power here. Chasing car in Overtake Mode gets +0.5 MJ extra energy allocation.',
+    drs: '<strong>X-Mode Zone</strong><br>Active aero straight configuration -- front and rear wings open to reduce drag. All cars benefit automatically.',
+    regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests up to 350kW of kinetic energy to recharge the Energy Store. Critical for energy strategy.',
+    corner: '<strong>Corner (Z-Mode)</strong><br>Active aero in Z-Mode (max downforce). Slight energy regeneration during coasting.',
+    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge.',
   };
 
   svg.on('mousemove', function(event) {

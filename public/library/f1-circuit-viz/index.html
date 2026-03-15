@@ -469,7 +469,7 @@
     <div class="side-panel">
       <!-- Car A -->
       <div class="panel">
-        <div class="panel-title">Car A — Leader</div>
+        <div class="panel-title" id="panel-title-a">Car A — Leader</div>
         <div class="speed-row">
           <div class="speed-label"><div class="dot" style="background:#e10600"></div> Speed</div>
           <div class="speed-value" id="speed-a" style="color:#e10600">0<span class="speed-unit"> km/h</span></div>
@@ -488,12 +488,31 @@
             <div class="label">BOOST</div>
             <div class="value off" id="mom-a">OFF</div>
           </div>
+          <div class="status-item">
+            <div class="label">OVERTAKE</div>
+            <div class="value off" id="overtake-a">OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gap -->
+      <div class="panel" style="padding:10px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="panel-title" style="margin:0">Gap</div>
+          <div id="gap-display" style="font-family:var(--font-mono);font-size:1.1rem;font-weight:600;color:var(--text)">0.000s</div>
+        </div>
+        <div id="gap-bar-track" style="height:4px;background:var(--bg-track);border-radius:2px;margin-top:6px;overflow:hidden;">
+          <div id="gap-bar-fill" style="height:100%;width:50%;background:var(--accent-blue);border-radius:2px;transition:width 0.1s;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:3px;">
+          <span style="font-size:0.65rem;color:var(--text-muted)" id="gap-leader-label">Car A leads</span>
+          <span style="font-size:0.65rem;color:var(--text-muted)" id="gap-overtake-hint"></span>
         </div>
       </div>
 
       <!-- Car B -->
       <div class="panel">
-        <div class="panel-title">Car B — Chaser</div>
+        <div class="panel-title" id="panel-title-b">Car B — Chaser</div>
         <div class="speed-row">
           <div class="speed-label"><div class="dot" style="background:#3b82f6"></div> Speed</div>
           <div class="speed-value" id="speed-b" style="color:#3b82f6">0<span class="speed-unit"> km/h</span></div>
@@ -550,11 +569,12 @@
       when to use it is key. Both cars have a Boost button (press <strong>A</strong> or <strong>B</strong>).
     </p>
     <p>
-      <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
-      When the chaser is within ~1 second at an <span class="hl-gold">Overtake Zone</span>, they earn an extra
-      <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>. The leader's MGU-K electrical power
-      tapers off after <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
-      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at Monza speeds.
+      <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon <span class="hl">either</span> driver can <span class="hl">earn by getting close enough to fight</span>.
+      When the trailing car is within ~1 second at an <span class="hl-gold">Overtake Zone</span>, they earn an extra
+      <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>. Without Overtake, the MGU-K electrical power
+      tapers off after <span class="hl-red">290 km/h</span>, but with Overtake active the driver can deploy 350kW all the way up to
+      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at Monza speeds. If positions swap, the new
+      trailing car can earn Overtake Mode too.
     </p>
     <p>
       <span class="hl-green">Regenerative braking zones</span> become critical -- heavy braking areas recharge the Energy Store via the MGU-K
@@ -955,15 +975,20 @@
     momB: false,
     momAManual: false,
     momBManual: false,
-    overtakeEarned: false,   // proximity detected this lap → grants +0.5 MJ next lap
-    overtakeActive: false,   // +0.5 MJ granted, MGU-K extended to 337 km/h this lap
-    overtakeUsed: 0,         // how much of the overtake energy has been spent this lap
+    overtakeEarnedA: false,  // Car A: proximity detected this lap → grants +0.5 MJ next lap
+    overtakeActiveA: false,  // Car A: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedA: 0,        // Car A: how much of the overtake energy has been spent
+    overtakeEarnedB: false,  // Car B: proximity detected this lap → grants +0.5 MJ next lap
+    overtakeActiveB: false,  // Car B: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedB: 0,        // Car B: how much of the overtake energy has been spent
     lap: 1,
     events: [],
     trailAHist: [],
     trailBHist: [],
     overtakeCount: 0,
     carBLeading: false,
+    aiOvertakeTimerA: 0,     // AI cooldown for Car A overtake attempts
+    aiOvertakeTimerB: 0,     // AI cooldown for Car B overtake attempts
   };
 
   function resetState() {
@@ -976,9 +1001,14 @@
     state.momB = false;
     state.momAManual = false;
     state.momBManual = false;
-    state.overtakeEarned = false;
-    state.overtakeActive = false;
-    state.overtakeUsed = 0;
+    state.overtakeEarnedA = false;
+    state.overtakeActiveA = false;
+    state.overtakeUsedA = 0;
+    state.overtakeEarnedB = false;
+    state.overtakeActiveB = false;
+    state.overtakeUsedB = 0;
+    state.aiOvertakeTimerA = 0;
+    state.aiOvertakeTimerB = 0;
     state.lap = 1;
     state.events = [];
     state.trailAHist = [];
@@ -1040,9 +1070,12 @@
     const zoneA = getZoneAt(state.tA);
     const zoneB = getZoneAt(state.tB);
 
-    // ── Car A (leader) ──
-    // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
-    // Boost: available to everyone, anytime, via steering wheel button — just battery deployment
+    // Determine who is leading and who is trailing
+    const bAheadNow = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    const aIsTrailer = bAheadNow;
+    const bIsTrailer = !bAheadNow;
+
+    // ── Car A ──
     let sfA = zoneA.sf;
     const autoMOMA = zoneA.zone === 'mom' && state.batA > 5;
     const manualMOMA = state.momAManual && state.batA > 5 &&
@@ -1050,9 +1083,9 @@
     state.momA = autoMOMA || manualMOMA;
 
     if (state.momA) {
-      // Leader Boost: standard 350kW deploy, but MGU-K tapers after 290 km/h
-      const taper = mguTaper(sfA, 290);
-      sfA *= 1 + 0.06 * taper;  // up to ~6% gain, fading above 290 km/h
+      const taperKmh = state.overtakeActiveA ? 337 : 290;
+      const taper = mguTaper(sfA, taperKmh);
+      sfA *= 1 + 0.06 * taper;
       state.batA = Math.max(0, state.batA - (manualMOMA ? 0.25 : 0.14) * state.speedMult);
       if (state.batA <= 5) {
         state.momAManual = false;
@@ -1060,23 +1093,35 @@
         logEvent('Car A Boost depleted -- Energy Store low!', 'boost-event');
       }
     }
-    // Heavy braking regen: MGU-K harvests up to 350kW during deceleration
-    if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
-    // Light regen through corners
+    if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + (aIsTrailer ? 0.22 : 0.20) * state.speedMult);
     if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.015 * state.speedMult);
 
-    // ── Car B (chaser) ──
-    // Boost: same as leader — available anytime, no proximity requirement
-    let sfB = zoneB.sf;
+    // Car A overtake mode active: extra energy from +0.5 MJ grant
+    if (state.overtakeActiveA && state.overtakeUsedA < 100) {
+      const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight' || zoneA.zone === 'mom';
+      if (inDeployZone) {
+        sfA *= 1.03;
+        state.overtakeUsedA += 0.35 * state.speedMult;
+        if (state.overtakeUsedA >= 100) {
+          logEvent('Car A Overtake Mode energy depleted', '');
+        }
+      }
+    }
 
+    // Slipstream for Car A when trailing
+    if (aIsTrailer && gap < 0.04) {
+      sfA *= 1 + (0.04 - gap) * 0.5;
+    }
+
+    // ── Car B ──
+    let sfB = zoneB.sf;
     const autoMOMB = zoneB.zone === 'mom' && state.batB > 5;
     const manualMOMB = state.momBManual && state.batB > 5 &&
       (zoneB.zone === 'straight' || zoneB.zone === 'overtake' || zoneB.zone === 'mom');
     state.momB = autoMOMB || manualMOMB;
 
     if (state.momB) {
-      // Chaser Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
-      const taperKmh = state.overtakeActive ? 337 : 290;
+      const taperKmh = state.overtakeActiveB ? 337 : 290;
       const taper = mguTaper(sfB, taperKmh);
       sfB *= 1 + 0.06 * taper;
       state.batB = Math.max(0, state.batB - (manualMOMB ? 0.25 : 0.16) * state.speedMult);
@@ -1086,34 +1131,71 @@
         logEvent('Car B Boost depleted -- Energy Store low!', 'boost-event');
       }
     }
+    if (zoneB.zone === 'regen') state.batB = Math.min(100, state.batB + (bIsTrailer ? 0.22 : 0.20) * state.speedMult);
+    if (zoneB.zone === 'corner') state.batB = Math.min(100, state.batB + 0.015 * state.speedMult);
 
-    // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
-    if (zoneB.zone === 'overtake' && withinOvertake && !state.overtakeEarned) {
-      state.overtakeEarned = true;
-      logEvent('Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
-    }
-
-    // Overtake Mode active this lap: extra energy from the +0.5 MJ grant
-    // Modeled as a bonus energy budget the chaser can spend on straights/overtake zones
-    if (state.overtakeActive && state.overtakeUsed < 100) {
+    // Car B overtake mode active: extra energy from +0.5 MJ grant
+    if (state.overtakeActiveB && state.overtakeUsedB < 100) {
       const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight' || zoneB.zone === 'mom';
       if (inDeployZone) {
-        sfB *= 1.03;  // extra speed from extended MGU-K deployment window
-        state.overtakeUsed += 0.35 * state.speedMult;
-        if (state.overtakeUsed >= 100) {
-          logEvent('Overtake Mode energy depleted for this lap', '');
+        sfB *= 1.03;
+        state.overtakeUsedB += 0.35 * state.speedMult;
+        if (state.overtakeUsedB >= 100) {
+          logEvent('Car B Overtake Mode energy depleted', '');
         }
       }
     }
 
-    // Slipstream effect: realistic aero wash benefit (~5-8 km/h at close range ≈ 1.5-2%)
-    if (gap < 0.04) {
-      sfB *= 1 + (0.04 - gap) * 0.5;  // max +2% at zero gap
+    // Slipstream for Car B when trailing
+    if (bIsTrailer && gap < 0.04) {
+      sfB *= 1 + (0.04 - gap) * 0.5;
     }
 
-    // Heavy braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
-    if (zoneB.zone === 'regen') state.batB = Math.min(100, state.batB + 0.22 * state.speedMult);
-    if (zoneB.zone === 'corner') state.batB = Math.min(100, state.batB + 0.015 * state.speedMult);
+    // ── Overtake detection: trailing car earns overtake if within ~1 sec at detection zone ──
+    if (withinOvertake) {
+      if (aIsTrailer && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
+        state.overtakeEarnedA = true;
+        logEvent('Car A earned Overtake Mode! +0.5 MJ next lap', 'boost-event');
+      }
+      if (bIsTrailer && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
+        state.overtakeEarnedB = true;
+        logEvent('Car B earned Overtake Mode! +0.5 MJ next lap', 'boost-event');
+      }
+    }
+
+    // ── AI realistic overtake behavior ──
+    // When a car is trailing and has overtake mode active, the AI will
+    // strategically use boost to maximize the overtake opportunity.
+    // The AI pushes harder on straights when overtake is active,
+    // and conserves energy in corners to have charge for the next straight.
+    if (state.overtakeActiveA && aIsTrailer && !state.momAManual) {
+      // AI: deploy boost aggressively on straights when overtake is active
+      if ((zoneA.zone === 'straight' || zoneA.zone === 'overtake') && state.batA > 15) {
+        state.momA = true;
+        sfA *= 1.01; // AI pushes a bit harder when making an overtake attempt
+        state.batA = Math.max(0, state.batA - 0.08 * state.speedMult);
+      }
+    }
+    if (state.overtakeActiveB && bIsTrailer && !state.momBManual) {
+      if ((zoneB.zone === 'straight' || zoneB.zone === 'overtake') && state.batB > 15) {
+        state.momB = true;
+        sfB *= 1.01;
+        state.batB = Math.max(0, state.batB - 0.08 * state.speedMult);
+      }
+    }
+
+    // AI: when leading with good battery, occasionally use boost defensively
+    // but less aggressively than the trailer (realistic race strategy)
+    if (!aIsTrailer && withinOvertake && !state.momAManual && state.batA > 40) {
+      if (zoneA.zone === 'mom' || zoneA.zone === 'straight') {
+        state.momA = true; // defensive boost to keep position
+      }
+    }
+    if (!bIsTrailer && withinOvertake && !state.momBManual && state.batB > 40) {
+      if (zoneB.zone === 'mom' || zoneB.zone === 'straight') {
+        state.momB = true;
+      }
+    }
 
     // Move
     const prevTA = state.tA;
@@ -1126,16 +1208,27 @@
       document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
 
       // Overtake Mode: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
-      if (state.overtakeEarned) {
-        state.overtakeActive = true;
-        state.overtakeUsed = 0;
-        state.batB = Math.min(100, state.batB + 12.5);  // +0.5 MJ out of 4 MJ total = 12.5%
-        logEvent(`Lap ${state.lap}: Overtake Mode ACTIVE -- +0.5 MJ deployed!`, 'boost-event');
-        state.overtakeEarned = false;
+      if (state.overtakeEarnedA) {
+        state.overtakeActiveA = true;
+        state.overtakeUsedA = 0;
+        state.batA = Math.min(100, state.batA + 12.5);
+        logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.5 MJ!`, 'boost-event');
+        state.overtakeEarnedA = false;
       } else {
-        if (state.overtakeActive) logEvent(`Lap ${state.lap}: Overtake Mode expired`, '');
-        state.overtakeActive = false;
-        state.overtakeUsed = 0;
+        if (state.overtakeActiveA) logEvent(`Lap ${state.lap}: Car A Overtake Mode expired`, '');
+        state.overtakeActiveA = false;
+        state.overtakeUsedA = 0;
+      }
+      if (state.overtakeEarnedB) {
+        state.overtakeActiveB = true;
+        state.overtakeUsedB = 0;
+        state.batB = Math.min(100, state.batB + 12.5);
+        logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.5 MJ!`, 'boost-event');
+        state.overtakeEarnedB = false;
+      } else {
+        if (state.overtakeActiveB) logEvent(`Lap ${state.lap}: Car B Overtake Mode expired`, '');
+        state.overtakeActiveB = false;
+        state.overtakeUsedB = 0;
       }
 
       logEvent(`Lap ${state.lap} started`, '');
@@ -1147,12 +1240,11 @@
     }
 
     // Overtake
-    const bAhead = state.tB > state.tA || (state.tA - state.tB > 0.5);
-    if (bAhead && !state.carBLeading) {
+    if (bAheadNow && !state.carBLeading) {
       state.overtakeCount++;
       logEvent(`Overtake! Car B passes Car A (${state.overtakeCount} total)`, 'overtake-event');
       state.carBLeading = true;
-    } else if (!bAhead && state.carBLeading) {
+    } else if (!bAheadNow && state.carBLeading) {
       logEvent('Car A retakes the lead!', 'overtake-event');
       state.carBLeading = false;
     }
@@ -1180,8 +1272,15 @@
     labelA.attr('x', ptA.x).attr('y', ptA.y - 11);
     labelB.attr('x', ptB.x).attr('y', ptB.y - 11);
 
-    if (state.momB) {
+    // Show boost ring on whichever car has overtake mode active
+    if (state.overtakeActiveA && state.overtakeUsedA < 100) {
+      boostRing.attr('cx', ptA.x).attr('cy', ptA.y)
+        .attr('stroke', '#e10600')
+        .attr('opacity', 0.5)
+        .attr('r', 10 + Math.sin(Date.now() / 100) * 2);
+    } else if (state.overtakeActiveB && state.overtakeUsedB < 100) {
       boostRing.attr('cx', ptB.x).attr('cy', ptB.y)
+        .attr('stroke', '#3b82f6')
         .attr('opacity', 0.5)
         .attr('r', 10 + Math.sin(Date.now() / 100) * 2);
     } else {
@@ -1210,12 +1309,12 @@
       el.textContent = on ? 'ON' : 'OFF';
       el.className = 'value ' + (on ? cls : 'off');
     };
-    const setOvertake = (id) => {
+    const setOvertake = (id, earned, active, used) => {
       const el = document.getElementById(id);
-      if (state.overtakeActive && state.overtakeUsed < 100) {
+      if (active && used < 100) {
         el.textContent = 'ACTIVE';
         el.className = 'value active-boost';
-      } else if (state.overtakeEarned) {
+      } else if (earned) {
         el.textContent = 'EARNED';
         el.className = 'value on';
       } else {
@@ -1225,7 +1324,36 @@
     };
     set('mom-a', state.momA, 'on');
     set('mom-b', state.momB, 'active-boost');
-    setOvertake('overtake-b');
+    setOvertake('overtake-a', state.overtakeEarnedA, state.overtakeActiveA, state.overtakeUsedA);
+    setOvertake('overtake-b', state.overtakeEarnedB, state.overtakeActiveB, state.overtakeUsedB);
+
+    // Gap display
+    const gap = getGap();
+    // Convert track fraction to approximate seconds
+    // At average speed (~250 km/h = 69.4 m/s), Monza lap = 5793m
+    // 1 track unit = 5793m, so gap in seconds ≈ gap * 5793 / avgSpeed_m_s
+    const avgSpeedMs = 69.4; // ~250 km/h average
+    const monzaLength = 5793; // meters
+    const gapSeconds = (gap * monzaLength / avgSpeedMs);
+    const bAheadNow = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    document.getElementById('gap-display').textContent = gapSeconds.toFixed(3) + 's';
+    document.getElementById('gap-display').style.color =
+      gapSeconds < 1.0 ? 'var(--accent-red)' : 'var(--text)';
+    // Gap bar: full width = 3 seconds, clamped
+    const barPct = Math.min(100, (gapSeconds / 3) * 100);
+    document.getElementById('gap-bar-fill').style.width = barPct + '%';
+    document.getElementById('gap-bar-fill').style.background =
+      gapSeconds < 1.0 ? 'var(--accent-red)' : 'var(--accent-blue)';
+    document.getElementById('gap-leader-label').textContent =
+      bAheadNow ? 'Car B leads' : 'Car A leads';
+    document.getElementById('gap-overtake-hint').textContent =
+      gapSeconds < 1.0 ? 'Within overtake range!' : gapSeconds < 1.5 ? 'Closing in...' : '';
+
+    // Dynamic panel titles
+    document.getElementById('panel-title-a').textContent =
+      bAheadNow ? 'Car A — Chaser' : 'Car A — Leader';
+    document.getElementById('panel-title-b').textContent =
+      bAheadNow ? 'Car B — Leader' : 'Car B — Chaser';
   }
 
   // ─── Loop ─────────────────────────────────────────────────────────

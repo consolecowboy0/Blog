@@ -613,8 +613,8 @@
 
     // Variante del Rettifilo (T1-T2 chicane) - HEAVY BRAKING
     // One of the heaviest braking zones in F1: 355→68 km/h in ~120m
-    { x: 0.162, y: 0.349, sf: 0.20, zone: 'regen' },  // T1 apex (~71 km/h)
-    { x: 0.149, y: 0.303, sf: 0.19, zone: 'regen' },  // T2 apex (~68 km/h)
+    { x: 0.162, y: 0.349, sf: 0.20, zone: 'corner' },  // T1 apex (~71 km/h)
+    { x: 0.149, y: 0.303, sf: 0.19, zone: 'corner' },  // T2 apex (~68 km/h)
 
     // Curva Grande (fast sweeping right)
     // Cars accelerate hard out of chicane, carry ~260 km/h through Curva Grande
@@ -624,14 +624,20 @@
 
     // Variante della Roggia (T4-T5 chicane) - HEAVY BRAKING
     // Heavy braking from ~310 km/h to ~73 km/h
-    { x: 0.285, y: 0.156, sf: 0.21, zone: 'regen' },  // T4 apex (~75 km/h)
-    { x: 0.363, y: 0.144, sf: 0.20, zone: 'regen' },  // T5 apex (~71 km/h)
+    { x: 0.250, y: 0.168, sf: 0.87, zone: 'regen' },  // braking begins (~309 km/h)
+    { x: 0.268, y: 0.162, sf: 0.55, zone: 'regen' },  // deep braking (~195 km/h)
+    { x: 0.285, y: 0.156, sf: 0.21, zone: 'corner' },  // T4 apex (~75 km/h)
+    { x: 0.363, y: 0.144, sf: 0.20, zone: 'corner' },  // T5 apex (~71 km/h)
 
     // Lesmo 1 - fast right-hander, ~200 km/h apex
-    { x: 0.433, y: 0.140, sf: 0.55, zone: 'corner' },  // entry/accel (~195 km/h)
+    // Braking from ~270 km/h to ~195 km/h
+    { x: 0.410, y: 0.141, sf: 0.76, zone: 'regen' },  // braking for Lesmo 1 (~270 km/h)
+    { x: 0.433, y: 0.140, sf: 0.55, zone: 'corner' },  // entry (~195 km/h)
     { x: 0.513, y: 0.136, sf: 0.57, zone: 'corner' },  // apex (~202 km/h)
 
     // Lesmo 2 - slightly slower right-hander, ~185 km/h apex
+    // Braking from ~230 km/h to ~185 km/h
+    { x: 0.570, y: 0.134, sf: 0.65, zone: 'regen' },  // braking for Lesmo 2 (~231 km/h)
     { x: 0.593, y: 0.133, sf: 0.53, zone: 'corner' },  // mid-corner (~188 km/h)
     { x: 0.655, y: 0.114, sf: 0.51, zone: 'corner' },  // exit (~181 km/h)
 
@@ -644,9 +650,11 @@
 
     // Variante Ascari (T8-T9-T10) - chicane with braking
     // Braking from ~345 km/h, minimum ~140 km/h at T8, accelerating through T10
-    { x: 0.908, y: 0.122, sf: 0.41, zone: 'regen' },  // T8 entry (~146 km/h)
-    { x: 0.914, y: 0.162, sf: 0.39, zone: 'regen' },  // T9 apex (~138 km/h)
-    { x: 0.913, y: 0.208, sf: 0.54, zone: 'regen' },  // T10 exit (~192 km/h, accelerating hard)
+    { x: 0.893, y: 0.095, sf: 0.80, zone: 'regen' },  // braking begins (~284 km/h)
+    { x: 0.901, y: 0.108, sf: 0.55, zone: 'regen' },  // deep braking (~195 km/h)
+    { x: 0.908, y: 0.122, sf: 0.41, zone: 'corner' },  // T8 entry (~146 km/h)
+    { x: 0.914, y: 0.162, sf: 0.39, zone: 'corner' },  // T9 apex (~138 km/h)
+    { x: 0.913, y: 0.208, sf: 0.54, zone: 'corner' },  // T10 exit (~192 km/h, accelerating hard)
 
     // Straight to Parabolica
     // Accelerating from Ascari exit toward Parabolica braking
@@ -657,7 +665,7 @@
     { x: 0.588, y: 0.332, sf: 0.90, zone: 'straight' },  // starting to scrub (~320 km/h)
     { x: 0.535, y: 0.358, sf: 0.80, zone: 'regen' },  // braking for Parabolica (~284 km/h)
     { x: 0.474, y: 0.389, sf: 0.72, zone: 'regen' },  // deeper braking (~256 km/h)
-    { x: 0.414, y: 0.419, sf: 0.65, zone: 'regen' },  // turning in (~231 km/h)
+    { x: 0.414, y: 0.419, sf: 0.65, zone: 'corner' },  // turning in (~231 km/h)
 
     // Curva Parabolica / Curva Alboreto (long sweeping right)
     // Long constant-radius corner, minimum ~210 km/h, exit ~275 km/h

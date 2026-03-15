@@ -457,7 +457,7 @@
         <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Car B (Chaser)</div>
         <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.25)"></div> Boost Zone</div>
         <div class="legend-item"><div class="legend-swatch" style="background:rgba(22,163,74,0.25)"></div> Regen Zone</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> Overtake Detection</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> Overtake Zone</div>
       </div>
     </div>
 
@@ -547,7 +547,7 @@
     </p>
     <p>
       <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
-      When the chaser is within ~1 second at an <span class="hl-gold">Overtake detection zone</span>, they earn an extra
+      When the chaser is within ~1 second at an <span class="hl-gold">Overtake Zone</span>, they earn an extra
       <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>. The leader's MGU-K electrical power
       tapers off after <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
       <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at Monza speeds.
@@ -630,6 +630,7 @@
     // Back straight toward Ascari (long straight - key MOM zone)
     // Cars accelerate from ~180 km/h to ~345 km/h
     { x: 0.723, y: 0.104, sf: 0.80, zone: 'overtake' },  // building speed (~284 km/h)
+    { x: 0.761, y: 0.096, sf: 0.86, zone: 'overtake' },  // overtake detection (~305 km/h)
     { x: 0.799, y: 0.089, sf: 0.92, zone: 'mom' },  // high speed (~327 km/h)
     { x: 0.876, y: 0.083, sf: 0.97, zone: 'mom' },  // near peak (~345 km/h)
 
@@ -735,13 +736,13 @@
   // ─── Zone highlights ──────────────────────────────────────────────
   const zoneColors = {
     mom:      'rgba(59,130,246,0.12)',
-    overtake: 'rgba(180,83,9,0.10)',
+    overtake: 'rgba(180,83,9,0.15)',
     regen:    'rgba(22,163,74,0.10)',
   };
 
   const zoneStroke = {
     mom:      'rgba(59,130,246,0.30)',
-    overtake: 'rgba(180,83,9,0.28)',
+    overtake: 'rgba(180,83,9,0.35)',
     regen:    'rgba(22,163,74,0.28)',
   };
 
@@ -849,25 +850,26 @@
 
   // Zone type labels
   const zoneLabelData = [
-    { text: 'X-MODE', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
+    { text: 'OVERTAKE', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
     { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.11), dx: -22, dy: 0 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.19), dx: 22, dy: 0 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.29), dx: 0, dy: -18 },
+    { text: 'OVERTAKE', idx: Math.floor(NUM_SAMPLES * 0.42), dx: 16, dy: -14 },
     { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.43), dx: 0, dy: -16 },
     { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.48), dx: 16, dy: 0 },
-    { text: 'X-MODE', idx: Math.floor(NUM_SAMPLES * 0.56), dx: 0, dy: -16 },
+    { text: 'OVERTAKE', idx: Math.floor(NUM_SAMPLES * 0.56), dx: 0, dy: -16 },
     { text: 'BOOST', idx: Math.floor(NUM_SAMPLES * 0.61), dx: 0, dy: -16 },
   ];
 
   for (const z of zoneLabelData) {
     const p = sampledPoints[z.idx];
-    const colors = { BOOST: '#3b82f6', 'X-MODE': '#b45309', REGEN: '#16a34a' };
+    const colors = { BOOST: '#3b82f6', OVERTAKE: '#b45309', REGEN: '#16a34a' };
     svg.append('text')
       .attr('class', 'zone-label')
       .attr('x', p.x + (z.dx || 0))
       .attr('y', p.y + (z.dy || 0))
       .attr('fill', colors[z.text] || '#888')
-      .attr('opacity', 0.6)
+      .attr('opacity', 0.75)
       .text(z.text);
   }
 
@@ -1277,7 +1279,7 @@
 
   const zoneDesc = {
     mom: '<strong>Boost Zone</strong><br>Auto-deploy zone -- both cars deploy full 350kW electrical power here. Boost is your baseline energy tool, available to everyone.',
-    overtake: '<strong>Overtake Detection Zone</strong><br>If the chaser is within ~1 second here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap. The leader\'s MGU-K tapers at 290 km/h; the chaser with Overtake deploys to 337 km/h.',
+    overtake: '<strong>Overtake Zone</strong><br>If the chaser is within ~1 second here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap. The leader\'s MGU-K tapers at 290 km/h; the chaser with Overtake deploys to 337 km/h.',
     regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests up to 350kW of kinetic energy to recharge the Energy Store. Critical for energy strategy.',
     corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. Slight energy regeneration during coasting.',
     straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',

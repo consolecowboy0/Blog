@@ -490,13 +490,6 @@
       <div class="circuit-panel panel" id="circuit-panel">
         <div id="circuit-svg"></div>
       </div>
-      <div class="legend-bar">
-        <div class="legend-item"><div class="legend-swatch" style="background:#e10600"></div> Car A (Leader)</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Car B (Chaser)</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.25)"></div> Boost Zone</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(22,163,74,0.25)"></div> Regen Zone</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> Overtake Zone</div>
-      </div>
     </div>
 
     <!-- Right: Telemetry -->
@@ -598,8 +591,8 @@
       active, the AI automatically deploys boost on straights to capitalize on this extended range.
     </p>
     <p>
-      <span class="hl-green">Regenerative braking zones</span> become critical -- heavy braking areas recharge the Energy Store via the MGU-K
-      (harvesting up to 350kW). <span class="hl">Monza</span> is the perfect test: long straights where the MGU-K taper matters most,
+      <span class="hl">Regenerative braking</span> is automatic -- whenever a car decelerates, the MGU-K harvests kinetic energy
+      (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. <span class="hl">Monza</span> is the perfect test: long straights where the MGU-K taper matters most,
       and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
       extra energy on the following lap to make a move into the Variante del Rettifilo.
     </p>
@@ -645,10 +638,10 @@
     { x: 0.113, y: 0.560, sf: 1.00, zone: 'mom' },
     { x: 0.120, y: 0.514, sf: 1.00, zone: 'mom' },
     { x: 0.127, y: 0.468, sf: 0.97, zone: 'mom' },
-    { x: 0.131, y: 0.445, sf: 0.90, zone: 'regen' },  // braking begins (~320 km/h)
-    { x: 0.134, y: 0.421, sf: 0.70, zone: 'regen' },  // heavy braking (~249 km/h)
-    { x: 0.139, y: 0.381, sf: 0.42, zone: 'regen' },  // deep braking (~149 km/h)
-    { x: 0.151, y: 0.365, sf: 0.28, zone: 'regen' },  // trail braking (~99 km/h)
+    { x: 0.131, y: 0.445, sf: 0.90, zone: 'corner' },  // braking begins (~320 km/h)
+    { x: 0.134, y: 0.421, sf: 0.70, zone: 'corner' },  // heavy braking (~249 km/h)
+    { x: 0.139, y: 0.381, sf: 0.42, zone: 'corner' },  // deep braking (~149 km/h)
+    { x: 0.151, y: 0.365, sf: 0.28, zone: 'corner' },  // trail braking (~99 km/h)
 
     // Variante del Rettifilo (T1-T2 chicane) - HEAVY BRAKING
     // One of the heaviest braking zones in F1: 355→68 km/h in ~120m
@@ -663,22 +656,22 @@
 
     // Variante della Roggia (T4-T5 chicane) - HEAVY BRAKING
     // Heavy braking from ~310 km/h to ~73 km/h
-    { x: 0.250, y: 0.168, sf: 0.87, zone: 'regen' },  // braking begins (~309 km/h)
-    { x: 0.268, y: 0.162, sf: 0.55, zone: 'regen' },  // heavy braking (~195 km/h)
-    { x: 0.277, y: 0.159, sf: 0.32, zone: 'regen' },  // deep braking (~114 km/h)
+    { x: 0.250, y: 0.168, sf: 0.87, zone: 'corner' },  // braking begins (~309 km/h)
+    { x: 0.268, y: 0.162, sf: 0.55, zone: 'corner' },  // heavy braking (~195 km/h)
+    { x: 0.277, y: 0.159, sf: 0.32, zone: 'corner' },  // deep braking (~114 km/h)
     { x: 0.285, y: 0.156, sf: 0.21, zone: 'corner' },  // T4 apex (~75 km/h)
     { x: 0.363, y: 0.144, sf: 0.20, zone: 'corner' },  // T5 apex (~71 km/h)
 
     // Lesmo 1 - fast right-hander, ~200 km/h apex
     // Braking from ~270 km/h to ~195 km/h
-    { x: 0.410, y: 0.141, sf: 0.76, zone: 'regen' },  // braking for Lesmo 1 (~270 km/h)
-    { x: 0.433, y: 0.140, sf: 0.55, zone: 'regen' },  // deep braking Lesmo 1 (~195 km/h)
+    { x: 0.410, y: 0.141, sf: 0.76, zone: 'corner' },  // braking for Lesmo 1 (~270 km/h)
+    { x: 0.433, y: 0.140, sf: 0.55, zone: 'corner' },  // deep braking Lesmo 1 (~195 km/h)
     { x: 0.513, y: 0.136, sf: 0.57, zone: 'corner' },  // apex (~202 km/h)
 
     // Lesmo 2 - slightly slower right-hander, ~185 km/h apex
     // Braking from ~230 km/h to ~185 km/h
-    { x: 0.570, y: 0.134, sf: 0.65, zone: 'regen' },  // braking for Lesmo 2 (~231 km/h)
-    { x: 0.593, y: 0.133, sf: 0.53, zone: 'regen' },  // deep braking Lesmo 2 (~188 km/h)
+    { x: 0.570, y: 0.134, sf: 0.65, zone: 'corner' },  // braking for Lesmo 2 (~231 km/h)
+    { x: 0.593, y: 0.133, sf: 0.53, zone: 'corner' },  // deep braking Lesmo 2 (~188 km/h)
     { x: 0.655, y: 0.114, sf: 0.51, zone: 'corner' },  // exit (~181 km/h)
 
     // Back straight toward Ascari (long straight - Straight Mode zone)
@@ -690,9 +683,9 @@
 
     // Variante Ascari (T8-T9-T10) - chicane with braking
     // Braking from ~345 km/h, minimum ~140 km/h at T8, accelerating through T10
-    { x: 0.893, y: 0.095, sf: 0.80, zone: 'regen' },  // braking begins (~284 km/h)
-    { x: 0.901, y: 0.108, sf: 0.55, zone: 'regen' },  // heavy braking (~195 km/h)
-    { x: 0.908, y: 0.122, sf: 0.41, zone: 'regen' },  // deep braking into T8 (~146 km/h)
+    { x: 0.893, y: 0.095, sf: 0.80, zone: 'corner' },  // braking begins (~284 km/h)
+    { x: 0.901, y: 0.108, sf: 0.55, zone: 'corner' },  // heavy braking (~195 km/h)
+    { x: 0.908, y: 0.122, sf: 0.41, zone: 'corner' },  // deep braking into T8 (~146 km/h)
     { x: 0.914, y: 0.162, sf: 0.39, zone: 'corner' },  // T9 apex (~138 km/h)
     { x: 0.913, y: 0.208, sf: 0.54, zone: 'corner' },  // T10 exit (~192 km/h, accelerating hard)
 
@@ -703,9 +696,9 @@
     { x: 0.713, y: 0.274, sf: 0.88, zone: 'straight' },  // high speed (~312 km/h)
     { x: 0.648, y: 0.301, sf: 0.91, zone: 'straight' },  // near peak (~323 km/h)
     { x: 0.588, y: 0.332, sf: 0.90, zone: 'straight' },  // starting to scrub (~320 km/h)
-    { x: 0.535, y: 0.358, sf: 0.80, zone: 'regen' },  // braking for Parabolica (~284 km/h)
-    { x: 0.474, y: 0.389, sf: 0.72, zone: 'regen' },  // heavy braking (~256 km/h)
-    { x: 0.414, y: 0.419, sf: 0.65, zone: 'regen' },  // trail braking into Parabolica (~231 km/h)
+    { x: 0.535, y: 0.358, sf: 0.80, zone: 'corner' },  // braking for Parabolica (~284 km/h)
+    { x: 0.474, y: 0.389, sf: 0.72, zone: 'corner' },  // heavy braking (~256 km/h)
+    { x: 0.414, y: 0.419, sf: 0.65, zone: 'corner' },  // trail braking into Parabolica (~231 km/h)
 
     // Curva Parabolica / Curva Alboreto (long sweeping right)
     // Long constant-radius corner, minimum ~210 km/h, exit ~275 km/h
@@ -793,13 +786,11 @@
   const zoneColors = {
     mom:      'rgba(59,130,246,0.12)',
     overtake: 'rgba(180,83,9,0.15)',
-    regen:    'rgba(22,163,74,0.10)',
   };
 
   const zoneStroke = {
     mom:      'rgba(59,130,246,0.30)',
     overtake: 'rgba(180,83,9,0.35)',
-    regen:    'rgba(22,163,74,0.28)',
   };
 
   function getZoneSegments() {
@@ -911,7 +902,7 @@
 
   for (const z of zoneLabelData) {
     const p = sampledPoints[z.idx];
-    const colors = { BOOST: '#3b82f6', OVERTAKE: '#b45309', REGEN: '#16a34a' };
+    const colors = { BOOST: '#3b82f6', OVERTAKE: '#b45309' };
     svg.append('text')
       .attr('class', 'zone-label')
       .attr('x', p.x + (z.dx || 0))
@@ -1011,6 +1002,8 @@
     trailBHist: [],
     overtakeCount: 0,
     carBLeading: false,
+    prevSfA: 0.92,
+    prevSfB: 0.84,
   };
 
   function resetState() {
@@ -1035,6 +1028,8 @@
     state.trailBHist = [];
     state.overtakeCount = 0;
     state.carBLeading = false;
+    state.prevSfA = 0.92;
+    state.prevSfB = 0.84;
     document.getElementById('btn-boost-a').classList.remove('active');
     document.getElementById('btn-boost-b').classList.remove('active');
     updateUI();
@@ -1132,9 +1127,14 @@
       }
     }
 
-    // Heavy braking regen: MGU-K harvests up to 350kW during deceleration (braking zones only)
-    // Regen caps at 100% — only overtake bonus can push above 100%
-    if (zoneA.zone === 'regen' && state.batA < 100) state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
+    // Braking regen: MGU-K harvests up to 350kW during deceleration
+    // Regen proportional to braking intensity; caps at 100% — only overtake bonus can push above 100%
+    const brakingA = state.prevSfA - zoneA.sf;
+    if (brakingA > 0.02 && state.batA < 100) {
+      const regenRate = Math.min(brakingA * 1.2, 0.30);  // stronger braking = more regen
+      state.batA = Math.min(100, state.batA + regenRate * state.speedMult);
+    }
+    state.prevSfA = zoneA.sf;
 
     // ── Car B ──
     // Boost: available anytime, no proximity requirement
@@ -1194,9 +1194,14 @@
       else sfA *= slipBonus;
     }
 
-    // Heavy braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
-    // Regen caps at 100% — only overtake bonus can push above 100%
-    if (zoneB.zone === 'regen' && state.batB < 100) state.batB = Math.min(100, state.batB + 0.22 * state.speedMult);
+    // Braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
+    // Regen proportional to braking intensity; caps at 100% — only overtake bonus can push above 100%
+    const brakingB = state.prevSfB - zoneB.sf;
+    if (brakingB > 0.02 && state.batB < 100) {
+      const regenRate = Math.min(brakingB * 1.4, 0.35);  // chaser regens slightly more
+      state.batB = Math.min(100, state.batB + regenRate * state.speedMult);
+    }
+    state.prevSfB = zoneB.sf;
 
     // Move
     const prevTA = state.tA;
@@ -1428,8 +1433,7 @@
   const zoneDesc = {
     mom: '<strong>Boost Zone</strong><br>Auto-deploy zone -- both cars deploy full 350kW electrical power here. Boost is your baseline energy tool, available to everyone.',
     overtake: '<strong>Overtake Zone</strong><br>The single activation zone. If the chaser is within ~1 second of the car ahead here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap (battery can exceed 100%, shown in gold). Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
-    regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests up to 350kW of kinetic energy to recharge the Energy Store. Critical for energy strategy.',
-    corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. No energy regeneration -- regen only occurs in braking zones.',
+    corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. MGU-K harvests energy under braking -- heavier braking means more regen.',
     straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',
   };
 

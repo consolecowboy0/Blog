@@ -1,0 +1,257 @@
+{
+  "primary_inflection": {
+    "congress": 102,
+    "year": 1991
+  },
+  "inflection_frequency": {
+    "102": 20,
+    "107": 16,
+    "112": 6,
+    "97": 5,
+    "93": 4,
+    "118": 2,
+    "95": 1,
+    "103": 1,
+    "94": 1,
+    "113": 1
+  },
+  "per_metric_results": {
+    "bridge_index": {
+      "sigmoid": {
+        "inflection_congress": 94.6,
+        "steepness": -0.0,
+        "amplitude": 0.0,
+        "baseline": 174.85,
+        "r_squared": -0.0,
+        "inflection_std_error": 0.0,
+        "params": [
+          8.056268063022661e-05,
+          -3.7832386250843012e-06,
+          94.55250845723704,
+          174.84842185461082
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          102,
+          107,
+          112
+        ],
+        "2": [
+          102,
+          112
+        ],
+        "5": [
+          102
+        ],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        102
+      ],
+      "binseg_2": [
+        102,
+        107
+      ],
+      "max_decline_congress": 93,
+      "max_decline_rate": -17.5351
+    },
+    "n_edges": {
+      "sigmoid": {
+        "inflection_congress": 117.9,
+        "steepness": -0.0,
+        "amplitude": 0.0,
+        "baseline": 2569.65,
+        "r_squared": -0.0,
+        "inflection_std_error": 0.0,
+        "params": [
+          0.0013240545515041506,
+          -1.1357474292591556e-08,
+          117.90389870860615,
+          2569.651735157226
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          97,
+          102,
+          107
+        ],
+        "2": [
+          102,
+          107
+        ],
+        "5": [
+          102
+        ],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        102
+      ],
+      "binseg_2": [
+        102,
+        107
+      ],
+      "max_decline_congress": 93,
+      "max_decline_rate": -415.9143
+    },
+    "edge_density": {
+      "sigmoid": {
+        "inflection_congress": 118.0,
+        "steepness": -0.0,
+        "amplitude": 0.0,
+        "baseline": 0.06,
+        "r_squared": -0.0,
+        "inflection_std_error": 0.0,
+        "params": [
+          7.673018294496724e-09,
+          -2.5683934738488195e-06,
+          117.98202299784495,
+          0.05643073262520666
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          97,
+          102,
+          107
+        ],
+        "2": [
+          102
+        ],
+        "5": [
+          102
+        ],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        102
+      ],
+      "binseg_2": [
+        102,
+        107
+      ],
+      "max_decline_congress": 103,
+      "max_decline_rate": -0.0072
+    },
+    "algebraic_connectivity": {
+      "sigmoid": {
+        "inflection_congress": 97.3,
+        "steepness": -0.0,
+        "amplitude": 0.0,
+        "baseline": 2.43,
+        "r_squared": -0.0,
+        "inflection_std_error": 0.0,
+        "params": [
+          2.744179978852039e-06,
+          -9.530331377929558e-06,
+          97.25344869821177,
+          2.4311363559121038
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          107
+        ],
+        "2": [
+          107
+        ],
+        "5": [
+          107
+        ],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        107
+      ],
+      "binseg_2": [
+        97,
+        107
+      ],
+      "max_decline_congress": 93,
+      "max_decline_rate": -1.4531
+    },
+    "connected_fraction": {
+      "sigmoid": {
+        "inflection_congress": 93.6,
+        "steepness": -0.0004,
+        "amplitude": 0.0,
+        "baseline": 1.0,
+        "r_squared": -0.0,
+        "inflection_std_error": 28269796.42,
+        "params": [
+          4.694095825519522e-08,
+          -0.0003788538154298036,
+          93.56087273001363,
+          0.9987615149380877
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          112
+        ],
+        "2": [
+          112
+        ],
+        "5": [],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        112
+      ],
+      "binseg_2": [
+        107,
+        112
+      ],
+      "max_decline_congress": 113,
+      "max_decline_rate": -0.0022
+    },
+    "avg_cross_party_degree": {
+      "sigmoid": {
+        "inflection_congress": 110.8,
+        "steepness": -0.0,
+        "amplitude": 0.0,
+        "baseline": 11.83,
+        "r_squared": -0.0,
+        "inflection_std_error": 0.0,
+        "params": [
+          6.9243246625895136e-06,
+          -8.830296416005686e-07,
+          110.76742335016777,
+          11.826528075929138
+        ]
+      },
+      "pelt_changepoints": {
+        "1": [
+          97,
+          102,
+          107
+        ],
+        "2": [
+          102,
+          107
+        ],
+        "5": [
+          102
+        ],
+        "10": [],
+        "20": []
+      },
+      "binseg_1": [
+        102
+      ],
+      "binseg_2": [
+        102,
+        107
+      ],
+      "max_decline_congress": 93,
+      "max_decline_rate": -1.9437
+    }
+  }
+}

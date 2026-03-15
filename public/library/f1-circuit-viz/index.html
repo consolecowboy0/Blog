@@ -173,6 +173,10 @@
     .boost-btn:hover { background: #3b82f60a; }
     .boost-btn.active { background: var(--accent-blue); color: #fff; }
 
+    .boost-btn.red { background: var(--accent-red); border-color: var(--accent-red); color: #fff; }
+    .boost-btn.red:hover { background: #e106001a; color: var(--accent-red); }
+    .boost-btn.red.active { background: var(--accent-red); color: #fff; }
+
     /* Side panel */
     .side-panel {
       display: flex;
@@ -519,7 +523,7 @@
       <div class="panel">
         <div class="panel-title">Boost Buttons</div>
         <p class="mom-helper">Boost is regular battery deployment — available to any driver, anytime, anywhere on track. Drains the Energy Store faster but gives a speed advantage. Press <strong>A</strong> / <strong>B</strong> to toggle.</p>
-        <button class="boost-btn" id="btn-boost-a" style="background:#e10600;margin-bottom:6px">Boost Car A (A)</button>
+        <button class="boost-btn red" id="btn-boost-a" style="margin-bottom:6px">Boost Car A (A)</button>
         <button class="boost-btn" id="btn-boost-b">Boost Car B (B)</button>
       </div>
 

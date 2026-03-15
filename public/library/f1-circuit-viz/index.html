@@ -619,7 +619,7 @@
     { x: 0.363, y: 0.144, sf: 0.20, zone: 'regen' },  // T5 apex (~71 km/h)
 
     // Lesmo 1 - fast right-hander, ~200 km/h apex
-    { x: 0.433, y: 0.140, sf: 0.42, zone: 'corner' },  // entry/accel (~149 km/h)
+    { x: 0.433, y: 0.140, sf: 0.55, zone: 'corner' },  // entry/accel (~195 km/h)
     { x: 0.513, y: 0.136, sf: 0.57, zone: 'corner' },  // apex (~202 km/h)
 
     // Lesmo 2 - slightly slower right-hander, ~185 km/h apex
@@ -633,10 +633,10 @@
     { x: 0.876, y: 0.083, sf: 0.97, zone: 'mom' },  // near peak (~345 km/h)
 
     // Variante Ascari (T8-T9-T10) - chicane with braking
-    // Braking from ~345 km/h, minimum ~138 km/h
+    // Braking from ~345 km/h, minimum ~140 km/h at T8, accelerating through T10
     { x: 0.908, y: 0.122, sf: 0.41, zone: 'regen' },  // T8 entry (~146 km/h)
     { x: 0.914, y: 0.162, sf: 0.39, zone: 'regen' },  // T9 apex (~138 km/h)
-    { x: 0.913, y: 0.208, sf: 0.42, zone: 'regen' },  // T10 exit (~149 km/h)
+    { x: 0.913, y: 0.208, sf: 0.54, zone: 'regen' },  // T10 exit (~192 km/h, accelerating hard)
 
     // Straight to Parabolica
     // Accelerating from Ascari exit toward Parabolica braking
@@ -1019,7 +1019,7 @@
     const zoneB = getZoneAt(state.tB);
 
     // ── Car A (leader) ──
-    // 2026 regs: MGU-K 350kW, battery 4 MJ, ICE ~650kW
+    // 2026 regs: MGU-K 350kW, battery 4 MJ (SOC delta), ICE ~400kW
     // Leader gets standard MOM deploy but smaller allocation (no proximity bonus)
     let sfA = zoneA.sf;
     state.momA = zoneA.zone === 'mom' && state.batA > 10;
@@ -1132,7 +1132,7 @@
     if (state.trailAHist.length > 1) trailA.attr('d', trailLine(state.trailAHist));
     if (state.trailBHist.length > 1) trailB.attr('d', trailLine(state.trailBHist));
 
-    // Speed — 355 km/h top speed for 2026 F1 at Monza (ICE ~650kW + MGU-K 350kW)
+    // Speed — 355 km/h top speed for 2026 F1 at Monza (ICE ~400kW + MGU-K 350kW ≈ 750kW / ~1000bhp)
     const spdA = Math.round(zA.sf * 355);
     const spdB = Math.round(zB.sf * 355 * (state.momB ? 1.08 : 1));
     document.getElementById('speed-a').innerHTML = `${spdA}<span class="speed-unit"> km/h</span>`;

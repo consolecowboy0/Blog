@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 2026 Circuit Simulator — Overtake &amp; Boost Systems</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 20px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    /* Layout */
+    .viz-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .viz-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Circuit SVG */
+    .circuit-panel {
+      background: #12121a;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+
+    .circuit-panel svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Side panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-card {
+      background: #12121a;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .panel-card h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #1a1a25;
+      color: #ccc;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .btn:hover { background: #252535; border-color: #555; }
+    .btn.active { background: #e10600; border-color: #e10600; color: #fff; font-weight: 600; }
+    .btn.boost-btn { border-color: #0af; }
+    .btn.boost-btn:hover { background: #0af22; }
+    .btn.boost-btn.active { background: #0af; border-color: #0af; color: #000; }
+
+    /* Speed indicator */
+    .speed-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .speed-label {
+      font-size: 0.78rem;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speed-label .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .speed-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Battery bars */
+    .battery-section { margin-bottom: 14px; }
+    .battery-section:last-child { margin-bottom: 0; }
+
+    .battery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .battery-label {
+      font-size: 0.78rem;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .battery-pct {
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .battery-track {
+      width: 100%;
+      height: 10px;
+      background: #1a1a25;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .battery-fill {
+      height: 100%;
+      border-radius: 5px;
+      transition: width 0.15s;
+    }
+
+    /* DRS / MOM indicator */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .status-item {
+      background: #1a1a25;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .status-item .label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .status-item .value {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .status-item .value.on { color: #0f0; }
+    .status-item .value.off { color: #555; }
+    .status-item .value.active-boost { color: #0af; }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: #999;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    /* Explanation */
+    .explainer {
+      background: #12121a;
+      border: 1px solid #2a2a35;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .explainer h3 {
+      font-size: 0.85rem;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .explainer p {
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .explainer p:last-child { margin-bottom: 0; }
+
+    .highlight { color: #0af; font-weight: 600; }
+    .highlight-red { color: #e10600; font-weight: 600; }
+    .highlight-green { color: #0c0; font-weight: 600; }
+
+    /* Lap counter */
+    .lap-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .lap-counter {
+      font-size: 0.85rem;
+      color: #aaa;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .lap-counter span { color: #fff; font-weight: 700; }
+
+    /* Zone labels on circuit */
+    .zone-label {
+      font-size: 9px;
+      fill: #666;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    /* Event log */
+    .event-log {
+      max-height: 90px;
+      overflow-y: auto;
+      font-size: 0.72rem;
+      color: #777;
+      line-height: 1.5;
+    }
+
+    .event-log .event {
+      padding: 2px 0;
+      border-bottom: 1px solid #1a1a25;
+    }
+
+    .event-log .event:last-child { border-bottom: none; }
+    .event-log .boost-event { color: #0af; }
+    .event-log .overtake-event { color: #e10600; }
+    .event-log .recharge-event { color: #0c0; }
+
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      background: #1a1a28;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.75rem;
+      color: #ccc;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 10;
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    .tooltip.visible { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>F1 2026 Regulations — Overtake &amp; Boost System Simulator</h1>
+  <p class="subtitle">Interactive visualization of the Manual Override Mode (MOM) and energy management changes</p>
+
+  <div class="viz-layout">
+    <!-- Circuit -->
+    <div class="circuit-panel">
+      <div class="lap-info">
+        <div class="lap-counter">Lap <span id="lap-num">1</span> / 10</div>
+        <div class="controls">
+          <button class="btn" id="btn-play">▶ Play</button>
+          <button class="btn" id="btn-pause">⏸ Pause</button>
+          <button class="btn" id="btn-reset">↺ Reset</button>
+          <button class="btn" id="btn-speed">1×</button>
+        </div>
+      </div>
+      <div id="circuit-svg"></div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#e10600"></div> Car A (Leader)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#0af"></div> Car B (Chaser)</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,170,255,0.15)"></div> MOM Zone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(0,200,0,0.15)"></div> Regen Zone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(255,200,0,0.15)"></div> DRS Zone</div>
+      </div>
+      <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+      <!-- Car A telemetry -->
+      <div class="panel-card">
+        <h3>Car A — Leader</h3>
+        <div class="speed-row">
+          <div class="speed-label"><div class="dot" style="background:#e10600"></div> Speed</div>
+          <div class="speed-value" id="speed-a" style="color:#e10600">0 <small style="font-size:0.6rem;color:#888">km/h</small></div>
+        </div>
+        <div class="battery-section">
+          <div class="battery-header">
+            <div class="battery-label">ERS Battery</div>
+            <div class="battery-pct" id="bat-a-pct" style="color:#e10600">100%</div>
+          </div>
+          <div class="battery-track">
+            <div class="battery-fill" id="bat-a-fill" style="background:#e10600;width:100%"></div>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">MOM</div>
+            <div class="value off" id="mom-a">OFF</div>
+          </div>
+          <div class="status-item">
+            <div class="label">DRS</div>
+            <div class="value off" id="drs-a">OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Car B telemetry -->
+      <div class="panel-card">
+        <h3>Car B — Chaser</h3>
+        <div class="speed-row">
+          <div class="speed-label"><div class="dot" style="background:#0af"></div> Speed</div>
+          <div class="speed-value" id="speed-b" style="color:#0af">0 <small style="font-size:0.6rem;color:#888">km/h</small></div>
+        </div>
+        <div class="battery-section">
+          <div class="battery-header">
+            <div class="battery-label">ERS Battery</div>
+            <div class="battery-pct" id="bat-b-pct" style="color:#0af">100%</div>
+          </div>
+          <div class="battery-track">
+            <div class="battery-fill" id="bat-b-fill" style="background:#0af;width:100%"></div>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">MOM</div>
+            <div class="value off" id="mom-b">OFF</div>
+          </div>
+          <div class="status-item">
+            <div class="label">DRS</div>
+            <div class="value off" id="drs-b">OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="panel-card">
+        <h3>Manual Override</h3>
+        <p style="font-size:0.72rem;color:#777;margin-bottom:10px;">Activate MOM boost for Car B (chaser) — uses extra battery but gives a speed advantage on straights.</p>
+        <button class="btn boost-btn" id="btn-mom" style="width:100%;padding:12px;">⚡ Activate MOM Boost (Car B)</button>
+      </div>
+
+      <!-- Event log -->
+      <div class="panel-card">
+        <h3>Race Events</h3>
+        <div class="event-log" id="event-log"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Explainer -->
+  <div class="explainer">
+    <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
+    <p>
+      The <span class="highlight">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
+      <span class="highlight">350kW</span>, meaning nearly half the car's power comes from the electric motor. This creates a new strategic layer:
+      <span class="highlight">Manual Override Mode (MOM)</span>.
+    </p>
+    <p>
+      <span class="highlight">MOM</span> replaces the old simple ERS deploy button. Drivers can choose when to unleash the full 350kW electrical
+      boost on straights, but it <span class="highlight-red">drains the battery faster</span>. The chasing car gets an advantage: when within
+      ~1 second of the car ahead, they receive <span class="highlight">extra MOM allocation</span> — similar to how DRS currently works, but
+      with far more driver control over when and how to deploy the energy.
+    </p>
+    <p>
+      <span class="highlight-green">Regenerative braking zones</span> become critical — heavy braking areas recharge the battery, and drivers must
+      balance aggressive deployment on straights with ensuring enough energy is harvested in braking zones. The leading car must also manage their
+      battery carefully, as they get a <span class="highlight-red">smaller MOM allocation</span> to defend with.
+    </p>
+    <p>
+      In this simulation, watch how Car B (blue, chaser) can use MOM strategically to close the gap and attempt overtakes on straights, while
+      both cars recharge in braking/cornering zones. Click <span class="highlight">⚡ Activate MOM Boost</span> to manually trigger the chaser's
+      boost and see the energy trade-off in real time.
+    </p>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ─── Circuit geometry ─────────────────────────────────────────────
+  // A simplified F1 circuit as a closed path, defined by waypoints.
+  // Each point has: x, y (normalized 0-1), speed factor, zone type
+  const RAW_POINTS = [
+    // Start/finish straight
+    { x: 0.15, y: 0.82, sf: 1.0, zone: 'straight' },
+    { x: 0.30, y: 0.82, sf: 1.0, zone: 'drs' },
+    { x: 0.50, y: 0.82, sf: 1.0, zone: 'drs' },
+    { x: 0.65, y: 0.82, sf: 1.0, zone: 'mom' },
+    { x: 0.78, y: 0.82, sf: 0.95, zone: 'mom' },
+    // Turn 1-2 (heavy braking)
+    { x: 0.88, y: 0.78, sf: 0.55, zone: 'regen' },
+    { x: 0.93, y: 0.70, sf: 0.45, zone: 'regen' },
+    { x: 0.95, y: 0.60, sf: 0.50, zone: 'corner' },
+    // Back straight
+    { x: 0.93, y: 0.48, sf: 0.75, zone: 'straight' },
+    { x: 0.90, y: 0.38, sf: 0.90, zone: 'mom' },
+    { x: 0.88, y: 0.28, sf: 0.95, zone: 'mom' },
+    // Chicane
+    { x: 0.84, y: 0.20, sf: 0.50, zone: 'regen' },
+    { x: 0.78, y: 0.15, sf: 0.45, zone: 'regen' },
+    { x: 0.70, y: 0.12, sf: 0.55, zone: 'corner' },
+    // Medium-speed esses
+    { x: 0.60, y: 0.13, sf: 0.65, zone: 'corner' },
+    { x: 0.50, y: 0.16, sf: 0.70, zone: 'corner' },
+    { x: 0.40, y: 0.14, sf: 0.65, zone: 'corner' },
+    // Long back section
+    { x: 0.30, y: 0.18, sf: 0.80, zone: 'straight' },
+    { x: 0.20, y: 0.22, sf: 0.85, zone: 'drs' },
+    { x: 0.12, y: 0.28, sf: 0.90, zone: 'drs' },
+    // Hairpin
+    { x: 0.07, y: 0.38, sf: 0.40, zone: 'regen' },
+    { x: 0.05, y: 0.50, sf: 0.38, zone: 'regen' },
+    { x: 0.07, y: 0.60, sf: 0.50, zone: 'corner' },
+    // Final corners
+    { x: 0.10, y: 0.68, sf: 0.60, zone: 'corner' },
+    { x: 0.12, y: 0.75, sf: 0.75, zone: 'straight' },
+  ];
+
+  // ─── Spline interpolation for smooth circuit ──────────────────────
+  const W = 700, H = 500;
+  const PADDING = 30;
+
+  function toCanvas(p) {
+    return { x: PADDING + p.x * (W - 2 * PADDING), y: PADDING + p.y * (H - 2 * PADDING) };
+  }
+
+  // Build a closed cardinal spline through points
+  const canvasPoints = RAW_POINTS.map(toCanvas);
+
+  // Use D3 line with cardinal-closed curve
+  const lineGen = d3.line()
+    .x(d => d.x)
+    .y(d => d.y)
+    .curve(d3.curveCardinalClosed.tension(0.5));
+
+  const pathData = lineGen(canvasPoints);
+
+  // ─── Create SVG ───────────────────────────────────────────────────
+  const svg = d3.select('#circuit-svg')
+    .append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  // Definitions
+  const defs = svg.append('defs');
+
+  // Glow filter
+  const glow = defs.append('filter').attr('id', 'glow');
+  glow.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'blur');
+  const feMerge = glow.append('feMerge');
+  feMerge.append('feMergeNode').attr('in', 'blur');
+  feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+  // Car glow
+  const carGlow = defs.append('filter').attr('id', 'carGlow');
+  carGlow.append('feGaussianBlur').attr('stdDeviation', '5').attr('result', 'blur');
+  const carMerge = carGlow.append('feMerge');
+  carMerge.append('feMergeNode').attr('in', 'blur');
+  carMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+  // ─── Compute path points and zones at fine resolution ─────────────
+  // Render invisible path to measure
+  const hiddenPath = svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('stroke', 'none');
+
+  const pathNode = hiddenPath.node();
+  const totalLength = pathNode.getTotalLength();
+
+  // Sample points along the path at high resolution
+  const NUM_SAMPLES = 1000;
+  const sampledPoints = [];
+  for (let i = 0; i < NUM_SAMPLES; i++) {
+    const t = i / NUM_SAMPLES;
+    const len = t * totalLength;
+    const pt = pathNode.getPointAtLength(len);
+
+    // Find nearest raw point to determine zone
+    let minDist = Infinity, nearestIdx = 0;
+    for (let j = 0; j < canvasPoints.length; j++) {
+      const dx = pt.x - canvasPoints[j].x;
+      const dy = pt.y - canvasPoints[j].y;
+      const d = dx * dx + dy * dy;
+      if (d < minDist) { minDist = d; nearestIdx = j; }
+    }
+
+    sampledPoints.push({
+      x: pt.x,
+      y: pt.y,
+      t,
+      len,
+      sf: RAW_POINTS[nearestIdx].sf,
+      zone: RAW_POINTS[nearestIdx].zone,
+    });
+  }
+
+  // ─── Draw zone highlights ─────────────────────────────────────────
+  const zoneColors = {
+    mom: 'rgba(0,170,255,0.10)',
+    drs: 'rgba(255,200,0,0.10)',
+    regen: 'rgba(0,200,0,0.10)',
+  };
+
+  const zoneStroke = {
+    mom: 'rgba(0,170,255,0.35)',
+    drs: 'rgba(255,200,0,0.35)',
+    regen: 'rgba(0,200,0,0.35)',
+  };
+
+  // Group consecutive samples into zone segments
+  function getZoneSegments() {
+    const segments = [];
+    let current = null;
+    for (const p of sampledPoints) {
+      if (p.zone === 'straight' || p.zone === 'corner') {
+        if (current) { segments.push(current); current = null; }
+        continue;
+      }
+      if (!current || current.zone !== p.zone) {
+        if (current) segments.push(current);
+        current = { zone: p.zone, points: [p] };
+      } else {
+        current.points.push(p);
+      }
+    }
+    if (current) segments.push(current);
+    return segments;
+  }
+
+  const zoneSegments = getZoneSegments();
+
+  // Draw zone bands (thick transparent strokes behind the track)
+  const zonesGroup = svg.append('g').attr('class', 'zones');
+  for (const seg of zoneSegments) {
+    if (seg.points.length < 2) continue;
+    const segLine = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom);
+    zonesGroup.append('path')
+      .attr('d', segLine(seg.points))
+      .attr('fill', 'none')
+      .attr('stroke', zoneColors[seg.zone])
+      .attr('stroke-width', 36)
+      .attr('stroke-linecap', 'round');
+    zonesGroup.append('path')
+      .attr('d', segLine(seg.points))
+      .attr('fill', 'none')
+      .attr('stroke', zoneStroke[seg.zone])
+      .attr('stroke-width', 18)
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-dasharray', '2,6');
+  }
+
+  // ─── Draw track ───────────────────────────────────────────────────
+  // Track outline
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('stroke', '#2a2a38')
+    .attr('stroke-width', 16)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round');
+
+  // Track surface
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('stroke', '#3a3a48')
+    .attr('stroke-width', 12)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round');
+
+  // Center line (dashed)
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('stroke', '#555')
+    .attr('stroke-width', 0.5)
+    .attr('stroke-dasharray', '8,8');
+
+  // Start/finish line
+  const sfPoint = sampledPoints[0];
+  svg.append('line')
+    .attr('x1', sfPoint.x - 8).attr('y1', sfPoint.y - 10)
+    .attr('x2', sfPoint.x - 8).attr('y2', sfPoint.y + 10)
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2);
+
+  // Zone labels
+  const labelData = [
+    { text: 'DRS ZONE', idx: Math.floor(NUM_SAMPLES * 0.06) },
+    { text: 'MOM ZONE', idx: Math.floor(NUM_SAMPLES * 0.14) },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.22) },
+    { text: 'MOM ZONE', idx: Math.floor(NUM_SAMPLES * 0.38) },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.46) },
+    { text: 'DRS ZONE', idx: Math.floor(NUM_SAMPLES * 0.72) },
+    { text: 'REGEN', idx: Math.floor(NUM_SAMPLES * 0.80) },
+  ];
+
+  for (const lbl of labelData) {
+    const p = sampledPoints[lbl.idx];
+    svg.append('text')
+      .attr('class', 'zone-label')
+      .attr('x', p.x)
+      .attr('y', p.y - 14)
+      .text(lbl.text);
+  }
+
+  // Turn numbers
+  const turnLabels = [
+    { text: 'T1', idx: Math.floor(NUM_SAMPLES * 0.20) },
+    { text: 'T2', idx: Math.floor(NUM_SAMPLES * 0.26) },
+    { text: 'T3', idx: Math.floor(NUM_SAMPLES * 0.44) },
+    { text: 'T4', idx: Math.floor(NUM_SAMPLES * 0.48) },
+    { text: 'T5', idx: Math.floor(NUM_SAMPLES * 0.56) },
+    { text: 'T6', idx: Math.floor(NUM_SAMPLES * 0.62) },
+    { text: 'T7', idx: Math.floor(NUM_SAMPLES * 0.78) },
+    { text: 'T8', idx: Math.floor(NUM_SAMPLES * 0.84) },
+    { text: 'T9', idx: Math.floor(NUM_SAMPLES * 0.92) },
+  ];
+
+  for (const t of turnLabels) {
+    const p = sampledPoints[t.idx];
+    svg.append('text')
+      .attr('x', p.x)
+      .attr('y', p.y + 20)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#555')
+      .attr('font-size', '8px')
+      .text(t.text);
+  }
+
+  // ─── Cars ─────────────────────────────────────────────────────────
+  // Car trails
+  const TRAIL_LEN = 40;
+  const trailA = svg.append('path')
+    .attr('fill', 'none')
+    .attr('stroke', '#e10600')
+    .attr('stroke-width', 3)
+    .attr('stroke-linecap', 'round')
+    .attr('opacity', 0.4);
+
+  const trailB = svg.append('path')
+    .attr('fill', 'none')
+    .attr('stroke', '#0af')
+    .attr('stroke-width', 3)
+    .attr('stroke-linecap', 'round')
+    .attr('opacity', 0.4);
+
+  // Car dots
+  const carA = svg.append('circle')
+    .attr('r', 6)
+    .attr('fill', '#e10600')
+    .attr('filter', 'url(#carGlow)');
+
+  const carB = svg.append('circle')
+    .attr('r', 6)
+    .attr('fill', '#0af')
+    .attr('filter', 'url(#carGlow)');
+
+  // Car labels
+  const labelA = svg.append('text')
+    .attr('fill', '#e10600')
+    .attr('font-size', '10px')
+    .attr('font-weight', '700')
+    .attr('text-anchor', 'middle')
+    .text('A');
+
+  const labelB = svg.append('text')
+    .attr('fill', '#0af')
+    .attr('font-size', '10px')
+    .attr('font-weight', '700')
+    .attr('text-anchor', 'middle')
+    .text('B');
+
+  // MOM boost ring effect on Car B
+  const boostRing = svg.append('circle')
+    .attr('r', 12)
+    .attr('fill', 'none')
+    .attr('stroke', '#0af')
+    .attr('stroke-width', 2)
+    .attr('opacity', 0);
+
+  // ─── Simulation state ─────────────────────────────────────────────
+  const BASE_SPEED = 0.0008; // base t increment per frame
+
+  let state = {
+    running: false,
+    speedMult: 1,
+    tA: 0,        // position along path (0-1)
+    tB: 0.94,     // starts behind A (gap ~ 0.06 of circuit)
+    batA: 100,
+    batB: 100,
+    momA: false,
+    momB: false,
+    drsA: false,
+    drsB: false,
+    momBManual: false,
+    lap: 1,
+    events: [],
+    trailAHist: [],
+    trailBHist: [],
+    overtakeCount: 0,
+    carBLeading: false,
+  };
+
+  function resetState() {
+    state.running = false;
+    state.tA = 0;
+    state.tB = 0.94;
+    state.batA = 100;
+    state.batB = 100;
+    state.momA = false;
+    state.momB = false;
+    state.drsA = false;
+    state.drsB = false;
+    state.momBManual = false;
+    state.lap = 1;
+    state.events = [];
+    state.trailAHist = [];
+    state.trailBHist = [];
+    state.overtakeCount = 0;
+    state.carBLeading = false;
+    updateUI();
+    logEvent('Simulation reset', '');
+  }
+
+  // ─── Gap calculation ──────────────────────────────────────────────
+  function getGap() {
+    // Gap in terms of t (wrapping around)
+    let gap = state.tA - state.tB;
+    if (gap < 0) gap += 1;
+    if (gap > 0.5) gap = 1 - gap; // shorter path around
+    return gap;
+  }
+
+  // ─── Zone helpers ─────────────────────────────────────────────────
+  function getZoneAt(t) {
+    const idx = Math.floor(((t % 1) + 1) % 1 * NUM_SAMPLES) % NUM_SAMPLES;
+    return sampledPoints[idx];
+  }
+
+  function getPointAt(t) {
+    const len = ((t % 1) + 1) % 1 * totalLength;
+    return pathNode.getPointAtLength(len);
+  }
+
+  // ─── Event log ────────────────────────────────────────────────────
+  function logEvent(text, cls) {
+    state.events.unshift({ text, cls, time: Date.now() });
+    if (state.events.length > 50) state.events.pop();
+    const logEl = document.getElementById('event-log');
+    logEl.innerHTML = state.events.slice(0, 15).map(e =>
+      `<div class="event ${e.cls}">${e.text}</div>`
+    ).join('');
+  }
+
+  // ─── Simulation step ─────────────────────────────────────────────
+  function step() {
+    if (!state.running) return;
+
+    const gap = getGap();
+    const withinDRS = gap < 0.05; // within ~1 second equivalent
+
+    // Determine zone for each car
+    const zoneA = getZoneAt(state.tA);
+    const zoneB = getZoneAt(state.tB);
+
+    // === Car A (Leader) logic ===
+    let speedFactorA = zoneA.sf;
+
+    // Leader gets auto-MOM on MOM zones but with reduced allocation
+    state.momA = zoneA.zone === 'mom' && state.batA > 10;
+    state.drsA = zoneA.zone === 'drs' && !withinDRS; // leader gets DRS only if not being chased
+
+    if (state.momA) {
+      speedFactorA *= 1.08; // smaller boost for leader
+      state.batA = Math.max(0, state.batA - 0.12 * state.speedMult);
+    }
+    if (state.drsA) {
+      speedFactorA *= 1.04;
+    }
+
+    // Regen for A
+    if (zoneA.zone === 'regen') {
+      state.batA = Math.min(100, state.batA + 0.15 * state.speedMult);
+    }
+
+    // Passive regen in corners
+    if (zoneA.zone === 'corner') {
+      state.batA = Math.min(100, state.batA + 0.05 * state.speedMult);
+    }
+
+    // === Car B (Chaser) logic ===
+    let speedFactorB = zoneB.sf;
+
+    // Chaser gets DRS when within gap
+    state.drsB = zoneB.zone === 'drs' && withinDRS;
+
+    // MOM for chaser - auto in MOM zones with bigger allocation, plus manual override
+    const autoMOM = zoneB.zone === 'mom' && state.batB > 5;
+    const manualMOM = state.momBManual && state.batB > 5 &&
+      (zoneB.zone === 'straight' || zoneB.zone === 'drs' || zoneB.zone === 'mom');
+
+    state.momB = autoMOM || manualMOM;
+
+    if (state.momB) {
+      const boostMult = withinDRS ? 1.15 : 1.12; // extra boost when close
+      speedFactorB *= boostMult;
+      const drainRate = manualMOM ? 0.22 : 0.15; // manual costs more
+      state.batB = Math.max(0, state.batB - drainRate * state.speedMult);
+
+      if (state.batB <= 5) {
+        state.momBManual = false;
+        document.getElementById('btn-mom').classList.remove('active');
+        logEvent('Car B MOM depleted — battery low!', 'boost-event');
+      }
+    }
+
+    if (state.drsB) {
+      speedFactorB *= 1.06; // DRS for chaser is more effective
+    }
+
+    // Slipstream effect for chaser when close
+    if (gap < 0.08) {
+      const slipstream = 1 + (0.08 - gap) * 0.8; // up to ~6% boost
+      speedFactorB *= slipstream;
+    }
+
+    // Regen for B
+    if (zoneB.zone === 'regen') {
+      state.batB = Math.min(100, state.batB + 0.18 * state.speedMult); // chaser can regen slightly more
+    }
+    if (zoneB.zone === 'corner') {
+      state.batB = Math.min(100, state.batB + 0.06 * state.speedMult);
+    }
+
+    // === Move cars ===
+    const dtA = BASE_SPEED * speedFactorA * state.speedMult;
+    const dtB = BASE_SPEED * speedFactorB * state.speedMult;
+
+    const prevTA = state.tA;
+    state.tA = (state.tA + dtA) % 1;
+    state.tB = (state.tB + dtB) % 1;
+
+    // Lap counting (based on Car A crossing start)
+    if (state.tA < prevTA) {
+      state.lap++;
+      document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
+      logEvent(`Lap ${state.lap} started`, '');
+
+      if (state.lap > 10) {
+        state.running = false;
+        logEvent('Race complete!', 'overtake-event');
+        return;
+      }
+    }
+
+    // Overtake detection
+    const bAhead = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    if (bAhead && !state.carBLeading) {
+      state.overtakeCount++;
+      logEvent(`Overtake! Car B passes Car A (${state.overtakeCount} total)`, 'overtake-event');
+      state.carBLeading = true;
+    } else if (!bAhead && state.carBLeading) {
+      logEvent('Car A retakes the lead!', 'overtake-event');
+      state.carBLeading = false;
+    }
+
+    // Store trail history
+    const ptA = getPointAt(state.tA);
+    const ptB = getPointAt(state.tB);
+    state.trailAHist.push({ x: ptA.x, y: ptA.y });
+    state.trailBHist.push({ x: ptB.x, y: ptB.y });
+    if (state.trailAHist.length > TRAIL_LEN) state.trailAHist.shift();
+    if (state.trailBHist.length > TRAIL_LEN) state.trailBHist.shift();
+
+    updateUI();
+  }
+
+  // ─── UI updates ───────────────────────────────────────────────────
+  function updateUI() {
+    const ptA = getPointAt(state.tA);
+    const ptB = getPointAt(state.tB);
+    const zA = getZoneAt(state.tA);
+    const zB = getZoneAt(state.tB);
+
+    // Move cars
+    carA.attr('cx', ptA.x).attr('cy', ptA.y);
+    carB.attr('cx', ptB.x).attr('cy', ptB.y);
+    labelA.attr('x', ptA.x).attr('y', ptA.y - 12);
+    labelB.attr('x', ptB.x).attr('y', ptB.y - 12);
+
+    // Boost ring
+    if (state.momB) {
+      boostRing
+        .attr('cx', ptB.x).attr('cy', ptB.y)
+        .attr('opacity', 0.6)
+        .attr('r', 12 + Math.sin(Date.now() / 100) * 3);
+    } else {
+      boostRing.attr('opacity', 0);
+    }
+
+    // Trails
+    const trailLine = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom);
+    if (state.trailAHist.length > 1) trailA.attr('d', trailLine(state.trailAHist));
+    if (state.trailBHist.length > 1) trailB.attr('d', trailLine(state.trailBHist));
+
+    // Speed display (simulated km/h)
+    const spdA = Math.round(zA.sf * 340);
+    const spdB = Math.round(zB.sf * 340 * (state.momB ? 1.12 : 1));
+    document.getElementById('speed-a').innerHTML = `${spdA} <small style="font-size:0.6rem;color:#888">km/h</small>`;
+    document.getElementById('speed-b').innerHTML = `${spdB} <small style="font-size:0.6rem;color:#888">km/h</small>`;
+
+    // Battery
+    document.getElementById('bat-a-pct').textContent = `${Math.round(state.batA)}%`;
+    document.getElementById('bat-a-fill').style.width = `${state.batA}%`;
+    document.getElementById('bat-b-pct').textContent = `${Math.round(state.batB)}%`;
+    document.getElementById('bat-b-fill').style.width = `${state.batB}%`;
+
+    // Status indicators
+    const momAEl = document.getElementById('mom-a');
+    momAEl.textContent = state.momA ? 'ON' : 'OFF';
+    momAEl.className = 'value ' + (state.momA ? 'on' : 'off');
+
+    const drsAEl = document.getElementById('drs-a');
+    drsAEl.textContent = state.drsA ? 'ON' : 'OFF';
+    drsAEl.className = 'value ' + (state.drsA ? 'on' : 'off');
+
+    const momBEl = document.getElementById('mom-b');
+    momBEl.textContent = state.momB ? 'ON' : 'OFF';
+    momBEl.className = 'value ' + (state.momB ? 'active-boost' : 'off');
+
+    const drsBEl = document.getElementById('drs-b');
+    drsBEl.textContent = state.drsB ? 'ON' : 'OFF';
+    drsBEl.className = 'value ' + (state.drsB ? 'on' : 'off');
+  }
+
+  // ─── Animation loop ───────────────────────────────────────────────
+  function animate() {
+    step();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  // ─── Controls ─────────────────────────────────────────────────────
+  document.getElementById('btn-play').addEventListener('click', () => {
+    state.running = true;
+    logEvent('Simulation started', '');
+  });
+
+  document.getElementById('btn-pause').addEventListener('click', () => {
+    state.running = false;
+    logEvent('Simulation paused', '');
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    resetState();
+  });
+
+  const speedBtn = document.getElementById('btn-speed');
+  const speeds = [1, 2, 4];
+  let speedIdx = 0;
+  speedBtn.addEventListener('click', () => {
+    speedIdx = (speedIdx + 1) % speeds.length;
+    state.speedMult = speeds[speedIdx];
+    speedBtn.textContent = `${speeds[speedIdx]}×`;
+  });
+
+  // MOM manual boost
+  const momBtn = document.getElementById('btn-mom');
+  momBtn.addEventListener('click', () => {
+    state.momBManual = !state.momBManual;
+    momBtn.classList.toggle('active', state.momBManual);
+    if (state.momBManual) {
+      logEvent('Car B manual MOM boost activated!', 'boost-event');
+    } else {
+      logEvent('Car B manual MOM boost deactivated', '');
+    }
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      state.running = !state.running;
+    }
+    if (e.code === 'KeyB') {
+      momBtn.click();
+    }
+    if (e.code === 'KeyR') {
+      resetState();
+    }
+  });
+
+  // Tooltip on hover zones
+  const tooltip = document.getElementById('tooltip');
+  const circuitPanel = document.querySelector('.circuit-panel');
+
+  const zoneDescriptions = {
+    mom: '<strong>MOM Zone</strong><br>Manual Override Mode — drivers deploy full 350kW electrical boost here. Chasing car gets extra allocation.',
+    drs: '<strong>DRS Zone</strong><br>Drag Reduction System — rear wing opens to reduce drag. Chasing car (within 1s) gets the biggest advantage.',
+    regen: '<strong>Regen Zone</strong><br>Heavy braking area — MGU-K harvests kinetic energy to recharge the battery. Critical for energy strategy.',
+    corner: '<strong>Corner</strong><br>Medium-speed section — slight regeneration occurs. Aerodynamic grip is key.',
+    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available ERS energy.',
+  };
+
+  svg.on('mousemove', function(event) {
+    const [mx, my] = d3.pointer(event);
+    // Find nearest sampled point
+    let minDist = Infinity, nearest = null;
+    for (let i = 0; i < NUM_SAMPLES; i += 5) { // check every 5th for perf
+      const p = sampledPoints[i];
+      const d = (p.x - mx) ** 2 + (p.y - my) ** 2;
+      if (d < minDist) { minDist = d; nearest = p; }
+    }
+
+    if (nearest && minDist < 900) { // within ~30px
+      tooltip.innerHTML = zoneDescriptions[nearest.zone];
+      tooltip.classList.add('visible');
+      const rect = circuitPanel.getBoundingClientRect();
+      const svgRect = svg.node().getBoundingClientRect();
+      const scaleX = svgRect.width / W;
+      const scaleY = svgRect.height / H;
+      tooltip.style.left = (nearest.x * scaleX + 20) + 'px';
+      tooltip.style.top = (nearest.y * scaleY + 16) + 'px';
+    } else {
+      tooltip.classList.remove('visible');
+    }
+  });
+
+  svg.on('mouseleave', () => {
+    tooltip.classList.remove('visible');
+  });
+
+  // Initial UI
+  updateUI();
+  logEvent('Ready — press Play or Space to start', '');
+
+})();
+</script>
+</body>
+</html>

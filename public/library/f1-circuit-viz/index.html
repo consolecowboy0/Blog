@@ -488,6 +488,10 @@
             <div class="label">BOOST</div>
             <div class="value off" id="mom-a">OFF</div>
           </div>
+          <div class="status-item">
+            <div class="label">OVERTAKE</div>
+            <div class="value off" id="overtake-a">OFF</div>
+          </div>
         </div>
       </div>
 
@@ -951,9 +955,12 @@
     momB: false,
     momAManual: false,
     momBManual: false,
-    overtakeEarned: false,   // proximity detected this lap → grants +0.5 MJ next lap
-    overtakeActive: false,   // +0.5 MJ granted, MGU-K extended to 337 km/h this lap
-    overtakeUsed: 0,         // how much of the overtake energy has been spent this lap
+    overtakeEarnedA: false,  // Car A: proximity detected this lap → grants +0.5 MJ next lap
+    overtakeActiveA: false,  // Car A: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedA: 0,        // Car A: how much of the overtake energy has been spent this lap
+    overtakeEarnedB: false,  // Car B: proximity detected this lap → grants +0.5 MJ next lap
+    overtakeActiveB: false,  // Car B: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedB: 0,        // Car B: how much of the overtake energy has been spent this lap
     lap: 1,
     events: [],
     trailAHist: [],
@@ -972,9 +979,12 @@
     state.momB = false;
     state.momAManual = false;
     state.momBManual = false;
-    state.overtakeEarned = false;
-    state.overtakeActive = false;
-    state.overtakeUsed = 0;
+    state.overtakeEarnedA = false;
+    state.overtakeActiveA = false;
+    state.overtakeUsedA = 0;
+    state.overtakeEarnedB = false;
+    state.overtakeActiveB = false;
+    state.overtakeUsedB = 0;
     state.lap = 1;
     state.events = [];
     state.trailAHist = [];
@@ -1036,7 +1046,12 @@
     const zoneA = getZoneAt(state.tA);
     const zoneB = getZoneAt(state.tB);
 
-    // ── Car A (leader) ──
+    // Determine who is the chaser
+    const bAheadNow = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    const aIsChaser = bAheadNow;    // Car A is chaser when Car B is ahead
+    const bIsChaser = !bAheadNow;   // Car B is chaser when Car A is ahead
+
+    // ── Car A ──
     // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
     // Boost: available to everyone, anytime, via steering wheel button — just battery deployment
     let sfA = zoneA.sf;
@@ -1046,9 +1061,10 @@
     state.momA = autoMOMA || manualMOMA;
 
     if (state.momA) {
-      // Leader Boost: standard 350kW deploy, but MGU-K tapers after 290 km/h
-      const taper = mguTaper(sfA, 290);
-      sfA *= 1 + 0.06 * taper;  // up to ~6% gain, fading above 290 km/h
+      // Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
+      const taperKmh = state.overtakeActiveA ? 337 : 290;
+      const taper = mguTaper(sfA, taperKmh);
+      sfA *= 1 + 0.06 * taper;  // up to ~6% gain, fading above taper speed
       state.batA = Math.max(0, state.batA - (manualMOMA ? 0.25 : 0.14) * state.speedMult);
       if (state.batA <= 5) {
         state.momAManual = false;
@@ -1056,13 +1072,26 @@
         logEvent('Car A Boost depleted -- Energy Store low!', 'boost-event');
       }
     }
+
+    // Overtake Mode active for Car A: extra energy from the +0.5 MJ grant
+    if (state.overtakeActiveA && state.overtakeUsedA < 100) {
+      const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight' || zoneA.zone === 'mom';
+      if (inDeployZone) {
+        sfA *= 1.03;  // extra speed from extended MGU-K deployment window
+        state.overtakeUsedA += 0.35 * state.speedMult;
+        if (state.overtakeUsedA >= 100) {
+          logEvent('Car A Overtake Mode energy depleted for this lap', '');
+        }
+      }
+    }
+
     // Heavy braking regen: MGU-K harvests up to 350kW during deceleration
     if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
     // Light regen through corners
     if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.015 * state.speedMult);
 
-    // ── Car B (chaser) ──
-    // Boost: same as leader — available anytime, no proximity requirement
+    // ── Car B ──
+    // Boost: available anytime, no proximity requirement
     let sfB = zoneB.sf;
 
     const autoMOMB = zoneB.zone === 'mom' && state.batB > 5;
@@ -1071,8 +1100,8 @@
     state.momB = autoMOMB || manualMOMB;
 
     if (state.momB) {
-      // Chaser Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
-      const taperKmh = state.overtakeActive ? 337 : 290;
+      // Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
+      const taperKmh = state.overtakeActiveB ? 337 : 290;
       const taper = mguTaper(sfB, taperKmh);
       sfB *= 1 + 0.06 * taper;
       state.batB = Math.max(0, state.batB - (manualMOMB ? 0.25 : 0.16) * state.speedMult);
@@ -1084,20 +1113,25 @@
     }
 
     // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
-    if (zoneB.zone === 'overtake' && withinOvertake && !state.overtakeEarned) {
-      state.overtakeEarned = true;
-      logEvent('Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+    if (withinOvertake) {
+      if (bIsChaser && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
+        state.overtakeEarnedB = true;
+        logEvent('Car B Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+      }
+      if (aIsChaser && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
+        state.overtakeEarnedA = true;
+        logEvent('Car A Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+      }
     }
 
-    // Overtake Mode active this lap: extra energy from the +0.5 MJ grant
-    // Modeled as a bonus energy budget the chaser can spend on straights/overtake zones
-    if (state.overtakeActive && state.overtakeUsed < 100) {
+    // Overtake Mode active for Car B: extra energy from the +0.5 MJ grant
+    if (state.overtakeActiveB && state.overtakeUsedB < 100) {
       const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight' || zoneB.zone === 'mom';
       if (inDeployZone) {
         sfB *= 1.03;  // extra speed from extended MGU-K deployment window
-        state.overtakeUsed += 0.35 * state.speedMult;
-        if (state.overtakeUsed >= 100) {
-          logEvent('Overtake Mode energy depleted for this lap', '');
+        state.overtakeUsedB += 0.35 * state.speedMult;
+        if (state.overtakeUsedB >= 100) {
+          logEvent('Car B Overtake Mode energy depleted for this lap', '');
         }
       }
     }
@@ -1121,17 +1155,30 @@
       state.lap++;
       document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
 
-      // Overtake Mode: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
-      if (state.overtakeEarned) {
-        state.overtakeActive = true;
-        state.overtakeUsed = 0;
-        state.batB = Math.min(100, state.batB + 12.5);  // +0.5 MJ out of 4 MJ total = 12.5%
-        logEvent(`Lap ${state.lap}: Overtake Mode ACTIVE -- +0.5 MJ deployed!`, 'boost-event');
-        state.overtakeEarned = false;
+      // Overtake Mode for Car A: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
+      if (state.overtakeEarnedA) {
+        state.overtakeActiveA = true;
+        state.overtakeUsedA = 0;
+        state.batA = Math.min(100, state.batA + 12.5);  // +0.5 MJ out of 4 MJ total = 12.5%
+        logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.5 MJ deployed!`, 'boost-event');
+        state.overtakeEarnedA = false;
       } else {
-        if (state.overtakeActive) logEvent(`Lap ${state.lap}: Overtake Mode expired`, '');
-        state.overtakeActive = false;
-        state.overtakeUsed = 0;
+        if (state.overtakeActiveA) logEvent(`Lap ${state.lap}: Car A Overtake Mode expired`, '');
+        state.overtakeActiveA = false;
+        state.overtakeUsedA = 0;
+      }
+
+      // Overtake Mode for Car B: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
+      if (state.overtakeEarnedB) {
+        state.overtakeActiveB = true;
+        state.overtakeUsedB = 0;
+        state.batB = Math.min(100, state.batB + 12.5);  // +0.5 MJ out of 4 MJ total = 12.5%
+        logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.5 MJ deployed!`, 'boost-event');
+        state.overtakeEarnedB = false;
+      } else {
+        if (state.overtakeActiveB) logEvent(`Lap ${state.lap}: Car B Overtake Mode expired`, '');
+        state.overtakeActiveB = false;
+        state.overtakeUsedB = 0;
       }
 
       logEvent(`Lap ${state.lap} started`, '');
@@ -1206,12 +1253,12 @@
       el.textContent = on ? 'ON' : 'OFF';
       el.className = 'value ' + (on ? cls : 'off');
     };
-    const setOvertake = (id) => {
+    const setOvertake = (id, active, used, earned) => {
       const el = document.getElementById(id);
-      if (state.overtakeActive && state.overtakeUsed < 100) {
+      if (active && used < 100) {
         el.textContent = 'ACTIVE';
         el.className = 'value active-boost';
-      } else if (state.overtakeEarned) {
+      } else if (earned) {
         el.textContent = 'EARNED';
         el.className = 'value on';
       } else {
@@ -1221,7 +1268,8 @@
     };
     set('mom-a', state.momA, 'on');
     set('mom-b', state.momB, 'active-boost');
-    setOvertake('overtake-b');
+    setOvertake('overtake-a', state.overtakeActiveA, state.overtakeUsedA, state.overtakeEarnedA);
+    setOvertake('overtake-b', state.overtakeActiveB, state.overtakeUsedB, state.overtakeEarnedB);
   }
 
   // ─── Loop ─────────────────────────────────────────────────────────
@@ -1279,7 +1327,7 @@
 
   const zoneDesc = {
     mom: '<strong>Boost Zone</strong><br>Auto-deploy zone -- both cars deploy full 350kW electrical power here. Boost is your baseline energy tool, available to everyone.',
-    overtake: '<strong>Overtake Zone</strong><br>If the chaser is within ~1 second here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap. The leader\'s MGU-K tapers at 290 km/h; the chaser with Overtake deploys to 337 km/h.',
+    overtake: '<strong>Overtake Zone</strong><br>If either car is within ~1 second of the car ahead here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap. Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
     regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests up to 350kW of kinetic energy to recharge the Energy Store. Critical for energy strategy.',
     corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. Slight energy regeneration during coasting.',
     straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',

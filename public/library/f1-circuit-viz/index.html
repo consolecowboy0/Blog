@@ -457,7 +457,7 @@
         <div class="legend-item"><div class="legend-swatch" style="background:#3b82f6"></div> Car B (Chaser)</div>
         <div class="legend-item"><div class="legend-swatch" style="background:rgba(59,130,246,0.25)"></div> Boost Zone</div>
         <div class="legend-item"><div class="legend-swatch" style="background:rgba(22,163,74,0.25)"></div> Regen Zone</div>
-        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> X-Mode Zone</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:rgba(180,83,9,0.25)"></div> Overtake Detection</div>
       </div>
     </div>
 
@@ -484,10 +484,6 @@
             <div class="label">BOOST</div>
             <div class="value off" id="mom-a">OFF</div>
           </div>
-          <div class="status-item">
-            <div class="label">X-MODE</div>
-            <div class="value off" id="drs-a">OFF</div>
-          </div>
         </div>
       </div>
 
@@ -513,17 +509,18 @@
             <div class="value off" id="mom-b">OFF</div>
           </div>
           <div class="status-item">
-            <div class="label">X-MODE</div>
-            <div class="value off" id="drs-b">OFF</div>
+            <div class="label">OVERTAKE</div>
+            <div class="value off" id="overtake-b">OFF</div>
           </div>
         </div>
       </div>
 
-      <!-- Boost Control -->
+      <!-- Boost Controls -->
       <div class="panel">
-        <div class="panel-title">Boost Button</div>
-        <p class="mom-helper">Activate Boost for Car B (chaser). Triggers maximum electrical deployment -- drains the Energy Store faster but gives a speed advantage on straights. Press <strong>B</strong> to toggle.</p>
-        <button class="boost-btn" id="btn-mom">Activate Boost (Car B)</button>
+        <div class="panel-title">Boost Buttons</div>
+        <p class="mom-helper">Boost is regular battery deployment — available to any driver, anytime, anywhere on track. Drains the Energy Store faster but gives a speed advantage. Press <strong>A</strong> / <strong>B</strong> to toggle.</p>
+        <button class="boost-btn" id="btn-boost-a" style="background:#e10600;margin-bottom:6px">Boost Car A (A)</button>
+        <button class="boost-btn" id="btn-boost-b">Boost Car B (B)</button>
       </div>
 
       <!-- Event log -->
@@ -536,29 +533,30 @@
 
   <!-- Explainer -->
   <div class="explainer">
-    <h3>How the 2026 F1 Overtake Mode &amp; Boost Systems Work</h3>
+    <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
     <p>
       The <span class="hl">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
       <span class="hl-blue">350kW</span>, meaning nearly half the car's ~750kW total comes from the electric motor. DRS is gone, replaced by
-      <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system.
+      <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system with two distinct tools:
     </p>
     <p>
-      Cars switch between <span class="hl">Z-Mode</span> (maximum downforce in corners) and <span class="hl-gold">X-Mode</span> (minimum drag
-      on straights, with front and rear wing flaps opening automatically). On top of this, the
-      <span class="hl-blue">Boost</span> button lets drivers trigger maximum electrical deployment at will -- but it
-      <span class="hl-red">drains the Energy Store faster</span>. When within ~1 second of the car ahead,
-      <span class="hl-blue">Overtake Mode</span> activates: the chasing car receives an extra <span class="hl-blue">+0.5 MJ</span> of energy
-      and the MGU-K ramp-down is delayed from 290 km/h to 337 km/h, giving a significant straight-line advantage.
+      <span class="hl-blue">Boost</span> is your baseline energy tool -- regular battery deployment via a steering wheel button, available to
+      <span class="hl">any driver, anytime, anywhere</span> on track. No proximity requirement. The ERS harvests energy from braking and
+      exhaust gases; drivers deploy it whenever they want. It <span class="hl-red">drains the Energy Store faster</span>, so managing
+      when to use it is key. Both cars have a Boost button (press <strong>A</strong> or <strong>B</strong>).
+    </p>
+    <p>
+      <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
+      When the chaser is within ~1 second at an <span class="hl-gold">Overtake detection zone</span>, they earn an extra
+      <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>. The leader's MGU-K electrical power
+      tapers off after <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
+      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at Monza speeds.
     </p>
     <p>
       <span class="hl-green">Regenerative braking zones</span> become critical -- heavy braking areas recharge the Energy Store via the MGU-K
-      (harvesting up to 350kW), and drivers must balance aggressive deployment on straights with ensuring enough energy is harvested in braking zones.
-      The leading car must manage their Energy Store carefully, as they get <span class="hl-red">no Overtake Mode bonus</span> to defend with.
-    </p>
-    <p>
-      <span class="hl">Monza</span> is the perfect test for this system -- its long straights reward aggressive Boost deployment, while the
-      chicanes and Parabolica provide critical regen opportunities. Watch how Car B can use Boost strategically to close up through the
-      main straight and attempt overtakes into the Variante del Rettifilo.
+      (harvesting up to 350kW). <span class="hl">Monza</span> is the perfect test: long straights where the MGU-K taper matters most,
+      and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
+      extra energy on the following lap to make a move into the Variante del Rettifilo.
     </p>
   </div>
 </div>
@@ -596,9 +594,9 @@
     // Start/finish straight (very long - Monza's signature)
     // Cars exit Parabolica at ~290 km/h, build to 355 km/h by T1 braking zone
     { x: 0.084, y: 0.733, sf: 0.92, zone: 'straight', name: 'Start/Finish' },
-    { x: 0.091, y: 0.693, sf: 0.96, zone: 'drs' },
-    { x: 0.099, y: 0.647, sf: 0.99, zone: 'drs' },
-    { x: 0.106, y: 0.601, sf: 1.00, zone: 'drs' },
+    { x: 0.091, y: 0.693, sf: 0.96, zone: 'overtake' },
+    { x: 0.099, y: 0.647, sf: 0.99, zone: 'overtake' },
+    { x: 0.106, y: 0.601, sf: 1.00, zone: 'overtake' },
     { x: 0.113, y: 0.560, sf: 1.00, zone: 'mom' },
     { x: 0.120, y: 0.514, sf: 1.00, zone: 'mom' },
     { x: 0.127, y: 0.468, sf: 0.97, zone: 'mom' },
@@ -631,7 +629,7 @@
 
     // Back straight toward Ascari (long straight - key MOM zone)
     // Cars accelerate from ~180 km/h to ~345 km/h
-    { x: 0.723, y: 0.104, sf: 0.80, zone: 'drs' },  // building speed (~284 km/h)
+    { x: 0.723, y: 0.104, sf: 0.80, zone: 'overtake' },  // building speed (~284 km/h)
     { x: 0.799, y: 0.089, sf: 0.92, zone: 'mom' },  // high speed (~327 km/h)
     { x: 0.876, y: 0.083, sf: 0.97, zone: 'mom' },  // near peak (~345 km/h)
 
@@ -644,8 +642,8 @@
     // Straight to Parabolica
     // Accelerating from Ascari exit toward Parabolica braking
     { x: 0.844, y: 0.231, sf: 0.53, zone: 'straight' },  // accelerating (~188 km/h)
-    { x: 0.783, y: 0.251, sf: 0.82, zone: 'drs' },  // building speed (~291 km/h)
-    { x: 0.713, y: 0.274, sf: 0.88, zone: 'drs' },  // high speed (~312 km/h)
+    { x: 0.783, y: 0.251, sf: 0.82, zone: 'overtake' },  // building speed (~291 km/h)
+    { x: 0.713, y: 0.274, sf: 0.88, zone: 'overtake' },  // high speed (~312 km/h)
     { x: 0.648, y: 0.301, sf: 0.91, zone: 'mom' },  // near peak (~323 km/h)
     { x: 0.588, y: 0.332, sf: 0.90, zone: 'mom' },  // starting to scrub (~320 km/h)
     { x: 0.535, y: 0.358, sf: 0.80, zone: 'regen' },  // braking for Parabolica (~284 km/h)
@@ -736,15 +734,15 @@
 
   // ─── Zone highlights ──────────────────────────────────────────────
   const zoneColors = {
-    mom:   'rgba(59,130,246,0.12)',
-    drs:   'rgba(180,83,9,0.10)',
-    regen: 'rgba(22,163,74,0.10)',
+    mom:      'rgba(59,130,246,0.12)',
+    overtake: 'rgba(180,83,9,0.10)',
+    regen:    'rgba(22,163,74,0.10)',
   };
 
   const zoneStroke = {
-    mom:   'rgba(59,130,246,0.30)',
-    drs:   'rgba(180,83,9,0.28)',
-    regen: 'rgba(22,163,74,0.28)',
+    mom:      'rgba(59,130,246,0.30)',
+    overtake: 'rgba(180,83,9,0.28)',
+    regen:    'rgba(22,163,74,0.28)',
   };
 
   function getZoneSegments() {
@@ -949,9 +947,11 @@
     batB: 100,
     momA: false,
     momB: false,
-    drsA: false,
-    drsB: false,
+    momAManual: false,
     momBManual: false,
+    overtakeEarned: false,   // proximity detected this lap → grants +0.5 MJ next lap
+    overtakeActive: false,   // +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsed: 0,         // how much of the overtake energy has been spent this lap
     lap: 1,
     events: [],
     trailAHist: [],
@@ -968,16 +968,19 @@
     state.batB = 100;
     state.momA = false;
     state.momB = false;
-    state.drsA = false;
-    state.drsB = false;
+    state.momAManual = false;
     state.momBManual = false;
+    state.overtakeEarned = false;
+    state.overtakeActive = false;
+    state.overtakeUsed = 0;
     state.lap = 1;
     state.events = [];
     state.trailAHist = [];
     state.trailBHist = [];
     state.overtakeCount = 0;
     state.carBLeading = false;
-    document.getElementById('btn-mom').classList.remove('active');
+    document.getElementById('btn-boost-a').classList.remove('active');
+    document.getElementById('btn-boost-b').classList.remove('active');
     updateUI();
     logEvent('Simulation reset', '');
   }
@@ -1010,11 +1013,21 @@
   }
 
   // ─── Simulation ───────────────────────────────────────────────────
+  // MGU-K taper: leader's electrical power tapers after 290 km/h, chaser w/ Overtake deploys to 337 km/h
+  // Model this as a speed-dependent multiplier penalty at high speeds
+  function mguTaper(sf, taperThreshold) {
+    // sf=1.0 → 355 km/h; threshold in km/h; above threshold, electrical boost fades linearly
+    const speedKmh = sf * 355;
+    if (speedKmh <= taperThreshold) return 1.0;
+    // Linearly reduce electrical contribution from 100% to 0% between threshold and 355 km/h
+    return Math.max(0, 1 - (speedKmh - taperThreshold) / (355 - taperThreshold));
+  }
+
   function step() {
     if (!state.running) return;
 
     const gap = getGap();
-    // Overtake Mode activation: within ~1 second of car ahead (same proximity rule as old DRS)
+    // Proximity check: within ~1 second of car ahead
     // At avg speed ~0.7 sf, car covers ~0.0005 track/frame × 60fps = 0.03 track/sec
     const withinOvertake = gap < 0.03;
 
@@ -1023,53 +1036,77 @@
 
     // ── Car A (leader) ──
     // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
-    // Leader gets standard Boost deploy but no Overtake Mode bonus
+    // Boost: available to everyone, anytime, via steering wheel button — just battery deployment
     let sfA = zoneA.sf;
-    state.momA = zoneA.zone === 'mom' && state.batA > 10;
-    state.drsA = zoneA.zone === 'drs' && !withinOvertake;
+    const autoMOMA = zoneA.zone === 'mom' && state.batA > 5;
+    const manualMOMA = state.momAManual && state.batA > 5 &&
+      (zoneA.zone === 'straight' || zoneA.zone === 'overtake' || zoneA.zone === 'mom');
+    state.momA = autoMOMA || manualMOMA;
 
     if (state.momA) {
-      sfA *= 1.06;  // standard 350kW deploy: ~6% speed gain over ICE-only baseline
-      state.batA = Math.max(0, state.batA - 0.14 * state.speedMult);  // ~55% drain per lap in MOM zones
+      // Leader Boost: standard 350kW deploy, but MGU-K tapers after 290 km/h
+      const taper = mguTaper(sfA, 290);
+      sfA *= 1 + 0.06 * taper;  // up to ~6% gain, fading above 290 km/h
+      state.batA = Math.max(0, state.batA - (manualMOMA ? 0.25 : 0.14) * state.speedMult);
+      if (state.batA <= 5) {
+        state.momAManual = false;
+        document.getElementById('btn-boost-a').classList.remove('active');
+        logEvent('Car A Boost depleted -- Energy Store low!', 'boost-event');
+      }
     }
-    if (state.drsA) sfA *= 1.03;  // X-Mode: active aero opens wings, ~3% drag reduction on straights
     // Heavy braking regen: MGU-K harvests up to 350kW during deceleration
     if (zoneA.zone === 'regen') state.batA = Math.min(100, state.batA + 0.20 * state.speedMult);
-    // Light regen through corners (partial harvesting during coasting/light braking)
+    // Light regen through corners
     if (zoneA.zone === 'corner') state.batA = Math.min(100, state.batA + 0.015 * state.speedMult);
 
     // ── Car B (chaser) ──
-    // Chasing car in Overtake Mode: +0.5 MJ extra energy, MGU-K ramps to 337 km/h (vs 290 for leader)
+    // Boost: same as leader — available anytime, no proximity requirement
     let sfB = zoneB.sf;
-    state.drsB = zoneB.zone === 'drs' && withinOvertake;
 
-    const autoMOM = zoneB.zone === 'mom' && state.batB > 5;
-    const manualMOM = state.momBManual && state.batB > 5 &&
-      (zoneB.zone === 'straight' || zoneB.zone === 'drs' || zoneB.zone === 'mom');
-    state.momB = autoMOM || manualMOM;
+    const autoMOMB = zoneB.zone === 'mom' && state.batB > 5;
+    const manualMOMB = state.momBManual && state.batB > 5 &&
+      (zoneB.zone === 'straight' || zoneB.zone === 'overtake' || zoneB.zone === 'mom');
+    state.momB = autoMOMB || manualMOMB;
 
     if (state.momB) {
-      // Chaser Boost: 8% base, 10% in Overtake Mode (extra +0.5 MJ per 2026 regs)
-      sfB *= withinOvertake ? 1.10 : 1.08;
-      // Manual Boost drains faster (aggressive deployment strategy)
-      state.batB = Math.max(0, state.batB - (manualMOM ? 0.25 : 0.16) * state.speedMult);
+      // Chaser Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
+      const taperKmh = state.overtakeActive ? 337 : 290;
+      const taper = mguTaper(sfB, taperKmh);
+      sfB *= 1 + 0.06 * taper;
+      state.batB = Math.max(0, state.batB - (manualMOMB ? 0.25 : 0.16) * state.speedMult);
       if (state.batB <= 5) {
         state.momBManual = false;
-        document.getElementById('btn-mom').classList.remove('active');
+        document.getElementById('btn-boost-b').classList.remove('active');
         logEvent('Car B Boost depleted -- Energy Store low!', 'boost-event');
       }
     }
-    if (state.drsB) sfB *= 1.03;  // X-Mode: active aero straight configuration, ~3% drag reduction
+
+    // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
+    if (zoneB.zone === 'overtake' && withinOvertake && !state.overtakeEarned) {
+      state.overtakeEarned = true;
+      logEvent('Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+    }
+
+    // Overtake Mode active this lap: extra energy from the +0.5 MJ grant
+    // Modeled as a bonus energy budget the chaser can spend on straights/overtake zones
+    if (state.overtakeActive && state.overtakeUsed < 100) {
+      const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight' || zoneB.zone === 'mom';
+      if (inDeployZone) {
+        sfB *= 1.03;  // extra speed from extended MGU-K deployment window
+        state.overtakeUsed += 0.35 * state.speedMult;
+        if (state.overtakeUsed >= 100) {
+          logEvent('Overtake Mode energy depleted for this lap', '');
+        }
+      }
+    }
 
     // Slipstream effect: realistic aero wash benefit (~5-8 km/h at close range ≈ 1.5-2%)
-    // Effect scales linearly with proximity, only significant within ~1 second
     if (gap < 0.04) {
-      sfB *= 1 + (0.04 - gap) * 0.5;  // max +2% at zero gap (realistic slipstream)
+      sfB *= 1 + (0.04 - gap) * 0.5;  // max +2% at zero gap
     }
 
     // Heavy braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
     if (zoneB.zone === 'regen') state.batB = Math.min(100, state.batB + 0.22 * state.speedMult);
-    // Light corner regen
     if (zoneB.zone === 'corner') state.batB = Math.min(100, state.batB + 0.015 * state.speedMult);
 
     // Move
@@ -1077,10 +1114,24 @@
     state.tA = (state.tA + BASE_SPEED * sfA * state.speedMult) % 1;
     state.tB = (state.tB + BASE_SPEED * sfB * state.speedMult) % 1;
 
-    // Lap
+    // Lap boundary
     if (state.tA < prevTA) {
       state.lap++;
       document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
+
+      // Overtake Mode: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
+      if (state.overtakeEarned) {
+        state.overtakeActive = true;
+        state.overtakeUsed = 0;
+        state.batB = Math.min(100, state.batB + 12.5);  // +0.5 MJ out of 4 MJ total = 12.5%
+        logEvent(`Lap ${state.lap}: Overtake Mode ACTIVE -- +0.5 MJ deployed!`, 'boost-event');
+        state.overtakeEarned = false;
+      } else {
+        if (state.overtakeActive) logEvent(`Lap ${state.lap}: Overtake Mode expired`, '');
+        state.overtakeActive = false;
+        state.overtakeUsed = 0;
+      }
+
       logEvent(`Lap ${state.lap} started`, '');
       if (state.lap > 10) {
         state.running = false;
@@ -1136,8 +1187,8 @@
     if (state.trailBHist.length > 1) trailB.attr('d', trailLine(state.trailBHist));
 
     // Speed — 355 km/h top speed for 2026 F1 at Monza (ICE ~400kW + MGU-K 350kW ≈ 750kW / ~1000bhp)
-    const spdA = Math.round(zA.sf * 355);
-    const spdB = Math.round(zB.sf * 355 * (state.momB ? 1.08 : 1));
+    const spdA = Math.round(zA.sf * 355 * (state.momA ? 1.06 : 1));
+    const spdB = Math.round(zB.sf * 355 * (state.momB ? 1.06 : 1));
     document.getElementById('speed-a').innerHTML = `${spdA}<span class="speed-unit"> km/h</span>`;
     document.getElementById('speed-b').innerHTML = `${spdB}<span class="speed-unit"> km/h</span>`;
 
@@ -1153,10 +1204,22 @@
       el.textContent = on ? 'ON' : 'OFF';
       el.className = 'value ' + (on ? cls : 'off');
     };
+    const setOvertake = (id) => {
+      const el = document.getElementById(id);
+      if (state.overtakeActive && state.overtakeUsed < 100) {
+        el.textContent = 'ACTIVE';
+        el.className = 'value active-boost';
+      } else if (state.overtakeEarned) {
+        el.textContent = 'EARNED';
+        el.className = 'value on';
+      } else {
+        el.textContent = 'OFF';
+        el.className = 'value off';
+      }
+    };
     set('mom-a', state.momA, 'on');
-    set('drs-a', state.drsA, 'on');
     set('mom-b', state.momB, 'active-boost');
-    set('drs-b', state.drsB, 'on');
+    setOvertake('overtake-b');
   }
 
   // ─── Loop ─────────────────────────────────────────────────────────
@@ -1188,16 +1251,24 @@
     speedBtn.textContent = `${speeds[speedIdx]}x`;
   });
 
-  const momBtn = document.getElementById('btn-mom');
-  momBtn.addEventListener('click', () => {
+  const boostBtnA = document.getElementById('btn-boost-a');
+  boostBtnA.addEventListener('click', () => {
+    state.momAManual = !state.momAManual;
+    boostBtnA.classList.toggle('active', state.momAManual);
+    logEvent(state.momAManual ? 'Car A Boost activated!' : 'Car A Boost deactivated', state.momAManual ? 'boost-event' : '');
+  });
+
+  const boostBtnB = document.getElementById('btn-boost-b');
+  boostBtnB.addEventListener('click', () => {
     state.momBManual = !state.momBManual;
-    momBtn.classList.toggle('active', state.momBManual);
+    boostBtnB.classList.toggle('active', state.momBManual);
     logEvent(state.momBManual ? 'Car B Boost activated!' : 'Car B Boost deactivated', state.momBManual ? 'boost-event' : '');
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space') { e.preventDefault(); state.running = !state.running; }
-    if (e.code === 'KeyB') momBtn.click();
+    if (e.code === 'KeyA') boostBtnA.click();
+    if (e.code === 'KeyB') boostBtnB.click();
     if (e.code === 'KeyR') resetState();
   });
 
@@ -1205,11 +1276,11 @@
   const tooltip = document.getElementById('tooltip');
 
   const zoneDesc = {
-    mom: '<strong>Boost Zone</strong><br>Drivers deploy full 350kW electrical power here. Chasing car in Overtake Mode gets +0.5 MJ extra energy allocation.',
-    drs: '<strong>X-Mode Zone</strong><br>Active aero straight configuration -- front and rear wings open to reduce drag. All cars benefit automatically.',
+    mom: '<strong>Boost Zone</strong><br>Auto-deploy zone -- both cars deploy full 350kW electrical power here. Boost is your baseline energy tool, available to everyone.',
+    overtake: '<strong>Overtake Detection Zone</strong><br>If the chaser is within ~1 second here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap. The leader\'s MGU-K tapers at 290 km/h; the chaser with Overtake deploys to 337 km/h.',
     regen: '<strong>Regen Zone</strong><br>Heavy braking area -- MGU-K harvests up to 350kW of kinetic energy to recharge the Energy Store. Critical for energy strategy.',
-    corner: '<strong>Corner (Z-Mode)</strong><br>Active aero in Z-Mode (max downforce). Slight energy regeneration during coasting.',
-    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge.',
+    corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. Slight energy regeneration during coasting.',
+    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',
   };
 
   svg.on('mousemove', function(event) {

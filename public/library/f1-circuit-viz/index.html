@@ -1305,9 +1305,10 @@
       state.peakSfA = zoneA.sf;  // update peak while accelerating or at constant speed
     }
     const brakingIntensityA = state.peakSfA - zoneA.sf;
-    if (brakingIntensityA > 0.05 && state.batA < 100) {
+    const regenCapA = state.overtakeActiveA ? 115 : 100;
+    if (brakingIntensityA > 0.05 && state.batA < regenCapA) {
       const regenRate = Math.min(brakingIntensityA * 0.18, 0.35);
-      state.batA = Math.min(100, state.batA + regenRate * state.speedMult);
+      state.batA = Math.min(regenCapA, state.batA + regenRate * state.speedMult);
     }
     // Reset peak when car is accelerating out of corner (sf increasing)
     if (zoneA.sf > state.prevSfA + 0.01) {
@@ -1384,9 +1385,10 @@
       state.peakSfB = zoneB.sf;
     }
     const brakingIntensityB = state.peakSfB - zoneB.sf;
-    if (brakingIntensityB > 0.05 && state.batB < 100) {
+    const regenCapB = state.overtakeActiveB ? 115 : 100;
+    if (brakingIntensityB > 0.05 && state.batB < regenCapB) {
       const regenRate = Math.min(brakingIntensityB * 0.21, 0.40);  // chaser regens slightly more
-      state.batB = Math.min(100, state.batB + regenRate * state.speedMult);
+      state.batB = Math.min(regenCapB, state.batB + regenRate * state.speedMult);
     }
     if (zoneB.sf > state.prevSfB + 0.01) {
       state.peakSfB = zoneB.sf;

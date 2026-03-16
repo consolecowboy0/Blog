@@ -16,8 +16,30 @@ const { src, title, description, showHeader = false } = Astro.props;
       {description && <p class="library-embed-desc">{description}</p>}
     </div>
   )}
-  <iframe src={src} title={title} loading="lazy"></iframe>
+  <div class="library-embed-container">
+    <div class="library-loading" aria-live="polite">
+      <div class="library-loading-inner">
+        <div class="library-loading-bars">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p class="library-loading-text">Loading</p>
+      </div>
+    </div>
+    <iframe src={src} title={title} loading="lazy"></iframe>
+  </div>
 </div>
+
+<script>
+  document.querySelectorAll('.library-embed-container').forEach((container) => {
+    const iframe = container.querySelector('iframe');
+    const loading = container.querySelector('.library-loading');
+    if (!iframe || !loading) return;
+
+    iframe.addEventListener('load', () => {
+      loading.classList.add('loaded');
+    });
+  });
+</script>
 
 <style>
   .library-embed {
@@ -33,9 +55,69 @@ const { src, title, description, showHeader = false } = Astro.props;
     margin-bottom: 1.5rem;
   }
 
+  .library-embed-container {
+    position: relative;
+  }
+
   .library-embed iframe {
     width: 100%;
     min-height: 80vh;
     border: 1px solid var(--border);
+  }
+
+  .library-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg, #ffffff);
+    border: 1px solid var(--border, #d4d4d0);
+    z-index: 10;
+    transition: opacity 0.4s ease;
+  }
+
+  .library-loading.loaded {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .library-loading-inner {
+    text-align: center;
+  }
+
+  .library-loading-bars {
+    display: inline-flex;
+    gap: 4px;
+    height: 32px;
+    align-items: end;
+  }
+
+  .library-loading-bars span {
+    display: block;
+    width: 4px;
+    background: var(--fg, #1a1a1a);
+    border-radius: 2px;
+    animation: loading-bar 1s ease-in-out infinite;
+  }
+
+  .library-loading-bars span:nth-child(1) { height: 8px; animation-delay: 0s; }
+  .library-loading-bars span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+  .library-loading-bars span:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+  .library-loading-bars span:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+  .library-loading-bars span:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+
+  @keyframes loading-bar {
+    0%, 100% { transform: scaleY(1); opacity: 0.4; }
+    50% { transform: scaleY(2); opacity: 1; }
+  }
+
+  .library-loading-text {
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-muted, #555);
   }
 </style>

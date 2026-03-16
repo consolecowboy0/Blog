@@ -601,7 +601,7 @@
     <div class="side-panel">
       <!-- Car A -->
       <div class="panel">
-        <div class="panel-title">Car A — Leader</div>
+        <div class="panel-title" id="title-a">Car A — Leader</div>
         <div class="speed-row">
           <div class="speed-label"><div class="dot" style="background:#e10600"></div> Speed</div>
           <div class="speed-value" id="speed-a" style="color:#e10600">0<span class="speed-unit"> km/h</span></div>
@@ -636,7 +636,7 @@
 
       <!-- Car B -->
       <div class="panel">
-        <div class="panel-title">Car B — Chaser</div>
+        <div class="panel-title" id="title-b">Car B — Chaser</div>
         <div class="speed-row">
           <div class="speed-label"><div class="dot" style="background:#3b82f6"></div> Speed</div>
           <div class="speed-value" id="speed-b" style="color:#3b82f6">0<span class="speed-unit"> km/h</span></div>
@@ -1456,6 +1456,10 @@
     } else {
       intervalEl.classList.remove('within-drs');
     }
+
+    // Panel titles — Car A/B stay in place, role label updates
+    document.getElementById('title-a').textContent = state.carBLeading ? 'Car A — Chaser' : 'Car A — Leader';
+    document.getElementById('title-b').textContent = state.carBLeading ? 'Car B — Leader' : 'Car B — Chaser';
 
     // Status
     const set = (id, on, cls) => {

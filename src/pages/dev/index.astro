@@ -1,0 +1,275 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts'))
+  .filter((post) => post.data.draft)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const libraryItems = (await getCollection('library'))
+  .filter((item) => item.data.draft)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title="Dev · dustinlanders.com" description="Draft posts and unpublished work.">
+  <div id="dev-gate">
+    <div class="gate-box">
+      <p class="gate-label">This area is private.</p>
+      <input type="password" id="dev-password" placeholder="Password" autocomplete="off" />
+      <button id="dev-unlock">Unlock</button>
+      <p id="dev-error" class="gate-error"></p>
+    </div>
+  </div>
+
+  <section id="dev-content" class="dev-content" style="display: none;">
+    <h1>Dev</h1>
+    <p class="dev-intro">Drafts and unpublished work. Not visible on the public site.</p>
+
+    {posts.length > 0 && (
+      <div class="dev-section">
+        <h2>Draft Posts</h2>
+        <div class="post-list">
+          {posts.map((post) => {
+            const dateStr = new Date(post.data.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <a href={`/posts/${post.id}`} class="post-item">
+                <div class="post-item-meta">
+                  <span class="draft-tag">DRAFT</span>
+                  <time datetime={post.data.date}>{dateStr}</time>
+                </div>
+                <h3>{post.data.title}</h3>
+                {post.data.description && <p>{post.data.description}</p>}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {libraryItems.length > 0 && (
+      <div class="dev-section">
+        <h2>Draft Library</h2>
+        <div class="post-list">
+          {libraryItems.map((item) => {
+            const dateStr = new Date(item.data.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+            });
+            const href = item.data.type === 'pdf' ? item.data.file : `/library/${item.id}`;
+            const tagLabels = { pdf: 'PDF', interactive: 'INTERACTIVE', html: 'HTML/JS', markdown: 'DOC' } as const;
+            return (
+              <a href={href} class="post-item">
+                <div class="post-item-meta">
+                  <span class="draft-tag">DRAFT</span>
+                  <span class="type-tag">{tagLabels[item.data.type]}</span>
+                  <time datetime={item.data.date}>{dateStr}</time>
+                </div>
+                <h3>{item.data.title}</h3>
+                {item.data.description && <p>{item.data.description}</p>}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {posts.length === 0 && libraryItems.length === 0 && (
+      <p class="dev-empty">No drafts right now. Everything's published.</p>
+    )}
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function() {
+    const HASH = '90601d77dac475defddf53fa8848f2b1f54f0477213a21bf5018fbbd8cc38cac';
+
+    async function sha256(str) {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function unlock() {
+      document.getElementById('dev-gate').style.display = 'none';
+      document.getElementById('dev-content').style.display = 'block';
+    }
+
+    if (localStorage.getItem('dev_auth') === 'true') {
+      unlock();
+    }
+
+    document.getElementById('dev-unlock').addEventListener('click', async function() {
+      const pw = document.getElementById('dev-password').value;
+      const hash = await sha256(pw);
+      if (hash === HASH) {
+        localStorage.setItem('dev_auth', 'true');
+        unlock();
+      } else {
+        document.getElementById('dev-error').textContent = 'Nope.';
+        document.getElementById('dev-password').value = '';
+      }
+    });
+
+    document.getElementById('dev-password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('dev-unlock').click();
+    });
+  })();
+</script>
+
+<style>
+  #dev-gate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40vh;
+  }
+
+  .gate-box {
+    text-align: center;
+  }
+
+  .gate-label {
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    margin-bottom: 1rem;
+  }
+
+  #dev-password {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    width: 200px;
+    outline: none;
+  }
+
+  #dev-password:focus {
+    border-color: var(--fg-muted);
+  }
+
+  #dev-unlock {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: background 0.2s;
+  }
+
+  #dev-unlock:hover {
+    background: var(--code-bg);
+  }
+
+  .gate-error {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    margin-top: 0.75rem;
+    min-height: 1.2em;
+  }
+
+  .dev-content h1 {
+    margin-top: 1rem;
+  }
+
+  .dev-intro {
+    color: var(--fg-muted);
+    margin-bottom: 2rem;
+  }
+
+  .dev-section {
+    margin-bottom: 3rem;
+  }
+
+  .dev-section h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .post-list {
+    margin: 0;
+  }
+
+  .post-item {
+    display: block;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  .post-list .post-item:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .post-item:hover h3 {
+    opacity: 0.6;
+  }
+
+  .post-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .draft-tag {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.1em 0.45em;
+    border: 1px solid #f0883e;
+    color: #f0883e;
+  }
+
+  .type-tag {
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.1em 0.45em;
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+  }
+
+  .post-item time {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-item h3 {
+    font-size: 1.15rem;
+    margin: 0.15rem 0 0.3rem;
+    transition: opacity 0.2s;
+  }
+
+  .post-item p {
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+
+  .dev-empty {
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+</style>

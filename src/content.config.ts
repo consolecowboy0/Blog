@@ -19,6 +19,7 @@ const library = defineCollection({
     description: z.string().optional(),
     date: z.string(),
     file: z.string().optional(),
+    draft: z.boolean().optional().default(false),
   }),
 });
 

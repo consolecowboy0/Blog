@@ -41,7 +41,7 @@
 
     /* Header */
     .header {
-      padding: 20px 32px;
+      padding: 10px 32px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -70,7 +70,7 @@
 
     /* Main layout */
     .main-content {
-      padding: 24px 32px;
+      padding: 12px 32px;
       max-width: 924px;
       margin: 0 auto;
     }
@@ -383,12 +383,42 @@
     .event-log .overtake-event { color: var(--accent-red); }
     .event-log .recharge-event { color: var(--accent-green); }
 
-    /* Explainer */
+    /* Explainer (collapsible) */
     .explainer {
       border: 1px solid var(--border);
-      padding: 20px;
-      margin-top: 20px;
+      border-top: none;
       background: var(--bg-card);
+    }
+
+    .explainer summary {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      padding: 8px 20px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .explainer summary::-webkit-details-marker { display: none; }
+
+    .explainer summary::before {
+      content: '\25B6';
+      font-size: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .explainer[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .explainer .explainer-body {
+      padding: 4px 20px 16px;
     }
 
     .explainer h3 {
@@ -538,6 +568,39 @@
       <div class="circuit-panel panel" id="circuit-panel">
         <div id="circuit-svg"></div>
       </div>
+      <details class="explainer">
+        <summary>How it works</summary>
+        <div class="explainer-body">
+          <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
+          <p>
+            The <span class="hl">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
+            <span class="hl-blue">350kW</span>, meaning nearly half the car's ~750kW total comes from the electric motor. DRS is gone, replaced by
+            <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system with two distinct tools:
+          </p>
+          <p>
+            <span class="hl-blue">Boost</span> is your baseline energy tool -- regular battery deployment via a steering wheel button, available to
+            <span class="hl">any driver, anytime, anywhere</span> on track. No proximity requirement. The ERS harvests energy from braking and
+            exhaust gases; drivers deploy it whenever they want. It <span class="hl-red">drains the Energy Store faster</span>, so managing
+            when to use it is key. Both cars have a Boost button (press <strong>A</strong> or <strong>B</strong>).
+          </p>
+          <p>
+            <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
+            When the chaser is within ~1 second at the <span class="hl-gold">Overtake Zone</span> (on the pit straight approaching T1),
+            they earn an extra <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>.
+            This bonus pushes the <span class="hl-gold">Energy Store above 100%</span> (shown in gold on the battery bar),
+            giving the chaser a visible energy advantage. The leader's MGU-K electrical power tapers off after
+            <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
+            <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at high speeds. When Overtake Mode is
+            active, the AI automatically deploys boost on straights to capitalize on this extended range.
+          </p>
+          <p>
+            <span class="hl">Regenerative braking</span> is automatic -- whenever a car decelerates, the MGU-K harvests kinetic energy
+            (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. This circuit is the perfect test: long straights where the MGU-K taper matters most,
+            and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
+            extra energy on the following lap to make a move into the first chicane.
+          </p>
+        </div>
+      </details>
     </div>
 
     <!-- Right: Telemetry -->
@@ -621,37 +684,6 @@
     </div>
   </div>
 
-  <!-- Explainer -->
-  <div class="explainer">
-    <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
-    <p>
-      The <span class="hl">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
-      <span class="hl-blue">350kW</span>, meaning nearly half the car's ~750kW total comes from the electric motor. DRS is gone, replaced by
-      <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system with two distinct tools:
-    </p>
-    <p>
-      <span class="hl-blue">Boost</span> is your baseline energy tool -- regular battery deployment via a steering wheel button, available to
-      <span class="hl">any driver, anytime, anywhere</span> on track. No proximity requirement. The ERS harvests energy from braking and
-      exhaust gases; drivers deploy it whenever they want. It <span class="hl-red">drains the Energy Store faster</span>, so managing
-      when to use it is key. Both cars have a Boost button (press <strong>A</strong> or <strong>B</strong>).
-    </p>
-    <p>
-      <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
-      When the chaser is within ~1 second at the <span class="hl-gold">Overtake Zone</span> (on the pit straight approaching T1),
-      they earn an extra <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>.
-      This bonus pushes the <span class="hl-gold">Energy Store above 100%</span> (shown in gold on the battery bar),
-      giving the chaser a visible energy advantage. The leader's MGU-K electrical power tapers off after
-      <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
-      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at high speeds. When Overtake Mode is
-      active, the AI automatically deploys boost on straights to capitalize on this extended range.
-    </p>
-    <p>
-      <span class="hl">Regenerative braking</span> is automatic -- whenever a car decelerates, the MGU-K harvests kinetic energy
-      (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. This circuit is the perfect test: long straights where the MGU-K taper matters most,
-      and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
-      extra energy on the following lap to make a move into the first chicane.
-    </p>
-  </div>
 </div>
 
 <div class="tooltip" id="tooltip"></div>

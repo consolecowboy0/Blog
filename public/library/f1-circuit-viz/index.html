@@ -610,7 +610,7 @@
           <p>
             <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
             When the chaser is within ~1 second at the <span class="hl-gold">Overtake Zone</span> (on the pit straight approaching T1),
-            they earn an extra <span class="hl-blue">+0.5 MJ</span> of energy deployed on the <span class="hl">following lap</span>.
+            they earn an extra <span class="hl-blue">+0.6 MJ</span> of energy deployed on the <span class="hl">following lap</span>.
             This bonus pushes the <span class="hl-gold">Energy Store above 100%</span> (shown in gold on the battery bar),
             giving the chaser a visible energy advantage. The leader's MGU-K electrical power tapers off after
             <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
@@ -1079,11 +1079,11 @@
     momB: false,
     momAManual: false,
     momBManual: false,
-    overtakeEarnedA: false,  // Car A: proximity detected this lap → grants +0.5 MJ next lap
-    overtakeActiveA: false,  // Car A: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeEarnedA: false,  // Car A: proximity detected this lap → grants +0.6 MJ next lap
+    overtakeActiveA: false,  // Car A: +0.6 MJ granted, MGU-K extended to 337 km/h this lap
     overtakeUsedA: 0,        // Car A: how much of the overtake energy has been spent this lap
-    overtakeEarnedB: false,  // Car B: proximity detected this lap → grants +0.5 MJ next lap
-    overtakeActiveB: false,  // Car B: +0.5 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeEarnedB: false,  // Car B: proximity detected this lap → grants +0.6 MJ next lap
+    overtakeActiveB: false,  // Car B: +0.6 MJ granted, MGU-K extended to 337 km/h this lap
     overtakeUsedB: 0,        // Car B: how much of the overtake energy has been spent this lap
     lap: 1,
     events: [],
@@ -1214,7 +1214,7 @@
       }
     }
 
-    // Overtake Mode active for Car A: extra energy from the +0.5 MJ grant
+    // Overtake Mode active for Car A: extra energy from the +0.6 MJ grant
     if (state.overtakeActiveA && state.overtakeUsedA < 100) {
       const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight';
       if (inDeployZone) {
@@ -1274,19 +1274,19 @@
       if (bIsChaser && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
         state.overtakeEarnedB = true;
         state.overtakeEarnedA = false;  // Only one car can hold earned status
-        logEvent('Car B Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+        logEvent('Car B Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
       }
       if (aIsChaser && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
         state.overtakeEarnedA = true;
         state.overtakeEarnedB = false;  // Only one car can hold earned status
-        logEvent('Car A Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
+        logEvent('Car A Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
       }
     }
 
     // Overtake Mode persists until energy is depleted or the lap ends,
     // allowing the passing car to pull away cleanly after overtaking.
 
-    // Overtake Mode active for Car B: extra energy from the +0.5 MJ grant
+    // Overtake Mode active for Car B: extra energy from the +0.6 MJ grant
     if (state.overtakeActiveB && state.overtakeUsedB < 100) {
       const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight';
       if (inDeployZone) {
@@ -1341,8 +1341,8 @@
       if (state.overtakeEarnedA && aIsChaserAtLap) {
         state.overtakeActiveA = true;
         state.overtakeUsedA = 0;
-        state.batA = state.batA + 12.5;  // +0.5 MJ out of 4 MJ total = 12.5% — can exceed 100%
-        logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.5 MJ deployed! Battery: ${Math.round(state.batA)}%`, 'boost-event');
+        state.batA = state.batA + 15;  // +0.6 MJ out of 4 MJ total = 15% — can exceed 100%
+        logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.6 MJ deployed! Battery: ${Math.round(state.batA)}%`, 'boost-event');
       } else {
         if (state.overtakeEarnedA && !aIsChaserAtLap) {
           logEvent(`Lap ${state.lap}: Car A Overtake Mode forfeited -- now leading`, '');
@@ -1357,8 +1357,8 @@
       if (state.overtakeEarnedB && bIsChaserAtLap) {
         state.overtakeActiveB = true;
         state.overtakeUsedB = 0;
-        state.batB = state.batB + 12.5;  // +0.5 MJ out of 4 MJ total = 12.5% — can exceed 100%
-        logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.5 MJ deployed! Battery: ${Math.round(state.batB)}%`, 'boost-event');
+        state.batB = state.batB + 15;  // +0.6 MJ out of 4 MJ total = 15% — can exceed 100%
+        logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.6 MJ deployed! Battery: ${Math.round(state.batB)}%`, 'boost-event');
       } else {
         if (state.overtakeEarnedB && !bIsChaserAtLap) {
           logEvent(`Lap ${state.lap}: Car B Overtake Mode forfeited -- now leading`, '');
@@ -1588,7 +1588,7 @@
   const tooltip = document.getElementById('tooltip');
 
   const zoneDesc = {
-    overtake: '<strong>Overtake Zone</strong><br>The single activation zone. If the chaser is within ~1 second of the car ahead here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap (battery can exceed 100%, shown in gold). Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
+    overtake: '<strong>Overtake Zone</strong><br>The single activation zone. If the chaser is within ~1 second of the car ahead here, they earn Overtake Mode: +0.6 MJ of extra energy granted on the <em>following</em> lap (battery can exceed 100%, shown in gold). Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
     corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. MGU-K harvests energy under braking -- heavier braking means more regen.',
     straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',
   };

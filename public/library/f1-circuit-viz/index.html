@@ -871,31 +871,60 @@
   const totalLength = pathNode.getTotalLength();
 
   const NUM_SAMPLES = 1200;
-  const sampledPoints = [];
   const N_RAW = canvasPoints.length;
-  let lastIdx = 0;
+
+  // Map each RAW_POINT to its closest path position (t value) along the spline.
+  // Use a fine sweep so each control point lands at the right spot on the curve.
+  const FINE = 4000;
+  const rawT = [];
+  let searchStart = 0;
+  for (let r = 0; r < N_RAW; r++) {
+    let bestDist = Infinity, bestT = 0;
+    // Sweep forward from the previous match to keep monotonic ordering
+    for (let i = 0; i < FINE; i++) {
+      const idx = (searchStart + i) % FINE;
+      const len = (idx / FINE) * totalLength;
+      const pt = pathNode.getPointAtLength(len);
+      const dx = pt.x - canvasPoints[r].x;
+      const dy = pt.y - canvasPoints[r].y;
+      const d = dx * dx + dy * dy;
+      if (d < bestDist) { bestDist = d; bestT = idx / FINE; }
+    }
+    rawT.push(bestT);
+    searchStart = Math.round(bestT * FINE);
+  }
+
+  // Interpolate sf and zone for any t value between raw control points
+  function interpAt(t) {
+    t = ((t % 1) + 1) % 1;
+    // Find the two surrounding raw points by t
+    let lo = N_RAW - 1, hi = 0;
+    for (let r = 0; r < N_RAW; r++) {
+      if (rawT[r] <= t) lo = r;
+    }
+    hi = (lo + 1) % N_RAW;
+
+    let tLo = rawT[lo], tHi = rawT[hi];
+    // Handle wrap-around (last point → first point)
+    if (tHi <= tLo) tHi += 1;
+    let tNorm = t;
+    if (tNorm < tLo) tNorm += 1;
+
+    const span = tHi - tLo;
+    const frac = span > 0.0001 ? Math.max(0, Math.min(1, (tNorm - tLo) / span)) : 0;
+    const sf = RAW_POINTS[lo].sf * (1 - frac) + RAW_POINTS[hi].sf * frac;
+    // Zone comes from whichever control point is closer by fraction
+    const zone = frac < 0.5 ? RAW_POINTS[lo].zone : RAW_POINTS[hi].zone;
+    return { sf, zone };
+  }
+
+  const sampledPoints = [];
   for (let i = 0; i < NUM_SAMPLES; i++) {
     const t = i / NUM_SAMPLES;
     const len = t * totalLength;
     const pt = pathNode.getPointAtLength(len);
-
-    // Windowed search: only check nearby RAW_POINTS in track order
-    // to prevent cross-track contamination where the circuit doubles back
-    let minDist = Infinity, nearestIdx = lastIdx;
-    for (let k = -2; k <= 6; k++) {
-      const j = ((lastIdx + k) % N_RAW + N_RAW) % N_RAW;
-      const dx = pt.x - canvasPoints[j].x;
-      const dy = pt.y - canvasPoints[j].y;
-      const d = dx * dx + dy * dy;
-      if (d < minDist) { minDist = d; nearestIdx = j; }
-    }
-    lastIdx = nearestIdx;
-
-    sampledPoints.push({
-      x: pt.x, y: pt.y, t, len,
-      sf: RAW_POINTS[nearestIdx].sf,
-      zone: RAW_POINTS[nearestIdx].zone,
-    });
+    const { sf, zone } = interpAt(t);
+    sampledPoints.push({ x: pt.x, y: pt.y, t, len, sf, zone });
   }
 
   // ─── Zone highlights ──────────────────────────────────────────────

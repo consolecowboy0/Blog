@@ -82,22 +82,22 @@ Take the length of the preceding straight. Divide it by the radius of the corner
 
 I pulled four full seasons of F1 timing data (2022-2025) through FastF1 and programmatically extracted nearly 2,000 overtakes from 77 race sessions. I measured success rates at all 120 corners across 16 circuits- not just the famous ones- but every unremarkable mid-speed kink and chicane that rarely makes the highlight reel. I catalogued 803,140 close-following events- with the help of AI of course. Who also made this plot below, with a title I do not approve of. I willl leave it as a cautionary tale of letting Claude make plots for you (I'm kidding).
 
-![The One Ratio That Predicts Every Pass](/images/charts/regression_lr_success.png)
+<img src="/images/charts/regression_lr_success.webp" alt="The One Ratio That Predicts Every Pass" loading="lazy" />
 *Each dot is a real F1 corner. Blue = corners without much DRS activity, orange = DRS-heavy zones. The green curve is the trend. Higher L/R, more passes stick.*
 
 And when I switched the y-axis from success rate to raw overtakes per race- the correlation got even stronger. Rho = 0.65. That's not just "does the pass work when you try it"- it's "do cars even show up close enough to try." L/R predicts both.
 
-![Where Passes Actually Happen](/images/charts/regression_lr_overtakes.png)
+<img src="/images/charts/regression_lr_overtakes.webp" alt="Where Passes Actually Happen" loading="lazy" />
 *Same corners, different question. L/R doesn't just predict whether a pass succeeds- it predicts whether anyone even attempts one.*
 
 I ran event-level logistic regression- a statistical model that predicts whether a pass succeeds or fails based on multiple variables at once- on 247,813 individual close-following observations, controlling for DRS availability, gap distance, all the confounders you'd want to throw at it. L/R was significant at p below 10 to the negative sixteenth.
 
-![What Predicts an Overtake?](/images/charts/regression_logistic_coefs.png)
+<img src="/images/charts/regression_logistic_coefs.webp" alt="What Predicts an Overtake?" loading="lazy" />
 *The three things that matter most in a quarter-million observations. Gap is king (get close or go home), DRS nearly doubles your odds, and L/R quietly governs which corners produce passes at all.*
 
 I tried every close-following threshold from 0.1 to 1.0 seconds; the correlation barely moved. I ran leave-one-circuit-out cross-validation; rho stayed between 0.44 and 0.51 no matter which circuit I dropped.
 
-![The Correlation Barely Moves](/images/charts/regression_threshold_stability.png)
+<img src="/images/charts/regression_threshold_stability.webp" alt="The Correlation Barely Moves" loading="lazy" />
 *Change the definition of "close following" by 10x and the correlation moves by 0.02. The green band is the leave-one-circuit-out range- drop any circuit and the result holds.*
 
 The logic is physical. A long straight gives the trailing car more time to build a speed advantage. A tight corner demands heavy braking- which opens a wider window for a late dive. Long straight, tight corner: high L/R, high success. Short straight, sweeping bend: low L/R, the defender holds. Which- for anyone who has messed around in racing video games can tell you thats pretty intuitive.
@@ -174,7 +174,7 @@ My expanded dataset- 1,971 overtakes across four seasons- lets me test the two-k
 
 That's the empirical fingerprint of two different sports hiding inside the same race. When the speed differential comes from physics- from drafting, from driving, from being genuinely faster- geometry governs the outcome. When it comes from a button, geometry becomes secondary. The distinction isn't rhetoric. It's measurable.
 
-![The Smoking Gun](/images/charts/regression_drs_split.png)
+<img src="/images/charts/regression_drs_split.webp" alt="The Smoking Gun" loading="lazy" />
 *Same corners, same data, split by DRS. Left: without DRS, geometry decides- clear upward trend, strong correlation. Right: with DRS on, the trend vanishes. The artificial aid overwhelms the physics.*
 
 The mixed effects model tells the same story from a different angle. Across 247,813 close-following observations- with random intercepts for driver and circuit absorbing the variation that comes from Verstappen being Verstappen and Baku being Baku- DRS activation carries a coefficient of 1.75, increasing the odds of an overtake nearly sixfold on any given lap through any given zone. L/R has a coefficient of 0.06 per unit. Both are statistically significant, but the artificial aid is a far stronger per-event predictor. And yet L/R is the variable that explains *where* passes happen on the circuit. The tension is baked right in: DRS matters more for whether *this* pass succeeds right now, but geometry matters more for which corners produce passes at all.

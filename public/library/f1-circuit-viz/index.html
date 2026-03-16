@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>F1 2026 Monza Simulator — Overtake Mode, Boost &amp; Active Aero</title>
+  <title>F1 2026 Simulator — Overtake Mode, Boost &amp; Active Aero</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -517,7 +517,7 @@
 
 <div class="header">
   <div class="header-title">
-    <h1>Monza 2026 Simulator</h1>
+    <h1>F1 2026 Simulator</h1>
     <span class="subtitle">Overtake Mode + Boost — Active Aero &amp; Energy Management (2026 Regs)</span>
   </div>
 </div>
@@ -642,14 +642,14 @@
       This bonus pushes the <span class="hl-gold">Energy Store above 100%</span> (shown in gold on the battery bar),
       giving the chaser a visible energy advantage. The leader's MGU-K electrical power tapers off after
       <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
-      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at Monza speeds. When Overtake Mode is
+      <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at high speeds. When Overtake Mode is
       active, the AI automatically deploys boost on straights to capitalize on this extended range.
     </p>
     <p>
       <span class="hl">Regenerative braking</span> is automatic -- whenever a car decelerates, the MGU-K harvests kinetic energy
-      (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. <span class="hl">Monza</span> is the perfect test: long straights where the MGU-K taper matters most,
+      (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. This circuit is the perfect test: long straights where the MGU-K taper matters most,
       and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
-      extra energy on the following lap to make a move into the Variante del Rettifilo.
+      extra energy on the following lap to make a move into the first chicane.
     </p>
   </div>
 </div>
@@ -658,9 +658,8 @@
 
 <script>
 (function () {
-  // ─── Monza circuit geometry ───────────────────────────────────────
-  // Autodromo Nazionale Monza - "The Temple of Speed"
-  // Traced as normalized coordinates (0-1) following the real layout.
+  // ─── Circuit geometry ────────────────────────────────────────────
+  // Traced as normalized coordinates (0-1) following a high-speed layout.
   // Direction: clockwise as viewed from above.
   //
   // Key features:
@@ -675,16 +674,16 @@
   //   - Curva Parabolica (long right-hander, now Curva Alboreto)
   //   - Short run to start/finish
 
-  // Real Monza circuit coordinates sourced from F1 Overtaker Explorer track data
-  // Realistic speed factors calibrated to real Monza data (2026 regs)
+  // Circuit coordinates inspired by a high-speed layout
+  // Realistic speed factors calibrated for 2026 regs
   // TOP_SPEED = 355 km/h; sf values = actual_speed / 355
-  // Sources: FIA 2026 technical regulations, Monza GPS telemetry data
+  // Sources: FIA 2026 technical regulations
   // T1-T2 (Rettifilo): ~68-80 km/h, Curva Grande: ~260-270 km/h
   // Roggia chicane: ~70-78 km/h, Lesmo 1: ~200 km/h, Lesmo 2: ~185 km/h
   // Back straight: ~340-345 km/h, Ascari: ~138-200 km/h
   // Parabolica min: ~210 km/h, exit: ~275 km/h
   const RAW_POINTS = [
-    // Start/finish straight (very long - Monza's signature)
+    // Start/finish straight (very long)
     // Cars exit Parabolica at ~290 km/h, build to 355 km/h by T1 braking zone
     { x: 0.084, y: 0.733, sf: 0.92, zone: 'straight', name: 'Start/Finish' },
     { x: 0.091, y: 0.693, sf: 0.96, zone: 'overtake' },
@@ -953,7 +952,7 @@
     .attr('y', 20)
     .attr('text-anchor', 'middle')
     .attr('fill', '#c0c0bc')
-    .text('Autodromo Nazionale Monza');
+    .text('F1 2026 Circuit');
 
   // ─── Cars ─────────────────────────────────────────────────────────
   const TRAIL_LEN = 50;

@@ -438,14 +438,6 @@
       letter-spacing: 0.08em;
     }
 
-    .turn-label {
-      font-size: 9px;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      text-anchor: middle;
-      pointer-events: none;
-    }
-
     /* MOM helper text */
     .mom-helper {
       font-size: 0.65rem;
@@ -868,32 +860,7 @@
     .attr('stroke', '#1a1a1a')
     .attr('stroke-width', 2);
 
-  // ─── Corner & zone labels ─────────────────────────────────────────
-  // Monza corner names with approximate sample positions
-  const cornerLabels = [
-    { text: 'Rettifilo', idx: Math.floor(NUM_SAMPLES * 0.18), dx: 20, dy: 0 },
-    { text: 'T1', idx: Math.floor(NUM_SAMPLES * 0.19), dx: 18, dy: 12 },
-    { text: 'T2', idx: Math.floor(NUM_SAMPLES * 0.20), dx: 18, dy: 8 },
-    { text: 'Curva Grande', idx: Math.floor(NUM_SAMPLES * 0.24), dx: 0, dy: -16 },
-    { text: 'Roggia', idx: Math.floor(NUM_SAMPLES * 0.29), dx: 0, dy: -16 },
-    { text: 'T4', idx: Math.floor(NUM_SAMPLES * 0.28), dx: 0, dy: 16 },
-    { text: 'Lesmo 1', idx: Math.floor(NUM_SAMPLES * 0.34), dx: 0, dy: -14 },
-    { text: 'Lesmo 2', idx: Math.floor(NUM_SAMPLES * 0.38), dx: 0, dy: 16 },
-    { text: 'Ascari', idx: Math.floor(NUM_SAMPLES * 0.47), dx: 16, dy: 0 },
-    { text: 'T8', idx: Math.floor(NUM_SAMPLES * 0.46), dx: 16, dy: 12 },
-    { text: 'Parabolica', idx: Math.floor(NUM_SAMPLES * 0.82), dx: -20, dy: 0 },
-  ];
-
-  for (const c of cornerLabels) {
-    const p = sampledPoints[c.idx];
-    const isCornerNum = c.text.startsWith('T');
-    svg.append('text')
-      .attr('class', isCornerNum ? 'turn-label' : 'zone-label')
-      .attr('x', p.x + (c.dx || 0))
-      .attr('y', p.y + (c.dy || 0))
-      .attr('fill', isCornerNum ? '#b4b4b0' : '#888')
-      .text(c.text);
-  }
+  // ─── Zone labels ─────────────────────────────────────────
 
   // Zone type labels
   const zoneLabelData = [

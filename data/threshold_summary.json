@@ -1,0 +1,6 @@
+{
+  "detective_threshold": 4,
+  "bruiser_threshold": 5,
+  "ghost_threshold": null,
+  "random_threshold": 37
+}

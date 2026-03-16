@@ -438,6 +438,56 @@
       letter-spacing: 0.08em;
     }
 
+    /* Interval counter */
+    .interval-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #1a1a1a;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-bottom: none;
+    }
+
+    .interval-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      font-family: var(--font-mono);
+    }
+
+    .interval-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+      color: #fff;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .interval-value.within-drs {
+      color: var(--accent-gold);
+      text-shadow: 0 0 8px rgba(180, 83, 9, 0.5);
+    }
+
+    .interval-indicator {
+      font-size: 0.6rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      min-width: 50px;
+    }
+
+    .interval-indicator.leader-a { color: var(--accent-red); }
+    .interval-indicator.leader-b { color: var(--accent-blue); }
+
     /* MOM helper text */
     .mom-helper {
       font-size: 0.65rem;
@@ -512,6 +562,13 @@
             <div class="value off" id="overtake-a">OFF</div>
           </div>
         </div>
+      </div>
+
+      <!-- Interval Counter -->
+      <div class="interval-counter">
+        <div class="interval-label">INTERVAL</div>
+        <div class="interval-value" id="interval-gap">+0.000s</div>
+        <div class="interval-indicator" id="interval-who"></div>
       </div>
 
       <!-- Car B -->
@@ -1126,15 +1183,29 @@
     }
 
     // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
+    // RULE: Only the trailing car can earn Overtake Mode. Only one car can hold "earned" status at a time.
     if (withinOvertake) {
       if (bIsChaser && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
         state.overtakeEarnedB = true;
+        state.overtakeEarnedA = false;  // Only one car can hold earned status
         logEvent('Car B Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
       }
       if (aIsChaser && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
         state.overtakeEarnedA = true;
+        state.overtakeEarnedB = false;  // Only one car can hold earned status
         logEvent('Car A Overtake Mode earned! +0.5 MJ available next lap', 'boost-event');
       }
+    }
+
+    // If a car with active Overtake Mode becomes the leader, expire it immediately
+    // You only get Overtake Mode as the chaser; once you pass, it's done
+    if (state.overtakeActiveA && !aIsChaser) {
+      state.overtakeActiveA = false;
+      logEvent('Car A Overtake Mode expired -- now leading', '');
+    }
+    if (state.overtakeActiveB && !bIsChaser) {
+      state.overtakeActiveB = false;
+      logEvent('Car B Overtake Mode expired -- now leading', '');
     }
 
     // Overtake Mode active for Car B: extra energy from the +0.5 MJ grant
@@ -1176,31 +1247,43 @@
       state.lap++;
       document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
 
-      // Overtake Mode for Car A: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
-      if (state.overtakeEarnedA) {
+      // Determine who is chaser at lap boundary for overtake activation
+      const bAheadAtLap = state.tB > state.tA || (state.tA - state.tB > 0.5);
+      const aIsChaserAtLap = bAheadAtLap;
+      const bIsChaserAtLap = !bAheadAtLap;
+
+      // Overtake Mode for Car A: only activate if Car A earned it AND is still the chaser
+      // If Car A earned it but is now the leader (used it to overtake), the bonus is forfeited
+      if (state.overtakeEarnedA && aIsChaserAtLap) {
         state.overtakeActiveA = true;
         state.overtakeUsedA = 0;
         state.batA = state.batA + 12.5;  // +0.5 MJ out of 4 MJ total = 12.5% — can exceed 100%
         logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.5 MJ deployed! Battery: ${Math.round(state.batA)}%`, 'boost-event');
-        state.overtakeEarnedA = false;
       } else {
+        if (state.overtakeEarnedA && !aIsChaserAtLap) {
+          logEvent(`Lap ${state.lap}: Car A Overtake Mode forfeited -- now leading`, '');
+        }
         if (state.overtakeActiveA) logEvent(`Lap ${state.lap}: Car A Overtake Mode expired`, '');
         state.overtakeActiveA = false;
         state.overtakeUsedA = 0;
       }
+      state.overtakeEarnedA = false;
 
-      // Overtake Mode for Car B: if earned last lap, activate this lap with +0.5 MJ (≈12.5% battery bonus)
-      if (state.overtakeEarnedB) {
+      // Overtake Mode for Car B: only activate if Car B earned it AND is still the chaser
+      if (state.overtakeEarnedB && bIsChaserAtLap) {
         state.overtakeActiveB = true;
         state.overtakeUsedB = 0;
         state.batB = state.batB + 12.5;  // +0.5 MJ out of 4 MJ total = 12.5% — can exceed 100%
         logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.5 MJ deployed! Battery: ${Math.round(state.batB)}%`, 'boost-event');
-        state.overtakeEarnedB = false;
       } else {
+        if (state.overtakeEarnedB && !bIsChaserAtLap) {
+          logEvent(`Lap ${state.lap}: Car B Overtake Mode forfeited -- now leading`, '');
+        }
         if (state.overtakeActiveB) logEvent(`Lap ${state.lap}: Car B Overtake Mode expired`, '');
         state.overtakeActiveB = false;
         state.overtakeUsedB = 0;
       }
+      state.overtakeEarnedB = false;
 
       logEvent(`Lap ${state.lap} started`, '');
       if (state.lap > 10) {
@@ -1313,6 +1396,32 @@
       batBPct.classList.remove('overcharged');
       batBOverflow.classList.remove('active');
       batBFill.style.background = '#3b82f6';
+    }
+
+    // Interval counter — convert normalized gap to seconds
+    const gap = getGap();
+    // Speed in track-units per second: BASE_SPEED * sf * 60fps
+    // Use average of both cars' speed factors for a stable reading
+    const avgSf = (zA.sf + zB.sf) / 2;
+    const trackUnitsPerSec = BASE_SPEED * Math.max(avgSf, 0.2) * 60;
+    const gapSeconds = gap / trackUnitsPerSec;
+    const bAheadDisplay = state.tB > state.tA || (state.tA - state.tB > 0.5);
+
+    const intervalEl = document.getElementById('interval-gap');
+    const intervalWho = document.getElementById('interval-who');
+    intervalEl.textContent = `+${gapSeconds.toFixed(3)}s`;
+    if (bAheadDisplay) {
+      intervalWho.textContent = 'A behind';
+      intervalWho.className = 'interval-indicator leader-b';
+    } else {
+      intervalWho.textContent = 'B behind';
+      intervalWho.className = 'interval-indicator leader-a';
+    }
+    // Highlight when within ~1 second (overtake activation threshold)
+    if (gapSeconds < 1.0) {
+      intervalEl.classList.add('within-drs');
+    } else {
+      intervalEl.classList.remove('within-drs');
     }
 
     // Status

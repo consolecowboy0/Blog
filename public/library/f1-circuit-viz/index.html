@@ -359,25 +359,61 @@
       height: 3px;
     }
 
-    /* Event log */
-    .event-log {
-      max-height: 100px;
-      overflow-y: auto;
-      font-size: 0.7rem;
+    /* Race banner */
+    .race-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
       font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .race-banner .overtake-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: var(--accent-red);
+      padding-right: 16px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .race-banner .overtake-count .count-label {
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+    }
+
+    .race-banner .event-log {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
       color: var(--text-secondary);
       line-height: 1.6;
     }
 
-    .event-log .event {
-      padding: 2px 0;
-      border-bottom: 1px solid var(--border);
+    .race-banner .event-log .event {
+      display: inline;
+      padding: 0 12px;
     }
 
-    .event-log .event:last-child { border-bottom: none; }
-    .event-log .boost-event { color: var(--accent-blue); }
-    .event-log .overtake-event { color: var(--accent-red); }
-    .event-log .recharge-event { color: var(--accent-green); }
+    .race-banner .event-log .event:not(:last-child)::after {
+      content: '·';
+      margin-left: 12px;
+      color: var(--border-light);
+    }
+
+    .race-banner .event-log .boost-event { color: var(--accent-blue); }
+    .race-banner .event-log .overtake-event { color: var(--accent-red); }
+    .race-banner .event-log .recharge-event { color: var(--accent-green); }
 
     /* Explainer (collapsible) */
     .explainer {
@@ -576,6 +612,14 @@
   </div>
 </div>
 
+<div class="race-banner">
+  <div class="overtake-count">
+    <span class="count-label">Overtakes</span>
+    <span id="overtake-count-val">0</span>
+  </div>
+  <div class="event-log" id="event-log"></div>
+</div>
+
 <div class="main-content">
   <div class="viz-layout">
     <!-- Left: Circuit -->
@@ -700,11 +744,6 @@
         <button class="boost-btn" id="btn-boost-b">Boost Car B (B)</button>
       </div>
 
-      <!-- Event log -->
-      <div class="panel">
-        <div class="panel-title">Race Events</div>
-        <div class="event-log" id="event-log"></div>
-      </div>
     </div>
   </div>
 
@@ -1180,9 +1219,10 @@
     state.events.unshift({ text, cls });
     if (state.events.length > 50) state.events.pop();
     const el = document.getElementById('event-log');
-    el.innerHTML = state.events.slice(0, 20).map(e =>
-      `<div class="event ${e.cls}">${e.text}</div>`
+    el.innerHTML = state.events.slice(0, 5).map(e =>
+      `<span class="event ${e.cls}">${e.text}</span>`
     ).join('');
+    document.getElementById('overtake-count-val').textContent = state.overtakeCount;
   }
 
   // ─── Simulation ───────────────────────────────────────────────────
@@ -1411,7 +1451,8 @@
       state.overtakeCount++;
       logEvent(`Overtake! Car B passes Car A (${state.overtakeCount} total)`, 'overtake-event');
     } else if (!state.carBLeading && prevCarBLeading) {
-      logEvent('Car A retakes the lead!', 'overtake-event');
+      state.overtakeCount++;
+      logEvent(`Overtake! Car A retakes the lead (${state.overtakeCount} total)`, 'overtake-event');
     }
 
     // Trails

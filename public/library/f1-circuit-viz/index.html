@@ -334,6 +334,7 @@
     .status-item .value.on { color: var(--accent-green); }
     .status-item .value.off { color: var(--border-light); }
     .status-item .value.active-boost { color: var(--accent-blue); }
+    .status-item .value.overtake-active { color: var(--accent-red); }
 
     /* Legend */
     .legend-bar {
@@ -1518,10 +1519,10 @@
       const el = document.getElementById(id);
       if (active && used < 100) {
         el.textContent = 'ACTIVE';
-        el.className = 'value active-boost';
+        el.className = 'value overtake-active';
       } else if (earned) {
-        el.textContent = 'EARNED';
-        el.className = 'value on';
+        el.textContent = 'ACTIVE';
+        el.className = 'value overtake-active';
       } else {
         el.textContent = 'OFF';
         el.className = 'value off';

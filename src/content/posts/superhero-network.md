@@ -2,6 +2,7 @@
 title: "Can You Be a Superhero?"
 date: "2026-03-15"
 description: "A year and a half ago my son asked if he could be a superhero. I told him yes and forgot about it. Then I ran a simulation on a real crime network to find out which kind of hero actually works."
+draft: true
 ---
 
 About a year and a half ago, my son told me he wants to be a superhero when he grows up.

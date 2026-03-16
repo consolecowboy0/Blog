@@ -635,9 +635,9 @@
     { x: 0.091, y: 0.693, sf: 0.96, zone: 'overtake' },
     { x: 0.099, y: 0.647, sf: 0.99, zone: 'overtake' },
     { x: 0.106, y: 0.601, sf: 1.00, zone: 'overtake' },
-    { x: 0.113, y: 0.560, sf: 1.00, zone: 'mom' },
-    { x: 0.120, y: 0.514, sf: 1.00, zone: 'mom' },
-    { x: 0.127, y: 0.468, sf: 0.97, zone: 'mom' },
+    { x: 0.113, y: 0.560, sf: 1.00, zone: 'straight' },
+    { x: 0.120, y: 0.514, sf: 1.00, zone: 'straight' },
+    { x: 0.127, y: 0.468, sf: 0.97, zone: 'straight' },
     { x: 0.131, y: 0.445, sf: 0.90, zone: 'corner' },  // braking begins (~320 km/h)
     { x: 0.134, y: 0.421, sf: 0.70, zone: 'corner' },  // heavy braking (~249 km/h)
     { x: 0.139, y: 0.381, sf: 0.42, zone: 'corner' },  // deep braking (~149 km/h)
@@ -784,12 +784,10 @@
 
   // ─── Zone highlights ──────────────────────────────────────────────
   const zoneColors = {
-    mom:      'rgba(59,130,246,0.12)',
     overtake: 'rgba(180,83,9,0.15)',
   };
 
   const zoneStroke = {
-    mom:      'rgba(59,130,246,0.30)',
     overtake: 'rgba(180,83,9,0.35)',
   };
 
@@ -1094,12 +1092,11 @@
     // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
     // Boost: available to everyone, anytime, via steering wheel button — just battery deployment
     let sfA = zoneA.sf;
-    // AI strategy: auto-deploy in boost zones, and also on straights/overtake zones when Overtake Mode is active
-    const autoMOMA = (zoneA.zone === 'mom' && state.batA > 5) ||
-      (state.overtakeActiveA && state.overtakeUsedA < 100 && state.batA > 5 &&
-        (zoneA.zone === 'straight' || zoneA.zone === 'overtake'));
+    // AI strategy: auto-deploy on straights/overtake zones when Overtake Mode is active
+    const autoMOMA = state.overtakeActiveA && state.overtakeUsedA < 100 && state.batA > 5 &&
+        (zoneA.zone === 'straight' || zoneA.zone === 'overtake');
     const manualMOMA = state.momAManual && state.batA > 5 &&
-      (zoneA.zone === 'straight' || zoneA.zone === 'overtake' || zoneA.zone === 'mom');
+      (zoneA.zone === 'straight' || zoneA.zone === 'overtake');
     state.momA = autoMOMA || manualMOMA;
 
     if (state.momA) {
@@ -1117,7 +1114,7 @@
 
     // Overtake Mode active for Car A: extra energy from the +0.5 MJ grant
     if (state.overtakeActiveA && state.overtakeUsedA < 100) {
-      const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight' || zoneA.zone === 'mom';
+      const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight';
       if (inDeployZone) {
         sfA *= 1.03;  // extra speed from extended MGU-K deployment window
         state.overtakeUsedA += 0.35 * state.speedMult;
@@ -1142,11 +1139,10 @@
     // to capitalize on the extended MGU-K deployment range (337 km/h vs 290 km/h)
     let sfB = zoneB.sf;
 
-    const autoMOMB = (zoneB.zone === 'mom' && state.batB > 5) ||
-      (state.overtakeActiveB && state.overtakeUsedB < 100 && state.batB > 5 &&
-        (zoneB.zone === 'straight' || zoneB.zone === 'overtake'));
+    const autoMOMB = state.overtakeActiveB && state.overtakeUsedB < 100 && state.batB > 5 &&
+        (zoneB.zone === 'straight' || zoneB.zone === 'overtake');
     const manualMOMB = state.momBManual && state.batB > 5 &&
-      (zoneB.zone === 'straight' || zoneB.zone === 'overtake' || zoneB.zone === 'mom');
+      (zoneB.zone === 'straight' || zoneB.zone === 'overtake');
     state.momB = autoMOMB || manualMOMB;
 
     if (state.momB) {
@@ -1176,7 +1172,7 @@
 
     // Overtake Mode active for Car B: extra energy from the +0.5 MJ grant
     if (state.overtakeActiveB && state.overtakeUsedB < 100) {
-      const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight' || zoneB.zone === 'mom';
+      const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight';
       if (inDeployZone) {
         sfB *= 1.03;  // extra speed from extended MGU-K deployment window
         state.overtakeUsedB += 0.35 * state.speedMult;
@@ -1300,7 +1296,7 @@
       spdMultA *= 1 + 0.06 * mguTaper(zA.sf, taperA);
     }
     if (state.overtakeActiveA && state.overtakeUsedA < 100) {
-      const inDeployA = zA.zone === 'overtake' || zA.zone === 'straight' || zA.zone === 'mom';
+      const inDeployA = zA.zone === 'overtake' || zA.zone === 'straight';
       if (inDeployA) spdMultA *= 1.03;
     }
     if (state.momB) {
@@ -1308,7 +1304,7 @@
       spdMultB *= 1 + 0.06 * mguTaper(zB.sf, taperB);
     }
     if (state.overtakeActiveB && state.overtakeUsedB < 100) {
-      const inDeployB = zB.zone === 'overtake' || zB.zone === 'straight' || zB.zone === 'mom';
+      const inDeployB = zB.zone === 'overtake' || zB.zone === 'straight';
       if (inDeployB) spdMultB *= 1.03;
     }
     const spdA = Math.round(zA.sf * 355 * spdMultA);
@@ -1431,7 +1427,6 @@
   const tooltip = document.getElementById('tooltip');
 
   const zoneDesc = {
-    mom: '<strong>Boost Zone</strong><br>Auto-deploy zone -- both cars deploy full 350kW electrical power here. Boost is your baseline energy tool, available to everyone.',
     overtake: '<strong>Overtake Zone</strong><br>The single activation zone. If the chaser is within ~1 second of the car ahead here, they earn Overtake Mode: +0.5 MJ of extra energy granted on the <em>following</em> lap (battery can exceed 100%, shown in gold). Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
     corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. MGU-K harvests energy under braking -- heavier braking means more regen.',
     straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',

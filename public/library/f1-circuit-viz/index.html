@@ -400,6 +400,35 @@
       user-select: none;
     }
 
+    .explainer summary .help-hint {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-left: 2px;
+      animation: hint-pulse 2s ease-in-out 3;
+      flex-shrink: 0;
+    }
+
+    .explainer[open] summary .help-hint {
+      animation: none;
+      background: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59,130,246,0.5); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 4px rgba(59,130,246,0); }
+    }
+
     .explainer summary::-webkit-details-marker { display: none; }
 
     .explainer summary::before {
@@ -563,7 +592,7 @@
         <div id="circuit-svg"></div>
       </div>
       <details class="explainer">
-        <summary>How it works</summary>
+        <summary>How it works <span class="help-hint" title="Click to learn how the 2026 regulations work">?</span></summary>
         <div class="explainer-body">
           <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
           <p>

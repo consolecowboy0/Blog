@@ -1119,10 +1119,17 @@
     const zoneA = getZoneAt(state.tA);
     const zoneB = getZoneAt(state.tB);
 
-    // Determine who is the chaser
-    const bAheadNow = state.tB > state.tA || (state.tA - state.tB > 0.5);
-    const aIsChaser = bAheadNow;    // Car A is chaser when Car B is ahead
-    const bIsChaser = !bAheadNow;   // Car B is chaser when Car A is ahead
+    // Determine who is the chaser, with hysteresis so cars can pass through each other.
+    // Without hysteresis, slipstream/overtake bonuses swap every frame at the crossover
+    // point, creating an invisible wall that prevents overtaking.
+    const PASS_THROUGH_GAP = 0.008; // must pull ahead by this much before roles swap
+    const prevCarBLeading = state.carBLeading;
+    const bAheadRaw = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    if (bAheadRaw !== state.carBLeading && gap > PASS_THROUGH_GAP) {
+      state.carBLeading = bAheadRaw;
+    }
+    const aIsChaser = state.carBLeading;    // Car A is chaser when Car B is ahead
+    const bIsChaser = !state.carBLeading;   // Car B is chaser when Car A is ahead
 
     // ── Car A ──
     // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
@@ -1209,16 +1216,8 @@
       }
     }
 
-    // If a car with active Overtake Mode becomes the leader, expire it immediately
-    // You only get Overtake Mode as the chaser; once you pass, it's done
-    if (state.overtakeActiveA && !aIsChaser) {
-      state.overtakeActiveA = false;
-      logEvent('Car A Overtake Mode expired -- now leading', '');
-    }
-    if (state.overtakeActiveB && !bIsChaser) {
-      state.overtakeActiveB = false;
-      logEvent('Car B Overtake Mode expired -- now leading', '');
-    }
+    // Overtake Mode persists until energy is depleted or the lap ends,
+    // allowing the passing car to pull away cleanly after overtaking.
 
     // Overtake Mode active for Car B: extra energy from the +0.5 MJ grant
     if (state.overtakeActiveB && state.overtakeUsedB < 100) {
@@ -1305,15 +1304,12 @@
       }
     }
 
-    // Overtake
-    const bAhead = state.tB > state.tA || (state.tA - state.tB > 0.5);
-    if (bAhead && !state.carBLeading) {
+    // Overtake (uses hysteresis-aware carBLeading, updated earlier in step)
+    if (state.carBLeading && !prevCarBLeading) {
       state.overtakeCount++;
       logEvent(`Overtake! Car B passes Car A (${state.overtakeCount} total)`, 'overtake-event');
-      state.carBLeading = true;
-    } else if (!bAhead && state.carBLeading) {
+    } else if (!state.carBLeading && prevCarBLeading) {
       logEvent('Car A retakes the lead!', 'overtake-event');
-      state.carBLeading = false;
     }
 
     // Trails

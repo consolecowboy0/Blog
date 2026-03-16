@@ -811,18 +811,24 @@
 
   const NUM_SAMPLES = 1200;
   const sampledPoints = [];
+  const N_RAW = canvasPoints.length;
+  let lastIdx = 0;
   for (let i = 0; i < NUM_SAMPLES; i++) {
     const t = i / NUM_SAMPLES;
     const len = t * totalLength;
     const pt = pathNode.getPointAtLength(len);
 
-    let minDist = Infinity, nearestIdx = 0;
-    for (let j = 0; j < canvasPoints.length; j++) {
+    // Windowed search: only check nearby RAW_POINTS in track order
+    // to prevent cross-track contamination where the circuit doubles back
+    let minDist = Infinity, nearestIdx = lastIdx;
+    for (let k = -2; k <= 6; k++) {
+      const j = ((lastIdx + k) % N_RAW + N_RAW) % N_RAW;
       const dx = pt.x - canvasPoints[j].x;
       const dy = pt.y - canvasPoints[j].y;
       const d = dx * dx + dy * dy;
       if (d < minDist) { minDist = d; nearestIdx = j; }
     }
+    lastIdx = nearestIdx;
 
     sampledPoints.push({
       x: pt.x, y: pt.y, t, len,

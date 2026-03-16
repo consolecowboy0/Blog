@@ -1063,6 +1063,8 @@
     carBLeading: false,
     prevSfA: 0.92,
     prevSfB: 0.84,
+    peakSfA: 0.92,
+    peakSfB: 0.84,
   };
 
   function resetState() {
@@ -1089,6 +1091,8 @@
     state.carBLeading = false;
     state.prevSfA = 0.92;
     state.prevSfB = 0.84;
+    state.peakSfA = 0.92;
+    state.peakSfB = 0.84;
     document.getElementById('btn-boost-a').classList.remove('active');
     document.getElementById('btn-boost-b').classList.remove('active');
     updateUI();
@@ -1193,11 +1197,19 @@
     }
 
     // Braking regen: MGU-K harvests up to 350kW during deceleration
-    // Regen proportional to braking intensity; caps at 100% — only overtake bonus can push above 100%
-    const brakingA = state.prevSfA - zoneA.sf;
-    if (brakingA > 0.02 && state.batA < 100) {
-      const regenRate = Math.min(brakingA * 1.2, 0.30);  // stronger braking = more regen
+    // Track peak speed before braking zone; regen continuously while car is slower than peak
+    // This models real regenerative braking: energy recovered ~ (v_peak² - v_current²)
+    if (zoneA.sf >= state.peakSfA) {
+      state.peakSfA = zoneA.sf;  // update peak while accelerating or at constant speed
+    }
+    const brakingIntensityA = state.peakSfA - zoneA.sf;
+    if (brakingIntensityA > 0.05 && state.batA < 100) {
+      const regenRate = Math.min(brakingIntensityA * 0.18, 0.35);
       state.batA = Math.min(100, state.batA + regenRate * state.speedMult);
+    }
+    // Reset peak when car is accelerating out of corner (sf increasing)
+    if (zoneA.sf > state.prevSfA + 0.01) {
+      state.peakSfA = zoneA.sf;
     }
     state.prevSfA = zoneA.sf;
 
@@ -1265,11 +1277,17 @@
     }
 
     // Braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
-    // Regen proportional to braking intensity; caps at 100% — only overtake bonus can push above 100%
-    const brakingB = state.prevSfB - zoneB.sf;
-    if (brakingB > 0.02 && state.batB < 100) {
-      const regenRate = Math.min(brakingB * 1.4, 0.35);  // chaser regens slightly more
+    // Track peak speed before braking zone; regen continuously while car is slower than peak
+    if (zoneB.sf >= state.peakSfB) {
+      state.peakSfB = zoneB.sf;
+    }
+    const brakingIntensityB = state.peakSfB - zoneB.sf;
+    if (brakingIntensityB > 0.05 && state.batB < 100) {
+      const regenRate = Math.min(brakingIntensityB * 0.21, 0.40);  // chaser regens slightly more
       state.batB = Math.min(100, state.batB + regenRate * state.speedMult);
+    }
+    if (zoneB.sf > state.prevSfB + 0.01) {
+      state.peakSfB = zoneB.sf;
     }
     state.prevSfB = zoneB.sf;
 

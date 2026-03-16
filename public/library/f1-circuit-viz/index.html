@@ -1166,6 +1166,10 @@
     prevSfB: 0.84,
     peakSfA: 0.92,
     peakSfB: 0.84,
+    prevZoneA: '',  // previous frame's zone for Car A (for overtake zone exit detection)
+    prevZoneB: '',  // previous frame's zone for Car B (for overtake zone exit detection)
+    wasWithinOvertakeA: false,  // was Car A within 1 sec AND chaser at any point during the overtake zone?
+    wasWithinOvertakeB: false,  // was Car B within 1 sec AND chaser at any point during the overtake zone?
   };
 
   function resetState() {
@@ -1194,6 +1198,10 @@
     state.prevSfB = 0.84;
     state.peakSfA = 0.92;
     state.peakSfB = 0.84;
+    state.prevZoneA = '';
+    state.prevZoneB = '';
+    state.wasWithinOvertakeA = false;
+    state.wasWithinOvertakeB = false;
     document.getElementById('btn-boost-a').classList.remove('active');
     document.getElementById('btn-boost-b').classList.remove('active');
     updateUI();
@@ -1340,19 +1348,31 @@
       }
     }
 
-    // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
+    // Overtake detection: chaser must be within 1 sec when LEAVING the overtake zone to earn it.
     // RULE: Only the trailing car can earn Overtake Mode. Only one car can hold "earned" status at a time.
-    if (withinOvertake) {
-      if (bIsChaser && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
-        state.overtakeEarnedB = true;
-        state.overtakeEarnedA = false;  // Only one car can hold earned status
-        logEvent('Car B Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
-      }
-      if (aIsChaser && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
+    // Track whether each car qualifies while in the overtake zone (chaser + within 1 sec)
+    if (zoneA.zone === 'overtake' && aIsChaser && withinOvertake) {
+      state.wasWithinOvertakeA = true;
+    }
+    if (zoneB.zone === 'overtake' && bIsChaser && withinOvertake) {
+      state.wasWithinOvertakeB = true;
+    }
+    // Earn on zone exit: car just left the overtake zone and was a qualifying chaser within it
+    if (state.prevZoneA === 'overtake' && zoneA.zone !== 'overtake') {
+      if (state.wasWithinOvertakeA && aIsChaser && withinOvertake && !state.overtakeEarnedA) {
         state.overtakeEarnedA = true;
-        state.overtakeEarnedB = false;  // Only one car can hold earned status
+        state.overtakeEarnedB = false;
         logEvent('Car A Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
       }
+      state.wasWithinOvertakeA = false;
+    }
+    if (state.prevZoneB === 'overtake' && zoneB.zone !== 'overtake') {
+      if (state.wasWithinOvertakeB && bIsChaser && withinOvertake && !state.overtakeEarnedB) {
+        state.overtakeEarnedB = true;
+        state.overtakeEarnedA = false;
+        logEvent('Car B Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
+      }
+      state.wasWithinOvertakeB = false;
     }
 
     // Overtake Mode persists until energy is depleted or the lap ends,
@@ -1392,6 +1412,10 @@
       state.peakSfB = zoneB.sf;
     }
     state.prevSfB = zoneB.sf;
+
+    // Update previous zone tracking for overtake zone exit detection
+    state.prevZoneA = zoneA.zone;
+    state.prevZoneB = zoneB.zone;
 
     // Move
     const prevTA = state.tA;

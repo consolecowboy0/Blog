@@ -1,22 +1,24 @@
 ---
 title: "Can You Be a Superhero?"
 date: "2026-03-15"
-description: "My son asked if he could be a superhero. I ran a simulation on a real crime network to find out which kind of hero actually works."
+description: "A year and a half ago my son asked if he could be a superhero. I told him yes and forgot about it. Then I ran a simulation on a real crime network to find out which kind of hero actually works."
 ---
 
-My son told me he wants to be a superhero when he grows up.
+About a year and a half ago, my son told me he wants to be a superhero when he grows up.
 
-He's at that age where the line between real and impossible hasn't hardened yet. Where a cape is a career plan. He said it at dinner, totally matter-of-fact, like he was telling me he wants to be a dentist. And I looked at him and I did not say no. I didn't pivot to astronaut or firefighter.
+I didn't say no. I didn't do the parent thing where you gently redirect toward something realistic. Instead I told him I thought it was possible. I told him about Batman and Iron Man- how they're both exceptional individuals but not superhuman. They're fallible, hard-working guys who made shit happen. Yeah it's science fiction- but it's *inspirational*. And for some reason I just believe it. I believe you can be a person who decides to do extraordinary things through preparation and intelligence and sheer stubborn will.
 
-Instead I did what I always do. I went to my computer and I started modeling.
+He liked that answer. I liked giving it.
 
-I'm a data person. That's how I process the world. My kid asks a question, I build a simulation. It's not that I don't have feelings about it. It's that the feelings come *through* the data. And what he was really asking- underneath the cape and the mask- was a question worth taking seriously: *what kind of hero actually makes a difference?*
+And then I essentially didn't think about it again. Life kept going. A year and a half passed.
 
-So I took a real drug trafficking network- 110 people, mapped from wiretaps and surveillance during a two-year investigation- and dropped it onto the map of my city. Not because it happened here. Because I needed to see what a superhero would be up against if it did.
+But the question stuck somewhere in the back of my head, the way things do when you know you didn't finish answering them. *What kind of hero actually makes a difference?* Not in a comic book. In a system. In a network of real people doing real harm.
+
+So I did what I do. I took a real drug trafficking network- 110 people, mapped from wiretaps and surveillance during a two-year investigation- and dropped it onto the map of my city. Not because it happened here. Because I needed to see what a superhero would be up against if it did.
 
 Richmond, Virginia. Our streets. Our neighborhoods.
 
-I built four superhero archetypes, four different strategies for dismantling a criminal network, and turned them loose. Then I measured what broke.
+I built four superhero archetypes, four different strategies for dismantling a criminal network, and turned them loose. Then I measured what broke. Because I want to show my kid- not just tell him.
 
 ---
 
@@ -52,7 +54,7 @@ I built four of them. Four archetypes. Four different answers to: *how do you ta
 
 **The Random** is what happens without a superhero. Random policing. An occasional bust with no strategy behind it. The control group.
 
-My son looked at the four descriptions and immediately said The Ghost was coolest. "She's like a spy." I told him to hold that thought.
+I described the four archetypes to my son. He immediately said The Ghost was coolest. "She's like a spy." I told him to hold that thought.
 
 ---
 
@@ -60,7 +62,7 @@ My son looked at the four descriptions and immediately said The Ghost was cooles
 
 Same network. Same 110 people. Each archetype runs one operation at a time. After each operation I recalculate- because the network changes shape when you hurt it. Then I measure what's left: the size of the largest connected component. When that drops below 50% of the original, the network is functionally shattered. It can't coordinate. It can't move product. It's done.
 
-I plotted all four dismantling curves on the same chart. Four lines, one graph. They start together. They don't stay together.
+I plotted all four dismantling curves on the same chart. Four lines, one graph. They start together. They don't stay together. (Want to watch it happen in real time? [Run the simulation yourself in the Library](/library/hero-network).)
 
 ![Four dismantling curves diverging. The Detective crosses the 50% threshold at operation 4. The Bruiser at 5. Random at 37. The Ghost barely budges.](/images/charts/hero_dismantling_curves.png)
 
@@ -96,12 +98,12 @@ Four moves. Not forty. Not four hundred. Four.
 
 The answer isn't about muscles or gadgets or capes. It's about seeing connections. Understanding structure. Finding the person who matters most- and knowing *why* they matter. That's a superpower. It's real. And it's learnable.
 
-My son asked me if he could be a superhero. I ran a simulation on a real crime network and tested every kind of hero I could build.
+A year and a half ago my son asked me if he could be a superhero. I told him about Batman and Iron Man. I told him it was possible. And then I didn't think about it for a long time.
 
-The answer is yes. Just not the kind he expected.
+Now I have something to show him. A simulation, a chart, and a real answer backed by real data: the strongest superhero isn't the one who hits hardest. It's the one who *sees* the most.
 
-Or maybe exactly the kind.
+I think he's going to like that.
 
 ---
 
-*The network in this article is real- 110 members of a drug trafficking ring mapped from wiretaps during a two-year investigation (Project Caviar, 1994-1996). It has been published and studied in peer-reviewed criminology research. I set it in Richmond because that's where we live. The simulation was run in Python using networkx. The kid is real too. He still wants to be a superhero.*
+*The network in this article is real- 110 members of a drug trafficking ring mapped from wiretaps during a two-year investigation (Project Caviar, 1994-1996). It has been published and studied in peer-reviewed criminology research. I set it in Richmond because that's where we live. The simulation was run in Python using networkx. You can [run the interactive version yourself](/library/hero-network). The kid is real too. He still wants to be a superhero.*

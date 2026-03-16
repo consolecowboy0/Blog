@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Superhero Network Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f5f5f0;
+      --bg-track: #e8e8e3;
+      --border: #d4d4d0;
+      --border-light: #b4b4b0;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --accent-red: #e10600;
+      --accent-blue: #3b82f6;
+      --accent-green: #16a34a;
+      --accent-gold: #b45309;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 17px; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .header .subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .main-content {
+      padding: 24px 32px;
+    }
+
+    .viz-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .viz-layout { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* Graph panel */
+    .graph-panel {
+      position: relative;
+      min-height: 500px;
+    }
+
+    .graph-panel svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* Side panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .side-panel .panel {
+      border-bottom: none;
+    }
+
+    .side-panel .panel:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Strategy cards */
+    .strategy-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .strategy-card {
+      font-family: var(--font-sans);
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      width: 100%;
+      display: block;
+    }
+
+    .strategy-card:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .strategy-card.active {
+      border-color: var(--card-accent, var(--border));
+      background: var(--bg-card-hover);
+    }
+
+    .strategy-name {
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .strategy-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .strategy-desc {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.4;
+      padding-left: 15px;
+    }
+
+    /* Controls */
+    .controls-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .play-btn {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 8px 0;
+      flex: 1;
+      background: var(--text);
+      border: 1px solid var(--text);
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .play-btn:hover { opacity: 0.85; }
+    .play-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .play-btn.playing {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+    }
+
+    .reset-btn {
+      font-family: var(--font-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .reset-btn:hover { background: var(--bg-card-hover); }
+
+    /* Speed slider */
+    .speed-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .speed-label {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    .speed-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 3px;
+      background: var(--border);
+      outline: none;
+      border-radius: 2px;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      background: var(--text);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .speed-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: var(--text);
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Stats */
+    .stat-big {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .stat-unit {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .step-counter {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .step-counter span {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Mini chart */
+    .mini-chart {
+      margin-top: 10px;
+    }
+
+    .mini-chart svg {
+      width: 100%;
+      display: block;
+    }
+
+    /* Tooltip */
+    .node-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: var(--text);
+      color: #fff;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      padding: 4px 8px;
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    /* Active strategy label */
+    .active-strategy-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      min-height: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-title">
+      <h1>Superhero Network Simulator</h1>
+      <span class="subtitle">Project Caviar &mdash; 110 nodes, 205 edges</span>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="viz-layout">
+      <div class="graph-panel panel" id="graph-container">
+        <div class="node-tooltip" id="tooltip"></div>
+      </div>
+
+      <div class="side-panel">
+        <div class="panel">
+          <div class="panel-title">Choose Your Hero</div>
+          <div class="strategy-cards">
+            <button class="strategy-card" data-strategy="detective" style="--card-accent: #58a6ff;">
+              <div class="strategy-name"><span class="strategy-dot" style="background:#58a6ff;"></span>The Detective</div>
+              <div class="strategy-desc">Removes the most connected node each step (betweenness centrality).</div>
+            </button>
+            <button class="strategy-card" data-strategy="bruiser" style="--card-accent: #f0883e;">
+              <div class="strategy-name"><span class="strategy-dot" style="background:#f0883e;"></span>The Bruiser</div>
+              <div class="strategy-desc">Removes the node with the highest degree at each step.</div>
+            </button>
+            <button class="strategy-card" data-strategy="ghost" style="--card-accent: #8b949e;">
+              <div class="strategy-name"><span class="strategy-dot" style="background:#8b949e;"></span>The Ghost</div>
+              <div class="strategy-desc">Silently severs the most critical edge (bridge-finder).</div>
+            </button>
+            <button class="strategy-card" data-strategy="random" style="--card-accent: #6e7681;">
+              <div class="strategy-name"><span class="strategy-dot" style="background:#6e7681;"></span>The Random</div>
+              <div class="strategy-desc">Picks a random node to remove. Chaotic but fun.</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Controls</div>
+          <div class="active-strategy-label" id="active-label">&nbsp;</div>
+          <div class="controls-row">
+            <button class="play-btn" id="play-btn" disabled>Play</button>
+            <button class="reset-btn" id="reset-btn">Reset</button>
+          </div>
+          <div class="speed-row">
+            <span class="speed-label">Speed</span>
+            <input type="range" class="speed-slider" id="speed-slider" min="100" max="2000" value="800" step="50" />
+            <span class="speed-label" id="speed-val">800ms</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Largest Connected Component</div>
+          <div class="stat-big">
+            <span class="stat-value" id="lcc-value">100</span>
+            <span class="stat-unit">% of network</span>
+          </div>
+          <div class="step-counter" id="step-counter">Operation <span>0</span> of <span>0</span></div>
+          <div class="mini-chart" id="mini-chart"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    let data, simulation, svg, gLinks, gNodes;
+    let nodeMap = new Map();
+    let linkData = [], nodeData = [];
+    let selectedStrategy = null;
+    let currentStep = 0;
+    let playing = false;
+    let timer = null;
+    let lccHistory = [];
+    let removedNodes = new Set();
+    let removedEdges = new Set();
+
+    const communityColors = [
+      '#6e7b8b', // 0 - slate
+      '#c67a4b', // 1 - copper
+      '#5a8a6a', // 2 - sage
+      '#8b6bb0', // 3 - lavender
+      '#b5854b', // 4 - amber
+      '#5b8abf', // 5 - steel blue
+      '#c45c72', // 6 - rose
+    ];
+
+    const strategyMeta = {
+      detective: { color: '#58a6ff', label: 'The Detective' },
+      bruiser:   { color: '#f0883e', label: 'The Bruiser' },
+      ghost:     { color: '#8b949e', label: 'The Ghost' },
+      random:    { color: '#6e7681', label: 'The Random' },
+    };
+
+    // --- Load & Init ---
+    d3.json('data.json').then(raw => {
+      data = raw;
+      initGraph();
+      initMiniChart();
+      bindControls();
+    });
+
+    function edgeKey(s, t) {
+      return s < t ? `${s}-${t}` : `${t}-${s}`;
+    }
+
+    function initGraph() {
+      const container = document.getElementById('graph-container');
+      const w = container.clientWidth;
+      const h = Math.max(500, container.clientHeight);
+
+      svg = d3.select('#graph-container')
+        .append('svg')
+        .attr('viewBox', `0 0 ${w} ${h}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+      // Deep copy data
+      nodeData = data.nodes.map(n => ({ ...n }));
+      linkData = data.edges.map(e => ({ source: e.source, target: e.target, weight: e.weight }));
+
+      nodeMap = new Map(nodeData.map(n => [n.id, n]));
+
+      const maxWeight = d3.max(linkData, d => d.weight);
+      const degreeExtent = d3.extent(nodeData, d => d.degree);
+      const rScale = d3.scaleSqrt().domain(degreeExtent).range([3, 18]);
+
+      gLinks = svg.append('g').attr('class', 'links');
+      gNodes = svg.append('g').attr('class', 'nodes');
+
+      const linkSel = gLinks.selectAll('line')
+        .data(linkData, d => edgeKey(d.source.id || d.source, d.target.id || d.target))
+        .join('line')
+        .attr('stroke', '#b4b4b0')
+        .attr('stroke-width', 1)
+        .attr('stroke-opacity', d => 0.15 + 0.45 * (d.weight / maxWeight));
+
+      const nodeSel = gNodes.selectAll('circle')
+        .data(nodeData, d => d.id)
+        .join('circle')
+        .attr('r', d => rScale(d.degree))
+        .attr('fill', d => communityColors[d.community] || '#999')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 1.2)
+        .attr('cursor', 'pointer');
+
+      // Tooltip
+      const tooltip = d3.select('#tooltip');
+      nodeSel
+        .on('mouseenter', (evt, d) => {
+          tooltip
+            .style('opacity', 1)
+            .html(`Node ${d.id} &middot; deg ${d.degree} &middot; c${d.community}`);
+          const rect = container.getBoundingClientRect();
+          tooltip
+            .style('left', (evt.clientX - rect.left + 12) + 'px')
+            .style('top', (evt.clientY - rect.top - 10) + 'px');
+        })
+        .on('mousemove', (evt) => {
+          const rect = container.getBoundingClientRect();
+          tooltip
+            .style('left', (evt.clientX - rect.left + 12) + 'px')
+            .style('top', (evt.clientY - rect.top - 10) + 'px');
+        })
+        .on('mouseleave', () => tooltip.style('opacity', 0));
+
+      // Drag
+      nodeSel.call(d3.drag()
+        .on('start', (evt, d) => {
+          if (!evt.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x; d.fy = d.y;
+        })
+        .on('drag', (evt, d) => {
+          d.fx = evt.x; d.fy = evt.y;
+        })
+        .on('end', (evt, d) => {
+          if (!evt.active) simulation.alphaTarget(0);
+          d.fx = null; d.fy = null;
+        })
+      );
+
+      simulation = d3.forceSimulation(nodeData)
+        .force('link', d3.forceLink(linkData).id(d => d.id).distance(60).strength(0.4))
+        .force('charge', d3.forceManyBody().strength(-120))
+        .force('center', d3.forceCenter(w / 2, h / 2))
+        .force('collision', d3.forceCollide().radius(d => rScale(d.degree) + 2))
+        .force('x', d3.forceX(w / 2).strength(0.04))
+        .force('y', d3.forceY(h / 2).strength(0.04))
+        .on('tick', () => {
+          linkSel
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+          nodeSel
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y);
+        });
+    }
+
+    // --- Mini chart ---
+    let miniSvg, miniLine, miniPath, miniArea, miniAreaPath;
+    const miniW = 258, miniH = 60;
+
+    function initMiniChart() {
+      miniSvg = d3.select('#mini-chart').append('svg')
+        .attr('viewBox', `0 0 ${miniW} ${miniH}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet');
+
+      // Axes area
+      miniSvg.append('line')
+        .attr('x1', 0).attr('y1', miniH - 1)
+        .attr('x2', miniW).attr('y2', miniH - 1)
+        .attr('stroke', '#d4d4d0').attr('stroke-width', 0.5);
+
+      miniAreaPath = miniSvg.append('path')
+        .attr('fill', '#3b82f60d')
+        .attr('stroke', 'none');
+
+      miniPath = miniSvg.append('path')
+        .attr('fill', 'none')
+        .attr('stroke', '#3b82f6')
+        .attr('stroke-width', 1.5);
+
+      lccHistory = [{ step: 0, lcc: 100 }];
+      updateMiniChart();
+    }
+
+    function updateMiniChart() {
+      const seq = selectedStrategy ? data.sequences[selectedStrategy] : [];
+      const totalSteps = seq.length || 30;
+
+      const xScale = d3.scaleLinear().domain([0, totalSteps]).range([0, miniW]);
+      const yScale = d3.scaleLinear().domain([0, 100]).range([miniH - 2, 2]);
+
+      const line = d3.line()
+        .x(d => xScale(d.step))
+        .y(d => yScale(d.lcc))
+        .curve(d3.curveMonotoneX);
+
+      const area = d3.area()
+        .x(d => xScale(d.step))
+        .y0(miniH)
+        .y1(d => yScale(d.lcc))
+        .curve(d3.curveMonotoneX);
+
+      miniPath.attr('d', line(lccHistory));
+      miniAreaPath.attr('d', area(lccHistory));
+    }
+
+    // --- Controls ---
+    function bindControls() {
+      document.querySelectorAll('.strategy-card').forEach(card => {
+        card.addEventListener('click', () => {
+          if (playing) stopPlaying();
+          document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          selectedStrategy = card.dataset.strategy;
+          const meta = strategyMeta[selectedStrategy];
+          document.getElementById('active-label').textContent = meta.label;
+          document.getElementById('active-label').style.color = meta.color;
+          document.getElementById('play-btn').disabled = false;
+          resetSimulation();
+        });
+      });
+
+      document.getElementById('play-btn').addEventListener('click', togglePlay);
+      document.getElementById('reset-btn').addEventListener('click', () => {
+        if (playing) stopPlaying();
+        resetSimulation();
+      });
+
+      const slider = document.getElementById('speed-slider');
+      slider.addEventListener('input', () => {
+        document.getElementById('speed-val').textContent = slider.value + 'ms';
+      });
+    }
+
+    function togglePlay() {
+      if (playing) {
+        stopPlaying();
+      } else {
+        startPlaying();
+      }
+    }
+
+    function startPlaying() {
+      if (!selectedStrategy) return;
+      const seq = data.sequences[selectedStrategy];
+      if (currentStep >= seq.length) return;
+      playing = true;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = 'Pause';
+      btn.classList.add('playing');
+      scheduleNext();
+    }
+
+    function stopPlaying() {
+      playing = false;
+      clearTimeout(timer);
+      const btn = document.getElementById('play-btn');
+      btn.textContent = 'Play';
+      btn.classList.remove('playing');
+    }
+
+    function scheduleNext() {
+      if (!playing) return;
+      const delay = parseInt(document.getElementById('speed-slider').value);
+      timer = setTimeout(() => {
+        executeStep();
+        const seq = data.sequences[selectedStrategy];
+        if (currentStep < seq.length && playing) {
+          scheduleNext();
+        } else {
+          stopPlaying();
+        }
+      }, delay);
+    }
+
+    function executeStep() {
+      const seq = data.sequences[selectedStrategy];
+      if (currentStep >= seq.length) return;
+      const step = seq[currentStep];
+      const isEdge = !!step.edge;
+
+      if (isEdge) {
+        removeEdge(step.edge[0], step.edge[1], step.lcc);
+      } else {
+        removeNode(step.node, step.lcc);
+      }
+      currentStep++;
+      updateStats(step.lcc);
+    }
+
+    function removeNode(nodeId, lccVal) {
+      // Highlight node red
+      const nodeSel = gNodes.selectAll('circle').filter(d => d.id === nodeId);
+      nodeSel
+        .transition().duration(200)
+        .attr('fill', '#e10600')
+        .attr('r', function() { return +d3.select(this).attr('r') * 1.5; })
+        .attr('stroke', '#e10600')
+        .attr('stroke-width', 2)
+        .transition().duration(400)
+        .attr('r', 0)
+        .attr('opacity', 0)
+        .on('end', function() { d3.select(this).remove(); });
+
+      removedNodes.add(nodeId);
+
+      // Highlight then remove edges
+      const edgeSel = gLinks.selectAll('line').filter(d => {
+        const sId = d.source.id || d.source;
+        const tId = d.target.id || d.target;
+        return sId === nodeId || tId === nodeId;
+      });
+
+      edgeSel
+        .transition().duration(200)
+        .attr('stroke', '#e10600')
+        .attr('stroke-opacity', 0.8)
+        .transition().duration(400)
+        .attr('stroke-opacity', 0)
+        .on('end', function() { d3.select(this).remove(); });
+
+      // Mark edges as removed
+      linkData.forEach(e => {
+        const sId = e.source.id || e.source;
+        const tId = e.target.id || e.target;
+        if (sId === nodeId || tId === nodeId) {
+          removedEdges.add(edgeKey(sId, tId));
+        }
+      });
+
+      // After removal, update opacity of disconnected nodes
+      setTimeout(() => updateComponentOpacity(), 650);
+    }
+
+    function removeEdge(src, tgt, lccVal) {
+      const key = edgeKey(src, tgt);
+      // Also check reverse since data may have duplicates
+      const edgeSel = gLinks.selectAll('line').filter(d => {
+        const sId = d.source.id || d.source;
+        const tId = d.target.id || d.target;
+        return edgeKey(sId, tId) === key;
+      });
+
+      if (edgeSel.empty()) {
+        // Edge already removed (duplicate in sequence), skip
+        return;
+      }
+
+      removedEdges.add(key);
+
+      edgeSel
+        .transition().duration(200)
+        .attr('stroke', '#e10600')
+        .attr('stroke-opacity', 0.9)
+        .attr('stroke-width', 3)
+        .transition().duration(400)
+        .attr('stroke-opacity', 0)
+        .on('end', function() { d3.select(this).remove(); });
+
+      setTimeout(() => updateComponentOpacity(), 650);
+    }
+
+    function updateComponentOpacity() {
+      // Build adjacency from remaining edges
+      const adj = new Map();
+      nodeData.forEach(n => {
+        if (!removedNodes.has(n.id)) adj.set(n.id, []);
+      });
+      linkData.forEach(e => {
+        const sId = e.source.id || e.source;
+        const tId = e.target.id || e.target;
+        if (!removedNodes.has(sId) && !removedNodes.has(tId) && !removedEdges.has(edgeKey(sId, tId))) {
+          if (adj.has(sId)) adj.get(sId).push(tId);
+          if (adj.has(tId)) adj.get(tId).push(sId);
+        }
+      });
+
+      // BFS to find LCC
+      const visited = new Set();
+      let largestComp = new Set();
+
+      for (const nId of adj.keys()) {
+        if (visited.has(nId)) continue;
+        const comp = new Set();
+        const queue = [nId];
+        while (queue.length) {
+          const cur = queue.shift();
+          if (comp.has(cur)) continue;
+          comp.add(cur);
+          visited.add(cur);
+          for (const nb of (adj.get(cur) || [])) {
+            if (!comp.has(nb)) queue.push(nb);
+          }
+        }
+        if (comp.size > largestComp.size) largestComp = comp;
+      }
+
+      // Fade disconnected nodes
+      gNodes.selectAll('circle')
+        .filter(d => !removedNodes.has(d.id))
+        .transition().duration(300)
+        .attr('opacity', d => largestComp.has(d.id) ? 1 : 0.15);
+
+      // Fade disconnected edges
+      gLinks.selectAll('line')
+        .transition().duration(300)
+        .attr('stroke-opacity', function(d) {
+          const sId = d.source.id || d.source;
+          const tId = d.target.id || d.target;
+          if (largestComp.has(sId) && largestComp.has(tId)) {
+            const maxW = d3.max(data.edges, e => e.weight);
+            return 0.15 + 0.45 * (d.weight / maxW);
+          }
+          return 0.04;
+        });
+    }
+
+    function updateStats(lccVal) {
+      const pct = Math.round(lccVal * 100);
+      document.getElementById('lcc-value').textContent = pct;
+
+      const seq = data.sequences[selectedStrategy];
+      const stepEl = document.getElementById('step-counter');
+      stepEl.innerHTML = `Operation <span>${currentStep}</span> of <span>${seq.length}</span>`;
+
+      lccHistory.push({ step: currentStep, lcc: pct });
+      updateMiniChart();
+    }
+
+    function resetSimulation() {
+      currentStep = 0;
+      removedNodes.clear();
+      removedEdges.clear();
+      lccHistory = [{ step: 0, lcc: 100 }];
+
+      // Remove old SVG
+      d3.select('#graph-container svg').remove();
+
+      // Reset stats
+      document.getElementById('lcc-value').textContent = '100';
+      const seq = selectedStrategy ? data.sequences[selectedStrategy] : [];
+      document.getElementById('step-counter').innerHTML =
+        `Operation <span>0</span> of <span>${seq.length}</span>`;
+
+      // Rebuild
+      initGraph();
+      updateMiniChart();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three Ways to Measure a Decline</title>
+    <style>
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+    </style>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/recharts@2/umd/Recharts.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState } = React;
+const {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  ReferenceArea,
+  ComposedChart,
+  Line,
+} = Recharts;
+
+// Freedom House (100-point scale)
+const freedomHouseData = [
+  { year: 2006, fh: 93 },
+  { year: 2007, fh: 93 },
+  { year: 2008, fh: 93 },
+  { year: 2009, fh: 94 },
+  { year: 2010, fh: 94 },
+  { year: 2011, fh: 93 },
+  { year: 2012, fh: 92 },
+  { year: 2013, fh: 91 },
+  { year: 2014, fh: 91 },
+  { year: 2015, fh: 90 },
+  { year: 2016, fh: 89 },
+  { year: 2017, fh: 88 },
+  { year: 2018, fh: 86 },
+  { year: 2019, fh: 86 },
+  { year: 2020, fh: 83 },
+  { year: 2021, fh: 83 },
+  { year: 2022, fh: 83 },
+  { year: 2023, fh: 83 },
+  { year: 2024, fh: 84 },
+];
+
+// Century Foundation Democracy Meter (Jan 2026)
+const cfData = [
+  { year: 2024, cf: 79 },
+  { year: 2025, cf: 57 },
+];
+
+// Bright Line Watch expert survey (700+ political scientists)
+const blwData = [
+  { year: 2017, blw: 67 },
+  { year: 2025, blw: 53 },
+];
+
+// Build merged dataset through 2026
+const allYears = [];
+for (let y = 2006; y <= 2026; y++) {
+  const fh = freedomHouseData.find((d) => d.year === y);
+  const cf = cfData.find((d) => d.year === y);
+  const blw = blwData.find((d) => d.year === y);
+  allYears.push({
+    year: y,
+    fh: fh ? fh.fh : null,
+    cf: cf ? cf.cf : null,
+    blw: blw ? blw.blw : null,
+  });
+}
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  const names = {
+    fh: "Freedom House",
+    cf: "Century Foundation",
+    blw: "Bright Line Watch",
+  };
+  return (
+    <div
+      style={{
+        background: "#fff",
+        border: "1px solid #d4d4d0",
+        padding: "10px 14px",
+        fontFamily: '"Inter", -apple-system, sans-serif',
+        fontSize: "0.8rem",
+        lineHeight: 1.6,
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 800,
+          marginBottom: 4,
+          color: "#1a1a1a",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {label}
+      </div>
+      {payload.map((entry, i) =>
+        entry.value != null ? (
+          <div
+            key={i}
+            style={{ display: "flex", gap: 6, alignItems: "center" }}
+          >
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: entry.stroke || entry.color,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ color: "#555" }}>{names[entry.dataKey]}</span>
+            <span
+              style={{
+                fontWeight: 700,
+                color: "#1a1a1a",
+                marginLeft: "auto",
+              }}
+            >
+              {entry.value}
+            </span>
+          </div>
+        ) : null
+      )}
+    </div>
+  );
+};
+
+// Custom hollow circle for the pending FH 2025 data point
+const HollowDot = ({ cx, cy }) => {
+  if (!cx || !cy) return null;
+  return (
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={5}
+        fill="#fff"
+        stroke="#1a1a1a"
+        strokeWidth={1.5}
+      />
+      <text
+        x={cx + 10}
+        y={cy + 4}
+        fontSize={11}
+        fontWeight={700}
+        fill="#1a1a1a"
+        fontFamily='"Inter", -apple-system, sans-serif'
+      >
+        ?
+      </text>
+    </g>
+  );
+};
+
+function DemocracyChart() {
+  // Separate dataset for the pending FH point - dashed connector from last known
+  const fhPending = [
+    { year: 2024, fhGhost: 84 },
+    { year: 2025, fhGhost: 70 },
+  ];
+
+  // Merge pending into allYears
+  const chartData = allYears.map((d) => {
+    const ghost = fhPending.find((g) => g.year === d.year);
+    return { ...d, fhGhost: ghost ? ghost.fhGhost : null };
+  });
+
+  return (
+    <div
+      style={{
+        background: "#ffffff",
+        minHeight: "100vh",
+        fontFamily: '"Inter", -apple-system, sans-serif',
+        color: "#1a1a1a",
+        WebkitFontSmoothing: "antialiased",
+        lineHeight: 1.7,
+        padding: "2rem 1.5rem 4rem",
+        fontSize: "17px",
+      }}
+    >
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ marginBottom: "0.25rem" }}>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "#555",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontWeight: 600,
+            }}
+          >
+            Mar 17, 2026
+          </span>
+        </div>
+        <h1
+          style={{
+            fontSize: "2.25rem",
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.2,
+            margin: "0 0 0.75rem 0",
+          }}
+        >
+          Three Ways to Measure a Decline
+        </h1>
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "#555",
+            margin: "0 0 2.5rem 0",
+            maxWidth: 600,
+          }}
+        >
+          U.S. democracy scores from three independent indices, all on a 0-100
+          scale. Two have published 2025 numbers. The third releases Thursday.
+        </p>
+
+        {/* Chart */}
+        <div
+          style={{
+            border: "1px solid #d4d4d0",
+            padding: "1.5rem 1rem 1rem",
+            background: "#fff",
+            marginBottom: "2rem",
+          }}
+        >
+          <div style={{ width: "100%", height: 420 }}>
+            <ResponsiveContainer>
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 16, right: 32, left: 4, bottom: 12 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e8e8e3"
+                  vertical={false}
+                />
+
+                {/* "Partly Free" zone */}
+                <ReferenceArea
+                  y1={40}
+                  y2={70}
+                  fill="#1a1a1a"
+                  fillOpacity={0.03}
+                />
+
+                <ReferenceLine
+                  y={70}
+                  stroke="#1a1a1a"
+                  strokeDasharray="8 4"
+                  strokeOpacity={0.2}
+                  label={{
+                    value: "PARTLY FREE",
+                    position: "insideTopLeft",
+                    fill: "#999",
+                    fontSize: 9,
+                    fontWeight: 600,
+                    fontFamily: '"Inter", sans-serif',
+                    dy: 4,
+                    dx: 4,
+                  }}
+                />
+
+                {/* Trump 1.0 */}
+                <ReferenceArea
+                  x1={2017}
+                  x2={2020}
+                  fill="#1a1a1a"
+                  fillOpacity={0.03}
+                />
+                {/* Trump 2.0 */}
+                <ReferenceArea
+                  x1={2025}
+                  x2={2026}
+                  fill="#1a1a1a"
+                  fillOpacity={0.03}
+                />
+
+                <XAxis
+                  dataKey="year"
+                  tick={{
+                    fill: "#555",
+                    fontSize: 11,
+                    fontFamily: '"Inter", sans-serif',
+                  }}
+                  tickLine={{ stroke: "#d4d4d0" }}
+                  axisLine={{ stroke: "#d4d4d0" }}
+                  tickFormatter={(v) =>
+                    v % 2 === 0 ? `'${String(v).slice(2)}` : ""
+                  }
+                  domain={[2006, 2026]}
+                />
+                <YAxis
+                  domain={[40, 100]}
+                  ticks={[40, 50, 60, 70, 80, 90, 100]}
+                  tick={{
+                    fill: "#555",
+                    fontSize: 11,
+                    fontFamily: '"Inter", sans-serif',
+                  }}
+                  tickLine={{ stroke: "#d4d4d0" }}
+                  axisLine={{ stroke: "#d4d4d0" }}
+                  width={30}
+                />
+                <Tooltip content={<CustomTooltip />} />
+
+                {/* Freedom House - solid line through known data */}
+                <Line
+                  type="monotone"
+                  dataKey="fh"
+                  stroke="#1a1a1a"
+                  strokeWidth={2}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    if (!cx || !cy) return null;
+                    const isEndpoint =
+                      payload.year === 2006 || payload.year === 2024;
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={isEndpoint ? 3.5 : 1.5}
+                        fill="#1a1a1a"
+                        stroke="none"
+                      />
+                    );
+                  }}
+                  activeDot={{
+                    r: 4,
+                    fill: "#1a1a1a",
+                    stroke: "#fff",
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={false}
+                />
+
+                {/* FH ghost/pending line - dashed from 84 down to threshold */}
+                <Line
+                  type="monotone"
+                  dataKey="fhGhost"
+                  stroke="#1a1a1a"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  strokeOpacity={0.35}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    if (!cx || !cy) return null;
+                    if (payload.year === 2025) {
+                      return <HollowDot cx={cx} cy={cy} />;
+                    }
+                    return null;
+                  }}
+                  activeDot={false}
+                  connectNulls={true}
+                  legendType="none"
+                />
+
+                {/* Century Foundation */}
+                <Line
+                  type="monotone"
+                  dataKey="cf"
+                  stroke="#92400e"
+                  strokeWidth={2}
+                  dot={{ r: 3.5, fill: "#92400e", strokeWidth: 0 }}
+                  activeDot={{
+                    r: 5,
+                    fill: "#92400e",
+                    stroke: "#fff",
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={true}
+                />
+
+                {/* Bright Line Watch */}
+                <Line
+                  type="monotone"
+                  dataKey="blw"
+                  stroke="#9ca3af"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={{ r: 3.5, fill: "#9ca3af", strokeWidth: 0 }}
+                  activeDot={{
+                    r: 5,
+                    fill: "#9ca3af",
+                    stroke: "#fff",
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={true}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Legend strip */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1.25rem",
+              flexWrap: "wrap",
+              paddingTop: "0.75rem",
+              borderTop: "1px solid #e8e8e3",
+              fontSize: "0.7rem",
+              color: "#555",
+              letterSpacing: "0.03em",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 2,
+                  background: "#1a1a1a",
+                  borderRadius: 1,
+                }}
+              />
+              <span>Freedom House</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  border: "1.5px solid #1a1a1a",
+                  background: "#fff",
+                }}
+              />
+              <span>Pending (Mar 20)</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 2,
+                  background: "#92400e",
+                  borderRadius: 1,
+                }}
+              />
+              <span>Century Foundation</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 0,
+                  borderTop: "2px dashed #9ca3af",
+                }}
+              />
+              <span>Bright Line Watch</span>
+            </div>
+            <div style={{ marginLeft: "auto", color: "#999" }}>
+              Shaded bands = Trump presidencies
+            </div>
+          </div>
+        </div>
+
+        {/* Prose annotations */}
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong>The black line</strong> is Freedom House, the longest-running
+          and most cited democracy index. It aggregates 25 indicators of
+          political rights and civil liberties into a 100-point score. The U.S.
+          scored 93 when the current scale launched in 2006. By 2024 it had
+          fallen to 84. Eleven of those points disappeared between 2010 and
+          2020, with six lost during Trump's first term. The dashed line drops
+          to the threshold at 70, where a country gets reclassified from "Free"
+          to "Partly Free." The hollow circle is the pending number. It lands
+          Thursday.
+        </p>
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong style={{ color: "#92400e" }}>The amber line</strong> is the
+          Century Foundation's Democracy Meter, first published in January 2026.
+          It scored the U.S. at 79 for 2024 and 57 for 2025. A 28 percent
+          collapse in a single year. Already well below the threshold.
+        </p>
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong style={{ color: "#9ca3af" }}>The dashed gray line</strong> is
+          Bright Line Watch, a survey of more than 700 political scientists. They
+          scored U.S. democracy at 67 after the 2016 election. By late 2025 it
+          had fallen to 53, the largest single drop in the survey's history,
+          placing the country roughly midway between Canada and Russia.
+        </p>
+        <p>
+          Each index uses its own methodology, so cross-comparison is
+          approximate. But the direction is not ambiguous. All three are falling.
+          Two of the three have already crossed below the line that separates
+          democracies from semi-democracies. Thursday tells us whether the most
+          conservative of the three follows them down.
+        </p>
+
+        <hr
+          style={{
+            border: "none",
+            borderTop: "1px solid #d4d4d0",
+            margin: "2.5rem 0",
+          }}
+        />
+
+        <p
+          style={{
+            fontSize: "0.8rem",
+            color: "#555",
+            lineHeight: 1.6,
+            fontStyle: "italic",
+          }}
+        >
+          Sources: Freedom House, <em>Freedom in the World</em> (2006-2025
+          reports). Century Foundation, "U.S. Democracy Meter" (Jan 2026).
+          Bright Line Watch expert survey (2017, 2025). Freedom House
+          intermediate year-over-year values interpolated from confirmed
+          endpoints and reported decline rates. The Economist Intelligence
+          Unit's Democracy Index separately classifies the U.S. as a "flawed
+          democracy" at 7.85/10.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<DemocracyChart />);
+    </script>
+  </body>
+</html>

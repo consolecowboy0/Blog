@@ -21,7 +21,7 @@ const items = (await getCollection('library'))
         });
         const href = item.data.type === 'pdf' ? item.data.file : `/library/${item.id}`;
         const isPdf = item.data.type === 'pdf';
-        const tagLabels = { pdf: 'PDF', interactive: 'INTERACTIVE', html: 'HTML/JS', markdown: 'DOC' } as const;
+        const tagLabels = { pdf: 'PDF', interactive: 'INTERACTIVE', html: 'HTML/JS', react: 'REACT', markdown: 'DOC' } as const;
         const tagLabel = tagLabels[item.data.type];
         return (
           <li>
@@ -31,7 +31,7 @@ const items = (await getCollection('library'))
               {...(isPdf ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
               <div class="library-item-meta">
-                <span class={`library-tag ${item.data.type === 'interactive' || item.data.type === 'html' ? 'library-tag-interactive' : ''}`}>{tagLabel}</span>
+                <span class={`library-tag ${item.data.type === 'interactive' || item.data.type === 'html' || item.data.type === 'react' ? 'library-tag-interactive' : ''}`}>{tagLabel}</span>
                 <time datetime={item.data.date}>{dateStr}</time>
               </div>
               <h2>{item.data.title}</h2>

@@ -15,11 +15,11 @@ export async function getStaticPaths() {
 }
 
 const { item } = Astro.props;
-const isHtml = item.data.type === 'html';
-const rendered = !isHtml ? await render(item) : null;
+const isEmbed = item.data.type === 'html' || item.data.type === 'react';
+const rendered = !isEmbed ? await render(item) : null;
 ---
 
-{isHtml ? (
+{isEmbed ? (
   <BaseLayout title={`${item.data.title} · Library`} description={item.data.description}>
     <LibraryEmbed
       src={item.data.file!}

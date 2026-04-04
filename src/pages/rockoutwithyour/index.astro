@@ -151,8 +151,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       });
     });
 
-    // Chat room logic
-    var API_URL = '/.netlify/functions/agent-chat';
+    // Chat room logic - calls Anthropic API directly from the browser
+    var API_URL = 'https://api.anthropic.com/v1/messages';
 
     function getAgents() {
       var configs = document.querySelectorAll('.agent-config');
@@ -171,28 +171,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     async function callAgent(system, messages) {
+      var key = getApiKey();
       var res;
       try {
         res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-20250514', apiKey: getApiKey() }),
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1024, system: system, messages: messages }),
         });
       } catch (fetchErr) {
-        throw new Error('Network error - could not reach server: ' + fetchErr.message);
+        throw new Error('Network error: ' + fetchErr.message);
       }
       if (!res.ok) {
         var errText = '';
         try {
           var errBody = await res.json();
-          errText = errBody.error || JSON.stringify(errBody);
+          errText = errBody.error?.message || JSON.stringify(errBody);
         } catch(e) {
           try { errText = await res.text(); } catch(e2) {}
         }
         throw new Error('API error (' + res.status + '): ' + (errText || 'unknown'));
       }
       var data = await res.json();
-      return data.text;
+      return data.content[0].text;
     }
 
     function appendMessage(name, color, text, isSystem) {

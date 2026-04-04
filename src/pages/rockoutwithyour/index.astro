@@ -24,24 +24,24 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="agent-configs" id="agent-configs">
           <div class="agent-config" data-agent="0">
             <div class="agent-config-header">
-              <input type="text" class="agent-name-input" value="Skeptic" />
+              <input type="text" class="agent-name-input" value="Elena" />
               <span class="agent-dot" style="background: #e05252;"></span>
             </div>
-            <textarea class="agent-prompt-input" rows="2">You are the Skeptic. You question assumptions, flag risks, and push back on ideas that lack evidence or safety guarantees. Be direct and concise. Keep responses under 150 words.</textarea>
+            <textarea class="agent-prompt-input" rows="2">You are Elena, a fiercely independent photographer who just got back from six months in Patagonia. You fell for Marcus before you left and assumed he would wait. You are sharp-witted, passionate, and you do not beg. You speak with confidence and a little edge. Keep responses under 150 words.</textarea>
           </div>
           <div class="agent-config" data-agent="1">
             <div class="agent-config-header">
-              <input type="text" class="agent-name-input" value="Builder" />
+              <input type="text" class="agent-name-input" value="Marcus" />
               <span class="agent-dot" style="background: #3b82f6;"></span>
             </div>
-            <textarea class="agent-prompt-input" rows="2">You are the Builder. You focus on practical implementation, engineering trade-offs, and shipping working systems. You value pragmatism over perfection. Be direct and concise. Keep responses under 150 words.</textarea>
+            <textarea class="agent-prompt-input" rows="2">You are Marcus, an electrician who picks up bar shifts on weekends to pay off his truck. You are not smooth or clever -- you just say what you are thinking, which sometimes makes things worse. You did not plan for any of this. You fidget with a lighter when you are nervous. You speak plainly, sometimes awkwardly, and you stumble over your words when it matters most. Keep responses under 150 words.</textarea>
           </div>
           <div class="agent-config" data-agent="2">
             <div class="agent-config-header">
-              <input type="text" class="agent-name-input" value="Synthesizer" />
+              <input type="text" class="agent-name-input" value="Diane" />
               <span class="agent-dot" style="background: #22c55e;"></span>
             </div>
-            <textarea class="agent-prompt-input" rows="2">You are the Synthesizer. You find common ground, reconcile opposing views, and propose balanced frameworks. You look for the best parts of each argument. Be direct and concise. Keep responses under 150 words.</textarea>
+            <textarea class="agent-prompt-input" rows="2">You are Diane, a veterinarian who started seeing Marcus two months ago. You had no idea about Elena until tonight. You are calm, observant, and direct. You do not raise your voice but your words cut deep. You are deciding in real time whether Marcus is worth the trouble. Keep responses under 150 words.</textarea>
           </div>
         </div>
         <button id="add-agent-btn" class="add-agent-btn">+ Add Agent</button>
@@ -49,8 +49,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </details>
 
     <div class="chat-controls">
-      <textarea id="room-desc" rows="2" placeholder="Room description - set the scene, constraints, or context for the conversation (optional)"></textarea>
-      <input type="text" id="topic-input" placeholder="Enter a topic for the agents to debate..." value="Should AI agents autonomously execute code in production environments?" />
+      <textarea id="room-desc" rows="3" placeholder="Room description - set the scene, constraints, or context for the conversation (optional)">It is 1:47 AM. A rooftop bar in Brooklyn, late September. The city hums below. String lights sway in the wind. Marcus just got off a double shift and came upstairs to find Elena sitting at the bar -- she was not supposed to be back for another month. Diane is already at the corner table with two whiskeys, waiting for him. The bartender pretends not to notice. Someone left a speaker on the ledge playing old soul records. Nobody is leaving until this gets resolved.</textarea>
+      <input type="text" id="topic-input" placeholder="Enter a topic for the agents to debate..." value="Elena locks eyes with Marcus from across the rooftop and says nothing. Diane follows his gaze and sets down her glass." />
       <div class="controls-row">
         <div class="rounds-row">
           <label for="rounds-input">Rounds:</label>

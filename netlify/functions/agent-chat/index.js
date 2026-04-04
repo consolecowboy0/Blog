@@ -30,7 +30,7 @@ exports.handler = async (event) => {
     };
   }
 
-  const { system, messages, model = "claude-sonnet-4-20250514" } = body;
+  const { system, messages, model = "claude-sonnet-4-6" } = body;
 
   if (!system || !messages) {
     return {

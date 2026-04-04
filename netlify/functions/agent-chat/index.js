@@ -14,24 +14,20 @@ exports.handler = async (event) => {
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    const envKeys = Object.keys(process.env).filter(k => k.includes("ANTHRO") || k.includes("API"));
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error: "ANTHROPIC_API_KEY not configured on server",
-        hint: "Env vars matching ANTHRO or API: " + (envKeys.length ? envKeys.join(", ") : "none found"),
-      }),
-    };
-  }
-
   let body;
   try {
     body = JSON.parse(event.body);
   } catch {
     return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON" }) };
+  }
+
+  const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return {
+      statusCode: 400,
+      headers,
+      body: JSON.stringify({ error: "No API key provided" }),
+    };
   }
 
   const { system, messages, model = "claude-sonnet-4-20250514" } = body;

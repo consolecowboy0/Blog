@@ -176,7 +176,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-6', apiKey: getApiKey() }),
+          body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-20250514', apiKey: getApiKey() }),
         });
       } catch (fetchErr) {
         throw new Error('Network error - could not reach server: ' + fetchErr.message);

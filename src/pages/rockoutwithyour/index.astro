@@ -19,10 +19,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
     <div class="api-key-row">
-      <label for="api-key-input">API Key</label>
-      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
-      <button id="save-key-btn">Save</button>
-      <span id="key-status" class="key-status"></span>
+      <label>API Key</label>
+      <div class="key-mode-switch">
+        <button id="key-mode-env" class="key-mode-btn active" data-mode="env">ENV</button>
+        <button id="key-mode-paste" class="key-mode-btn" data-mode="paste">Paste</button>
+      </div>
+      <span id="key-env-label" class="key-env-label">Using server environment variable</span>
+      <div id="key-paste-row" class="key-paste-row" style="display: none;">
+        <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+        <button id="save-key-btn">Save</button>
+        <span id="key-status" class="key-status"></span>
+      </div>
     </div>
 
     <details class="config-toggle" open>
@@ -112,11 +119,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     // API key management
     var KEY_STORAGE = 'panel_api_key';
+    var KEY_MODE_STORAGE = 'panel_key_mode';
+    var keyMode = localStorage.getItem(KEY_MODE_STORAGE) || 'env';
+
+    function setKeyMode(mode) {
+      keyMode = mode;
+      localStorage.setItem(KEY_MODE_STORAGE, mode);
+      document.getElementById('key-mode-env').classList.toggle('active', mode === 'env');
+      document.getElementById('key-mode-paste').classList.toggle('active', mode === 'paste');
+      document.getElementById('key-env-label').style.display = mode === 'env' ? '' : 'none';
+      document.getElementById('key-paste-row').style.display = mode === 'paste' ? 'flex' : 'none';
+    }
+
+    setKeyMode(keyMode);
+
     var savedKey = localStorage.getItem(KEY_STORAGE) || '';
     if (savedKey) {
       document.getElementById('api-key-input').value = savedKey;
       document.getElementById('key-status').textContent = 'Saved';
     }
+
+    document.getElementById('key-mode-env').addEventListener('click', function() { setKeyMode('env'); });
+    document.getElementById('key-mode-paste').addEventListener('click', function() { setKeyMode('paste'); });
 
     document.getElementById('save-key-btn').addEventListener('click', function() {
       var key = document.getElementById('api-key-input').value.trim();
@@ -127,6 +151,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
 
     function getApiKey() {
+      if (keyMode === 'env') return '';
       return document.getElementById('api-key-input').value.trim() || localStorage.getItem(KEY_STORAGE) || '';
     }
 
@@ -254,7 +279,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       btn.disabled = true;
       btn.textContent = 'Running...';
 
-      if (!getApiKey()) {
+      if (keyMode === 'paste' && !getApiKey()) {
         appendMessage('', '', 'Enter your Anthropic API key above first.', true);
         btn.disabled = false;
         btn.textContent = 'Go';
@@ -413,6 +438,48 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     letter-spacing: 0.06em;
     color: var(--fg-muted);
     white-space: nowrap;
+  }
+
+  .key-mode-switch {
+    display: flex;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .key-mode-btn {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.3rem 0.6rem;
+    border: none;
+    background: var(--bg);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .key-mode-btn + .key-mode-btn {
+    border-left: 1px solid var(--border);
+  }
+
+  .key-mode-btn.active {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .key-env-label {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+
+  .key-paste-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
   }
 
   #api-key-input {

@@ -1,43 +1,34 @@
-exports.handler = async (event) => {
-  const headers = {
+export default async (req) => {
+  const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Content-Type": "application/json",
   };
 
-  if (event.httpMethod === "OPTIONS") {
-    return { statusCode: 204, headers, body: "" };
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
+  if (req.method !== "POST") {
+    return Response.json({ error: "Method not allowed" }, { status: 405, headers: corsHeaders });
   }
 
   let body;
   try {
-    body = JSON.parse(event.body);
+    body = await req.json();
   } catch {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid JSON" }) };
+    return Response.json({ error: "Invalid JSON" }, { status: 400, headers: corsHeaders });
   }
 
-  const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
+  const apiKey = body.apiKey || Netlify.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: "No API key provided" }),
-    };
+    return Response.json({ error: "No API key provided" }, { status: 400, headers: corsHeaders });
   }
 
-  const { system, messages, model = "claude-sonnet-4-6" } = body;
+  const { system, messages, model = "claude-sonnet-4-20250514" } = body;
 
   if (!system || !messages) {
-    return {
-      statusCode: 400,
-      headers,
-      body: JSON.stringify({ error: "Missing system or messages" }),
-    };
+    return Response.json({ error: "Missing system or messages" }, { status: 400, headers: corsHeaders });
   }
 
   try {
@@ -59,20 +50,22 @@ exports.handler = async (event) => {
     const data = await res.json();
 
     if (!res.ok) {
-      return {
-        statusCode: res.status,
-        headers,
-        body: JSON.stringify({ error: data.error?.message || "API error" }),
-      };
+      return Response.json(
+        { error: data.error?.message || "API error" },
+        { status: res.status, headers: corsHeaders }
+      );
     }
 
     const text = data.content?.[0]?.text || "";
-    return { statusCode: 200, headers, body: JSON.stringify({ text }) };
+    return Response.json({ text }, { headers: corsHeaders });
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-    };
+    return Response.json(
+      { error: err.message || "Failed to call Anthropic API" },
+      { status: 500, headers: corsHeaders }
+    );
   }
+};
+
+export const config = {
+  path: "/.netlify/functions/agent-chat",
 };

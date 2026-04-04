@@ -144,15 +144,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     async function callAgent(system, messages) {
-      var res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-20250514' }),
-      });
+      var res;
+      try {
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-20250514' }),
+        });
+      } catch (fetchErr) {
+        throw new Error('Network error - could not reach server: ' + fetchErr.message);
+      }
       if (!res.ok) {
-        var err = {};
-        try { err = await res.json(); } catch(e) {}
-        throw new Error(err.error || 'API request failed');
+        var errText = '';
+        try {
+          var errBody = await res.json();
+          errText = errBody.error || JSON.stringify(errBody);
+        } catch(e) {
+          try { errText = await res.text(); } catch(e2) {}
+        }
+        throw new Error('API error (' + res.status + '): ' + (errText || 'unknown'));
       }
       var data = await res.json();
       return data.text;

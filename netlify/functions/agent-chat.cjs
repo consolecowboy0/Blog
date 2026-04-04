@@ -16,10 +16,14 @@ exports.handler = async (event) => {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    const envKeys = Object.keys(process.env).filter(k => k.includes("ANTHRO") || k.includes("API"));
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: "ANTHROPIC_API_KEY not configured on server" }),
+      body: JSON.stringify({
+        error: "ANTHROPIC_API_KEY not configured on server",
+        hint: "Env vars matching ANTHRO or API: " + (envKeys.length ? envKeys.join(", ") : "none found"),
+      }),
     };
   }
 

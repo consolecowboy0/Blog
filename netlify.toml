@@ -6,4 +6,4 @@
   NODE_VERSION = "22"
 
 [functions]
-  timeout = 60
+  timeout = 10

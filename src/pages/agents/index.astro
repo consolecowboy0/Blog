@@ -82,6 +82,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
     </div>
 
+    <div id="status-panel" class="status-panel" style="display:none;">
+      <label class="field-label">Status</label>
+      <div id="status-list" class="status-list"></div>
+    </div>
+
     <div id="chat" class="chat">
       <p class="chat-placeholder">Hit Go to start.</p>
     </div>
@@ -441,6 +446,112 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var sessionRun = 0;
   var stopRequested = false;
   var worldState = [];
+  var characterStatus = {}; // name -> { status: 'present'|'dead'|'left', round: number }
+
+  function initStatus(agents) {
+    characterStatus = {};
+    agents.forEach(function (a) {
+      if (a.name !== 'The Room') {
+        characterStatus[a.name] = { status: 'present', round: 0 };
+      }
+    });
+    renderStatus();
+  }
+
+  function markStatus(name, status, round) {
+    if (characterStatus[name]) {
+      characterStatus[name] = { status: status, round: round };
+    }
+    renderStatus();
+  }
+
+  function renderStatus() {
+    var panel = document.getElementById('status-panel');
+    var list = document.getElementById('status-list');
+    var names = Object.keys(characterStatus);
+    if (names.length === 0) { panel.style.display = 'none'; return; }
+    panel.style.display = '';
+    list.innerHTML = '';
+    names.forEach(function (name) {
+      var entry = characterStatus[name];
+      var el = document.createElement('span');
+      el.className = 'status-entry';
+      if (entry.status === 'dead') el.className += ' status-dead';
+      if (entry.status === 'left') el.className += ' status-left';
+      var dot = entry.status === 'present' ? '\u25CF' : entry.status === 'dead' ? '\u2620' : '\u2192';
+      el.textContent = dot + ' ' + name;
+      if (entry.status !== 'present') {
+        var sub = document.createElement('span');
+        sub.className = 'status-detail';
+        sub.textContent = entry.status === 'dead' ? ' (dead, r' + entry.round + ')' : ' (left, r' + entry.round + ')';
+        el.appendChild(sub);
+      }
+      list.appendChild(el);
+    });
+  }
+
+  function getStatusSummary() {
+    var lines = [];
+    Object.keys(characterStatus).forEach(function (name) {
+      var s = characterStatus[name];
+      if (s.status === 'dead') lines.push(name + ' is dead (died in round ' + s.round + ').');
+      if (s.status === 'left') lines.push(name + ' has left the room (left in round ' + s.round + ').');
+    });
+    return lines.join('\n');
+  }
+
+  function detectStatusChanges(speakerName, text, round) {
+    // Detect [DEAD: Name] or [Name dies] patterns
+    var deadPattern = /\[DEAD:\s*([^\]]+)\]/gi;
+    var leavesPattern = /\[LEAVES:\s*([^\]]+)\]/gi;
+    var selfDies = /\[DIES\]/gi;
+    var selfLeaves = /\[LEAVES\]/gi;
+    var changes = [];
+
+    var m;
+    while ((m = deadPattern.exec(text)) !== null) {
+      var target = m[1].trim();
+      if (characterStatus[target] && characterStatus[target].status === 'present') {
+        changes.push({ name: target, status: 'dead' });
+      }
+    }
+    while ((m = leavesPattern.exec(text)) !== null) {
+      var target = m[1].trim();
+      if (target === speakerName) continue; // handled by selfLeaves
+      if (characterStatus[target] && characterStatus[target].status === 'present') {
+        changes.push({ name: target, status: 'left' });
+      }
+    }
+    // Self-referencing tags (no name needed)
+    if (selfDies.test(text) && characterStatus[speakerName] && characterStatus[speakerName].status === 'present') {
+      // Only if not already matched via DEAD tag
+      if (!changes.some(function (c) { return c.name === speakerName; })) {
+        changes.push({ name: speakerName, status: 'dead' });
+      }
+    }
+    // Reset and test selfLeaves - but avoid matching [LEAVES: Name] which was already handled
+    var selfLeavesOnly = /\[LEAVES\](?!\s*:)/gi;
+    if (selfLeavesOnly.test(text) && characterStatus[speakerName] && characterStatus[speakerName].status === 'present') {
+      if (!changes.some(function (c) { return c.name === speakerName; })) {
+        changes.push({ name: speakerName, status: 'left' });
+      }
+    }
+
+    changes.forEach(function (c) {
+      markStatus(c.name, c.status, round);
+      var label = c.status === 'dead' ? ' has died.' : ' has left the room.';
+      worldState.push(c.name + label);
+      msg('', '', c.name + label, true);
+      sessionTranscript.push({ name: 'Status', text: c.name + label, round: round });
+    });
+
+    return changes;
+  }
+
+  function isActive(name) {
+    if (!characterStatus[name]) return true; // The Room etc.
+    return characterStatus[name].status === 'present';
+  }
 
   document.getElementById('stop-btn').addEventListener('click', function () {
     stopRequested = true;
@@ -457,6 +568,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     sessionAgents = null;
     sessionRun = 0;
     worldState = [];
+    characterStatus = {};
+    document.getElementById('status-panel').style.display = 'none';
+    document.getElementById('status-list').innerHTML = '';
   });
 
   // Interject
@@ -500,7 +614,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var charData = card._charData;
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
-        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.';
+        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.';
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
@@ -522,6 +636,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       if (sessionAgents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
       if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
+
+      initStatus(sessionAgents);
     }
 
     var agents = sessionAgents;
@@ -555,6 +671,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     function buildTranscript(forAgent) {
       var lines = ['[Scene direction]: ' + opening];
+      var statusSummary = getStatusSummary();
+      if (statusSummary) {
+        lines.push('');
+        lines.push('[Character status]:');
+        lines.push(statusSummary);
+        lines.push('Characters who are dead or have left are no longer in the room. Do not speak to them or expect responses from them.');
+        lines.push('');
+      }
       if (worldState.length > 0) {
         lines.push('');
         lines.push('[Current world state - things that have happened]:');
@@ -592,6 +716,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         for (var i = 0; i < agents.length; i++) {
           if (stopRequested) break;
           var a = agents[i];
+          // Skip dead or departed characters
+          if (!isActive(a.name)) continue;
           if (delayMs > 0) {
             await cancellableDelay(delayMs);
             if (stopRequested) break;
@@ -610,6 +736,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             var whisperTargets = extractWhisperTargets(response);
             msg(a.name, a.color, response);
             sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
+            // Detect deaths and departures
+            detectStatusChanges(a.name, response, sessionRun);
+          }
+          // Check if all characters are gone
+          var anyActive = Object.keys(characterStatus).some(function (n) { return characterStatus[n].status === 'present'; });
+          if (!anyActive) {
+            msg('', '', 'All characters have departed.', true);
+            stopRequested = true;
+            break;
           }
         }
       }
@@ -833,6 +968,43 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     cursor: pointer;
   }
   .secondary-btn:hover { color: var(--fg); }
+
+  /* Status panel */
+  .status-panel {
+    margin-bottom: 1rem;
+  }
+  .status-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .status-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: #22c55e;
+  }
+  .status-entry.status-dead {
+    color: #e05252;
+    border-color: #e05252;
+    opacity: 0.6;
+    text-decoration: line-through;
+  }
+  .status-entry.status-left {
+    color: var(--fg-muted);
+    border-color: var(--border);
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+  .status-detail {
+    font-size: 0.68rem;
+    opacity: 0.7;
+  }
 
   /* Chat */
   .chat {

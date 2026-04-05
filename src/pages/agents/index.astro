@@ -147,16 +147,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         card.setAttribute('data-agent', n);
         card._charData = data;
         card.innerHTML =
-          '<div class="agent-card-head">' +
-            '<span class="agent-dot" style="background:' + color + ';"></span>' +
-            '<span class="agent-name-label">' + name + '</span>' +
-            '<div class="card-controls">' +
-              '<button class="order-btn move-up" title="Move up">^</button>' +
-              '<button class="order-btn move-down" title="Move down">v</button>' +
-              '<button class="remove-btn" title="Remove">x</button>' +
-            '</div>' +
-          '</div>' +
-          '<pre class="agent-preview">' + jsonToPrompt(data).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+          '<span class="agent-dot" style="background:' + color + ';"></span>' +
+          '<span class="agent-name-label">' + name + '</span>' +
+          '<div class="card-controls">' +
+            '<button class="order-btn move-up" title="Move up">^</button>' +
+            '<button class="order-btn move-down" title="Move down">v</button>' +
+            '<button class="remove-btn" title="Remove">x</button>' +
+          '</div>';
         grid.appendChild(card);
         card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
         card.querySelector('.move-up').addEventListener('click', function () {
@@ -380,20 +377,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   /* Agent cards */
   .agents-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-bottom: 0.75rem;
   }
   .agent-card {
-    border: 1px solid var(--border);
-    padding: 0.75rem;
-  }
-  .agent-card-head {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 0.4rem;
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
   }
   .agent-dot {
     width: 10px;
@@ -409,41 +404,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     min-width: 0;
   }
   .remove-btn {
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     background: none;
-    border: 1px solid var(--border);
+    border: none;
     color: var(--fg-muted);
     cursor: pointer;
-    padding: 0.1rem 0.4rem;
+    padding: 0;
     line-height: 1;
   }
-  .card-controls { display: flex; gap: 0.25rem; }
+  .card-controls { display: flex; gap: 0.15rem; margin-left: 0.2rem; }
   .order-btn {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     background: none;
-    border: 1px solid var(--border);
+    border: none;
     color: var(--fg-muted);
     cursor: pointer;
-    padding: 0.1rem 0.35rem;
+    padding: 0;
     line-height: 1;
     font-family: var(--font-mono);
   }
-  .order-btn:hover { color: var(--fg); border-color: var(--fg); }
+  .order-btn:hover { color: var(--fg); }
   .remove-btn:hover { color: #e05252; border-color: #e05252; }
-  .agent-preview {
-    width: 100%;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    padding: 0.5rem;
-    border: 1px solid var(--border);
-    background: var(--code-bg);
-    color: var(--fg-muted);
-    overflow-x: auto;
-    line-height: 1.5;
-    margin: 0;
-    max-height: 120px;
-    overflow-y: auto;
-  }
   .add-agent {
     font-family: var(--font-body);
     font-size: 0.75rem;

@@ -1,7 +1,5 @@
 export const prerender = false;
 
-import { query } from 'claude-agent-sdk';
-
 export async function POST({ request }) {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -19,7 +17,7 @@ export async function POST({ request }) {
     });
   }
 
-  const { system, messages, model = "claude-sonnet-4-20250514", agentConfig } = body;
+  const { system, messages, model, agentConfig } = body;
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
@@ -29,31 +27,46 @@ export async function POST({ request }) {
   }
 
   try {
+    // Dynamic import — the Agent SDK requires Claude Code CLI installed on the host.
+    // This won't work in Netlify serverless; use API mode for deployed environments.
+    const { query } = await import('@anthropic-ai/claude-agent-sdk');
+
     // Build the user prompt from the last message
     const userPrompt = messages[messages.length - 1]?.content || '';
 
-    // Build Agent SDK options
+    // Map full model IDs to SDK aliases
+    const sdkModel = model?.includes('opus') ? 'opus'
+      : model?.includes('haiku') ? 'haiku'
+      : 'sonnet';
+
     const options = {
-      model,
+      model: sdkModel,
       systemPrompt: system,
-      allowedTools: [],
+      maxTurns: 1,
+      permissionMode: 'default',
     };
 
     // If subagent configs are provided, wire them up
+    // AgentDefinition: { description, prompt, tools?, model? }
     if (agentConfig && Object.keys(agentConfig).length > 0) {
       options.agents = agentConfig;
       options.allowedTools = ["Agent"];
     }
 
     let result = '';
-    for await (const event of query({ prompt: userPrompt, options })) {
-      // Handle different event shapes from the SDK
-      if (typeof event === 'string') {
-        result += event;
-      } else if (event?.type === 'text') {
-        result += event.text;
-      } else if (event?.content) {
-        result += event.content;
+    for await (const message of query({ prompt: userPrompt, options })) {
+      // SDKResultMessage — final result with the text output
+      if (message.type === 'result' && message.subtype === 'success') {
+        result = message.result;
+        break;
+      }
+      // SDKAssistantMessage — contains content blocks from Anthropic API
+      if (message.type === 'assistant' && message.message?.content) {
+        for (const block of message.message.content) {
+          if (block.type === 'text') {
+            result = block.text;
+          }
+        }
       }
     }
 
@@ -62,8 +75,16 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    // Provide a helpful error if the SDK isn't available
+    const message = err.message || '';
+    if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
+      return new Response(
+        JSON.stringify({ error: "Agent SDK mode requires Claude Code CLI installed on the server. Use API mode for deployed environments." }),
+        { status: 501, headers: corsHeaders }
+      );
+    }
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   }

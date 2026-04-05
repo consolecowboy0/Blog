@@ -22,7 +22,7 @@
     "@fontsource/inter": "^5.2.8",
     "astro": "^6.0.2",
     "chart.js": "^4.5.1",
-    "claude-agent-sdk": "^1.0.0"
+    "@anthropic-ai/claude-agent-sdk": "^0.2.92"
   },
   "devDependencies": {
     "d3": "^7.9.0"

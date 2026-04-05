@@ -30,6 +30,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
     <div class="upload-section">
+      <label class="field-label">Relationships</label>
+      <div class="upload-row">
+        <button id="upload-rels" class="upload-btn">Upload JSON</button>
+        <span id="rels-status" class="upload-status">No relationships loaded</span>
+      </div>
+    </div>
+
+    <div class="upload-section">
       <label class="field-label">Characters</label>
       <div class="agents-grid" id="agents-grid"></div>
       <button id="add-agent" class="add-agent">+ Upload Character</button>
@@ -115,6 +123,45 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
     input.click();
   });
+
+  // Relationships upload
+  var relsData = null;
+  document.getElementById('upload-rels').addEventListener('click', function () {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          relsData = JSON.parse(reader.result);
+          document.getElementById('rels-status').textContent = relsData.name || file.name;
+        } catch (e) {
+          document.getElementById('rels-status').textContent = 'Invalid JSON';
+          relsData = null;
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  });
+
+  function getRelsForAgent(name) {
+    if (!relsData || !relsData.relationships) return '';
+    var lines = [];
+    relsData.relationships.forEach(function (r) {
+      if (r.between.indexOf(name) === -1) return;
+      var other = r.between[0] === name ? r.between[1] : r.between[0];
+      lines.push('Relationship with ' + other + ':');
+      lines.push('  type: ' + r.type);
+      if (r.history) lines.push('  history: ' + r.history);
+      if (r.current_tension) lines.push('  current tension: ' + r.current_tension);
+      if (r.shared_knowledge) lines.push('  shared knowledge: ' + r.shared_knowledge);
+    });
+    return lines.length ? lines.join('\n') : '';
+  }
 
   function jsonToPrompt(obj) {
     var lines = [];
@@ -279,7 +326,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
         var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Write only dialogue -- short, natural lines like a real person talking. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Do not break character. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
-        var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base;
+        var rels = getRelsForAgent(allNames[i]);
+        var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
           name: allNames[i],
           system: full,

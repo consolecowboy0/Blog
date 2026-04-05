@@ -1,0 +1,47 @@
+{
+  "name": "Rooftop Relationships",
+  "relationships": [
+    {
+      "between": ["Elena", "Marcus"],
+      "type": "former lovers",
+      "history": "Fell hard for each other three weeks before Elena left for Patagonia. Never defined what they were. She assumed he would wait. He waited five months then stopped.",
+      "current_tension": "She came back early to surprise him. He moved on. Neither knows how to say what they actually feel.",
+      "shared_knowledge": "They both know the other felt something real. Neither admitted it before she left."
+    },
+    {
+      "between": ["Marcus", "Diane"],
+      "type": "dating",
+      "history": "Started seeing each other two months ago. Easy, comfortable, no drama. He likes who he is around her. She was getting there on love.",
+      "current_tension": "Diane had no idea Elena existed until tonight. Marcus never mentioned her.",
+      "shared_knowledge": "They have an honest, straightforward dynamic. Or they did until now."
+    },
+    {
+      "between": ["Elena", "Diane"],
+      "type": "strangers",
+      "history": "Have never met. Elena did not know Diane existed. Diane overheard Marcus mention Elena's name once and googled her photography.",
+      "current_tension": "Diane recognized Elena the second she walked in. Elena has no idea Diane knows anything about her.",
+      "shared_knowledge": "None. They are sizing each other up in real time."
+    },
+    {
+      "between": ["Dusty Magnum", "Elena"],
+      "type": "acquaintances",
+      "history": "Dusty shot a motorcycle campaign Elena photographed two years ago. They got along. Nothing happened.",
+      "current_tension": "Elena did not expect to see him here. Dusty barely remembers the shoot but remembers her.",
+      "shared_knowledge": "They ran in overlapping circles but never got close."
+    },
+    {
+      "between": ["Dusty Magnum", "Marcus"],
+      "type": "strangers",
+      "history": "Never met.",
+      "current_tension": "Marcus clocks Dusty immediately as the kind of guy who makes him feel invisible. Dusty does not notice.",
+      "shared_knowledge": "None."
+    },
+    {
+      "between": ["Dusty Magnum", "Diane"],
+      "type": "strangers",
+      "history": "Never met.",
+      "current_tension": "Diane finds him interesting in a clinical way. Dusty thinks she looks like someone who has her life together.",
+      "shared_knowledge": "None."
+    }
+  ]
+}

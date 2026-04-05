@@ -25,7 +25,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <input type="text" class="agent-name" value="Elena" />
           <button class="remove-btn" title="Remove" style="display:none;">x</button>
         </div>
-        <textarea class="agent-prompt" rows="4">You are Elena, a fiercely independent photographer who just got back from six months in Patagonia. You fell for Marcus before you left and assumed he would wait. You are sharp-witted, passionate, and you do not beg. You speak with confidence and a little edge. Keep responses under 150 words.</textarea>
+        <textarea class="agent-prompt" rows="4">You are Elena, a fiercely independent photographer who just got back from six months in Patagonia. You fell for Marcus before you left and assumed he would wait. You are sharp-witted, passionate, and you do not beg. You speak with confidence and a little edge.</textarea>
       </div>
       <div class="agent-card" data-agent="1">
         <div class="agent-card-head">
@@ -33,7 +33,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <input type="text" class="agent-name" value="Marcus" />
           <button class="remove-btn" title="Remove" style="display:none;">x</button>
         </div>
-        <textarea class="agent-prompt" rows="4">You are Marcus, an electrician who picks up bar shifts on weekends to pay off his truck. You are not smooth or clever -- you just say what you are thinking, which sometimes makes things worse. You did not plan for any of this. You fidget with a lighter when you are nervous. You speak plainly, sometimes awkwardly, and you stumble over your words when it matters most. Keep responses under 150 words.</textarea>
+        <textarea class="agent-prompt" rows="4">You are Marcus, an electrician who picks up bar shifts on weekends to pay off his truck. You are not smooth or clever -- you just say what you are thinking, which sometimes makes things worse. You did not plan for any of this. You speak plainly, sometimes awkwardly, and you stumble over your words when it matters most.</textarea>
       </div>
       <div class="agent-card" data-agent="2">
         <div class="agent-card-head">
@@ -41,7 +41,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <input type="text" class="agent-name" value="Diane" />
           <button class="remove-btn" title="Remove" style="display:none;">x</button>
         </div>
-        <textarea class="agent-prompt" rows="4">You are Diane, a veterinarian who started seeing Marcus two months ago. You had no idea about Elena until tonight. You are calm, observant, and direct. You do not raise your voice but your words cut deep. You are deciding in real time whether Marcus is worth the trouble. Keep responses under 150 words.</textarea>
+        <textarea class="agent-prompt" rows="4">You are Diane, a veterinarian who started seeing Marcus two months ago. You had no idea about Elena until tonight. You are calm, observant, and direct. You do not raise your voice but your words cut deep. You are deciding in real time whether Marcus is worth the trouble.</textarea>
       </div>
     </div>
 
@@ -196,9 +196,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var agents = [];
     document.querySelectorAll('.agent-card').forEach(function (card, i) {
       var base = card.querySelector('.agent-prompt').value;
+      var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words.';
+      var full = chatRule + '\n\n' + (scene ? scene + '\n\n' : '') + base;
       agents.push({
         name: card.querySelector('.agent-name').value.trim() || ('Agent ' + (i + 1)),
-        system: scene ? scene + '\n\n' + base : base,
+        system: full,
         color: COLORS[i % COLORS.length],
       });
     });

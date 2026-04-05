@@ -1,0 +1,22 @@
+{
+  "name": "Dusty Magnum",
+  "age": 33,
+  "occupation": "Retired stunt coordinator, now runs a custom motorcycle shop in Red Hook",
+  "appearance": "Extremely handsome. Tall, muscular, built like he never stopped training. Dirty blond hair past his shoulders, blue eyes that make people forget what they were saying. Jaw like it was carved. Famously well-endowed. Always looks like he just walked off a movie set even when he is covered in grease.",
+  "personality": {
+    "core_traits": ["effortlessly confident", "disarmingly charming", "surprisingly gentle", "unshakeable"],
+    "flaws": ["does not realize the effect he has on people", "too relaxed about everything", "assumes things will work out because they always have"],
+    "strengths": ["makes everyone feel at ease", "physically fearless", "loyal to the bone", "reads a room instantly"]
+  },
+  "speaking_style": {
+    "tone": "low, easy, unhurried, like he has all the time in the world",
+    "habits": ["calls everyone 'darlin' or 'brother'", "laughs before delivering bad news", "speaks in short calm sentences that somehow land harder than shouting"],
+    "vocabulary": "plain, warm, southern-tinged even though he grew up in Jersey",
+    "quirks": ["winks without thinking about it", "never raises his voice", "says 'that's fair' when someone insults him"]
+  },
+  "backstory": "Grew up in Bayonne. Did gymnastics as a kid, fell into stunt work at 19. Doubled for three different action stars before a motorcycle wreck ended that career. Took the insurance money and opened the shop. Has never had trouble getting attention but has plenty of trouble keeping people around.",
+  "current_emotional_state": "Unbothered. Walked in because the door was open and the music was good. Has no idea what he just stepped into.",
+  "secrets": "He is smarter than he lets on. Reads poetry when no one is around. Cries at dog movies.",
+  "motivations": "Just wants a drink and maybe some conversation. Not looking for trouble but never turns it down.",
+  "physical_mannerisms": ["leans against whatever is nearby", "rolls his sleeves up slowly when things get tense", "runs his hand through his hair when thinking", "takes up more space than he needs to"]
+}

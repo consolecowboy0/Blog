@@ -121,36 +121,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var roomData = null;
   var relsData = null;
 
-  // Room upload
-  document.getElementById('upload-room').addEventListener('click', function () {
-    pickFile(false, function (data, fileName) {
-      roomData = data;
-      document.getElementById('room-status').textContent = data.name || fileName;
-    }, function () {
-      document.getElementById('room-status').textContent = 'Invalid JSON';
-      roomData = null;
-    });
-  });
-
-  // Relationships upload
-  document.getElementById('upload-rels').addEventListener('click', function () {
-    pickFile(false, function (data, fileName) {
-      relsData = data;
-      document.getElementById('rels-status').textContent = data.name || fileName;
-    }, function () {
-      document.getElementById('rels-status').textContent = 'Invalid JSON';
-      relsData = null;
-    });
-  });
-
   function pickFile(multiple, onSuccess, onError) {
     var input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
     if (multiple) input.multiple = true;
     input.addEventListener('change', function () {
-      var files = Array.from(input.files);
-      files.forEach(function (file) {
+      Array.from(input.files).forEach(function (file) {
         var reader = new FileReader();
         reader.onload = function () {
           try {
@@ -165,6 +142,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
     input.click();
   }
+
+  // Room upload
+  document.getElementById('upload-room').addEventListener('click', function () {
+    pickFile(false, function (data) {
+      roomData = data;
+      document.getElementById('room-status').textContent = data.name || 'Loaded';
+    }, function () {
+      document.getElementById('room-status').textContent = 'Invalid JSON';
+      roomData = null;
+    });
+  });
+
+  // Relationships upload
+  document.getElementById('upload-rels').addEventListener('click', function () {
+    pickFile(false, function (data) {
+      relsData = data;
+      document.getElementById('rels-status').textContent = data.name || 'Loaded';
+    }, function () {
+      document.getElementById('rels-status').textContent = 'Invalid JSON';
+      relsData = null;
+    });
+  });
 
   function getRelsForAgent(name) {
     if (!relsData || !relsData.relationships) return '';
@@ -208,18 +207,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return lines.join('\n');
   }
 
-  // --- Character upload (multi-file) ---
-  document.getElementById('add-agent').addEventListener('click', function () {
-    pickFile(true, function (data, fileName) {
-      addAgentCard(data, fileName);
-    });
-  });
-
-  function addAgentCard(data, fileName) {
+  // --- Character cards ---
+  function addAgentCard(data, fallbackName) {
     var grid = document.getElementById('agents-grid');
     var n = grid.children.length;
     var color = COLORS[n % COLORS.length];
-    var name = data.name || data.Name || fileName.replace('.json', '');
+    var name = data.name || data.Name || fallbackName.replace('.json', '');
     var card = document.createElement('div');
     card.className = 'agent-card';
     card.setAttribute('data-agent', n);
@@ -244,11 +237,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
   }
 
+  document.getElementById('add-agent').addEventListener('click', function () {
+    pickFile(true, function (data, fileName) {
+      addAgentCard(data, fileName);
+    });
+  });
+
   // --- Cancellable delay ---
   var delayCancelFn = null;
 
   function cancellableDelay(ms) {
     return new Promise(function (resolve) {
+      if (ms <= 0 || stopRequested) { resolve(); return; }
       var timer = setTimeout(resolve, ms);
       delayCancelFn = function () {
         clearTimeout(timer);
@@ -281,9 +281,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   document.getElementById('load-config').addEventListener('click', function () {
     var raw = localStorage.getItem('agents_config');
     if (!raw) return;
-    try {
-      var config = JSON.parse(raw);
-    } catch (e) { return; }
+    try { var config = JSON.parse(raw); } catch (e) { return; }
 
     if (config.room) {
       roomData = config.room;
@@ -295,9 +293,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
     if (config.characters) {
       document.getElementById('agents-grid').innerHTML = '';
-      config.characters.forEach(function (c) {
-        addAgentCard(c, (c.name || 'Agent') + '.json');
-      });
+      config.characters.forEach(function (c) { addAgentCard(c, 'Agent'); });
     }
     if (config.opening) document.getElementById('opening').value = config.opening;
     if (config.rounds) document.getElementById('rounds').value = config.rounds;
@@ -312,11 +308,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   // --- Export transcript ---
   document.getElementById('export-btn').addEventListener('click', function () {
     if (sessionTranscript.length === 0) return;
-    var lines = [];
-    var opening = document.getElementById('opening').value.trim();
-    lines.push('[Scene direction]: ' + opening);
-    lines.push('');
+    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    var currentRound = 0;
     sessionTranscript.forEach(function (entry) {
+      if (entry.round !== currentRound) {
+        currentRound = entry.round;
+        lines.push('');
+        lines.push('--- Round ' + currentRound + ' ---');
+      }
       lines.push(entry.name + ': ' + entry.text);
     });
     var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
@@ -393,13 +392,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var sessionRun = 0;
   var stopRequested = false;
 
-  // Stop
   document.getElementById('stop-btn').addEventListener('click', function () {
     stopRequested = true;
     if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
   });
 
-  // Clear
   document.getElementById('clear-btn').addEventListener('click', function () {
     stopRequested = true;
     if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
@@ -410,7 +407,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     sessionRun = 0;
   });
 
-  // Go
+  // --- Go ---
   document.getElementById('go-btn').addEventListener('click', async function () {
     var btn = this;
     btn.disabled = true;
@@ -489,10 +486,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           typ.remove();
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
-            sessionTranscript.push({ name: a.name, text: '...' });
+            sessionTranscript.push({ name: a.name, text: '...', round: sessionRun });
           } else {
             msg(a.name, a.color, response);
-            sessionTranscript.push({ name: a.name, text: response });
+            sessionTranscript.push({ name: a.name, text: response, round: sessionRun });
           }
         }
       }
@@ -595,8 +592,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-family: var(--font-body);
     font-size: 0.85rem;
     font-weight: 600;
-    flex: 1;
-    min-width: 0;
+    white-space: nowrap;
   }
   .card-controls { display: flex; gap: 0.6rem; margin-left: 0.25rem; }
   .order-btn, .remove-btn {
@@ -776,8 +772,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     40% { opacity: 1; }
   }
   @media (max-width: 600px) {
-    .agents-grid { flex-direction: column; }
     .controls { flex-wrap: wrap; }
     .header-controls { flex-wrap: wrap; }
+    .panel-title-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   }
 </style>

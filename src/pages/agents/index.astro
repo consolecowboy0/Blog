@@ -14,7 +14,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   <section id="panel" style="display: none;">
     <div class="panel-header">
-      <h1>Agents</h1>
+      <div class="panel-title-row">
+        <h1>Agents</h1>
+        <button id="sign-out" class="secondary-btn">Sign Out</button>
+      </div>
       <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
     </div>
 
@@ -100,6 +103,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     document.getElementById('panel').style.display = 'block';
   }
 
+  document.getElementById('sign-out').addEventListener('click', function () {
+    localStorage.removeItem('agents_auth');
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    document.getElementById('gate-password').value = '';
+    document.getElementById('gate-error').textContent = '';
+  });
+
   // Add agent
   document.getElementById('add-agent').addEventListener('click', function () {
     var grid = document.getElementById('agents-grid');
@@ -119,6 +130,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
   });
 
+  function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
   // Chat helpers
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
@@ -134,7 +147,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       n.textContent = name;
       var t = document.createElement('div');
       t.className = 'msg-text';
-      t.textContent = text;
+      var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      t.innerHTML = safe.replace(/\n/g, '<br>');
       el.appendChild(n);
       el.appendChild(t);
     }
@@ -196,7 +210,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var agents = [];
     document.querySelectorAll('.agent-card').forEach(function (card, i) {
       var base = card.querySelector('.agent-prompt').value;
-      var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words.';
+      var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
       var full = chatRule + '\n\n' + (scene ? scene + '\n\n' : '') + base;
       agents.push({
         name: card.querySelector('.agent-name').value.trim() || ('Agent ' + (i + 1)),
@@ -224,7 +238,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       lastText = await ask(first.system, histories[first.name]);
       histories[first.name].push({ role: 'assistant', content: lastText });
       t.remove();
-      msg(first.name, first.color, lastText);
+      if (lastText.trim() === '[silence]') {
+        msg(first.name, first.color, '...', false);
+      } else {
+        msg(first.name, first.color, lastText);
+      }
       lastSpeaker = first.name;
 
       for (var r = 1; r <= rounds; r++) {
@@ -232,13 +250,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         for (var i = 0; i < agents.length; i++) {
           var a = agents[i];
           if (r === 1 && i === 0) continue;
+          await delay(10000);
           var prompt = '[Round ' + r + ' - ' + lastSpeaker + ']: ' + lastText;
           var typ = typing(a.name, a.color);
           histories[a.name].push({ role: 'user', content: prompt });
           lastText = await ask(a.system, histories[a.name]);
           histories[a.name].push({ role: 'assistant', content: lastText });
           typ.remove();
-          msg(a.name, a.color, lastText);
+          if (lastText.trim() === '[silence]') {
+            msg(a.name, a.color, '...', false);
+          } else {
+            msg(a.name, a.color, lastText);
+          }
           lastSpeaker = a.name;
         }
       }
@@ -291,6 +314,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .gate-error { font-size: 0.8rem; color: var(--fg-muted); margin-top: 0.75rem; min-height: 1.2em; }
 
   /* Panel */
+  .panel-title-row { display: flex; justify-content: space-between; align-items: center; }
   .panel-header h1 { margin-top: 1rem; margin-bottom: 0.25rem; }
   .panel-sub { color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 2rem; }
 

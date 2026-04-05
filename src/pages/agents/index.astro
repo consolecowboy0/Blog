@@ -16,7 +16,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <div class="panel-header">
       <div class="panel-title-row">
         <h1>Agents</h1>
-        <button id="sign-out" class="secondary-btn">Sign Out</button>
+        <div class="header-controls">
+          <button id="save-config" class="secondary-btn">Save</button>
+          <button id="load-config" class="secondary-btn">Load</button>
+          <button id="sign-out" class="secondary-btn">Sign Out</button>
+        </div>
       </div>
       <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
     </div>
@@ -40,22 +44,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <div class="upload-section">
       <label class="field-label">Characters</label>
       <div class="agents-grid" id="agents-grid"></div>
-      <button id="add-agent" class="add-agent">+ Upload Character</button>
+      <button id="add-agent" class="add-agent">+ Upload Characters</button>
     </div>
 
     <div class="prompt-section">
       <label class="field-label" for="opening">Opening prompt</label>
-      <input type="text" id="opening" value="It's noon." />
+      <textarea id="opening" rows="2">It's noon.</textarea>
     </div>
 
     <div class="controls">
-      <div class="rounds-group">
+      <div class="control-group">
         <label class="field-label" for="rounds">Rounds</label>
-        <input type="number" id="rounds" min="1" max="10" value="2" />
+        <input type="number" id="rounds" min="1" max="50" value="2" />
+      </div>
+      <div class="control-group">
+        <label class="field-label" for="delay-input">Delay (s)</label>
+        <input type="number" id="delay-input" min="0" max="60" value="10" />
+      </div>
+      <div class="control-group">
+        <label class="field-label" for="model-select">Model</label>
+        <select id="model-select">
+          <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+          <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+        </select>
       </div>
       <button id="go-btn">Go</button>
       <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
       <button id="clear-btn" class="secondary-btn">Clear</button>
+      <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
     </div>
 
     <div id="chat" class="chat">
@@ -68,6 +84,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 (function () {
   var HASH = '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846';
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316'];
+  var MAX_TRANSCRIPT_MESSAGES = 30;
 
   async function sha256(s) {
     var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -100,53 +117,54 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     document.getElementById('gate-error').textContent = '';
   });
 
-  // Room upload
+  // --- Data ---
   var roomData = null;
+  var relsData = null;
+
+  // Room upload
   document.getElementById('upload-room').addEventListener('click', function () {
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.addEventListener('change', function () {
-      var file = input.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        try {
-          roomData = JSON.parse(reader.result);
-          document.getElementById('room-status').textContent = roomData.name || file.name;
-        } catch (e) {
-          document.getElementById('room-status').textContent = 'Invalid JSON';
-          roomData = null;
-        }
-      };
-      reader.readAsText(file);
+    pickFile(false, function (data, fileName) {
+      roomData = data;
+      document.getElementById('room-status').textContent = data.name || fileName;
+    }, function () {
+      document.getElementById('room-status').textContent = 'Invalid JSON';
+      roomData = null;
     });
-    input.click();
   });
 
   // Relationships upload
-  var relsData = null;
   document.getElementById('upload-rels').addEventListener('click', function () {
+    pickFile(false, function (data, fileName) {
+      relsData = data;
+      document.getElementById('rels-status').textContent = data.name || fileName;
+    }, function () {
+      document.getElementById('rels-status').textContent = 'Invalid JSON';
+      relsData = null;
+    });
+  });
+
+  function pickFile(multiple, onSuccess, onError) {
     var input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
+    if (multiple) input.multiple = true;
     input.addEventListener('change', function () {
-      var file = input.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        try {
-          relsData = JSON.parse(reader.result);
-          document.getElementById('rels-status').textContent = relsData.name || file.name;
-        } catch (e) {
-          document.getElementById('rels-status').textContent = 'Invalid JSON';
-          relsData = null;
-        }
-      };
-      reader.readAsText(file);
+      var files = Array.from(input.files);
+      files.forEach(function (file) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            var data = JSON.parse(reader.result);
+            onSuccess(data, file.name);
+          } catch (e) {
+            if (onError) onError(file.name);
+          }
+        };
+        reader.readAsText(file);
+      });
     });
     input.click();
-  });
+  }
 
   function getRelsForAgent(name) {
     if (!relsData || !relsData.relationships) return '';
@@ -163,64 +181,153 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return lines.length ? lines.join('\n') : '';
   }
 
-  function jsonToPrompt(obj) {
+  function jsonToPrompt(obj, indent) {
+    indent = indent || 0;
+    var pad = '';
+    for (var p = 0; p < indent; p++) pad += '  ';
     var lines = [];
     Object.keys(obj).forEach(function (k) {
       var v = obj[k];
-      if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
-      lines.push(k + ': ' + v);
+      if (Array.isArray(v)) {
+        lines.push(pad + k + ':');
+        v.forEach(function (item) {
+          if (typeof item === 'object' && item !== null) {
+            lines.push(pad + '  -');
+            lines.push(jsonToPrompt(item, indent + 2));
+          } else {
+            lines.push(pad + '  - ' + item);
+          }
+        });
+      } else if (typeof v === 'object' && v !== null) {
+        lines.push(pad + k + ':');
+        lines.push(jsonToPrompt(v, indent + 1));
+      } else {
+        lines.push(pad + k + ': ' + v);
+      }
     });
     return lines.join('\n');
   }
 
-  // Add agent via file upload
+  // --- Character upload (multi-file) ---
   document.getElementById('add-agent').addEventListener('click', function () {
-    var input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-    input.addEventListener('change', function () {
-      var file = input.files[0];
-      if (!file) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        try {
-          var data = JSON.parse(reader.result);
-        } catch (e) { return; }
-        var grid = document.getElementById('agents-grid');
-        var n = grid.children.length;
-        var color = COLORS[n % COLORS.length];
-        var name = data.name || data.Name || file.name.replace('.json','');
-        var card = document.createElement('div');
-        card.className = 'agent-card';
-        card.setAttribute('data-agent', n);
-        card._charData = data;
-        card.innerHTML =
-          '<span class="agent-dot" style="background:' + color + ';"></span>' +
-          '<span class="agent-name-label">' + name + '</span>' +
-          '<div class="card-controls">' +
-            '<button class="order-btn move-up" title="Move up">^</button>' +
-            '<button class="order-btn move-down" title="Move down">v</button>' +
-            '<button class="remove-btn" title="Remove">x</button>' +
-          '</div>';
-        grid.appendChild(card);
-        card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
-        card.querySelector('.move-up').addEventListener('click', function () {
-          var prev = card.previousElementSibling;
-          if (prev) grid.insertBefore(card, prev);
-        });
-        card.querySelector('.move-down').addEventListener('click', function () {
-          var next = card.nextElementSibling;
-          if (next) grid.insertBefore(next, card);
-        });
-      };
-      reader.readAsText(file);
+    pickFile(true, function (data, fileName) {
+      addAgentCard(data, fileName);
     });
-    input.click();
   });
 
-  function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function addAgentCard(data, fileName) {
+    var grid = document.getElementById('agents-grid');
+    var n = grid.children.length;
+    var color = COLORS[n % COLORS.length];
+    var name = data.name || data.Name || fileName.replace('.json', '');
+    var card = document.createElement('div');
+    card.className = 'agent-card';
+    card.setAttribute('data-agent', n);
+    card._charData = data;
+    card.innerHTML =
+      '<span class="agent-dot" style="background:' + color + ';"></span>' +
+      '<span class="agent-name-label">' + name + '</span>' +
+      '<div class="card-controls">' +
+        '<button class="order-btn move-up" title="Move up">^</button>' +
+        '<button class="order-btn move-down" title="Move down">v</button>' +
+        '<button class="remove-btn" title="Remove">x</button>' +
+      '</div>';
+    grid.appendChild(card);
+    card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
+    card.querySelector('.move-up').addEventListener('click', function () {
+      var prev = card.previousElementSibling;
+      if (prev) grid.insertBefore(card, prev);
+    });
+    card.querySelector('.move-down').addEventListener('click', function () {
+      var next = card.nextElementSibling;
+      if (next) grid.insertBefore(next, card);
+    });
+  }
 
-  // Chat helpers
+  // --- Cancellable delay ---
+  var delayCancelFn = null;
+
+  function cancellableDelay(ms) {
+    return new Promise(function (resolve) {
+      var timer = setTimeout(resolve, ms);
+      delayCancelFn = function () {
+        clearTimeout(timer);
+        resolve();
+      };
+    });
+  }
+
+  // --- Save / Load config ---
+  document.getElementById('save-config').addEventListener('click', function () {
+    var chars = [];
+    document.querySelectorAll('.agent-card').forEach(function (card) {
+      if (card._charData) chars.push(card._charData);
+    });
+    var config = {
+      room: roomData,
+      relationships: relsData,
+      characters: chars,
+      opening: document.getElementById('opening').value,
+      rounds: document.getElementById('rounds').value,
+      delay: document.getElementById('delay-input').value,
+      model: document.getElementById('model-select').value
+    };
+    localStorage.setItem('agents_config', JSON.stringify(config));
+    var btn = document.getElementById('save-config');
+    btn.textContent = 'Saved';
+    setTimeout(function () { btn.textContent = 'Save'; }, 1500);
+  });
+
+  document.getElementById('load-config').addEventListener('click', function () {
+    var raw = localStorage.getItem('agents_config');
+    if (!raw) return;
+    try {
+      var config = JSON.parse(raw);
+    } catch (e) { return; }
+
+    if (config.room) {
+      roomData = config.room;
+      document.getElementById('room-status').textContent = config.room.name || 'Loaded';
+    }
+    if (config.relationships) {
+      relsData = config.relationships;
+      document.getElementById('rels-status').textContent = config.relationships.name || 'Loaded';
+    }
+    if (config.characters) {
+      document.getElementById('agents-grid').innerHTML = '';
+      config.characters.forEach(function (c) {
+        addAgentCard(c, (c.name || 'Agent') + '.json');
+      });
+    }
+    if (config.opening) document.getElementById('opening').value = config.opening;
+    if (config.rounds) document.getElementById('rounds').value = config.rounds;
+    if (config.delay) document.getElementById('delay-input').value = config.delay;
+    if (config.model) document.getElementById('model-select').value = config.model;
+
+    var btn = document.getElementById('load-config');
+    btn.textContent = 'Loaded';
+    setTimeout(function () { btn.textContent = 'Load'; }, 1500);
+  });
+
+  // --- Export transcript ---
+  document.getElementById('export-btn').addEventListener('click', function () {
+    if (sessionTranscript.length === 0) return;
+    var lines = [];
+    var opening = document.getElementById('opening').value.trim();
+    lines.push('[Scene direction]: ' + opening);
+    lines.push('');
+    sessionTranscript.forEach(function (entry) {
+      lines.push(entry.name + ': ' + entry.text);
+    });
+    var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'transcript_' + new Date().toISOString().slice(0, 10) + '.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  // --- Chat helpers ---
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
     var ph = chat.querySelector('.chat-placeholder');
@@ -265,10 +372,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   async function ask(system, messages) {
+    var model = document.getElementById('model-select').value;
     var res = await fetch('/api/agent-chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: system, messages: messages, model: 'claude-sonnet-4-20250514' }),
+      body: JSON.stringify({ system: system, messages: messages, model: model }),
     });
     if (!res.ok) {
       var err = '';
@@ -279,7 +387,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return data.text;
   }
 
-  // Persistent state across Go presses
+  // --- Session state ---
   var sessionTranscript = [];
   var sessionAgents = null;
   var sessionRun = 0;
@@ -288,12 +396,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   // Stop
   document.getElementById('stop-btn').addEventListener('click', function () {
     stopRequested = true;
+    if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
   });
 
   // Clear
   document.getElementById('clear-btn').addEventListener('click', function () {
     stopRequested = true;
+    if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
+    document.getElementById('export-btn').style.display = 'none';
     sessionTranscript = [];
     sessionAgents = null;
     sessionRun = 0;
@@ -309,6 +420,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     var opening = document.getElementById('opening').value.trim();
     var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
+    var delayMs = (parseInt(document.getElementById('delay-input').value, 10) || 0) * 1000;
     var isFirstRun = !sessionAgents;
 
     if (isFirstRun) {
@@ -342,9 +454,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var agents = sessionAgents;
 
     function buildTranscript() {
-      if (sessionTranscript.length === 0) return '[Scene direction]: ' + opening;
       var lines = ['[Scene direction]: ' + opening];
-      for (var t = 0; t < sessionTranscript.length; t++) {
+      var start = 0;
+      if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
+        start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
+        lines.push('... (' + start + ' earlier messages omitted) ...');
+      }
+      for (var t = start; t < sessionTranscript.length; t++) {
         lines.push(sessionTranscript[t].name + ': ' + sessionTranscript[t].text);
       }
       return lines.join('\n');
@@ -362,8 +478,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         for (var i = 0; i < agents.length; i++) {
           if (stopRequested) break;
           var a = agents[i];
-          await delay(2000);
-          if (stopRequested) break;
+          if (delayMs > 0) {
+            await cancellableDelay(delayMs);
+            if (stopRequested) break;
+          }
           var transcript = buildTranscript();
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
@@ -383,6 +501,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       } else {
         var done = msg('','','--- Done ---', true);
         done.style.marginBottom = '2rem';
+      }
+      if (sessionTranscript.length > 0) {
+        document.getElementById('export-btn').style.display = '';
       }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
@@ -434,6 +555,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   /* Panel */
   .panel-title-row { display: flex; justify-content: space-between; align-items: center; }
+  .header-controls { display: flex; gap: 0.5rem; }
   .panel-header h1 { margin-top: 1rem; margin-bottom: 0.25rem; }
   .panel-sub { color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 2rem; }
 
@@ -476,15 +598,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     flex: 1;
     min-width: 0;
   }
-  .remove-btn {
-    font-size: 0.6rem;
-    background: none;
-    border: none;
-    color: var(--fg-muted);
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-  }
   .card-controls { display: flex; gap: 0.6rem; margin-left: 0.25rem; }
   .order-btn, .remove-btn {
     font-size: 0.7rem;
@@ -492,7 +605,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     border: none;
     color: var(--fg-muted);
     cursor: pointer;
-    padding: 0.15rem 0.4rem;
+    padding: 0.15rem;
     line-height: 1;
     font-family: var(--font-mono);
   }
@@ -543,6 +656,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     color: var(--fg);
     outline: none;
     line-height: 1.5;
+    resize: vertical;
   }
   #opening:focus { border-color: var(--fg-muted); }
 
@@ -552,10 +666,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     align-items: flex-end;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
   }
-  .rounds-group { display: flex; flex-direction: column; }
-  #rounds {
-    width: 50px;
+  .control-group { display: flex; flex-direction: column; }
+  #rounds, #delay-input {
+    width: 55px;
     font-family: var(--font-mono);
     font-size: 0.85rem;
     padding: 0.4rem;
@@ -563,6 +678,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     background: var(--bg);
     color: var(--fg);
     text-align: center;
+    outline: none;
+  }
+  #model-select {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.4rem 0.3rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
     outline: none;
   }
   #go-btn {
@@ -652,7 +776,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     40% { opacity: 1; }
   }
   @media (max-width: 600px) {
-    .agents-grid { grid-template-columns: 1fr; }
+    .agents-grid { flex-direction: column; }
     .controls { flex-wrap: wrap; }
+    .header-controls { flex-wrap: wrap; }
   }
 </style>

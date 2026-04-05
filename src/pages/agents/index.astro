@@ -287,7 +287,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     setTimeout(function () { btn.textContent = 'Save'; }, 1500);
   });
 
-  document.getElementById('load-config').addEventListener('click', function () {
+  function loadConfig(showFeedback) {
     var raw = localStorage.getItem('agents_config');
     if (!raw) return;
     try { var config = JSON.parse(raw); } catch (e) { return; }
@@ -309,10 +309,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (config.delay) document.getElementById('delay-input').value = config.delay;
     if (config.model) document.getElementById('model-select').value = config.model;
 
-    var btn = document.getElementById('load-config');
-    btn.textContent = 'Loaded';
-    setTimeout(function () { btn.textContent = 'Load'; }, 1500);
-  });
+    if (showFeedback) {
+      var btn = document.getElementById('load-config');
+      btn.textContent = 'Loaded';
+      setTimeout(function () { btn.textContent = 'Load'; }, 1500);
+    }
+  }
+
+  document.getElementById('load-config').addEventListener('click', function () { loadConfig(true); });
+
+  // Auto-load saved config on page load
+  loadConfig(false);
 
   // --- Export transcript ---
   document.getElementById('export-btn').addEventListener('click', function () {

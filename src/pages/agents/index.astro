@@ -166,12 +166,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
   });
 
-  function getRelsForAgent(name) {
+  function getRelsForAgent(name, presentNames) {
     if (!relsData || !relsData.relationships) return '';
     var lines = [];
     relsData.relationships.forEach(function (r) {
       if (r.between.indexOf(name) === -1) return;
       var other = r.between[0] === name ? r.between[1] : r.between[0];
+      if (presentNames.indexOf(other) === -1) return;
       lines.push('Relationship with ' + other + ':');
       lines.push('  type: ' + r.type);
       if (r.history) lines.push('  history: ' + r.history);
@@ -436,7 +437,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
         var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Write only dialogue -- short, natural lines like a real person talking. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Do not break character. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
-        var rels = getRelsForAgent(allNames[i]);
+        var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
           name: allNames[i],

@@ -362,7 +362,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         for (var i = 0; i < agents.length; i++) {
           if (stopRequested) break;
           var a = agents[i];
-          await delay(10000);
+          await delay(2000);
           if (stopRequested) break;
           var transcript = buildTranscript();
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
@@ -492,7 +492,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     border: none;
     color: var(--fg-muted);
     cursor: pointer;
-    padding: 0.15rem;
+    padding: 0.15rem 0.4rem;
     line-height: 1;
     font-family: var(--font-mono);
   }

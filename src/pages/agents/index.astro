@@ -283,7 +283,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           sessionLastSpeaker = a.name;
         }
       }
-      msg('','','--- Done ---', true);
+      var done = msg('','','--- Done ---', true);
+      done.style.marginBottom = '2rem';
     } catch (err) {
       msg('','','Error: ' + err.message, true);
     }

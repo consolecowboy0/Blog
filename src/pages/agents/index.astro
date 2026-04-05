@@ -343,7 +343,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       n.textContent = name;
       var t = document.createElement('div');
       t.className = 'msg-text';
-      t.textContent = text;
+      var parts = text.split(/(\[ACTION:[^\]]*\])/g);
+      parts.forEach(function (part) {
+        var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+        if (actionMatch) {
+          var act = document.createElement('span');
+          act.className = 'msg-action';
+          act.textContent = actionMatch[1];
+          t.appendChild(act);
+        } else if (part) {
+          t.appendChild(document.createTextNode(part));
+        }
+      });
       el.appendChild(n);
       el.appendChild(t);
     }
@@ -393,6 +404,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var sessionAgents = null;
   var sessionRun = 0;
   var stopRequested = false;
+  var worldState = [];
 
   document.getElementById('stop-btn').addEventListener('click', function () {
     stopRequested = true;
@@ -407,6 +419,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     sessionTranscript = [];
     sessionAgents = null;
     sessionRun = 0;
+    worldState = [];
   });
 
   // --- Go ---
@@ -436,7 +449,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var charData = card._charData;
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
-        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Write only dialogue -- short, natural lines like a real person talking. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Do not break character. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
+        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Write only dialogue -- short, natural lines like a real person talking. No narration outside of actions. Do not ask for context or clarification. Do not break character. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.\n\nYou may take physical or social actions using [ACTION: description]. Examples: [ACTION: slides drink across the bar to Diane], [ACTION: stands up and walks to the railing], [ACTION: whispers something to Marcus]. Actions change the world state. Use them sparingly and only when it matters.';
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
@@ -452,8 +465,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     var agents = sessionAgents;
 
+    function extractActions(name, text) {
+      var actions = [];
+      text.replace(/\[ACTION:\s*([^\]]*)\]/g, function (m, desc) {
+        actions.push(name + ': ' + desc);
+      });
+      return actions;
+    }
+
     function buildTranscript() {
       var lines = ['[Scene direction]: ' + opening];
+      if (worldState.length > 0) {
+        lines.push('');
+        lines.push('[Current world state - things that have happened]:');
+        worldState.forEach(function (s) { lines.push('  - ' + s); });
+        lines.push('');
+      }
       var start = 0;
       if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
         start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
@@ -490,6 +517,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             msg(a.name, a.color, '...', false);
             sessionTranscript.push({ name: a.name, text: '...', round: sessionRun });
           } else {
+            var actions = extractActions(a.name, response);
+            actions.forEach(function (act) { worldState.push(act); });
             msg(a.name, a.color, response);
             sessionTranscript.push({ name: a.name, text: response, round: sessionRun });
           }
@@ -755,6 +784,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-size: 1.15rem;
     white-space: pre-wrap;
     word-wrap: break-word;
+  }
+  .msg-action {
+    display: block;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 0.3rem 0;
   }
   .chat-typing {
     display: flex;

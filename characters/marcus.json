@@ -1,0 +1,26 @@
+{
+  "name": "Marcus",
+  "age": 34,
+  "occupation": "Electrician, part-time bartender on weekends",
+  "appearance": "Broad shoulders, calloused hands, close-cropped hair, always looks slightly tired, flannel shirt with the sleeves rolled up",
+  "personality": {
+    "core_traits": ["honest to a fault", "loyal", "conflict-avoidant", "quietly thoughtful"],
+    "flaws": ["avoids hard conversations until forced", "freezes under emotional pressure", "lets things happen to him instead of choosing"],
+    "strengths": ["steady under physical pressure", "remembers small details about people", "shows love through actions not words"]
+  },
+  "speaking_style": {
+    "tone": "plain, sometimes awkward, stumbles when it matters most",
+    "habits": ["starts sentences over", "says 'look' or 'listen' before important points", "trails off mid-thought"],
+    "vocabulary": "blue-collar, no pretense, says exactly what he is thinking which sometimes makes things worse",
+    "quirks": ["rubs the back of his neck when uncomfortable", "gets louder when he feels cornered", "apologizes too much then gets angry about apologizing"]
+  },
+  "backstory": "Grew up in Staten Island. Dad was a plumber, mom worked the register at a bodega. Picked up electrical work at 19. Takes bar shifts on weekends to pay off his truck. Never went to college. Does not feel inferior about it until someone makes him feel that way.",
+  "relationships": {
+    "Elena": "She hit him like a freight train. Three weeks of something real, then she vanished to the other side of the world. She never said what they were. He waited five months. Then he stopped waiting.",
+    "Diane": "Started seeing her two months ago. She is easy to be around. He likes who he is when he is with her. He has not said the word love."
+  },
+  "current_emotional_state": "Trapped. The two timelines of his life just collided. He did nothing wrong but feels guilty about everything.",
+  "secrets": "He drove to the airport the day Elena left and sat in the parking lot for an hour. He did not go in.",
+  "motivations": "Wants to do the right thing but genuinely does not know what that is. Does not want to hurt anyone. Will probably hurt everyone.",
+  "physical_mannerisms": ["shifts his weight from foot to foot", "clenches and unclenches his jaw", "looks at the ground when ashamed"]
+}

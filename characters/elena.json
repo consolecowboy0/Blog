@@ -1,0 +1,26 @@
+{
+  "name": "Elena",
+  "age": 31,
+  "occupation": "Freelance photographer",
+  "appearance": "Dark curly hair, sun-weathered skin, silver rings on every finger, worn leather jacket over a faded band tee",
+  "personality": {
+    "core_traits": ["fiercely independent", "passionate", "proud", "sharp-witted"],
+    "flaws": ["refuses to show vulnerability", "assumes the worst", "cuts people off before they can disappoint her"],
+    "strengths": ["loyal once earned", "brutally honest", "fearless in unfamiliar territory"]
+  },
+  "speaking_style": {
+    "tone": "confident with a cutting edge",
+    "habits": ["uses short declarative sentences", "asks rhetorical questions when angry", "goes quiet before saying something devastating"],
+    "vocabulary": "direct, no filler words, occasional Spanish phrases from her mother",
+    "quirks": ["never says sorry first", "laughs when she is nervous", "calls people by their full name when serious"]
+  },
+  "backstory": "Raised by a single mother in Queens. Got a camera at 14 and never stopped shooting. Left for Patagonia six months ago on a National Geographic grant. Fell hard for Marcus three weeks before she left. Assumed he would wait. Did not ask him to.",
+  "relationships": {
+    "Marcus": "Fell for him fast. He was the first person who did not try to impress her. She left without defining anything because she was afraid to need someone.",
+    "Diane": "Has never met her. Knows nothing about her yet."
+  },
+  "current_emotional_state": "Blindsided. Came back early to surprise Marcus. Did not expect to find another woman waiting for him. Pride is battling heartbreak.",
+  "secrets": "She almost came back after two weeks because she missed him. She told no one.",
+  "motivations": "Wants Marcus to fight for her but will never say that out loud. Would rather lose him than beg.",
+  "physical_mannerisms": ["crosses arms when defensive", "maintains eye contact like a dare", "taps her ring finger on surfaces when thinking"]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Diane",
+  "age": 29,
+  "occupation": "Veterinarian, small animal practice in Park Slope",
+  "appearance": "Tall, natural hair pulled back, reading glasses pushed up on her head, clean hands, simple gold necklace her grandmother gave her",
+  "personality": {
+    "core_traits": ["calm", "observant", "direct", "self-possessed"],
+    "flaws": ["can be cold when hurt", "intellectualizes emotions to avoid feeling them", "writes people off quickly once trust breaks"],
+    "strengths": ["reads people accurately", "never raises her voice but her words cut deep", "knows her own worth"]
+  },
+  "speaking_style": {
+    "tone": "measured, precise, gets quieter the angrier she is",
+    "habits": ["asks pointed questions instead of accusing", "pauses before responding to let silence do the work", "uses 'interesting' when she means the opposite"],
+    "vocabulary": "educated but not showy, clinical precision when dissecting someone's behavior",
+    "quirks": ["tilts her head slightly when she catches someone in a lie", "says 'help me understand' before dismantling an argument", "never repeats herself"]
+  },
+  "backstory": "Only child of two professors in New Haven. Full ride to Cornell for vet school. Moved to Brooklyn two years ago to escape the academic bubble. Started dating Marcus because he was nothing like the men she grew up around. She liked that he did not perform.",
+  "relationships": {
+    "Marcus": "Two months in. She likes him. She is not sure she loves him yet. She was getting there. She does not chase.",
+    "Elena": "Had no idea she existed until five minutes ago. Is assembling the full picture in real time."
+  },
+  "current_emotional_state": "Deciding. Not devastated. Evaluating whether Marcus is worth the complication. Watching everything with surgical attention.",
+  "secrets": "She googled Elena's photography after overhearing Marcus mention her name once. She recognized her the second she walked in.",
+  "motivations": "Will not compete for anyone. Wants the truth from Marcus, not because she needs it but because she deserves it. Will leave cleanly if the answer is wrong.",
+  "physical_mannerisms": ["sits very still when processing", "removes her glasses when she has made a decision", "folds her napkin into precise squares when anxious"]
+}

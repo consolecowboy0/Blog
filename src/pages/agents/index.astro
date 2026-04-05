@@ -62,6 +62,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <input type="number" id="delay-input" min="0" max="60" value="10" />
       </div>
       <div class="control-group">
+        <label class="field-label" for="mode-select">Mode</label>
+        <select id="mode-select">
+          <option value="api">API</option>
+          <option value="agent-sdk">Agent SDK</option>
+        </select>
+      </div>
+      <div class="control-group">
         <label class="field-label" for="model-select">Model</label>
         <select id="model-select">
           <option value="claude-sonnet-4-20250514">Sonnet 4</option>
@@ -279,7 +286,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       opening: document.getElementById('opening').value,
       rounds: document.getElementById('rounds').value,
       delay: document.getElementById('delay-input').value,
-      model: document.getElementById('model-select').value
+      model: document.getElementById('model-select').value,
+      mode: document.getElementById('mode-select').value
     };
     localStorage.setItem('agents_config', JSON.stringify(config));
     var btn = document.getElementById('save-config');
@@ -308,6 +316,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (config.rounds) document.getElementById('rounds').value = config.rounds;
     if (config.delay) document.getElementById('delay-input').value = config.delay;
     if (config.model) document.getElementById('model-select').value = config.model;
+    if (config.mode) document.getElementById('mode-select').value = config.mode;
 
     if (showFeedback) {
       var btn = document.getElementById('load-config');
@@ -404,17 +413,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return el;
   }
 
-  async function ask(system, messages) {
+  async function ask(system, messages, agentConfig) {
     var model = document.getElementById('model-select').value;
-    var res = await fetch('/api/agent-chat', {
+    var mode = document.getElementById('mode-select').value;
+    var endpoint = mode === 'agent-sdk' ? '/api/agent-sdk-chat' : '/api/agent-chat';
+    var payload = { system: system, messages: messages, model: model };
+    if (mode === 'agent-sdk' && agentConfig) {
+      payload.agentConfig = agentConfig;
+    }
+    var res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ system: system, messages: messages, model: model }),
+      body: JSON.stringify(payload),
     });
     if (!res.ok) {
       var err = '';
       try { var b = await res.json(); err = b.error || JSON.stringify(b); } catch(e) { try { err = await res.text(); } catch(e2) {} }
-      throw new Error('API error (' + res.status + '): ' + (err || 'unknown'));
+      throw new Error((mode === 'agent-sdk' ? 'Agent SDK' : 'API') + ' error (' + res.status + '): ' + (err || 'unknown'));
     }
     var data = await res.json();
     return data.text;
@@ -782,7 +797,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     text-align: center;
     outline: none;
   }
-  #model-select {
+  #model-select, #mode-select {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     padding: 0.4rem 0.3rem;

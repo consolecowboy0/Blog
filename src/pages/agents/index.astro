@@ -21,38 +21,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
     </div>
 
-    <div class="agents-grid" id="agents-grid">
-      <div class="agent-card" data-agent="0">
-        <div class="agent-card-head">
-          <span class="agent-dot" style="background: #e05252;"></span>
-          <input type="text" class="agent-name" value="Elena" />
-          <button class="remove-btn" title="Remove" style="display:none;">x</button>
-        </div>
-        <textarea class="agent-prompt" rows="4">You are Elena, a fiercely independent photographer who just got back from six months in Patagonia. You fell for Marcus before you left and assumed he would wait. You are sharp-witted, passionate, and you do not beg. You speak with confidence and a little edge.</textarea>
-      </div>
-      <div class="agent-card" data-agent="1">
-        <div class="agent-card-head">
-          <span class="agent-dot" style="background: #3b82f6;"></span>
-          <input type="text" class="agent-name" value="Marcus" />
-          <button class="remove-btn" title="Remove" style="display:none;">x</button>
-        </div>
-        <textarea class="agent-prompt" rows="4">You are Marcus, an electrician who picks up bar shifts on weekends to pay off his truck. You are not smooth or clever -- you just say what you are thinking, which sometimes makes things worse. You did not plan for any of this. You speak plainly, sometimes awkwardly, and you stumble over your words when it matters most.</textarea>
-      </div>
-      <div class="agent-card" data-agent="2">
-        <div class="agent-card-head">
-          <span class="agent-dot" style="background: #22c55e;"></span>
-          <input type="text" class="agent-name" value="Diane" />
-          <button class="remove-btn" title="Remove" style="display:none;">x</button>
-        </div>
-        <textarea class="agent-prompt" rows="4">You are Diane, a veterinarian who started seeing Marcus two months ago. You had no idea about Elena until tonight. You are calm, observant, and direct. You do not raise your voice but your words cut deep. You are deciding in real time whether Marcus is worth the trouble.</textarea>
+    <div class="upload-section">
+      <label class="field-label">Room</label>
+      <div class="upload-row">
+        <button id="upload-room" class="upload-btn">Upload JSON</button>
+        <span id="room-status" class="upload-status">No room loaded</span>
       </div>
     </div>
 
-    <button id="add-agent" class="add-agent">+ Add Agent</button>
-
-    <div class="scene-section">
-      <label class="field-label" for="scene">Scene</label>
-      <textarea id="scene" rows="3">It is 1:47 AM. A rooftop bar in Brooklyn, late September. The city hums below. String lights sway in the wind. Marcus just got off a double shift and came upstairs to find Elena sitting at the bar -- she was not supposed to be back for another month. Diane is already at the corner table with two whiskeys, waiting for him. The bartender pretends not to notice. Someone left a speaker on the ledge playing old soul records. Nobody is leaving until this gets resolved.</textarea>
+    <div class="upload-section">
+      <label class="field-label">Characters</label>
+      <div class="agents-grid" id="agents-grid"></div>
+      <button id="add-agent" class="add-agent">+ Upload Character</button>
     </div>
 
     <div class="prompt-section">
@@ -111,23 +91,74 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     document.getElementById('gate-error').textContent = '';
   });
 
-  // Add agent
+  // Room upload
+  var roomData = null;
+  document.getElementById('upload-room').addEventListener('click', function () {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          roomData = JSON.parse(reader.result);
+          document.getElementById('room-status').textContent = roomData.name || file.name;
+        } catch (e) {
+          document.getElementById('room-status').textContent = 'Invalid JSON';
+          roomData = null;
+        }
+      };
+      reader.readAsText(file);
+    });
+    input.click();
+  });
+
+  function jsonToPrompt(obj) {
+    var lines = [];
+    Object.keys(obj).forEach(function (k) {
+      var v = obj[k];
+      if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
+      lines.push(k + ': ' + v);
+    });
+    return lines.join('\n');
+  }
+
+  // Add agent via file upload
   document.getElementById('add-agent').addEventListener('click', function () {
-    var grid = document.getElementById('agents-grid');
-    var n = grid.children.length;
-    var color = COLORS[n % COLORS.length];
-    var card = document.createElement('div');
-    card.className = 'agent-card';
-    card.setAttribute('data-agent', n);
-    card.innerHTML =
-      '<div class="agent-card-head">' +
-        '<span class="agent-dot" style="background:' + color + ';"></span>' +
-        '<input type="text" class="agent-name" value="Agent ' + (n + 1) + '" />' +
-        '<button class="remove-btn" title="Remove">x</button>' +
-      '</div>' +
-      '<textarea class="agent-prompt" rows="4">You are Agent ' + (n + 1) + '. Be direct and concise. Keep responses under 150 words.</textarea>';
-    grid.appendChild(card);
-    card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var data = JSON.parse(reader.result);
+        } catch (e) { return; }
+        var grid = document.getElementById('agents-grid');
+        var n = grid.children.length;
+        var color = COLORS[n % COLORS.length];
+        var name = data.name || data.Name || file.name.replace('.json','');
+        var card = document.createElement('div');
+        card.className = 'agent-card';
+        card.setAttribute('data-agent', n);
+        card._charData = data;
+        card.innerHTML =
+          '<div class="agent-card-head">' +
+            '<span class="agent-dot" style="background:' + color + ';"></span>' +
+            '<span class="agent-name-label">' + name + '</span>' +
+            '<button class="remove-btn" title="Remove">x</button>' +
+          '</div>' +
+          '<pre class="agent-preview">' + jsonToPrompt(data).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
+        grid.appendChild(card);
+        card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
+      };
+      reader.readAsText(file);
+    });
+    input.click();
   });
 
   function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -215,19 +246,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     btn.disabled = true;
     btn.textContent = 'Running...';
 
-    var scene = document.getElementById('scene').value.trim();
     var opening = document.getElementById('opening').value.trim();
     var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
     var isFirstRun = !sessionHistories;
 
     if (isFirstRun) {
+      var scene = roomData ? jsonToPrompt(roomData) : '';
       sessionAgents = [];
       document.querySelectorAll('.agent-card').forEach(function (card, i) {
-        var base = card.querySelector('.agent-prompt').value;
+        var charData = card._charData;
+        var base = charData ? jsonToPrompt(charData) : '';
         var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
-        var full = chatRule + '\n\n' + (scene ? scene + '\n\n' : '') + base;
+        var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base;
+        var name = charData ? (charData.name || charData.Name || 'Agent ' + (i + 1)) : 'Agent ' + (i + 1);
         sessionAgents.push({
-          name: card.querySelector('.agent-name').value.trim() || ('Agent ' + (i + 1)),
+          name: name,
           system: full,
           color: COLORS[i % COLORS.length],
         });
@@ -370,19 +403,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     border-radius: 50%;
     flex-shrink: 0;
   }
-  .agent-name {
+  .agent-name-label {
     font-family: var(--font-body);
     font-size: 0.85rem;
     font-weight: 600;
-    padding: 0.2rem 0.4rem;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--fg);
-    outline: none;
     flex: 1;
     min-width: 0;
   }
-  .agent-name:focus { border-color: var(--border); }
   .remove-btn {
     font-size: 0.75rem;
     background: none;
@@ -393,19 +420,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     line-height: 1;
   }
   .remove-btn:hover { color: #e05252; border-color: #e05252; }
-  .agent-prompt {
+  .agent-preview {
     width: 100%;
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     padding: 0.5rem;
     border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--fg);
-    resize: vertical;
-    outline: none;
+    background: var(--code-bg);
+    color: var(--fg-muted);
+    overflow-x: auto;
     line-height: 1.5;
+    margin: 0;
+    max-height: 120px;
+    overflow-y: auto;
   }
-  .agent-prompt:focus { border-color: var(--fg-muted); }
   .add-agent {
     font-family: var(--font-body);
     font-size: 0.75rem;
@@ -415,15 +443,33 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     background: transparent;
     color: var(--fg-muted);
     cursor: pointer;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
   }
   .add-agent:hover { color: var(--fg); border-color: var(--fg); }
 
-  /* Scene / opening */
-  .scene-section { margin-bottom: 1rem; }
-  .prompt-section { margin-bottom: 1rem; }
+  /* Upload */
+  .upload-section { margin-bottom: 1.5rem; }
+  .upload-row { display: flex; align-items: center; gap: 0.75rem; }
+  .upload-btn {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+  }
+  .upload-btn:hover { color: var(--fg); border-color: var(--fg); }
+  .upload-status {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+  }
 
-  #scene, #opening {
+  /* Opening */
+  .prompt-section { margin-bottom: 1rem; }
+  #opening {
     width: 100%;
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -434,8 +480,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     outline: none;
     line-height: 1.5;
   }
-  #scene:focus, #opening:focus { border-color: var(--fg-muted); }
-  #scene { resize: vertical; }
+  #opening:focus { border-color: var(--fg-muted); }
 
   /* Controls */
   .controls {

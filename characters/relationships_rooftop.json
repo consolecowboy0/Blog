@@ -4,15 +4,15 @@
     {
       "between": ["Elena", "Marcus"],
       "type": "former lovers",
-      "history": "Fell hard for each other three weeks before she left for Patagonia. Never defined what they were. She assumed he would wait. He waited five months then stopped.",
-      "current_tension": "She came back early to surprise him. He moved on. Neither knows how to say what they actually feel.",
-      "shared_knowledge": "They both know the other felt something real. Neither admitted it before she left."
+      "history": "Fell hard for each other three weeks before Elena left for Patagonia. Never defined what they were. Elena assumed Marcus would wait. Marcus waited five months then stopped.",
+      "current_tension": "Elena came back early to surprise Marcus. Marcus moved on. Neither knows how to say what they actually feel.",
+      "shared_knowledge": "They both know the other felt something real. Neither admitted it before Elena left."
     },
     {
       "between": ["Marcus", "Diane"],
       "type": "dating",
-      "history": "Started seeing each other two months ago. Easy, comfortable, no drama. He likes who he is around her. She was getting there on love.",
-      "current_tension": "She recently learned he had someone before her that he never mentioned.",
+      "history": "Started seeing each other two months ago. Easy, comfortable, no drama. Marcus likes who he is around Diane. Diane was getting there on love.",
+      "current_tension": "Diane recently learned Marcus had someone before her that he never mentioned.",
       "shared_knowledge": "They have an honest, straightforward dynamic. Or they did until now."
     },
     {
@@ -25,22 +25,22 @@
     {
       "between": ["Dusty Magnum", "Elena"],
       "type": "acquaintances",
-      "history": "He shot a motorcycle campaign she photographed two years ago. They got along. Nothing happened.",
-      "current_tension": "She did not expect to see him here. He barely remembers the shoot but remembers her.",
+      "history": "Dusty Magnum shot a motorcycle campaign Elena photographed two years ago. They got along. Nothing happened.",
+      "current_tension": "Elena did not expect to see Dusty Magnum here. Dusty Magnum barely remembers the shoot but remembers Elena.",
       "shared_knowledge": "They ran in overlapping circles but never got close."
     },
     {
       "between": ["Dusty Magnum", "Marcus"],
       "type": "strangers",
       "history": "Never met.",
-      "current_tension": "He is the kind of guy who makes the other feel invisible without trying.",
+      "current_tension": "Marcus clocks Dusty Magnum immediately as the kind of guy who makes Marcus feel invisible. Dusty Magnum does not notice.",
       "shared_knowledge": "None."
     },
     {
       "between": ["Dusty Magnum", "Diane"],
       "type": "strangers",
       "history": "Never met.",
-      "current_tension": "She finds him interesting in a clinical way. He thinks she looks like someone who has her life together.",
+      "current_tension": "Diane finds Dusty Magnum interesting in a clinical way. Dusty Magnum thinks Diane looks like someone who has her life together.",
       "shared_knowledge": "None."
     }
   ]

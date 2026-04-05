@@ -1,24 +1,28 @@
 {
   "name": "The Rooftop",
-  "location": "A rooftop bar in Williamsburg, Brooklyn",
-  "time": "1:47 AM, late September",
-  "weather": "Cool, slight wind, clear sky, city lights visible in every direction",
+  "location": "Rooftop bar at a beachfront hotel in Kill Devil Hills, Outer Banks",
+  "time": "Golden hour, early June",
+  "weather": "Warm salt air, gentle breeze off the Atlantic, not a cloud, sun turning everything amber",
   "atmosphere": {
-    "lighting": "String lights swaying, one flickering near the stairwell, candles on tables almost burned down",
-    "sound": "Old soul records playing from a speaker someone left on the ledge, distant traffic, occasional siren",
-    "crowd": "Nearly empty. A couple leaving by the stairs. The bartender wiping glasses and pretending not to watch.",
-    "smell": "Cigarette smoke from the floor below, whiskey, cold air"
+    "lighting": "Warm string lights draped between wooden posts, tiki torches along the railing, the sun low and orange over the dunes",
+    "sound": "Waves crashing below, laughter from every table, steel drum duo playing something easy in the corner, ice clinking in glasses",
+    "crowd": "Full but not packed. Couples leaning into each other. A group of friends toasting something. Kids running between tables while parents wave them off. Everyone sun-kissed and loose.",
+    "smell": "Salt water, coconut sunscreen, grilled shrimp, fresh lime, woodsmoke from the fire pit"
   },
   "layout": {
-    "bar": "Long zinc counter along the east wall, six stools, half the taps are off for the night",
-    "tables": "Four small round tables with metal chairs, one corner table tucked behind a planter",
-    "edges": "Low brick wall around the perimeter, no railing, a six-story drop to the street"
+    "bar": "Long driftwood bar facing the ocean, cushioned stools, three bartenders who know your name by your second drink",
+    "tables": "Weathered teak tables with white linen runners, Adirondack chairs clustered near the railing, a few daybeds with canopies near the fire pit",
+    "edges": "Whitewashed railing wrapped in rope lights, unobstructed view of the Atlantic, sand dunes and sea oats below, a wooden staircase down to the beach"
+  },
+  "service": {
+    "staff": "Attentive without hovering. Drinks appear before you finish the last one. The hostess remembers where you like to sit.",
+    "drinks": "Fresh-squeezed margaritas, local craft beer on tap, rum punches in mason jars, cucumber water on every table without asking",
+    "food": "Peel-and-eat shrimp, crab dip with warm bread, blackened fish tacos, key lime pie brought out on the house"
   },
   "objects_of_note": [
-    "Two whiskeys at the corner table, one untouched",
-    "A Patagonia luggage tag on the floor near the bar",
-    "A phone face-down on the counter, screen lighting up with unanswered texts"
+    "A polaroid camera someone left on the bar with a stack of photos next to it",
+    "A surfboard leaning against the railing with a wetsuit draped over it",
+    "A chalkboard specials menu with 'You made it' written at the top"
   ],
-  "mood": "The kind of quiet that comes right before something breaks. Everyone here knows the night is not over.",
-  "rules": "Nobody is leaving until this gets resolved. The bartender will not intervene. Last call was twenty minutes ago but nobody is enforcing it."
+  "mood": "The kind of evening where strangers become friends and nobody checks the time. Everything feels easy. The ocean does most of the talking."
 }

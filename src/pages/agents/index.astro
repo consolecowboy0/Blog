@@ -150,11 +150,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           '<div class="agent-card-head">' +
             '<span class="agent-dot" style="background:' + color + ';"></span>' +
             '<span class="agent-name-label">' + name + '</span>' +
-            '<button class="remove-btn" title="Remove">x</button>' +
+            '<div class="card-controls">' +
+              '<button class="order-btn move-up" title="Move up">^</button>' +
+              '<button class="order-btn move-down" title="Move down">v</button>' +
+              '<button class="remove-btn" title="Remove">x</button>' +
+            '</div>' +
           '</div>' +
           '<pre class="agent-preview">' + jsonToPrompt(data).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</pre>';
         grid.appendChild(card);
         card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
+        card.querySelector('.move-up').addEventListener('click', function () {
+          var prev = card.previousElementSibling;
+          if (prev) grid.insertBefore(card, prev);
+        });
+        card.querySelector('.move-down').addEventListener('click', function () {
+          var next = card.nextElementSibling;
+          if (next) grid.insertBefore(next, card);
+        });
       };
       reader.readAsText(file);
     });
@@ -178,8 +190,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       n.textContent = name;
       var t = document.createElement('div');
       t.className = 'msg-text';
-      var safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      t.innerHTML = safe.replace(/\n/g, '<br>');
+      t.textContent = text;
       el.appendChild(n);
       el.appendChild(t);
     }
@@ -279,20 +290,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     try {
       if (isFirstRun) {
         msg('','', opening, true);
-
-        // Seed first agent
-        var first = agents[0];
-        var t = typing(first.name, first.color);
-        histories[first.name].push({ role: 'user', content: opening });
-        sessionLastText = await ask(first.system, histories[first.name]);
-        histories[first.name].push({ role: 'assistant', content: sessionLastText });
-        t.remove();
-        if (sessionLastText.trim() === '[silence]') {
-          msg(first.name, first.color, '...', false);
-        } else {
-          msg(first.name, first.color, sessionLastText);
-        }
-        sessionLastSpeaker = first.name;
+        sessionLastText = opening;
+        sessionLastSpeaker = 'Narrator';
       }
 
       for (var r = 1; r <= rounds; r++) {
@@ -300,7 +299,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         msg('','','--- Round ' + sessionRun + ' ---', true);
         for (var i = 0; i < agents.length; i++) {
           var a = agents[i];
-          if (isFirstRun && r === 1 && i === 0) continue;
           await delay(10000);
           var prompt = '[Round ' + sessionRun + ' - ' + sessionLastSpeaker + ']: ' + sessionLastText;
           var typ = typing(a.name, a.color);
@@ -419,6 +417,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     padding: 0.1rem 0.4rem;
     line-height: 1;
   }
+  .card-controls { display: flex; gap: 0.25rem; }
+  .order-btn {
+    font-size: 0.7rem;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    cursor: pointer;
+    padding: 0.1rem 0.35rem;
+    line-height: 1;
+    font-family: var(--font-mono);
+  }
+  .order-btn:hover { color: var(--fg); border-color: var(--fg); }
   .remove-btn:hover { color: #e05252; border-color: #e05252; }
   .agent-preview {
     width: 100%;

@@ -4,12 +4,3 @@
 
 [build.environment]
   NODE_VERSION = "20"
-
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-
-[[redirects]]
-  from = "/api/agent-chat"
-  to = "/.netlify/functions/agent-chat"
-  status = 200

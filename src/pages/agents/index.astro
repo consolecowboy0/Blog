@@ -332,7 +332,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         lines.push('');
         lines.push('--- Round ' + currentRound + ' ---');
       }
-      lines.push(entry.name + ': ' + entry.text);
+      var exportText = entry.rawText || entry.text;
+      lines.push(entry.name + ': ' + exportText);
     });
     var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     var a = document.createElement('a');
@@ -357,14 +358,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       n.textContent = name;
       var t = document.createElement('div');
       t.className = 'msg-text';
-      var parts = text.split(/(\[ACTION:[^\]]*\])/g);
+      var parts = text.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
       parts.forEach(function (part) {
         var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+        var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
         if (actionMatch) {
           var act = document.createElement('span');
           act.className = 'msg-action';
           act.textContent = actionMatch[1];
           t.appendChild(act);
+        } else if (whisperMatch) {
+          var w = document.createElement('span');
+          w.className = 'msg-whisper';
+          w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
+          t.appendChild(w);
         } else if (part) {
           t.appendChild(document.createTextNode(part));
         }
@@ -478,7 +485,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var charData = card._charData;
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
-        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nDo not narrate emotions or thoughts. Only dialogue and [ACTION] tags.';
+        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.';
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
@@ -512,7 +519,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       return actions;
     }
 
-    function buildTranscript() {
+    function extractWhisperTargets(text) {
+      var targets = [];
+      text.replace(/\[WHISPER\s+to\s+([^:\]]+):/g, function (m, name) {
+        targets.push(name.trim());
+      });
+      return targets;
+    }
+
+    function stripWhispersFrom(text, agentName, speakerName) {
+      // Remove whisper tags not intended for agentName (and not from agentName)
+      return text.replace(/\[WHISPER\s+to\s+([^:\]]+):\s*([^\]]*)\]/g, function (match, target) {
+        target = target.trim();
+        if (target === agentName || speakerName === agentName) {
+          return match; // keep -- agent is sender or recipient
+        }
+        return ''; // strip -- agent can't hear this whisper
+      }).replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    function buildTranscript(forAgent) {
       var lines = ['[Scene direction]: ' + opening];
       if (worldState.length > 0) {
         lines.push('');
@@ -526,7 +552,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         lines.push('... (' + start + ' earlier messages omitted) ...');
       }
       for (var t = start; t < sessionTranscript.length; t++) {
-        lines.push(sessionTranscript[t].name + ': ' + sessionTranscript[t].text);
+        var entry = sessionTranscript[t];
+        var text = entry.text;
+        // Filter whispers: only show whispers this agent is part of
+        if (forAgent && entry.hasWhisper) {
+          text = stripWhispersFrom(entry.rawText || text, forAgent, entry.name);
+        }
+        if (text) {
+          lines.push(entry.name + ': ' + text);
+        }
       }
       return lines.join('\n');
     }
@@ -547,7 +581,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             await cancellableDelay(delayMs);
             if (stopRequested) break;
           }
-          var transcript = buildTranscript();
+          var transcript = buildTranscript(a.name);
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
           var response = await ask(a.system, messages);
@@ -558,8 +592,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           } else {
             var actions = extractActions(a.name, response);
             actions.forEach(function (act) { worldState.push(act); });
+            var whisperTargets = extractWhisperTargets(response);
             msg(a.name, a.color, response);
-            sessionTranscript.push({ name: a.name, text: response, round: sessionRun });
+            sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
           }
         }
       }
@@ -830,6 +865,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-style: italic;
     font-size: 0.9rem;
     color: var(--fg-muted);
+    margin: 0.3rem 0;
+  }
+  .msg-whisper {
+    display: block;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.08);
+    border-left: 2px solid #8b5cf6;
+    padding: 0.2rem 0.5rem;
     margin: 0.3rem 0;
   }
   .chat-typing {

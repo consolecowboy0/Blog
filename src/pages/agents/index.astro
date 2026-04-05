@@ -233,10 +233,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   // Persistent state across Go presses
-  var sessionHistories = null;
+  var sessionTranscript = [];
   var sessionAgents = null;
-  var sessionLastText = '';
-  var sessionLastSpeaker = '';
   var sessionRun = 0;
   var stopRequested = false;
 
@@ -249,10 +247,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   document.getElementById('clear-btn').addEventListener('click', function () {
     stopRequested = true;
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
-    sessionHistories = null;
+    sessionTranscript = [];
     sessionAgents = null;
-    sessionLastText = '';
-    sessionLastSpeaker = '';
     sessionRun = 0;
   });
 
@@ -266,39 +262,49 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     var opening = document.getElementById('opening').value.trim();
     var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
-    var isFirstRun = !sessionHistories;
+    var isFirstRun = !sessionAgents;
 
     if (isFirstRun) {
       var scene = roomData ? jsonToPrompt(roomData) : '';
       sessionAgents = [];
+      var allNames = [];
+      document.querySelectorAll('.agent-card').forEach(function (card) {
+        var charData = card._charData;
+        var name = charData ? (charData.name || charData.Name || 'Agent') : 'Agent';
+        allNames.push(name);
+      });
+
       document.querySelectorAll('.agent-card').forEach(function (card, i) {
         var charData = card._charData;
         var base = charData ? jsonToPrompt(charData) : '';
-        var chatRule = 'You are in a group chat with other characters. Stay in character at all times. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
+        var otherNames = allNames.filter(function (n, j) { return j !== i; });
+        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Write only dialogue -- short, natural lines like a real person talking. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Do not break character. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base;
-        var name = charData ? (charData.name || charData.Name || 'Agent ' + (i + 1)) : 'Agent ' + (i + 1);
         sessionAgents.push({
-          name: name,
+          name: allNames[i],
           system: full,
           color: COLORS[i % COLORS.length],
         });
       });
 
-      if (sessionAgents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; sessionAgents = null; return; }
-      if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; sessionAgents = null; return; }
-
-      sessionHistories = {};
-      sessionAgents.forEach(function (a) { sessionHistories[a.name] = []; });
+      if (sessionAgents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
+      if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
     }
 
     var agents = sessionAgents;
-    var histories = sessionHistories;
+
+    function buildTranscript() {
+      if (sessionTranscript.length === 0) return '[Scene direction]: ' + opening;
+      var lines = ['[Scene direction]: ' + opening];
+      for (var t = 0; t < sessionTranscript.length; t++) {
+        lines.push(sessionTranscript[t].name + ': ' + sessionTranscript[t].text);
+      }
+      return lines.join('\n');
+    }
 
     try {
       if (isFirstRun) {
         msg('','', opening, true);
-        sessionLastText = opening;
-        sessionLastSpeaker = 'Narrator';
       }
 
       for (var r = 1; r <= rounds; r++) {
@@ -310,18 +316,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           var a = agents[i];
           await delay(10000);
           if (stopRequested) break;
-          var prompt = '[Round ' + sessionRun + ' - ' + sessionLastSpeaker + ']: ' + sessionLastText;
+          var transcript = buildTranscript();
+          var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
-          histories[a.name].push({ role: 'user', content: prompt });
-          sessionLastText = await ask(a.system, histories[a.name]);
-          histories[a.name].push({ role: 'assistant', content: sessionLastText });
+          var response = await ask(a.system, messages);
           typ.remove();
-          if (sessionLastText.trim() === '[silence]') {
+          if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
+            sessionTranscript.push({ name: a.name, text: '...' });
           } else {
-            msg(a.name, a.color, sessionLastText);
+            msg(a.name, a.color, response);
+            sessionTranscript.push({ name: a.name, text: response });
           }
-          sessionLastSpeaker = a.name;
         }
       }
       if (stopRequested) {

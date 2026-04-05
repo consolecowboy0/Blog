@@ -17,7 +17,7 @@ export async function POST({ request }) {
     });
   }
 
-  const apiKey = body.apiKey || import.meta.env.ANTHROPIC_API_KEY;
+  const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "No API key provided" }), {
       status: 400,

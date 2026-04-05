@@ -192,9 +192,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return data.text;
   }
 
+  // Persistent state across Go presses
+  var sessionHistories = null;
+  var sessionAgents = null;
+  var sessionLastText = '';
+  var sessionLastSpeaker = '';
+  var sessionRun = 0;
+
   // Clear
   document.getElementById('clear-btn').addEventListener('click', function () {
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
+    sessionHistories = null;
+    sessionAgents = null;
+    sessionLastText = '';
+    sessionLastSpeaker = '';
+    sessionRun = 0;
   });
 
   // Go
@@ -206,63 +218,69 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var scene = document.getElementById('scene').value.trim();
     var opening = document.getElementById('opening').value.trim();
     var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
+    var isFirstRun = !sessionHistories;
 
-    var agents = [];
-    document.querySelectorAll('.agent-card').forEach(function (card, i) {
-      var base = card.querySelector('.agent-prompt').value;
-      var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
-      var full = chatRule + '\n\n' + (scene ? scene + '\n\n' : '') + base;
-      agents.push({
-        name: card.querySelector('.agent-name').value.trim() || ('Agent ' + (i + 1)),
-        system: full,
-        color: COLORS[i % COLORS.length],
+    if (isFirstRun) {
+      sessionAgents = [];
+      document.querySelectorAll('.agent-card').forEach(function (card, i) {
+        var base = card.querySelector('.agent-prompt').value;
+        var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
+        var full = chatRule + '\n\n' + (scene ? scene + '\n\n' : '') + base;
+        sessionAgents.push({
+          name: card.querySelector('.agent-name').value.trim() || ('Agent ' + (i + 1)),
+          system: full,
+          color: COLORS[i % COLORS.length],
+        });
       });
-    });
 
-    if (agents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; return; }
-    if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; return; }
+      if (sessionAgents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; sessionAgents = null; return; }
+      if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; sessionAgents = null; return; }
 
-    var histories = {};
-    agents.forEach(function (a) { histories[a.name] = []; });
+      sessionHistories = {};
+      sessionAgents.forEach(function (a) { sessionHistories[a.name] = []; });
+    }
 
-    var lastText = '';
-    var lastSpeaker = '';
-
-    msg('','', opening, true);
+    var agents = sessionAgents;
+    var histories = sessionHistories;
 
     try {
-      // Seed first agent
-      var first = agents[0];
-      var t = typing(first.name, first.color);
-      histories[first.name].push({ role: 'user', content: opening });
-      lastText = await ask(first.system, histories[first.name]);
-      histories[first.name].push({ role: 'assistant', content: lastText });
-      t.remove();
-      if (lastText.trim() === '[silence]') {
-        msg(first.name, first.color, '...', false);
-      } else {
-        msg(first.name, first.color, lastText);
+      if (isFirstRun) {
+        msg('','', opening, true);
+
+        // Seed first agent
+        var first = agents[0];
+        var t = typing(first.name, first.color);
+        histories[first.name].push({ role: 'user', content: opening });
+        sessionLastText = await ask(first.system, histories[first.name]);
+        histories[first.name].push({ role: 'assistant', content: sessionLastText });
+        t.remove();
+        if (sessionLastText.trim() === '[silence]') {
+          msg(first.name, first.color, '...', false);
+        } else {
+          msg(first.name, first.color, sessionLastText);
+        }
+        sessionLastSpeaker = first.name;
       }
-      lastSpeaker = first.name;
 
       for (var r = 1; r <= rounds; r++) {
-        msg('','','Round ' + r, true);
+        sessionRun++;
+        msg('','','Round ' + sessionRun, true);
         for (var i = 0; i < agents.length; i++) {
           var a = agents[i];
-          if (r === 1 && i === 0) continue;
+          if (isFirstRun && r === 1 && i === 0) continue;
           await delay(10000);
-          var prompt = '[Round ' + r + ' - ' + lastSpeaker + ']: ' + lastText;
+          var prompt = '[Round ' + sessionRun + ' - ' + sessionLastSpeaker + ']: ' + sessionLastText;
           var typ = typing(a.name, a.color);
           histories[a.name].push({ role: 'user', content: prompt });
-          lastText = await ask(a.system, histories[a.name]);
-          histories[a.name].push({ role: 'assistant', content: lastText });
+          sessionLastText = await ask(a.system, histories[a.name]);
+          histories[a.name].push({ role: 'assistant', content: sessionLastText });
           typ.remove();
-          if (lastText.trim() === '[silence]') {
+          if (sessionLastText.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
           } else {
-            msg(a.name, a.color, lastText);
+            msg(a.name, a.color, sessionLastText);
           }
-          lastSpeaker = a.name;
+          sessionLastSpeaker = a.name;
         }
       }
       msg('','','Done.', true);

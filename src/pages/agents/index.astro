@@ -264,7 +264,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       for (var r = 1; r <= rounds; r++) {
         sessionRun++;
-        msg('','','Round ' + sessionRun, true);
+        msg('','','--- Round ' + sessionRun + ' ---', true);
         for (var i = 0; i < agents.length; i++) {
           var a = agents[i];
           if (isFirstRun && r === 1 && i === 0) continue;

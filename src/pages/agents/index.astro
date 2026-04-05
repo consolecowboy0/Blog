@@ -46,6 +46,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <input type="number" id="rounds" min="1" max="10" value="2" />
       </div>
       <button id="go-btn">Go</button>
+      <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
       <button id="clear-btn" class="secondary-btn">Clear</button>
     </div>
 
@@ -237,9 +238,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var sessionLastText = '';
   var sessionLastSpeaker = '';
   var sessionRun = 0;
+  var stopRequested = false;
+
+  // Stop
+  document.getElementById('stop-btn').addEventListener('click', function () {
+    stopRequested = true;
+  });
 
   // Clear
   document.getElementById('clear-btn').addEventListener('click', function () {
+    stopRequested = true;
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
     sessionHistories = null;
     sessionAgents = null;
@@ -253,6 +261,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var btn = this;
     btn.disabled = true;
     btn.textContent = 'Running...';
+    stopRequested = false;
+    document.getElementById('stop-btn').style.display = '';
 
     var opening = document.getElementById('opening').value.trim();
     var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
@@ -264,7 +274,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       document.querySelectorAll('.agent-card').forEach(function (card, i) {
         var charData = card._charData;
         var base = charData ? jsonToPrompt(charData) : '';
-        var chatRule = 'You are in a group chat. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
+        var chatRule = 'You are in a group chat with other characters. Stay in character at all times. Write only dialogue -- short, natural lines like a real person texting. No narration, no stage directions, no actions, no asterisks. Do not describe what you or others are doing. Do not ask for context or clarification. Just talk. Keep it under 60 words. If your character would stay silent in this moment, respond with exactly "[silence]" and nothing else.';
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base;
         var name = charData ? (charData.name || charData.Name || 'Agent ' + (i + 1)) : 'Agent ' + (i + 1);
         sessionAgents.push({
@@ -292,11 +302,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
 
       for (var r = 1; r <= rounds; r++) {
+        if (stopRequested) break;
         sessionRun++;
         msg('','','--- Round ' + sessionRun + ' ---', true);
         for (var i = 0; i < agents.length; i++) {
+          if (stopRequested) break;
           var a = agents[i];
           await delay(10000);
+          if (stopRequested) break;
           var prompt = '[Round ' + sessionRun + ' - ' + sessionLastSpeaker + ']: ' + sessionLastText;
           var typ = typing(a.name, a.color);
           histories[a.name].push({ role: 'user', content: prompt });
@@ -311,14 +324,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           sessionLastSpeaker = a.name;
         }
       }
-      var done = msg('','','--- Done ---', true);
-      done.style.marginBottom = '2rem';
+      if (stopRequested) {
+        msg('','','--- Stopped ---', true);
+      } else {
+        var done = msg('','','--- Done ---', true);
+        done.style.marginBottom = '2rem';
+      }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
     }
 
     btn.disabled = false;
     btn.textContent = 'Go';
+    document.getElementById('stop-btn').style.display = 'none';
   });
 })();
 </script>

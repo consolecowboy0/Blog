@@ -2,7 +2,7 @@
 title: "The One Number That Measures How Good You Are"
 date: "2026-03-17"
 description: "Every aspect of driving skill- braking, cornering, throttle, consistency- collapses into a single metric: how close you get to the edge."
-draft: false
+draft: true
 ---
 
 ## The Edge

@@ -7,6 +7,16 @@ export async function POST({ request }) {
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
+  // The Agent SDK spawns a local Claude Code CLI process.
+  // It cannot run in serverless environments (Netlify, Vercel, etc.).
+  // Detect serverless and fail fast with a clear message.
+  if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.VERCEL) {
+    return new Response(
+      JSON.stringify({ error: "Agent SDK mode requires a local server with Claude Code CLI installed. Switch to API mode for this deployed environment." }),
+      { status: 501, headers: corsHeaders }
+    );
+  }
+
   let body;
   try {
     body = await request.json();
@@ -28,7 +38,6 @@ export async function POST({ request }) {
 
   try {
     // Dynamic import — the Agent SDK requires Claude Code CLI installed on the host.
-    // This won't work in Netlify serverless; use API mode for deployed environments.
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
 
     // Build the user prompt from the last message
@@ -75,16 +84,15 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
-    // Provide a helpful error if the SDK isn't available
-    const message = err.message || '';
-    if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
+    const msg = err.message || '';
+    if (msg.includes('MODULE_NOT_FOUND') || msg.includes('Cannot find') || msg.includes('not found') || msg.includes('CLINotFound')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK mode requires Claude Code CLI installed on the server. Use API mode for deployed environments." }),
+        JSON.stringify({ error: "Agent SDK mode requires Claude Code CLI installed on the server. Switch to API mode." }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: msg || "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   }

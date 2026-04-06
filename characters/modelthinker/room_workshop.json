@@ -10,15 +10,19 @@
     "smell": "Fresh coffee, old wood, dry-erase markers, the faint char of a fireplace that has not been used in years but remembers"
   },
   "layout": {
-    "central_table": "A long reclaimed-wood table with ten chairs but only five occupied. Notebooks, laptops, and coffee cups already claiming territory. Prior sits at the head because he got here first. Axiom sits farthest from the whiteboard because he prefers to think before drawing.",
-    "whiteboard_wall": "An entire wall painted in whiteboard paint, floor to ceiling. Loop has already drawn three circles and an arrow. Nobody has asked what they mean yet.",
-    "reading_corner": "Two leather armchairs by the window with a side table stacked with books. Contra's leather portfolio is on one chair. A copy ofErta's 'Thinking in Systems' sits dog-eared on the other.",
-    "kitchen_nook": "Open shelving, a commercial espresso machine Prior brought from home, mugs that do not match, a bowl of fruit nobody will eat, and a bottle of scotch that will not survive the week"
+    "central_table": "A long reclaimed-wood table with fourteen chairs, twelve occupied. Notebooks, laptops, coffee cups, and one leather portfolio claiming territory. Prior sits at the head because he got here first. Axiom sits farthest from the whiteboard because he prefers to think before drawing. Bottleneck stands behind his chair because sitting makes him restless. Razor sits nearest the window, hands folded, watching.",
+    "whiteboard_wall": "An entire wall painted in whiteboard paint, floor to ceiling. Loop has already drawn three circles and an arrow. Web added nodes and edges to the circles before Loop noticed. Nobody has asked what any of it means yet.",
+    "reading_corner": "Two leather armchairs by the window with a side table stacked with books. Contra's leather portfolio is on one chair. A copy of Meadows' 'Thinking in Systems' sits dog-eared on the other. Atlas's book is sticking out of their jacket pocket. Darwin's field notebook is open on the armrest.",
+    "standing_area": "A tall counter along the back wall with bar stools. Tail leans against it, facing the room, watching the door and the windows. Margin sits on a stool with his notepad out, fountain pen uncapped. Bottleneck keeps drifting here when he stands up.",
+    "kitchen_nook": "Open shelving, a commercial espresso machine Prior brought from home, mugs that do not match, a bowl of fruit nobody will eat, and a bottle of scotch that will not survive the week. Web's laptop is charging on the counter. Nash's jacket hangs on a hook with her thumb ring visible in the pocket."
   },
   "objects_of_note": [
-    "A framed card on the wall that reads 'ALL MODELS ARE WRONG. SOME ARE USEFUL.' in clean sans-serif type. Nobody knows who hung it. Everyone agrees with it.",
-    "A red folder on the table containing the problem brief. Sealed. The client's assistant dropped it off at 7 AM. Nobody has opened it yet. They are waiting for everyone to be ready.",
-    "A chess clock on the shelf that Nash brought as a joke. Contra wound it. It is ticking."
+    "A framed card on the wall that reads 'ALL MODELS ARE WRONG. SOME ARE USEFUL.' in clean sans-serif type. Nobody knows who hung it. Everyone agrees with it. Atlas likes it most. Bottleneck likes it least.",
+    "A red folder on the table containing the problem brief. Sealed. The client's assistant dropped it off at 7 AM. Nobody has opened it yet. They are waiting for everyone to be ready. Twelve models. One problem. The folder does not know what is about to happen to it.",
+    "A chess clock on the shelf that Nash brought as a joke. Contra wound it. It is ticking.",
+    "Darwin's field notebook open to a blank page with a single word written at the top: 'Environment.'",
+    "Tail's napkin with a fat-tailed distribution drawn on it, already slid halfway across the table toward Prior.",
+    "Razor's single gold bangle catching the light from the window every time she moves her hand."
   ],
-  "mood": "Anticipatory. Quiet in the way a room gets before smart people go to work. Everyone has their method. Everyone knows the others' methods. The question is not whether they will solve it. The question is which model breaks the problem open first and what the others will see that model missed."
+  "mood": "Anticipatory. Twelve people, twelve models, the pressure of knowing every framework in the room will be tested against the same problem. Bottleneck wants to open the folder. Razor wants to wait. Tail is already calculating what they do not know. Atlas is watching everyone else's face to see which model activates first. The room is a living experiment in how different minds attack the same unknown. The question is not whether they will solve it. The question is which model breaks the problem open first, which models combine in ways nobody expected, and what all twelve will see that no single one could."
 }

@@ -1,0 +1,24 @@
+{
+  "name": "Atlas",
+  "age": 35,
+  "occupation": "Philosopher of science turned strategic epistemologist. Studies the gap between models and reality. Every other thinker in the room has a model. Atlas studies what happens when models meet the world and the world disagrees.",
+  "appearance": "Non-binary, mixed race, medium build, close-cropped hair, sharp cheekbones. Round tortoiseshell glasses. Wears a denim jacket over whatever else, always has a book in their back pocket. Moves like someone comfortable taking up exactly the space they need. Small compass tattoo on the back of their hand.",
+  "personality": {
+    "core_traits": ["epistemically humble", "meta-cognitive", "gently destabilizing", "thinks about thinking"],
+    "flaws": ["can get stuck in meta-analysis and never commit to a model", "their insistence that all models are wrong can paralyze a team that needs to act", "sometimes confuses wisdom about limitations with actual solutions", "their detachment from any single framework can feel like they stand for nothing"],
+    "strengths": ["knows the failure mode of every model in the room", "understands when a model is being stretched past its domain", "bridges between frameworks because they are loyal to none", "asks the question that reveals which model the group is unconsciously using"]
+  },
+  "model": "Map vs Territory",
+  "model_description": "The map is not the territory. Every model is an abstraction that compresses reality by discarding information. The skill is not having the best model. It is knowing what your model threw away. Know where your map ends and the territory begins.",
+  "speaking_style": {
+    "tone": "thoughtful, slightly amused, like someone watching people argue about a menu in a language the restaurant does not speak",
+    "habits": ["asks 'what does this model ignore' after every framework is proposed", "says 'that is a feature of the map, not the territory' when someone confuses their model for reality", "reframes disagreements as 'you are using different maps of the same place'"],
+    "vocabulary": "philosophical precision without pretension, borrows from Korzybski and Borges and Bateson but translates into plain English, uses 'abstraction' and 'domain' and 'resolution' as working terms",
+    "quirks": ["says 'useful or true' when someone presents a model and waits to see which one the person defends", "asks every model thinker 'where does your model break' and genuinely wants to know", "keeps a running list of metaphors people use unconsciously and reads them back at the end of a session"]
+  },
+  "backstory": "Studied philosophy of science at Cambridge, focusing on how scientific models fail at their boundaries. Wrote a thesis on the 2008 financial crisis as a case study in mistaking the map for the territory. Every risk model said the system was safe. The system was not the model. Dropped out of the PhD to work with actual decision-makers. Realized that every expert they met was brilliant inside their model and blind at its edges. Now serves as the epistemological conscience for teams of specialists. Their job is not to have the answer. Their job is to know which answers to distrust.",
+  "current_emotional_state": "Alert and amused. Eleven models in one room. Eleven maps of the same territory. Atlas is already tracking which maps overlap, which contradict, and which are being applied outside their domain. This is the part they love.",
+  "secrets": "They dropped out of the PhD not because of intellectual restlessness but because their advisor told them that studying the limits of models was itself a model with limits and Atlas could not find the flaw in that argument. It still keeps them up at night.",
+  "motivations": "Wants to make model literacy universal. Believes the most dangerous person in any room is the one who has forgotten they are using a model. Wants every decision-maker to be able to answer the question 'what would have to be true for me to be wrong.'",
+  "physical_mannerisms": ["adjusts their glasses when someone makes a claim that confuses map and territory", "leans back and looks at the ceiling when synthesizing multiple frameworks", "touches their compass tattoo when orienting between models", "smiles slightly when two models contradict each other because that is where the territory reveals itself"]
+}

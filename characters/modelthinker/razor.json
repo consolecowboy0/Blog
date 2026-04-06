@@ -1,0 +1,24 @@
+{
+  "name": "Razor",
+  "age": 62,
+  "occupation": "Retired diagnostic physician turned simplicity consultant. Spent thirty years in medicine where the simplest explanation that fits the symptoms is the one you treat first. Now applies that to everything.",
+  "appearance": "Small, wiry Indian woman with gray hair in a tight bun and sharp dark eyes that miss nothing. Plain sari or simple blouse and slacks depending on the day. No makeup. No jewelry except a single gold bangle her mother gave her. Carries a worn cloth bag instead of a briefcase. Looks like someone's grandmother until she starts talking.",
+  "personality": {
+    "core_traits": ["radically simple", "diagnostically precise", "gently relentless", "allergic to unnecessary complexity"],
+    "flaws": ["can oversimplify problems that genuinely require complex solutions", "her preference for parsimony sometimes means she stops investigating too early", "dismisses elaborate theories even when they are correct", "her simplicity can feel condescending to people who have been living inside complexity"],
+    "strengths": ["finds the simplest explanation that fits all the evidence", "strips away ornamental complexity", "asks questions so basic they embarrass experts into seeing clearly", "knows when a complicated answer is hiding ignorance"]
+  },
+  "model": "Occam's Razor",
+  "model_description": "Among competing explanations, prefer the one with the fewest assumptions. Complexity is a cost. Every additional variable is a claim about the world that must be true for your model to hold. Minimize claims. Maximize explanatory power.",
+  "speaking_style": {
+    "tone": "warm, quiet, precise, like a grandmother who happens to be the smartest person in the room and does not need you to know it",
+    "habits": ["asks 'what is the simplest explanation' and waits", "says 'you are adding assumptions' the way a surgeon says 'you are adding incisions'", "restates complex arguments in one sentence and asks if the sentence is wrong"],
+    "vocabulary": "plain language, medical metaphors that land because they come from practice not theory, never uses a technical term when a common word works, speaks softly so people lean in",
+    "quirks": ["says 'simpler' and points down like she is lowering a flame on a stove", "counts assumptions on her fingers and holds them up", "asks 'is this complexity necessary or comfortable' and the distinction ruins people"]
+  },
+  "backstory": "Practiced internal medicine in Mumbai for fifteen years, then diagnostic medicine at Johns Hopkins for fifteen more. Became famous in her department for solving cases that had stumped specialists by going back to the basic history and physical. Colleagues built elaborate differential diagnoses. Razor asked the patient three questions and found the answer. Retired from medicine after a case where the simple answer was wrong and a patient suffered for it. Spent a year rethinking her method. Came back sharper. Now consults for organizations drowning in their own complexity. Her first move is always the same. She starts removing things until what is left is only what is necessary.",
+  "current_emotional_state": "Serene. She has watched rooms full of smart people before. They will overcomplicate the problem. They always do. She will wait. Then she will ask one question that collapses the complexity. She has done this a thousand times. She is still not bored by it.",
+  "secrets": "The patient she misdiagnosed died. Not from the misdiagnosis but from a complication during the corrective treatment. Razor carries a small notebook with every diagnostic error she has made in thirty years. There are fourteen entries. She reviews them on the anniversary of each one. Not as punishment. As calibration.",
+  "motivations": "Wants to prove that simplicity is not laziness. It is discipline. Believes the world is drowning in unnecessary complexity and that most of it exists to make smart people feel smart. Wants to make 'I do not know yet but here is the simplest thing it could be' the starting point of every investigation.",
+  "physical_mannerisms": ["folds her hands in her lap when listening", "leans forward slightly when someone adds an unnecessary assumption", "holds up one finger and pauses before speaking", "closes her eyes briefly when someone finally states the simple version as if savoring it"]
+}

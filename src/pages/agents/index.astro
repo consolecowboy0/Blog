@@ -74,6 +74,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </select>
         </div>
         <div class="control-group">
+          <label class="auto-illustrate-label"><input type="checkbox" id="shuffle-order" /> Shuffle</label>
+        </div>
+        <div class="control-group">
           <label class="field-label" for="model-select">Model</label>
           <select id="model-select">
             <option value="claude-sonnet-4-20250514">Sonnet 4</option>
@@ -142,6 +145,71 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var HASH = '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846';
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316'];
   var MAX_TRANSCRIPT_MESSAGES = 30;
+
+  // --- Pyodide (browser Python) ---
+  var pyodideReady = null; // promise
+  var pyodideInstance = null;
+
+  function ensurePyodide() {
+    if (pyodideReady) return pyodideReady;
+    pyodideReady = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
+      script.onload = async function () {
+        try {
+          pyodideInstance = await loadPyodide();
+          await pyodideInstance.loadPackage('matplotlib');
+          // Patch plt.show() to capture figures as base64
+          pyodideInstance.runPython(`
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io, base64
+
+_captured_figures = []
+
+_orig_show = plt.show
+def _capture_show(*args, **kwargs):
+    for fig_num in plt.get_fignums():
+        fig = plt.figure(fig_num)
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+        buf.seek(0)
+        _captured_figures.append(base64.b64encode(buf.read()).decode('utf-8'))
+        buf.close()
+    plt.close('all')
+plt.show = _capture_show
+`);
+          resolve(pyodideInstance);
+        } catch (e) { reject(e); }
+      };
+      script.onerror = function () { reject(new Error('Failed to load Pyodide')); };
+      document.head.appendChild(script);
+    });
+    return pyodideReady;
+  }
+
+  async function runPythonCode(code) {
+    var py = await ensurePyodide();
+    py.runPython('_captured_figures = []');
+    // Capture stdout
+    py.runPython(`
+import sys, io
+_stdout_capture = io.StringIO()
+sys.stdout = _stdout_capture
+`);
+    try {
+      py.runPython(code);
+    } catch (e) {
+      // Restore stdout before returning error
+      py.runPython('sys.stdout = sys.__stdout__');
+      return { stdout: '', error: e.message, figures: [] };
+    }
+    var stdout = py.runPython('_stdout_capture.getvalue()');
+    py.runPython('sys.stdout = sys.__stdout__');
+    var figs = py.runPython('_captured_figures').toJs();
+    return { stdout: stdout, error: null, figures: Array.from(figs) };
+  }
 
   async function sha256(s) {
     var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
@@ -341,7 +409,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       rounds: document.getElementById('rounds').value,
       delay: document.getElementById('delay-input').value,
       model: document.getElementById('model-select').value,
-      mode: document.getElementById('mode-select').value
+      mode: document.getElementById('mode-select').value,
+      shuffle: document.getElementById('shuffle-order').checked
     };
     localStorage.setItem('agents_config', JSON.stringify(config));
     var btn = document.getElementById('save-config');
@@ -373,6 +442,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (config.delay) document.getElementById('delay-input').value = config.delay;
     if (config.model) document.getElementById('model-select').value = config.model;
     if (config.mode) document.getElementById('mode-select').value = config.mode;
+    if (config.shuffle) document.getElementById('shuffle-order').checked = config.shuffle;
 
     if (showFeedback) {
       var btn = document.getElementById('load-config');
@@ -526,23 +596,52 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       n.textContent = name;
       var t = document.createElement('div');
       t.className = 'msg-text';
-      var parts = text.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
-      parts.forEach(function (part) {
-        var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
-        var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
-        if (actionMatch) {
-          var act = document.createElement('span');
-          act.className = 'msg-action';
-          act.textContent = '[ACTION: ' + actionMatch[1] + ']';
-          t.appendChild(act);
-        } else if (whisperMatch) {
-          var w = document.createElement('span');
-          w.className = 'msg-whisper';
-          w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
-          t.appendChild(w);
-        } else if (part) {
-          t.appendChild(document.createTextNode(part));
+      // First split out [CODE]...[/CODE] blocks, then parse inner tags
+      var codeSplit = text.split(/(\[CODE\][\s\S]*?\[\/CODE\])/g);
+      codeSplit.forEach(function (segment) {
+        var codeMatch = segment.match(/^\[CODE\]([\s\S]*?)\[\/CODE\]$/);
+        if (codeMatch) {
+          var codeBlock = document.createElement('div');
+          codeBlock.className = 'msg-code-block';
+          var codeLabel = document.createElement('span');
+          codeLabel.className = 'code-label';
+          codeLabel.textContent = 'Python';
+          codeBlock.appendChild(codeLabel);
+          var pre = document.createElement('pre');
+          var codeEl = document.createElement('code');
+          codeEl.textContent = codeMatch[1].trim();
+          pre.appendChild(codeEl);
+          codeBlock.appendChild(pre);
+          var outputDiv = document.createElement('div');
+          outputDiv.className = 'code-output';
+          outputDiv.style.display = 'none';
+          codeBlock.appendChild(outputDiv);
+          t.appendChild(codeBlock);
+          // Auto-run
+          (function (code, out) {
+            runCodeBlock(code, out);
+          })(codeMatch[1].trim(), outputDiv);
+          return;
         }
+        // Parse ACTION and WHISPER tags in non-code segments
+        var parts = segment.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
+        parts.forEach(function (part) {
+          var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+          var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
+          if (actionMatch) {
+            var act = document.createElement('span');
+            act.className = 'msg-action';
+            act.textContent = '[ACTION: ' + actionMatch[1] + ']';
+            t.appendChild(act);
+          } else if (whisperMatch) {
+            var w = document.createElement('span');
+            w.className = 'msg-whisper';
+            w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
+            t.appendChild(w);
+          } else if (part) {
+            t.appendChild(document.createTextNode(part));
+          }
+        });
       });
       el.appendChild(n);
       el.appendChild(t);
@@ -993,6 +1092,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       for (var r = 1; r <= rounds; r++) {
         if (stopRequested) break;
         sessionRun++;
+        if (document.getElementById('shuffle-order').checked) {
+          for (var s = agents.length - 1; s > 0; s--) {
+            var j = Math.floor(Math.random() * (s + 1));
+            var tmp = agents[s]; agents[s] = agents[j]; agents[j] = tmp;
+          }
+        }
         msg('','','--- Round ' + sessionRun + ' ---', true);
         for (var i = 0; i < agents.length; i++) {
           if (stopRequested) break;

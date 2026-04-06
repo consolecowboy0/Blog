@@ -74,7 +74,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </select>
         </div>
         <div class="control-group">
-          <label class="auto-illustrate-label"><input type="checkbox" id="shuffle-order" /> Shuffle</label>
+          <label class="field-label" for="order-mode">Order</label>
+          <select id="order-mode">
+            <option value="default">Default</option>
+            <option value="random">Random</option>
+            <option value="priority">Priority</option>
+          </select>
         </div>
         <div class="control-group">
           <label class="field-label" for="model-select">Model</label>
@@ -410,7 +415,7 @@ sys.stdout = _stdout_capture
       delay: document.getElementById('delay-input').value,
       model: document.getElementById('model-select').value,
       mode: document.getElementById('mode-select').value,
-      shuffle: document.getElementById('shuffle-order').checked
+      orderMode: document.getElementById('order-mode').value
     };
     localStorage.setItem('agents_config', JSON.stringify(config));
     var btn = document.getElementById('save-config');
@@ -442,7 +447,7 @@ sys.stdout = _stdout_capture
     if (config.delay) document.getElementById('delay-input').value = config.delay;
     if (config.model) document.getElementById('model-select').value = config.model;
     if (config.mode) document.getElementById('mode-select').value = config.mode;
-    if (config.shuffle) document.getElementById('shuffle-order').checked = config.shuffle;
+    if (config.orderMode) document.getElementById('order-mode').value = config.orderMode;
 
     if (showFeedback) {
       var btn = document.getElementById('load-config');
@@ -649,6 +654,55 @@ sys.stdout = _stdout_capture
     chat.appendChild(el);
     chat.scrollTop = chat.scrollHeight;
     return el;
+  }
+
+  // Queue for code results to append to worldState/transcript
+  var pendingCodeResults = [];
+
+  async function runCodeBlock(code, outputDiv) {
+    outputDiv.style.display = '';
+    outputDiv.innerHTML = '<span class="code-running">Running...</span>';
+    try {
+      var result = await runPythonCode(code);
+      outputDiv.innerHTML = '';
+      if (result.error) {
+        var errEl = document.createElement('pre');
+        errEl.className = 'code-error';
+        errEl.textContent = result.error;
+        outputDiv.appendChild(errEl);
+        pendingCodeResults.push('[CODE_ERROR]: ' + result.error);
+      } else {
+        if (result.stdout && result.stdout.trim()) {
+          var outPre = document.createElement('pre');
+          outPre.className = 'code-stdout';
+          outPre.textContent = result.stdout;
+          outputDiv.appendChild(outPre);
+          pendingCodeResults.push('[CODE_RESULT]: ' + result.stdout.trim());
+        }
+        result.figures.forEach(function (b64) {
+          var img = document.createElement('img');
+          img.src = 'data:image/png;base64,' + b64;
+          img.className = 'code-figure';
+          outputDiv.appendChild(img);
+          pendingCodeResults.push('[CODE_RESULT]: (generated a chart/figure)');
+        });
+        if (!result.stdout.trim() && result.figures.length === 0) {
+          var noneEl = document.createElement('span');
+          noneEl.className = 'code-no-output';
+          noneEl.textContent = '(no output)';
+          outputDiv.appendChild(noneEl);
+        }
+      }
+    } catch (e) {
+      outputDiv.innerHTML = '';
+      var errEl = document.createElement('pre');
+      errEl.className = 'code-error';
+      errEl.textContent = e.message;
+      outputDiv.appendChild(errEl);
+      pendingCodeResults.push('[CODE_ERROR]: ' + e.message);
+    }
+    var chat = document.getElementById('chat');
+    chat.scrollTop = chat.scrollHeight;
   }
 
   function typing(name, color) {
@@ -995,12 +1049,21 @@ sys.stdout = _stdout_capture
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
         var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.';
+
+        var canCode = charData && charData.can_execute_code === true;
+        if (canCode) {
+          chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment with matplotlib, numpy, and standard library available. Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see. Example:\n"Let me show you what I mean."\n[CODE]\nimport matplotlib.pyplot as plt\nx = [1, 2, 3, 4, 5]\ny = [x_i**2 for x_i in x]\nplt.plot(x, y)\nplt.title("Quadratic Growth")\nplt.show()\n[/CODE]';
+          // Pre-load Pyodide if any agent can code
+          ensurePyodide();
+        }
+
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
           name: allNames[i],
           system: full,
           color: COLORS[i % COLORS.length],
+          canCode: canCode,
         });
       });
 
@@ -1092,10 +1155,44 @@ sys.stdout = _stdout_capture
       for (var r = 1; r <= rounds; r++) {
         if (stopRequested) break;
         sessionRun++;
-        if (document.getElementById('shuffle-order').checked) {
+        var orderMode = document.getElementById('order-mode').value;
+        if (orderMode === 'random') {
           for (var s = agents.length - 1; s > 0; s--) {
             var j = Math.floor(Math.random() * (s + 1));
             var tmp = agents[s]; agents[s] = agents[j]; agents[j] = tmp;
+          }
+        } else if (orderMode === 'priority') {
+          var activeAgents = agents.filter(function (a) { return isActive(a.name); });
+          if (activeAgents.length > 1) {
+            msg('','','--- Bidding for Round ' + sessionRun + ' ---', true);
+            var bids = [];
+            var bidPromises = activeAgents.map(function (a) {
+              var transcript = buildTranscript(a.name);
+              var bidSystem = 'You are ' + a.name + '. You are in a group discussion. A new round is about to begin. Based on the conversation so far, how urgently do you need to speak next? Consider: Do you have a direct response to what was just said? Do you have new information? Is someone wrong and you need to correct them? Are you building on momentum? Or can you wait?\n\nRespond with ONLY a JSON object: {"priority": <number 1-10>, "reason": "<one sentence why>"}\n\n1 = I can wait, nothing urgent. 10 = I must speak now, this cannot wait.\n\nStay in character. Bid based on what your character would actually feel.';
+              var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
+              return ask(bidSystem, bidMessages).then(function (response) {
+                try {
+                  var parsed = JSON.parse(response.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                  return { agent: a, priority: Math.min(10, Math.max(1, parseInt(parsed.priority, 10) || 5)), reason: parsed.reason || '' };
+                } catch (e) {
+                  return { agent: a, priority: 5, reason: 'failed to parse bid' };
+                }
+              }).catch(function () {
+                return { agent: a, priority: 5, reason: 'bid error' };
+              });
+            });
+            bids = await Promise.all(bidPromises);
+            // Sort by priority descending, randomize ties
+            bids.sort(function (a, b) {
+              if (b.priority !== a.priority) return b.priority - a.priority;
+              return Math.random() - 0.5;
+            });
+            // Show bids
+            var bidLines = bids.map(function (b) { return b.agent.name + ': ' + b.priority + '/10' + (b.reason ? ' -- ' + b.reason : ''); });
+            msg('','', bidLines.join('\n'), true);
+            // Rebuild agents array: bidded agents in priority order, then inactive agents at the end
+            var inactiveAgents = agents.filter(function (a) { return !isActive(a.name); });
+            agents = bids.map(function (b) { return b.agent; }).concat(inactiveAgents);
           }
         }
         msg('','','--- Round ' + sessionRun + ' ---', true);
@@ -1120,7 +1217,27 @@ sys.stdout = _stdout_capture
             var actions = extractActions(a.name, response);
             actions.forEach(function (act) { worldState.push(act); });
             var whisperTargets = extractWhisperTargets(response);
+            // Clear pending code results before rendering (msg triggers auto-run)
+            pendingCodeResults = [];
             msg(a.name, a.color, response);
+            // Wait for any code blocks to finish executing
+            var hasCode = /\[CODE\][\s\S]*?\[\/CODE\]/.test(response);
+            if (hasCode) {
+              // Give code blocks time to execute
+              await new Promise(function (resolve) { setTimeout(resolve, 500); });
+              // Wait until all code outputs are populated
+              var attempts = 0;
+              while (pendingCodeResults.length === 0 && attempts < 20) {
+                await new Promise(function (resolve) { setTimeout(resolve, 500); });
+                attempts++;
+              }
+              // Flush code results into worldState and transcript
+              pendingCodeResults.forEach(function (cr) {
+                worldState.push(a.name + ' ' + cr);
+                sessionTranscript.push({ name: a.name, text: cr, round: sessionRun });
+              });
+              pendingCodeResults = [];
+            }
             sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
             // Detect deaths and departures
             detectStatusChanges(a.name, response, sessionRun);
@@ -1578,6 +1695,75 @@ sys.stdout = _stdout_capture
     border-left: 2px solid #8b5cf6;
     padding: 0.2rem 0.5rem;
     margin: 0.3rem 0;
+  }
+  .msg-code-block {
+    display: block;
+    margin: 0.6rem 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .code-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    background: var(--border);
+    padding: 0.2rem 0.5rem;
+  }
+  .msg-code-block pre {
+    margin: 0;
+    padding: 0.5rem;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .msg-code-block code {
+    font-family: inherit;
+    font-size: inherit;
+  }
+  .code-output {
+    border-top: 1px solid var(--border);
+    padding: 0.5rem;
+    background: var(--bg);
+    font-size: 0.8rem;
+  }
+  .code-stdout {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: #22c55e;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .code-error {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: #e05252;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .code-running {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+  .code-no-output {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+  .code-figure {
+    max-width: 100%;
+    margin-top: 0.5rem;
+    border-radius: 4px;
   }
   .chat-typing {
     display: flex;

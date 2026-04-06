@@ -87,8 +87,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div id="status-list" class="status-list"></div>
     </div>
 
-    <div id="chat" class="chat">
-      <p class="chat-placeholder">Hit Go to start.</p>
+    <div id="summary-section" class="summary-section" style="display:none;">
+      <div class="section-header">
+        <label class="field-label">Summary</label>
+        <button id="copy-summary" class="copy-btn" title="Copy summary">Copy</button>
+      </div>
+      <textarea id="summary-output" class="summary-output" rows="4" readonly placeholder="Hit Summarize to recap the conversation."></textarea>
+      <button id="summarize-btn" class="secondary-btn">Summarize</button>
+    </div>
+
+    <div class="chat-wrapper">
+      <div class="section-header">
+        <span></span>
+        <button id="copy-chat" class="copy-btn" title="Copy chat">Copy</button>
+      </div>
+      <div id="chat" class="chat">
+        <p class="chat-placeholder">Hit Go to start.</p>
+      </div>
     </div>
 
     <div class="interject-section" id="interject-section" style="display:none;">
@@ -357,6 +372,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     URL.revokeObjectURL(a.href);
   });
 
+  // --- Summarize ---
+  document.getElementById('summarize-btn').addEventListener('click', async function () {
+    if (sessionTranscript.length === 0) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Summarizing...';
+    var output = document.getElementById('summary-output');
+    output.value = '';
+    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    sessionTranscript.forEach(function (entry) {
+      lines.push(entry.name + ': ' + (entry.rawText || entry.text));
+    });
+    var transcript = lines.join('\n');
+    try {
+      var text = await ask(
+        'You summarize conversations. Write a short, vivid recap of what happened. Focus on key events, conflicts, and character dynamics. Keep it under 200 words.',
+        [{ role: 'user', content: 'Summarize this conversation:\n\n' + transcript }]
+      );
+      output.value = text;
+    } catch (err) {
+      output.value = 'Error: ' + err.message;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Summarize';
+  });
+
   // --- Chat helpers ---
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
@@ -571,6 +612,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     characterStatus = {};
     document.getElementById('status-panel').style.display = 'none';
     document.getElementById('status-list').innerHTML = '';
+    document.getElementById('summary-section').style.display = 'none';
+    document.getElementById('summary-output').value = '';
+  });
+
+  // Copy buttons
+  function flashCopyBtn(btn) {
+    btn.textContent = 'Copied!';
+    setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+  }
+
+  document.getElementById('copy-summary').addEventListener('click', function () {
+    var text = document.getElementById('summary-output').value;
+    if (text) { navigator.clipboard.writeText(text); flashCopyBtn(this); }
+  });
+
+  document.getElementById('copy-chat').addEventListener('click', function () {
+    var chat = document.getElementById('chat');
+    var msgs = chat.querySelectorAll('.chat-msg');
+    var lines = [];
+    msgs.forEach(function (m) {
+      var name = m.querySelector('.msg-name');
+      var txt = m.querySelector('.msg-text');
+      if (name && txt) { lines.push(name.textContent + ': ' + txt.textContent); }
+      else { lines.push(m.textContent); }
+    });
+    if (lines.length) { navigator.clipboard.writeText(lines.join('\n\n')); flashCopyBtn(this); }
   });
 
   // Interject
@@ -648,6 +715,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         actions.push(name + ': ' + desc);
       });
       return actions;
+    }
+
+    async function illustrateRound(roundNum) {
+      var recent = sessionTranscript.filter(function (t) { return t.round === roundNum; });
+      if (recent.length === 0) return;
+      var summary = recent.map(function (t) { return t.name + ': ' + t.text; }).join('. ');
+      var roomName = roomData ? (roomData.name || 'a room') : 'a room';
+      var desc = 'Pixel art scene. ' + roomName + '. ' + summary.slice(0, 300);
+      try {
+        var res = await fetch('/api/pixellab', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description: desc, width: 256, height: 128 }),
+        });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (data.image) {
+          var chat = document.getElementById('chat');
+          var img = document.createElement('img');
+          img.src = 'data:image/png;base64,' + data.image;
+          img.className = 'round-illustration';
+          img.alt = 'Round ' + roundNum + ' illustration';
+          chat.appendChild(img);
+          chat.scrollTop = chat.scrollHeight;
+        }
+      } catch (e) { /* illustration is optional, don't break the chat */ }
     }
 
     function extractWhisperTargets(text) {
@@ -747,6 +840,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             break;
           }
         }
+        // Generate pixel art illustration for this round
+        if (!stopRequested) {
+          await illustrateRound(sessionRun);
+        }
       }
       if (stopRequested) {
         msg('','','--- Stopped ---', true);
@@ -757,6 +854,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       if (sessionTranscript.length > 0) {
         document.getElementById('export-btn').style.display = '';
         document.getElementById('interject-section').style.display = '';
+        document.getElementById('summary-section').style.display = '';
       }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
@@ -1006,6 +1104,43 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     opacity: 0.7;
   }
 
+  /* Section headers & copy buttons */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header .field-label { margin-bottom: 0; }
+  .copy-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .copy-btn:hover { color: var(--fg); border-color: var(--fg-muted); }
+  .chat-wrapper { margin-bottom: 2rem; }
+
+  /* Summary */
+  .summary-section { margin-bottom: 1rem; }
+  .summary-output {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+    line-height: 1.5;
+    resize: vertical;
+    margin-bottom: 0.5rem;
+  }
+  #summarize-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
   /* Chat */
   .chat {
     border: 1px solid var(--border);
@@ -1013,7 +1148,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     max-height: 65vh;
     overflow-y: auto;
     padding: 1rem;
-    margin-bottom: 2rem;
     background: var(--code-bg);
   }
   .chat-placeholder {
@@ -1053,6 +1187,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-size: 0.9rem;
     color: var(--fg-muted);
     margin: 0.3rem 0;
+  }
+  .round-illustration {
+    display: block;
+    margin: 1rem auto;
+    border: 1px solid var(--border);
+    image-rendering: pixelated;
+    max-width: 100%;
   }
   .msg-whisper {
     display: block;

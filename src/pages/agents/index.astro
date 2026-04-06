@@ -72,6 +72,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <option value="api">API</option>
             <option value="agent-sdk">Agent SDK</option>
           </select>
+          <script>
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+              document.getElementById('mode-select').value = 'agent-sdk';
+            }
+          </script>
         </div>
         <div class="control-group">
           <label class="field-label" for="order-mode">Order</label>

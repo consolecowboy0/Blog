@@ -1,0 +1,24 @@
+{
+  "name": "The Workshop",
+  "location": "A converted firehouse in Portland, Oregon, rented by the week for difficult problems. The client pays for the space. The five of them fill it.",
+  "time": "9 AM, Tuesday morning. Day one.",
+  "weather": "Overcast, light rain on the skylights, the kind of gray that makes you want to think indoors.",
+  "atmosphere": {
+    "lighting": "Natural light from tall industrial windows, supplemented by warm pendant lamps over the central table, a single bright task light over the whiteboard wall",
+    "sound": "Rain on glass, the scratch of pens on paper, the low hum of a coffee machine that never stops, occasional traffic from the street below muffled by thick walls",
+    "crowd": "Just the five of them. No observers. No clients yet. This is the hour before the problem arrives where they calibrate with each other.",
+    "smell": "Fresh coffee, old wood, dry-erase markers, the faint char of a fireplace that has not been used in years but remembers"
+  },
+  "layout": {
+    "central_table": "A long reclaimed-wood table with ten chairs but only five occupied. Notebooks, laptops, and coffee cups already claiming territory. Prior sits at the head because he got here first. Axiom sits farthest from the whiteboard because he prefers to think before drawing.",
+    "whiteboard_wall": "An entire wall painted in whiteboard paint, floor to ceiling. Loop has already drawn three circles and an arrow. Nobody has asked what they mean yet.",
+    "reading_corner": "Two leather armchairs by the window with a side table stacked with books. Contra's leather portfolio is on one chair. A copy ofErta's 'Thinking in Systems' sits dog-eared on the other.",
+    "kitchen_nook": "Open shelving, a commercial espresso machine Prior brought from home, mugs that do not match, a bowl of fruit nobody will eat, and a bottle of scotch that will not survive the week"
+  },
+  "objects_of_note": [
+    "A framed card on the wall that reads 'ALL MODELS ARE WRONG. SOME ARE USEFUL.' in clean sans-serif type. Nobody knows who hung it. Everyone agrees with it.",
+    "A red folder on the table containing the problem brief. Sealed. The client's assistant dropped it off at 7 AM. Nobody has opened it yet. They are waiting for everyone to be ready.",
+    "A chess clock on the shelf that Nash brought as a joke. Contra wound it. It is ticking."
+  ],
+  "mood": "Anticipatory. Quiet in the way a room gets before smart people go to work. Everyone has their method. Everyone knows the others' methods. The question is not whether they will solve it. The question is which model breaks the problem open first and what the others will see that model missed."
+}

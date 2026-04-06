@@ -17,10 +17,17 @@ export async function POST({ request }) {
     });
   }
 
-  const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
+  // const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
+  // if (!apiKey) {
+  //   return new Response(JSON.stringify({ error: "No API key provided" }), {
+  //     status: 400,
+  //     headers: corsHeaders,
+  //   });
+  // }
+  const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "No API key provided" }), {
-      status: 400,
+    return new Response(JSON.stringify({ error: "API mode disabled" }), {
+      status: 403,
       headers: corsHeaders,
     });
   }

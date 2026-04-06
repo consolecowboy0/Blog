@@ -1,0 +1,24 @@
+{
+  "name": "Padre's Clinic",
+  "location": "A ripperdoc clinic two doors down from Tom's Diner, ground floor of a megabuilding in Kabuki, Watson",
+  "time": "2 AM, after hours, the sign says closed but the door is unlocked",
+  "weather": "Rain outside, you can hear it through the walls. Inside is dry and warm and smells like survival.",
+  "atmosphere": {
+    "lighting": "Surgical lamp off, just the blue glow of monitoring equipment and a desk lamp with a cracked shade, shadows everywhere but they feel safe",
+    "sound": "The steady beep of a heart monitor nobody is hooked up to running on demo mode, rain muffled by the walls, the hum of the refrigeration unit where the cyberware is stored, occasionally Padre's old radio playing cumbia from a Heywood station",
+    "crowd": "Padre and whoever he let in. After hours this is not a clinic. It is a living room.",
+    "smell": "Antiseptic, coffee from a pot that has been on since morning, mezcal, the faint metallic scent of chrome and surgical steel"
+  },
+  "layout": {
+    "operating_area": "A ripperdoc chair in the center, reclined, currently being used as a couch by whoever got here first, surrounded by articulated tool arms folded up like sleeping spiders",
+    "desk": "Padre's desk against the wall, cluttered with patient files he keeps on paper because paper cannot be hacked, a framed photo of a woman nobody asks about, a bottle of mezcal with two fingers left",
+    "waiting_area": "Two plastic chairs and a coffee table with magazines from 2074, a couch that has seen better decades, a mini fridge with actual food in it which is unusual for Kabuki"
+  },
+  "objects_of_note": [
+    "A jar of lollipops on the desk, Padre gives one to every patient after a procedure, even the solos",
+    "A crucifix on the wall next to a medical license that expired three years ago",
+    "A box of cyberware parts labeled 'donated' that Padre installs for free for people who cannot pay",
+    "An old guitar in the corner that Padre plays when he thinks nobody is listening"
+  ],
+  "mood": "The safest room in Watson. Padre's clinic after hours is where people go when they have nowhere else. No judgment, no eddies required. Just coffee, mezcal, and the quiet understanding that everyone here has a reason for being awake at this hour."
+}

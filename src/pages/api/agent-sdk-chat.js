@@ -30,6 +30,7 @@ export async function POST({ request }) {
     // Dynamic import — the Agent SDK requires Claude Code CLI installed on the host.
     // This won't work in Netlify serverless; use API mode for deployed environments.
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
+    console.log('[agent-sdk-chat] SDK imported, starting query via Claude Agent SDK');
 
     // Build the user prompt from the last message
     const userPrompt = messages[messages.length - 1]?.content || '';
@@ -53,6 +54,7 @@ export async function POST({ request }) {
       options.allowedTools = ["Agent"];
     }
 
+    console.log('[agent-sdk-chat] Calling query() with model=%s, prompt length=%d', sdkModel, userPrompt.length);
     let result = '';
     for await (const message of query({ prompt: userPrompt, options })) {
       // SDKResultMessage — final result with the text output
@@ -70,6 +72,7 @@ export async function POST({ request }) {
       }
     }
 
+    console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
     return new Response(JSON.stringify({ text: result }), {
       status: 200,
       headers: corsHeaders,

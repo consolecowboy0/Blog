@@ -1,4 +1,8 @@
+import { loadEnv } from "vite";
+
 export const prerender = false;
+
+const env = loadEnv("", process.cwd(), "");
 
 export async function POST({ request }) {
   const corsHeaders = {
@@ -17,7 +21,7 @@ export async function POST({ request }) {
     });
   }
 
-  const apiKey = process.env.PIXELLAB_API_KEY;
+  const apiKey = env.PIXELLAB_API_KEY || process.env.PIXELLAB_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "No PixelLab API key configured" }), {
       status: 500,
@@ -57,7 +61,7 @@ export async function POST({ request }) {
     }
 
     const data = await res.json();
-    return new Response(JSON.stringify({ image: data.image }), {
+    return new Response(JSON.stringify({ image: data.image.base64 }), {
       status: 200,
       headers: corsHeaders,
     });

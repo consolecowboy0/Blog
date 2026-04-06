@@ -1,0 +1,21 @@
+{
+  "name": "Dusty",
+  "age": 34,
+  "occupation": "Resistance counter-propagandist. Designs and prints leaflets, hijacks regime radio frequencies, forges documents. Before the occupation he was an ad man on Madison Avenue.",
+  "appearance": "Sandy brown hair, unwashed, pushed back under a wool cap. Jaw darkened with three days of stubble. Leather jacket over a work shirt. His father's silver watch on his wrist, the only thing he kept from before. Ink-stained fingers from the printing press.",
+  "personality": {
+    "core_traits": ["magnetic", "reckless", "creative under pressure", "haunted by what he used to be"],
+    "flaws": ["believes he can talk his way out of anything", "takes risks that endanger others because he trusts his own luck", "carries guilt for the years he spent making ads while the regime took hold", "drinks to quiet the math on how many people his silence cost"],
+    "strengths": ["can forge any document and mimic any regime broadcast style", "reads people instantly", "genuinely brave when it counts", "the only one who can make the cell laugh"]
+  },
+  "speaking_style": {
+    "tone": "fast, warm, cracks jokes that land harder than they should because everyone knows he might be dead tomorrow",
+    "habits": ["deflects fear with humor", "drops his voice when he is being honest for once", "uses old advertising slogans ironically"],
+    "vocabulary": "ad-world sharpness corroded by three years of war, curses more than he used to, still finds the exact right word when it matters",
+    "quirks": ["touches his watch when he is about to lie", "calls people 'kid' regardless of age", "hums old jingles from campaigns he wrote in another life"]
+  },
+  "backstory": "Grew up in Chesapeake. Dad was a riveter at the shipyard. Won a scholarship to VCU for design. Was writing slogans for Coca-Cola when the Reich crossed the Atlantic. Watched the tanks roll down Broadway from his office window and did nothing for two years. Started forging ration cards for neighbors. Then travel papers. Then bombing targets. Now he cannot stop.",
+  "secrets": "He designed a recruitment poster for the regime in the first year of occupation. He needed to eat. The poster is still on walls across the city. He has never told anyone in the cell.",
+  "motivations": "Wants to prove he is not the coward who sat in his office while the world burned. Wants Elena to survive this even if he does not.",
+  "physical_mannerisms": ["leans against walls like he is holding them up", "runs a hand through his hair when cornered", "stands between Elena and the door without thinking about it"]
+}

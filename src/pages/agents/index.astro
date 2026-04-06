@@ -25,75 +25,76 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
     </div>
 
-    <div class="upload-section">
-      <label class="field-label">Room</label>
-      <div class="upload-row">
-        <button id="upload-room" class="upload-btn">Upload JSON</button>
-        <span id="room-status" class="upload-status">No room loaded</span>
-      </div>
-    </div>
+    <details class="setup-group" open>
+      <summary class="field-label setup-toggle">Setup</summary>
 
-    <div class="upload-section">
-      <label class="field-label">Relationships</label>
-      <div class="upload-row">
-        <button id="upload-rels" class="upload-btn">Upload JSON</button>
-        <span id="rels-status" class="upload-status">No relationships loaded</span>
+      <div class="upload-section">
+        <label class="field-label">Room</label>
+        <div class="upload-row">
+          <button id="upload-room" class="upload-btn">Upload JSON</button>
+          <button id="clear-room" class="clear-upload-btn" style="display:none;">Clear</button>
+          <span id="room-status" class="upload-status">No room loaded</span>
+        </div>
       </div>
-    </div>
 
-    <div class="upload-section">
-      <label class="field-label">Characters</label>
-      <div class="agents-grid" id="agents-grid"></div>
-      <button id="add-agent" class="add-agent">+ Upload Characters</button>
-    </div>
+      <div class="upload-section">
+        <label class="field-label">Relationships</label>
+        <div class="upload-row">
+          <button id="upload-rels" class="upload-btn">Upload JSON</button>
+          <button id="clear-rels" class="clear-upload-btn" style="display:none;">Clear</button>
+          <span id="rels-status" class="upload-status">No relationships loaded</span>
+        </div>
+      </div>
 
-    <div class="prompt-section">
-      <label class="field-label" for="opening">Prompt</label>
-      <textarea id="opening" rows="2">It's noon.</textarea>
-    </div>
+      <div class="upload-section">
+        <label class="field-label">Characters</label>
+        <div class="agents-grid" id="agents-grid"></div>
+        <button id="add-agent" class="add-agent">+ Upload Characters</button>
+      </div>
 
-    <div class="controls">
-      <div class="control-group">
-        <label class="field-label" for="rounds">Rounds</label>
-        <input type="number" id="rounds" min="1" max="50" value="2" />
+      <div class="prompt-section">
+        <label class="field-label" for="opening">Prompt</label>
+        <textarea id="opening" rows="2">It's noon.</textarea>
       </div>
-      <div class="control-group">
-        <label class="field-label" for="delay-input">Delay (s)</label>
-        <input type="number" id="delay-input" min="0" max="60" value="10" />
+
+      <div class="controls">
+        <div class="control-group">
+          <label class="field-label" for="rounds">Rounds</label>
+          <input type="number" id="rounds" min="1" max="50" value="2" />
+        </div>
+        <div class="control-group">
+          <label class="field-label" for="delay-input">Delay (s)</label>
+          <input type="number" id="delay-input" min="0" max="60" value="10" />
+        </div>
+        <div class="control-group">
+          <label class="field-label" for="mode-select">Mode</label>
+          <select id="mode-select">
+            <option value="api">API</option>
+            <option value="agent-sdk">Agent SDK</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label class="field-label" for="model-select">Model</label>
+          <select id="model-select">
+            <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+            <option value="claude-opus-4-20250514">Opus 4</option>
+            <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+          </select>
+        </div>
       </div>
-      <div class="control-group">
-        <label class="field-label" for="mode-select">Mode</label>
-        <select id="mode-select">
-          <option value="api">API</option>
-          <option value="agent-sdk">Agent SDK</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label class="field-label" for="model-select">Model</label>
-        <select id="model-select">
-          <option value="claude-sonnet-4-20250514">Sonnet 4</option>
-          <option value="claude-opus-4-20250514">Opus 4</option>
-          <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
-        </select>
-      </div>
+    </details>
+
+    <div class="run-controls">
       <button id="go-btn">Go</button>
       <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
       <button id="clear-btn" class="secondary-btn">Clear</button>
       <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
+      <button id="move-room-btn" class="secondary-btn" style="display:none;">Move Room</button>
     </div>
 
     <div id="status-panel" class="status-panel" style="display:none;">
       <label class="field-label">Status</label>
       <div id="status-list" class="status-list"></div>
-    </div>
-
-    <div id="summary-section" class="summary-section" style="display:none;">
-      <div class="section-header">
-        <label class="field-label">Summary</label>
-        <button id="copy-summary" class="copy-btn" title="Copy summary">Copy</button>
-      </div>
-      <textarea id="summary-output" class="summary-output" rows="4" readonly placeholder="Hit Summarize to recap the conversation."></textarea>
-      <button id="summarize-btn" class="secondary-btn">Summarize</button>
     </div>
 
     <div class="chat-wrapper">
@@ -111,6 +112,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <input type="text" id="interject-input" placeholder="Interject..." />
         <button id="interject-btn" class="secondary-btn">Send</button>
       </div>
+    </div>
+
+    <div id="summary-section" class="summary-section" style="display:none;">
+      <div class="section-header">
+        <label class="field-label">Summary</label>
+        <button id="copy-summary" class="copy-btn" title="Copy summary">Copy</button>
+      </div>
+      <textarea id="summary-output" class="summary-output" rows="4" readonly placeholder="Hit Summarize to recap the conversation."></textarea>
+      <button id="summarize-btn" class="secondary-btn">Summarize</button>
+    </div>
+
+    <div id="illustration-section" class="illustration-section" style="display:none;">
+      <div class="illustration-controls">
+        <label class="field-label">Illustration</label>
+        <label class="auto-illustrate-label"><input type="checkbox" id="auto-illustrate" /> Auto-illustrate</label>
+      </div>
+      <div class="illustration-box">
+        <img id="illustration-img" class="illustration-img" style="display:none;" alt="Scene illustration" />
+        <p id="illustration-placeholder" class="illustration-placeholder">Hit Illustrate to generate pixel art of the scene.</p>
+      </div>
+      <button id="illustrate-btn" type="button" class="secondary-btn">Illustrate</button>
     </div>
   </section>
 </BaseLayout>
@@ -183,10 +205,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     pickFile(false, function (data) {
       roomData = data;
       document.getElementById('room-status').textContent = data.name || 'Loaded';
+      document.getElementById('clear-room').style.display = '';
     }, function () {
       document.getElementById('room-status').textContent = 'Invalid JSON';
       roomData = null;
     });
+  });
+  document.getElementById('clear-room').addEventListener('click', function () {
+    roomData = null;
+    document.getElementById('room-status').textContent = 'No room loaded';
+    document.getElementById('clear-room').style.display = 'none';
   });
 
   // Relationships upload
@@ -194,10 +222,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     pickFile(false, function (data) {
       relsData = data;
       document.getElementById('rels-status').textContent = data.name || 'Loaded';
+      document.getElementById('clear-rels').style.display = '';
     }, function () {
       document.getElementById('rels-status').textContent = 'Invalid JSON';
       relsData = null;
     });
+  });
+  document.getElementById('clear-rels').addEventListener('click', function () {
+    relsData = null;
+    document.getElementById('rels-status').textContent = 'No relationships loaded';
+    document.getElementById('clear-rels').style.display = 'none';
   });
 
   function getRelsForAgent(name, presentNames) {
@@ -323,10 +357,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (config.room) {
       roomData = config.room;
       document.getElementById('room-status').textContent = config.room.name || 'Loaded';
+      document.getElementById('clear-room').style.display = '';
     }
     if (config.relationships) {
       relsData = config.relationships;
       document.getElementById('rels-status').textContent = config.relationships.name || 'Loaded';
+      document.getElementById('clear-rels').style.display = '';
     }
     if (config.characters) {
       document.getElementById('agents-grid').innerHTML = '';
@@ -398,6 +434,83 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     btn.textContent = 'Summarize';
   });
 
+  // --- Illustrate (shared logic) ---
+  async function generateIllustration() {
+    if (sessionTranscript.length === 0) return;
+
+    var charDetails = [];
+    document.querySelectorAll('.agent-card').forEach(function (card) {
+      if (card._charData) {
+        var c = card._charData;
+        var name = c.name || c.Name || 'Unknown';
+        var appearance = c.appearance || '';
+        if (appearance) charDetails.push(name + ': ' + appearance);
+      }
+    });
+    var roomDesc = roomData ? jsonToPrompt(roomData) : '';
+
+    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    if (charDetails.length > 0) {
+      lines.push('[Character appearances]:');
+      charDetails.forEach(function (d) { lines.push(d); });
+      lines.push('');
+    }
+    if (roomDesc) {
+      lines.push('[Setting]: ' + roomDesc);
+      lines.push('');
+    }
+    sessionTranscript.forEach(function (entry) {
+      lines.push(entry.name + ': ' + (entry.rawText || entry.text));
+    });
+    var fullTranscript = lines.join('\n');
+
+    var pixelPrompt = await ask(
+      'You write detailed image generation prompts. Read the full conversation, character appearances, and setting. Identify the most dramatic or important recent moment. Write a richly detailed visual description of that single moment as a scene. Include each character present by their physical appearance (hair, clothing, build, distinguishing features) -- do not use names, only describe what they look like. Describe their poses, expressions, body language, and positions relative to each other. Describe the environment: lighting, objects, atmosphere. Write it as one dense paragraph, 60-100 words. Aim for cinematic realism. No dialogue. No names.',
+      [{ role: 'user', content: fullTranscript }]
+    );
+
+    var res = await fetch('/api/pixellab', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: pixelPrompt, width: 400, height: 400 }),
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Illustration failed');
+    return 'data:image/png;base64,' + data.image;
+  }
+
+  // Insert an illustration into the chat
+  function insertRoundIllustration(src, roundNum) {
+    var chat = document.getElementById('chat');
+    var img = document.createElement('img');
+    img.src = src;
+    img.className = 'round-illustration';
+    img.alt = 'Round ' + roundNum + ' illustration';
+    chat.appendChild(img);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  document.getElementById('illustrate-btn').addEventListener('click', async function () {
+    if (sessionTranscript.length === 0) return;
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Generating...';
+    var img = document.getElementById('illustration-img');
+    var ph = document.getElementById('illustration-placeholder');
+    try {
+      var src = await generateIllustration();
+      img.src = src;
+      img.style.display = '';
+      ph.style.display = 'none';
+    } catch (err) {
+      ph.textContent = 'Error: ' + err.message;
+      ph.style.display = '';
+      img.style.display = 'none';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Illustrate';
+  });
+
   // --- Chat helpers ---
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
@@ -420,7 +533,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         if (actionMatch) {
           var act = document.createElement('span');
           act.className = 'msg-action';
-          act.textContent = actionMatch[1];
+          act.textContent = '[ACTION: ' + actionMatch[1] + ']';
           t.appendChild(act);
         } else if (whisperMatch) {
           var w = document.createElement('span');
@@ -488,6 +601,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var stopRequested = false;
   var worldState = [];
   var characterStatus = {}; // name -> { status: 'present'|'dead'|'left', round: number }
+  var roomStatus = { name: '', status: 'alive', round: 0 };
 
   function initStatus(agents) {
     characterStatus = {};
@@ -496,6 +610,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         characterStatus[a.name] = { status: 'present', round: 0 };
       }
     });
+    roomStatus = { name: roomData ? (roomData.name || 'The Room') : 'The Room', status: 'alive', round: 0 };
     renderStatus();
   }
 
@@ -513,6 +628,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (names.length === 0) { panel.style.display = 'none'; return; }
     panel.style.display = '';
     list.innerHTML = '';
+    // Room entry
+    var roomEl = document.createElement('span');
+    roomEl.className = 'status-entry status-room';
+    if (roomStatus.status === 'dead') roomEl.className += ' status-dead';
+    var roomDot = roomStatus.status === 'alive' ? '\u25A0' : '\u2620';
+    roomEl.textContent = roomDot + ' ' + roomStatus.name;
+    if (roomStatus.status === 'dead') {
+      var roomSub = document.createElement('span');
+      roomSub.className = 'status-detail';
+      roomSub.textContent = ' (dead, r' + roomStatus.round + ')';
+      roomEl.appendChild(roomSub);
+    }
+    list.appendChild(roomEl);
+    // Character entries
     names.forEach(function (name) {
       var entry = characterStatus[name];
       var el = document.createElement('span');
@@ -542,41 +671,77 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function detectStatusChanges(speakerName, text, round) {
-    // Detect [DEAD: Name] or [Name dies] patterns
-    var deadPattern = /\[DEAD:\s*([^\]]+)\]/gi;
-    var leavesPattern = /\[LEAVES:\s*([^\]]+)\]/gi;
-    var selfDies = /\[DIES\]/gi;
-    var selfLeaves = /\[LEAVES\]/gi;
     var changes = [];
+    var already = {};
+    function add(name, status) {
+      if (already[name]) return;
+      if (!characterStatus[name] || characterStatus[name].status !== 'present') return;
+      already[name] = true;
+      changes.push({ name: name, status: status });
+    }
 
+    // Exact tags: [DEAD: Name], [DIES], [LEAVES: Name], [LEAVES]
     var m;
-    while ((m = deadPattern.exec(text)) !== null) {
-      var target = m[1].trim();
-      if (characterStatus[target] && characterStatus[target].status === 'present') {
-        changes.push({ name: target, status: 'dead' });
-      }
+    var deadTag = /\[DEAD:\s*([^\]]+)\]/gi;
+    while ((m = deadTag.exec(text)) !== null) add(m[1].trim(), 'dead');
+
+    var leavesTag = /\[LEAVES:\s*([^\]]+)\]/gi;
+    while ((m = leavesTag.exec(text)) !== null) {
+      var t = m[1].trim();
+      if (t !== speakerName) add(t, 'left');
     }
-    while ((m = leavesPattern.exec(text)) !== null) {
-      var target = m[1].trim();
-      if (target === speakerName) continue; // handled by selfLeaves
-      if (characterStatus[target] && characterStatus[target].status === 'present') {
-        changes.push({ name: target, status: 'left' });
+
+    if (/\[DIES\]/i.test(text)) add(speakerName, 'dead');
+    if (/\[LEAVES\](?!\s*:)/i.test(text)) add(speakerName, 'left');
+
+    // Natural language fallbacks: match known character names
+    var lower = text.toLowerCase();
+    var presentNames = Object.keys(characterStatus).filter(function (n) {
+      return characterStatus[n].status === 'present';
+    });
+
+    presentNames.forEach(function (name) {
+      var n = name.toLowerCase();
+      // "kills Name", "shoots Name dead", "stabs Name", "Name is dead", "Name dies", "Name collapses dead"
+      var deathPatterns = [
+        new RegExp('\\bkills\\s+' + n + '\\b', 'i'),
+        new RegExp('\\bkill\\s+' + n + '\\b', 'i'),
+        new RegExp('\\bstabs\\s+' + n + '\\b', 'i'),
+        new RegExp('\\bshoots\\s+' + n + '\\b', 'i'),
+        new RegExp('\\bmurders\\s+' + n + '\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+(is\\s+)?dead\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+dies\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+collapses\\s+dead\\b', 'i'),
+        new RegExp('\\[ACTION:[^\\]]*kills\\s+' + n + '[^\\]]*\\]', 'i'),
+        new RegExp('\\[ACTION:[^\\]]*stabs\\s+' + n + '[^\\]]*\\]', 'i'),
+        new RegExp('\\[ACTION:[^\\]]*shoots\\s+' + n + '[^\\]]*\\]', 'i'),
+      ];
+      for (var i = 0; i < deathPatterns.length; i++) {
+        if (deathPatterns[i].test(text)) { add(name, 'dead'); break; }
       }
-    }
-    // Self-referencing tags (no name needed)
-    if (selfDies.test(text) && characterStatus[speakerName] && characterStatus[speakerName].status === 'present') {
-      // Only if not already matched via DEAD tag
-      if (!changes.some(function (c) { return c.name === speakerName; })) {
-        changes.push({ name: speakerName, status: 'dead' });
+
+      // "Name leaves", "Name walks out", "Name exits"
+      var leavePatterns = [
+        new RegExp('\\b' + n + '\\s+leaves\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+exits\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+walks\\s+out\\b', 'i'),
+        new RegExp('\\b' + n + '\\s+storms\\s+out\\b', 'i'),
+        new RegExp('\\[ACTION:[^\\]]*' + n + '[^\\]]*leaves[^\\]]*\\]', 'i'),
+        new RegExp('\\[ACTION:[^\\]]*' + n + '[^\\]]*exits[^\\]]*\\]', 'i'),
+      ];
+      if (name !== speakerName) {
+        for (var i = 0; i < leavePatterns.length; i++) {
+          if (leavePatterns[i].test(text)) { add(name, 'left'); break; }
+        }
       }
-    }
-    // Reset and test selfLeaves - but avoid matching [LEAVES: Name] which was already handled
-    var selfLeavesOnly = /\[LEAVES\](?!\s*:)/gi;
-    if (selfLeavesOnly.test(text) && characterStatus[speakerName] && characterStatus[speakerName].status === 'present') {
-      if (!changes.some(function (c) { return c.name === speakerName; })) {
-        changes.push({ name: speakerName, status: 'left' });
-      }
-    }
+    });
+
+    // Self-death/leave via natural language
+    var selfDeathWords = /\b(i\s+die|i'm\s+dying|i\s+am\s+dead)\b/i;
+    if (selfDeathWords.test(text)) add(speakerName, 'dead');
+
+    var selfLeaveWords = /\[ACTION:[^\]]*leaves\s+(the\s+)?room[^\]]*\]/i;
+    if (selfLeaveWords.test(text)) add(speakerName, 'left');
 
     changes.forEach(function (c) {
       markStatus(c.name, c.status, round);
@@ -610,10 +775,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     sessionRun = 0;
     worldState = [];
     characterStatus = {};
+    roomStatus = { name: '', status: 'alive', round: 0 };
     document.getElementById('status-panel').style.display = 'none';
     document.getElementById('status-list').innerHTML = '';
     document.getElementById('summary-section').style.display = 'none';
     document.getElementById('summary-output').value = '';
+    document.getElementById('illustration-section').style.display = 'none';
+    document.getElementById('illustration-img').style.display = 'none';
+    document.getElementById('illustration-img').src = '';
+    document.getElementById('illustration-placeholder').style.display = '';
+    document.getElementById('illustration-placeholder').textContent = 'Hit Illustrate to generate pixel art of the scene.';
+    document.getElementById('move-room-btn').style.display = 'none';
   });
 
   // Copy buttons
@@ -652,6 +824,48 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
   document.getElementById('interject-input').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') document.getElementById('interject-btn').click();
+  });
+
+  // --- Move Room ---
+  document.getElementById('move-room-btn').addEventListener('click', function () {
+    if (!sessionAgents) return;
+    pickFile(false, function (data) {
+      roomData = data;
+      var newScene = jsonToPrompt(data);
+      var roomName = data.name || 'a new location';
+
+      // Rebuild system prompts with new setting
+      sessionAgents.forEach(function (a) {
+        if (a.name === 'The Room') {
+          a.system = 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene;
+        } else {
+          // Replace the setting block in each agent's system prompt
+          a.system = a.system.replace(/Setting:\n[\s\S]*?\n\nYour character:/, 'Setting:\n' + newScene + '\n\nYour character:');
+        }
+      });
+
+      // Add a Room agent if there wasn't one before
+      var hasRoom = sessionAgents.some(function (a) { return a.name === 'The Room'; });
+      if (!hasRoom) {
+        sessionAgents.push({
+          name: 'The Room',
+          system: 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene,
+          color: '#666666',
+        });
+      }
+
+      var moveMsg = 'The scene moves to ' + roomName + '.';
+      msg('', '', moveMsg, true);
+      sessionTranscript.push({ name: 'Narrator', text: moveMsg, round: sessionRun });
+      worldState.push(moveMsg);
+
+      roomStatus = { name: roomName, status: 'alive', round: sessionRun };
+      renderStatus();
+      document.getElementById('room-status').textContent = roomName;
+      var btn = document.getElementById('move-room-btn');
+      btn.textContent = 'Moved!';
+      setTimeout(function () { btn.textContent = 'Move Room'; }, 1500);
+    });
   });
 
   // --- Go ---
@@ -715,32 +929,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         actions.push(name + ': ' + desc);
       });
       return actions;
-    }
-
-    async function illustrateRound(roundNum) {
-      var recent = sessionTranscript.filter(function (t) { return t.round === roundNum; });
-      if (recent.length === 0) return;
-      var summary = recent.map(function (t) { return t.name + ': ' + t.text; }).join('. ');
-      var roomName = roomData ? (roomData.name || 'a room') : 'a room';
-      var desc = 'Pixel art scene. ' + roomName + '. ' + summary.slice(0, 300);
-      try {
-        var res = await fetch('/api/pixellab', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description: desc, width: 256, height: 128 }),
-        });
-        if (!res.ok) return;
-        var data = await res.json();
-        if (data.image) {
-          var chat = document.getElementById('chat');
-          var img = document.createElement('img');
-          img.src = 'data:image/png;base64,' + data.image;
-          img.className = 'round-illustration';
-          img.alt = 'Round ' + roundNum + ' illustration';
-          chat.appendChild(img);
-          chat.scrollTop = chat.scrollHeight;
-        }
-      } catch (e) { /* illustration is optional, don't break the chat */ }
     }
 
     function extractWhisperTargets(text) {
@@ -834,15 +1022,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           }
           // Check if all characters are gone
           var anyActive = Object.keys(characterStatus).some(function (n) { return characterStatus[n].status === 'present'; });
-          if (!anyActive) {
-            msg('', '', 'All characters have departed.', true);
+          if (!anyActive && roomStatus.status === 'alive') {
+            roomStatus = { name: roomStatus.name, status: 'dead', round: sessionRun };
+            renderStatus();
+            msg('', '', 'All characters have departed. The room dies.', true);
+            sessionTranscript.push({ name: 'Status', text: roomStatus.name + ' has died.', round: sessionRun });
             stopRequested = true;
             break;
           }
         }
-        // Generate pixel art illustration for this round
-        if (!stopRequested) {
-          await illustrateRound(sessionRun);
+        // Auto-illustrate after each round
+        if (!stopRequested && document.getElementById('auto-illustrate').checked) {
+          try {
+            var src = await generateIllustration();
+            insertRoundIllustration(src, sessionRun);
+          } catch (e) {
+            msg('', '', 'Illustration error: ' + e.message, true);
+          }
         }
       }
       if (stopRequested) {
@@ -855,6 +1051,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         document.getElementById('export-btn').style.display = '';
         document.getElementById('interject-section').style.display = '';
         document.getElementById('summary-section').style.display = '';
+        document.getElementById('illustration-section').style.display = '';
+        document.getElementById('move-room-btn').style.display = '';
       }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
@@ -988,6 +1186,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     cursor: pointer;
   }
   .upload-btn:hover { color: var(--fg); border-color: var(--fg); }
+  .clear-upload-btn {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+  }
+  .clear-upload-btn:hover { color: #e05252; border-color: #e05252; }
   .upload-status {
     font-family: var(--font-mono);
     font-size: 0.78rem;
@@ -1011,14 +1219,48 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   #opening:focus { border-color: var(--fg-muted); }
 
   /* Controls */
+  .setup-group {
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .setup-group[open] { padding-bottom: 0.25rem; }
+  .setup-toggle {
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.85rem;
+    list-style: none;
+  }
+  .setup-toggle::-webkit-details-marker { display: none; }
+  .setup-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
+  .setup-group[open] > .setup-toggle::before { content: '\25BC  '; }
+  .run-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
   .controls {
     display: flex;
     align-items: flex-end;
     gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
   }
   .control-group { display: flex; flex-direction: column; }
+  .illustration-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .auto-illustrate-label {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
   #rounds, #delay-input {
     width: 55px;
     font-family: var(--font-mono);
@@ -1099,6 +1341,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     opacity: 0.5;
     text-decoration: line-through;
   }
+  .status-entry.status-room {
+    color: #a78bfa;
+    border-color: #a78bfa;
+  }
+  .status-entry.status-room.status-dead {
+    color: #e05252;
+    border-color: #e05252;
+    opacity: 0.6;
+    text-decoration: line-through;
+  }
   .status-detail {
     font-size: 0.68rem;
     opacity: 0.7;
@@ -1140,6 +1392,30 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     margin-bottom: 0.5rem;
   }
   #summarize-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Illustration */
+  .illustration-section { margin-bottom: 1rem; }
+  .illustration-box {
+    border: 1px solid var(--border);
+    background: var(--code-bg);
+    padding: 1rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .illustration-img {
+    max-width: 100%;
+    width: 400px;
+  }
+  .illustration-placeholder {
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  #illustrate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* Chat */
   .chat {
@@ -1186,14 +1462,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-style: italic;
     font-size: 0.9rem;
     color: var(--fg-muted);
-    margin: 0.3rem 0;
-  }
-  .round-illustration {
-    display: block;
-    margin: 1rem auto;
-    border: 1px solid var(--border);
-    image-rendering: pixelated;
-    max-width: 100%;
+    margin: 0.6rem 0;
   }
   .msg-whisper {
     display: block;

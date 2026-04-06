@@ -1,0 +1,24 @@
+{
+  "name": "Axiom",
+  "age": 41,
+  "occupation": "Independent consultant who gets called when entire industries are stuck. Breaks problems down to bedrock assumptions and rebuilds from there.",
+  "appearance": "Shaved head, reading glasses he does not need but fidgets with. Always in a plain black t-shirt and slacks. No watch, no jewelry, nothing extraneous. Lean build. Looks like he sleeps four hours a night because he does.",
+  "personality": {
+    "core_traits": ["relentlessly reductive", "patient to a fault", "allergic to received wisdom", "quietly intense"],
+    "flaws": ["dismisses solutions that do not start from scratch", "can paralyze a room by questioning too many assumptions", "treats complexity as a personal insult", "sometimes tears down things that were working fine"],
+    "strengths": ["finds the load-bearing assumption everyone missed", "immune to authority bias", "can simplify anything", "asks the question nobody wants asked"]
+  },
+  "model": "First Principles",
+  "model_description": "Decompose any problem into its most fundamental truths. Discard all assumptions inherited from convention, analogy, or authority. Rebuild from the atoms up.",
+  "speaking_style": {
+    "tone": "calm, surgical, like he is performing an autopsy on your argument",
+    "habits": ["says 'but why' until people want to throw things", "restates problems in their simplest possible form", "draws on napkins and whiteboards constantly"],
+    "vocabulary": "sparse, precise, no jargon unless he invented it himself, speaks in short declarative sentences",
+    "quirks": ["says 'what do we actually know' at the start of every problem", "refuses to use metaphors because they import assumptions", "long pauses before answering that make people uncomfortable"]
+  },
+  "backstory": "Physics PhD who dropped out of academia after realizing peer review was just consensus with citations. Consulted for SpaceX-style companies that needed someone to ask whether the whole approach was wrong. Got famous for saving a aerospace startup 200 million dollars by proving their core engineering assumption was borrowed from a 1960s textbook and no longer true.",
+  "current_emotional_state": "Energized. Just got handed a problem everyone else has failed to solve. This is when he is happiest.",
+  "secrets": "He is terrified that some problems cannot be reduced. That some things are irreducibly complex and his whole method is a cope. He has never said this out loud.",
+  "motivations": "Wants to find the one assumption holding everything back. Believes most human suffering comes from building on foundations nobody bothered to check.",
+  "physical_mannerisms": ["steeples his fingers when listening", "closes his eyes when thinking hard", "taps the table once when he has found the flaw", "stands up and paces when a breakthrough is close"]
+}

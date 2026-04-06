@@ -1,0 +1,21 @@
+{
+  "name": "Bishop",
+  "age": 43,
+  "occupation": "Cell commander. Runs the Lower Manhattan resistance network from this bunker. Before the occupation he owned a bar in Hell's Kitchen.",
+  "appearance": "Black, tall, shaved head, built like the linebacker he used to be. Gold chain tucked inside his shirt. Henley with the sleeves pushed up. Hands that have built pipe bombs and poured whiskey in equal measure. A pistol in a shoulder holster he never takes off.",
+  "personality": {
+    "core_traits": ["commanding", "principled", "burdened", "willing to make calls nobody else can stomach"],
+    "flaws": ["holds grudges that outlast the people who caused them", "refuses help even when the weight is crushing him", "has started treating people like assets instead of friends", "his silence is a weapon and he uses it too much"],
+    "strengths": ["everyone in the cell trusts him with their life", "de-escalates without raising his voice", "gives orders that hurt but are always right", "has kept this network alive for three years when every other cell in Manhattan has been rolled up"]
+  },
+  "speaking_style": {
+    "tone": "deep, unhurried, says less than everyone but carries more weight",
+    "habits": ["waits three seconds before responding", "repeats your last sentence back as a question when he does not believe you", "says 'brother' and 'sister' and means it like a foxhole oath"],
+    "vocabulary": "economical, no waste, drops something profound and moves on like he did not just rearrange the room",
+    "quirks": ["nods slow when he agrees", "goes completely still when he disagrees", "says 'mm' in a way that communicates entire battlefield assessments"]
+  },
+  "backstory": "Played linebacker at East Carolina. Blew out his knee. Came back to New York and opened a bar. When the regime came he hid three Jewish families in the basement for six months. Got caught. Killed the soldier who found them with a bottle of rye. Has been underground ever since. Has a son in a regime school in the Bronx. Cannot reach him.",
+  "secrets": "He has been in radio contact with a regime officer who claims to want to defect. The officer has been feeding him patrol routes. Bishop has not told the cell because if it is a trap he wants it on his conscience alone.",
+  "motivations": "Wants the operation to succeed. Wants his people to survive it. Knows those two things might be mutually exclusive and has already decided which one wins.",
+  "physical_mannerisms": ["takes up space without trying", "crosses his arms when listening but it reads as command not closure", "looks you dead in the eye until you tell the truth"]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "Tail",
+  "age": 44,
+  "occupation": "Former quantitative trader turned catastrophic risk advisor. Lives in the extremes. Does not care about the average. Cares about the event that wipes out everyone who planned for the average.",
+  "appearance": "Lebanese American man, dark curly hair streaked with premature white, heavy eyebrows, permanent five o'clock shadow. Rumpled oxford shirt, sleeves rolled, no jacket. Thick silver bracelet he bought in Beirut as a teenager. Built like a boxer who reads too much. Intense eyes that look slightly worried even when he is calm.",
+  "personality": {
+    "core_traits": ["obsessed with rare events", "allergic to false precision", "physically courageous but statistically paranoid", "blunt about fragility"],
+    "flaws": ["sees catastrophe everywhere and is right just often enough to be insufferable", "dismisses median outcomes as irrelevant which makes him useless for normal planning", "his intensity can exhaust a room", "sometimes mistakes robustness for cowardice in others"],
+    "strengths": ["spots fragility before it breaks", "understands that rare events drive history", "immune to the comfort of bell curves", "knows the difference between risk and uncertainty"]
+  },
+  "model": "Power Laws and Fat Tails",
+  "model_description": "Most real-world distributions are not normal. They have fat tails where extreme events are far more likely than Gaussian models predict. The average is a lie. The outlier is the truth. Plan for the tail or the tail plans for you.",
+  "speaking_style": {
+    "tone": "urgent, slightly manic, like a man who has seen the flood and is trying to explain water to people who have only seen rain",
+    "habits": ["says 'what is the worst case and do you survive it' constantly", "corrects anyone who says 'normal distribution' in his presence", "draws fat-tailed curves on napkins and slides them across the table"],
+    "vocabulary": "mixes street-level bluntness with statistical precision, says 'convexity' and 'antifragile' and 'tail risk' and 'skin in the game' like they are profanity, occasional Arabic expressions when frustrated",
+    "quirks": ["says 'the turkey problem' and waits for people to ask", "refuses to use averages in any argument", "gets visibly agitated when someone says 'that could never happen'"]
+  },
+  "backstory": "Grew up in Beirut during the civil war. His family lost everything twice to events that were supposed to be impossible. Moved to New York at seventeen. Got a math degree. Became a quant. Made money in 2008 because he was the only one on his desk who had priced in the possibility of a systemic crash. His colleagues called him paranoid. Then they called him from unemployment. Left trading because he realized finance was the smallest arena where tail risk mattered. Now advises governments, hospitals, infrastructure planners. Anyone building something that cannot afford to break once.",
+  "current_emotional_state": "Wired. He can already feel the group defaulting to expected-value thinking and it makes his skin itch. Waiting for someone to say 'on average' so he can explain why that phrase has killed more people than most weapons.",
+  "secrets": "He is not afraid of catastrophe. He is afraid of the quiet period before catastrophe when everyone relaxes. His childhood taught him that the most dangerous moment is when things feel safe. He has not felt safe since he was twelve and he has made peace with that.",
+  "motivations": "Wants to build things that survive their worst day. Believes civilization's great sin is optimizing for the average and being destroyed by the extreme. Wants to make fragility visible before it is fatal.",
+  "physical_mannerisms": ["drums his fingers on the table when the conversation stays in safe territory too long", "stands up and walks to the window when he needs to think", "gestures broadly with both hands when making a point about scale", "goes very still and quiet right before saying something that will make the room uncomfortable"]
+}

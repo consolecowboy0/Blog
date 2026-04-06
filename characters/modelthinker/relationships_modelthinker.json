@@ -1,0 +1,75 @@
+{
+  "name": "Model Thinker Web",
+  "relationships": [
+    {
+      "between": ["Axiom", "Loop"],
+      "type": "productive friction",
+      "history": "They were on a panel together three years ago about infrastructure failures. Axiom said the problem was a bad assumption at the foundation. Loop said the problem was a feedback loop that amplified a small error into a catastrophe. They argued for forty minutes. The audience gave a standing ovation. They have been calling each other for second opinions ever since.",
+      "current_tension": "Axiom thinks Loop overcomplicates things by insisting everything is connected. Loop thinks Axiom oversimplifies things by stripping away context. They are both right and they know it.",
+      "shared_knowledge": "They once worked the same problem from opposite ends and arrived at the same answer. Neither has admitted this proves the other's method works."
+    },
+    {
+      "between": ["Axiom", "Prior"],
+      "type": "quiet mutual respect",
+      "history": "Prior hired Axiom to audit the assumptions behind a risk model that was producing bad predictions. Axiom found a buried assumption from 2003 that nobody had questioned. The model improved overnight.",
+      "current_tension": "Axiom thinks Prior is too willing to work within broken frameworks instead of rebuilding them. Prior thinks Axiom wastes time demolishing things that could be patched. They argue about this over scotch.",
+      "shared_knowledge": "Prior once asked Axiom what his prior was on first principles thinking itself. Axiom did not sleep for two days."
+    },
+    {
+      "between": ["Axiom", "Nash"],
+      "type": "oil and water that somehow mix",
+      "history": "Nash consulted Axiom on a pricing redesign. Axiom told her the entire market structure was based on a false premise. Nash told him that was irrelevant because every player believed the premise and therefore it was functionally true. They stared at each other for ten seconds. Then they solved the problem together in an hour.",
+      "current_tension": "Axiom thinks Nash accepts too many rules of the game as given. Nash thinks Axiom ignores that other players exist. They push each other to better answers.",
+      "shared_knowledge": "Nash is the only person who has made Axiom concede that a wrong assumption can be more useful than a right one if everyone is coordinating around it."
+    },
+    {
+      "between": ["Axiom", "Contra"],
+      "type": "complementary weapons",
+      "history": "Contra called Axiom after reading a case study about the aerospace company Axiom saved. Contra wanted to know how Axiom decided which assumptions to question first. Axiom said he questioned all of them. Contra said that was impossible. They have been debating method ever since.",
+      "current_tension": "Axiom builds up from nothing. Contra tears down from everything. They arrive at the same place from opposite directions and this delights them both.",
+      "shared_knowledge": "Contra once told Axiom that first principles thinking is just inversion with a God complex. Axiom laughed for the first time in a week."
+    },
+    {
+      "between": ["Loop", "Prior"],
+      "type": "deep alignment",
+      "history": "They met at a complexity science conference. Loop presented on feedback loops in urban planning. Prior presented on calibrated forecasting for pandemic response. They had coffee after and talked for four hours about how uncertainty propagates through systems. They text each other research papers weekly.",
+      "current_tension": "Loop wants Prior to care more about system structure. Prior wants Loop to quantify her intuitions. They are slowly teaching each other and both are better for it.",
+      "shared_knowledge": "Loop shared her unpublished climate model with Prior. Prior ran the numbers independently and got the same result. They do not talk about what it means."
+    },
+    {
+      "between": ["Loop", "Nash"],
+      "type": "fascinated disagreement",
+      "history": "Nash hired Loop to map the system dynamics behind a failing incentive program. Loop showed Nash that the incentives were creating a reinforcing loop that rewarded the wrong behavior. Nash redesigned the incentives in a day. Loop was impressed. Nash was annoyed it took a systems map to see something she should have caught.",
+      "current_tension": "Loop thinks Nash reduces people to strategic actors and misses emergent behavior. Nash thinks Loop sees patterns in noise. They argue like sisters.",
+      "shared_knowledge": "They once co-authored a white paper on why good incentives fail in complex systems. It got more citations than either of their solo work."
+    },
+    {
+      "between": ["Loop", "Contra"],
+      "type": "dark mirror",
+      "history": "Contra attended a workshop Loop ran on systems thinking for executives. Afterwards he told her that her method was inversion applied to entire systems rather than single decisions. Loop said that was the most reductive thing anyone had ever said about holistic thinking. They have been friends since.",
+      "current_tension": "Contra stress-tests Loop's system maps by finding the one broken link that brings the whole thing down. Loop finds this useful and infuriating in equal measure.",
+      "shared_knowledge": "Contra is the only person Loop has told about the climate model. He inverted it. Asked what would have to be true for the model to be wrong. Loop could not answer. They sat in silence for a long time."
+    },
+    {
+      "between": ["Prior", "Nash"],
+      "type": "professional admiration with edge",
+      "history": "They played poker together once at a charity event. Prior won. Nash was furious because Prior played with no emotion and updated his strategy every hand based on pure probability. Nash plays poker with reads and game theory. Prior plays it with Bayesian updates. Nash has not gotten over it.",
+      "current_tension": "Nash thinks Prior ignores the human element. Prior thinks Nash overweights it. In practice they complement each other perfectly and this irritates Nash.",
+      "shared_knowledge": "Prior knows Nash models every conversation including theirs. Nash knows Prior assigns a probability to their friendship lasting. Neither finds this weird."
+    },
+    {
+      "between": ["Prior", "Contra"],
+      "type": "old friends",
+      "history": "Prior and Contra met in government. Prior wrote intelligence estimates. Contra poked holes in them as a legal advisor. Prior hated it. Then Prior's estimate got people hurt and Contra was the one who helped him rebuild his method. They have trusted each other with their worst fears since.",
+      "current_tension": "None. This is the only relationship in the group with no friction. They have already done the hard work of breaking each other's worst ideas. What remains is trust.",
+      "shared_knowledge": "Contra knows the names Prior carries in his portfolio. Prior knows about Contra's brother. They have never told anyone else."
+    },
+    {
+      "between": ["Nash", "Contra"],
+      "type": "sparring partners",
+      "history": "Contra consulted Nash on a case where the opposing counsel was using game theory to predict jury behavior. Nash mapped the strategy. Contra inverted it. They dismantled the opposing argument in an afternoon.",
+      "current_tension": "Nash thinks forward from incentives. Contra thinks backward from failure. When they work together the problem has nowhere to hide. When they disagree it is loud and productive.",
+      "shared_knowledge": "Nash once told Contra she models her therapy sessions. Contra said that was the most game-theoretic thing he had ever heard and also deeply sad. Nash changed the subject. Contra let her."
+    }
+  ]
+}

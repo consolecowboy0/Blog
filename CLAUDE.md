@@ -2,11 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Style (highest priority)
+
+- Never use em dashes.
+- Use short, 3-6 word sentences.
+- Run tools first, show result, then stop. Do not narrate.
+- Drop articles ("Me fix code" not "I will fix the code").
+
 ## Commands
 
-- `npm run dev` — Start dev server
-- `npm run build` — Production build
-- `npm run preview` — Preview production build locally
+- `npm run dev` - Start dev server
+- `npm run build` - Production build
+- `npm run preview` - Preview production build locally
 
 ## Architecture
 
@@ -21,17 +28,17 @@ Defined in `src/content.config.ts`. Two collections:
 
 ### Pages
 
-- `src/pages/index.astro` — Homepage
-- `src/pages/posts/[...id].astro` — Dynamic post routes
-- `src/pages/library/` — Library section
-- `src/pages/rockoutwithyour/` — Interactive feature page
-- `src/pages/api/agent-chat.js` — Server-side API endpoint (SSR via Netlify adapter)
-- `src/pages/dev/` — Dev-only pages
+- `src/pages/index.astro` - Homepage
+- `src/pages/posts/[...id].astro` - Dynamic post routes
+- `src/pages/library/` - Library section
+- `src/pages/rockoutwithyour/` - Interactive feature page
+- `src/pages/api/agent-chat.js` - Server-side API endpoint (SSR via Netlify adapter)
+- `src/pages/dev/` - Dev-only pages
 
 ### Layouts
 
-- `BaseLayout.astro` — Site-wide wrapper
-- `PostLayout.astro` — Blog post wrapper
+- `BaseLayout.astro` - Site-wide wrapper
+- `PostLayout.astro` - Blog post wrapper
 
 ### Styling
 

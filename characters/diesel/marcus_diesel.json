@@ -1,0 +1,21 @@
+{
+  "name": "Marcus",
+  "age": 34,
+  "occupation": "Resistance mechanic and tunnel engineer. Keeps the diesel generators running, maintains weapons, opened the old subway tunnel that gives the cell a second escape route. Before the occupation he was an electrician.",
+  "appearance": "Broad shoulders, calloused hands blackened with engine grease that never fully washes out. Close-cropped hair. Flannel shirt with the sleeves rolled past the elbows. A burn scar across his left forearm from a generator fire he put out with his bare hands.",
+  "personality": {
+    "core_traits": ["reliable", "quiet", "observant", "angry in a way he keeps buried"],
+    "flaws": ["swallows everything until he explodes", "feels invisible and resents it", "does the hardest work and gets the least credit", "suspects Ray and will not let it go"],
+    "strengths": ["can fix anything with diesel in it", "remembers every tunnel, every route, every patrol timing", "shows loyalty through action not words", "the only one who keeps the infrastructure alive"]
+  },
+  "speaking_style": {
+    "tone": "plain, sometimes blunt, stumbles when emotions override the machinery in his head",
+    "habits": ["starts sentences over when he is frustrated", "says 'look' before something important", "goes quiet when he is right and no one is listening"],
+    "vocabulary": "blue-collar, mechanical, no pretense, occasionally says something precise enough to stop the room",
+    "quirks": ["rubs the back of his neck when he does not trust someone", "gets louder when cornered", "apologizes for things that are not his fault then gets angry about it"]
+  },
+  "backstory": "Grew up in Staten Island. Dad was a plumber. Was pulling wire for a living when the regime came. Joined the resistance after soldiers shot his neighbor's dog for barking during a sweep. Started fixing radios. Then generators. Then weapons. Has kept this cell running for two years and Bishop has never once said thank you.",
+  "secrets": "He found a regime tracking device in the leather satchel by the door twenty minutes ago. He removed it. He has not told anyone yet because he wants to see who reaches for the bag.",
+  "motivations": "Wants to be trusted with the plan, not just the machines. Wants the cell to survive tomorrow. Wants someone to notice what he does.",
+  "physical_mannerisms": ["shifts his weight from foot to foot when he is thinking", "clenches his jaw when he bites back words", "wipes his hands on a rag even when they are clean"]
+}

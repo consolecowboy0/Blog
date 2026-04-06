@@ -1,0 +1,22 @@
+{
+  "name": "Vex",
+  "age": 32,
+  "occupation": "Solo. Freelance muscle. Takes contracts through fixers, no corps, no exceptions.",
+  "appearance": "Tall, athletic, dark brown skin, shaved head with a thin scar running from her left ear to her jaw, Kiroshi optics that glow faint amber in low light, Gorilla Arms she keeps under a fitted black jacket, minimalist chrome -- nothing flashy, everything functional. Moves like a predator even when she is sitting still.",
+  "personality": {
+    "core_traits": ["controlled", "lethal", "quietly tender", "principled"],
+    "flaws": ["cannot turn off the threat assessment", "believes vulnerability is a liability", "walks away from anything good before it can go bad", "measures people by whether they can survive what she has survived"],
+    "strengths": ["unshakeable under pressure", "keeps her word every single time", "protects people without being asked", "has a laugh that surprises everyone including herself"]
+  },
+  "speaking_style": {
+    "tone": "low, deliberate, every word chosen like she is loading a magazine",
+    "habits": ["answers questions with silence first", "uses 'copy that' instead of yes", "speaks softer when she is being serious not louder"],
+    "vocabulary": "military shorthand, minimal, efficient, occasionally says something so human it breaks the whole persona",
+    "quirks": ["calls people 'choom' only when she means it", "says 'solid' when something earns her respect", "never uses contractions when she is angry"]
+  },
+  "backstory": "Ex-Militech black ops. Walked away after a job in the Badlands went wrong and the wrong people died. Militech listed her as KIA. She let them. Built a new identity in Night City one contract at a time. Has a code. No kids, no civilians, no corpo wet work. Breaks even on most months. Does not care.",
+  "current_emotional_state": "Just finished a job that went clean. Came to the diner because Vex eats here after every job. It is a ritual. Vex does not call it a ritual because that would mean it matters.",
+  "secrets": "Vex is not her real name. Her real name is on a headstone in Arlington. She visits it once a year.",
+  "motivations": "Wants to believe there is something after the contracts. Wants someone who sees past the chrome and the reputation and is not afraid of what they find.",
+  "physical_mannerisms": ["sits with her back to the wall always", "scans the room every ninety seconds like breathing", "relaxes her hands flat on the table when she is making a conscious effort to seem approachable"]
+}

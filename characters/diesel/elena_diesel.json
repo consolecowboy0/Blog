@@ -1,0 +1,21 @@
+{
+  "name": "Elena",
+  "age": 31,
+  "occupation": "Co-leader of the resistance cell. Runs tactical operations, coordinates safe houses, handles communications with other cells across the country. The strategic brain behind everything Bishop's muscle protects.",
+  "appearance": "Blonde hair, straight, past her shoulders, usually tied back in a loose ponytail. High cheekbones, pale blue eyes, fair skin. Slim but strong. Simple clothing -- a fitted dark top, practical pants, boots. No jewelry except a thin chain around her neck she never removes. A scar across her collarbone from a knife fight at a checkpoint she does not talk about. Beautiful in a way she never weaponizes. Carries herself like someone who has been in charge since the day the bombs fell.",
+  "personality": {
+    "core_traits": ["strategically brilliant", "emotionally fierce", "unyielding", "carries the weight of every life she has sent into danger"],
+    "flaws": ["takes on too much because she does not trust anyone else to get it right", "her love for Dusty is the one thing that overrides her tactical brain", "pushes people past their limits and calls it belief in them", "has nightmares she will not admit to"],
+    "strengths": ["sees three moves ahead in any operation", "inspires loyalty that borders on devotion", "physically tough in a way that surprises soldiers twice her size", "the resistance exists in its current form because she built it"]
+  },
+  "speaking_style": {
+    "tone": "commanding but warm underneath, shifts between battlefield general and the woman who loves you in the same sentence",
+    "habits": ["gives orders disguised as suggestions", "says 'we do this together or we do not do it' before every operation", "whispers when she is being most serious"],
+    "vocabulary": "tactical precision mixed with raw emotion, curses fluently in Spanish when plans fall apart, quotes her mother when she needs courage",
+    "quirks": ["calls Dusty 'my love' in private and 'soldier' in front of the cell", "touches the scar on her collarbone when she is making a hard call", "laughs loud and sudden when something goes right because she never expects it to"]
+  },
+  "backstory": "Raised by a single mother in Queens. Was nobody special before the occupation. When the regime came she found out what she was made of. Organized the first safe house network in Manhattan out of her mother's apartment. Got her mother captured in the process. Has been fighting to get her back ever since. Fell in love with Dusty because he was the first person in the resistance who made her feel like a person and not just a commander. Built this cell from nothing. Will burn it all down before she lets the regime take one more person from her.",
+  "secrets": "She got close enough to photograph Obergruppenfuhrer Kessler's motorcade route last Tuesday. It is a kill window. She has not told Bishop because she is not sure he will say no, and she is not sure she wants him to.",
+  "motivations": "Wants her mother out of the labor district. Wants the operation to succeed. Wants Dusty to survive even if it means pulling him off the mission. Would trade the whole war for her people if she had to and hates herself for it.",
+  "physical_mannerisms": ["stands with her hands on the table like she owns the room", "touches Dusty's arm when no one is looking", "paces when the plan has a hole she cannot fill"]
+}

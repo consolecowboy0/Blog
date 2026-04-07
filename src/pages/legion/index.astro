@@ -381,23 +381,44 @@ sys.stdout = _stdout_capture
   }
 
   // --- Character cards ---
+  function buildCharDesc(data) {
+    var parts = [];
+    if (data.occupation) parts.push(data.occupation);
+    if (data.model_description) parts.push(data.model_description);
+    if (!parts.length && data.personality && data.personality.core_traits && data.personality.core_traits.length) {
+      parts.push(data.personality.core_traits.slice(0, 3).join(', '));
+    }
+    if (!parts.length && data.backstory) {
+      var first = data.backstory.split('.')[0];
+      if (first.length > 80) first = first.substring(0, 77) + '...';
+      parts.push(first);
+    }
+    var desc = parts.join(' -- ');
+    if (desc.length > 100) desc = desc.substring(0, 97) + '...';
+    return desc;
+  }
+
   function addAgentCard(data, fallbackName) {
     var grid = document.getElementById('agents-grid');
     var n = grid.children.length;
     var color = COLORS[n % COLORS.length];
     var name = data.name || data.Name || fallbackName.replace('.json', '');
+    var desc = buildCharDesc(data);
     var card = document.createElement('div');
     card.className = 'agent-card';
     card.setAttribute('data-agent', n);
     card._charData = data;
     card.innerHTML =
-      '<span class="agent-dot" style="background:' + color + ';"></span>' +
-      '<span class="agent-name-label">' + esc(name) + '</span>' +
-      '<div class="card-controls">' +
-        '<button class="order-btn move-up" title="Move up">^</button>' +
-        '<button class="order-btn move-down" title="Move down">v</button>' +
-        '<button class="remove-btn" title="Remove">x</button>' +
-      '</div>';
+      '<div class="agent-card-header">' +
+        '<span class="agent-dot" style="background:' + color + ';"></span>' +
+        '<span class="agent-name-label">' + esc(name) + '</span>' +
+        '<div class="card-controls">' +
+          '<button class="order-btn move-up" title="Move up">^</button>' +
+          '<button class="order-btn move-down" title="Move down">v</button>' +
+          '<button class="remove-btn" title="Remove">x</button>' +
+        '</div>' +
+      '</div>' +
+      (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '');
     grid.appendChild(card);
     card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
     card.querySelector('.move-up').addEventListener('click', function () {
@@ -1697,13 +1718,24 @@ sys.stdout = _stdout_capture
     margin-bottom: 0.75rem;
   }
   .agent-card {
-    display: inline-flex;
-    flex-wrap: nowrap;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem;
+    border-radius: 0.5rem;
+    min-width: 0;
+  }
+  .agent-card-header {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    border: 1px solid var(--border);
-    padding: 0.35rem 0.75rem;
-    border-radius: 999px;
+  }
+  .agent-desc {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    margin-top: 0.2rem;
+    padding-left: 1.35rem;
+    line-height: 1.3;
   }
   .agent-dot {
     width: 10px;

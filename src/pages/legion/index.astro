@@ -252,9 +252,16 @@ sys.stdout = _stdout_capture
   function show() {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
-    // Load server state after auth
+    // Load server state after auth, fall back to localStorage
     loadServerState().then(function (state) {
-      if (state) restoreState(state);
+      if (state && state.sessionTranscript && state.sessionTranscript.length > 0) {
+        restoreState(state);
+        serverStateLoaded = true;
+      } else {
+        loadConfig(false);
+      }
+    }).catch(function () {
+      loadConfig(false);
     });
   }
 
@@ -476,8 +483,9 @@ sys.stdout = _stdout_capture
 
   document.getElementById('load-config').addEventListener('click', function () { loadConfig(true); });
 
-  // Auto-load saved config on page load
-  loadConfig(false);
+  // Auto-load saved config on page load (skip if server state will override)
+  if (!authToken) loadConfig(false);
+  var serverStateLoaded = false;
 
   // --- Export transcript ---
   document.getElementById('export-btn').addEventListener('click', function () {

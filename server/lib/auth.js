@@ -1,13 +1,18 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 
 if (!process.env.AUTH_SECRET) {
-  console.warn('[auth] AUTH_SECRET env var not set. Tokens will not persist across restarts.');
+  console.error('[auth] AUTH_SECRET env var is required. Exiting.');
+  process.exit(1);
 }
-const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRET-in-env';
+const SECRET = process.env.AUTH_SECRET;
 
+if (!process.env.AUTH_HASH_LEGION) {
+  console.error('[auth] AUTH_HASH_LEGION env var is required. Exiting.');
+  process.exit(1);
+}
 const HASHES = {
-  legion: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
-  dev: process.env.AUTH_HASH_DEV || '90601d77dac475defddf53fa8848f2b1f54f0477213a21bf5018fbbd8cc38cac',
+  legion: process.env.AUTH_HASH_LEGION,
+  dev: process.env.AUTH_HASH_DEV || '',
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days

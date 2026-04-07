@@ -9,12 +9,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // CORS
-const ALLOWED_ORIGINS = [
-  'https://dustinlanders.com',
-  'https://www.dustinlanders.com',
-  'http://localhost:4321',
-  'http://localhost:3000',
-];
+const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+  ? ['https://dustinlanders.com', 'https://www.dustinlanders.com']
+  : ['https://dustinlanders.com', 'https://www.dustinlanders.com', 'http://localhost:4321', 'http://localhost:3000'];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -23,11 +20,21 @@ app.use((req, res, next) => {
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
-// Rate limiting
+// Rate limiting - strict on auth, moderate on everything else
+app.use('/api/auth', rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { error: 'Too many login attempts' },
+}));
 app.use('/api/', rateLimit({
   windowMs: 60 * 1000,
   max: 60,

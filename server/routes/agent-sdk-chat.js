@@ -30,7 +30,7 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
       model: sdkModel,
       systemPrompt: system,
       maxTurns: 1,
-      permissionMode: 'default',
+      permissionMode: 'plan',
     };
 
     if (agentConfig && Object.keys(agentConfig).length > 0) {
@@ -65,7 +65,8 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return res.status(501).json({ error: 'Agent SDK requires Claude Code CLI installed on the server.' });
     }
-    res.status(500).json({ error: message || 'Failed to call Agent SDK' });
+    console.error('[agent-sdk-chat] Error:', message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

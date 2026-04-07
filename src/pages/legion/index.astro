@@ -394,7 +394,6 @@ sys.stdout = _stdout_capture
       parts.push(first);
     }
     var desc = parts.join(' -- ');
-    if (desc.length > 100) desc = desc.substring(0, 97) + '...';
     return desc;
   }
 
@@ -1740,6 +1739,7 @@ sys.stdout = _stdout_capture
     padding: 0.4rem 0.75rem;
     border-radius: 0.5rem;
     min-width: 0;
+    max-width: 340px;
   }
   .agent-card-header {
     display: flex;
@@ -1752,6 +1752,8 @@ sys.stdout = _stdout_capture
     margin-top: 0.2rem;
     padding-left: 1.35rem;
     line-height: 1.3;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
   .agent-dot {
     width: 10px;

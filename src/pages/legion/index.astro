@@ -1435,7 +1435,7 @@ sys.stdout = _stdout_capture
             msg('','','--- Bidding for Round ' + sessionRun + ' ---', true);
             var bids = [];
             var bidPromises = activeAgents.map(function (a) {
-              var bidLines = [];
+              var bidLines = ['[Scene direction]: ' + opening];
               var start = 0;
               if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
                 start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;

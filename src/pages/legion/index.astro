@@ -80,9 +80,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
           </select>
         </div>
-        <div class="control-group">
-          <label class="toggle-label"><input type="checkbox" id="web-search-toggle" /> Web search</label>
-        </div>
       </div>
     </details>
 
@@ -846,11 +843,10 @@ sys.stdout = _stdout_capture
     return el;
   }
 
-  async function ask(system, messages, agentConfig, tools) {
+  async function ask(system, messages, agentConfig) {
     var model = document.getElementById('model-select').value;
     var payload = { system: system, messages: messages, model: model };
     if (agentConfig) payload.agentConfig = agentConfig;
-    if (tools && tools.length > 0) payload.tools = tools;
     var headers = { 'Content-Type': 'application/json' };
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
     var res = await fetch(API_BASE + '/api/agent-sdk-chat', {
@@ -1327,11 +1323,6 @@ sys.stdout = _stdout_capture
           ensurePyodide();
         }
 
-        var canSearch = document.getElementById('web-search-toggle').checked;
-        if (canSearch) {
-          chatRule += '\n\nWEB SEARCH: You have access to web search and web fetch tools. Use them when you need real facts, stats, or current info. Only search when you genuinely need it -- do not search for things you already know. Keep responses under 80 words after searching.';
-        }
-
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
@@ -1339,7 +1330,6 @@ sys.stdout = _stdout_capture
           system: full,
           color: COLORS[i % COLORS.length],
           canCode: canCode,
-          canSearch: canSearch,
         });
       });
 
@@ -1512,8 +1502,7 @@ sys.stdout = _stdout_capture
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
           // Build SDK tools list based on agent capabilities
-          var sdkTools = ['WebSearch', 'WebFetch', 'Bash', 'Read', 'Glob', 'Grep'];
-          var response = await ask(a.system, messages, null, sdkTools);
+          var response = await ask(a.system, messages);
           typ.remove();
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
@@ -1837,21 +1826,6 @@ sys.stdout = _stdout_capture
     color: var(--fg-muted);
     cursor: pointer;
     white-space: nowrap;
-  }
-  .toggle-label {
-    font-size: 0.8rem;
-    color: var(--fg-muted);
-    cursor: pointer;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-top: 0.5rem;
-  }
-  .search-indicator {
-    font-style: italic;
-    opacity: 0.6;
-    font-size: 0.85rem;
   }
   #rounds {
     width: 55px;

@@ -17,8 +17,13 @@ const libraryItems = (await getCollection('library'))
 
   <!-- Hero -->
   <section class="hero">
-    <h1>Dustin Landers</h1>
-    <p class="tagline">Data journalist. Deliberate AI builder. Writing about motorsport, politics, and the systems underneath.</p>
+    <div class="hero-text">
+      <h1>Dustin Landers</h1>
+      <p class="tagline">Data journalist. Deliberate AI builder. Writing about motorsport, politics, and the systems underneath.</p>
+    </div>
+    <div class="hero-portrait">
+      <img src="/images/headshot.jpg" alt="Dustin Landers" />
+    </div>
   </section>
 
   <!-- Recent Writing -->
@@ -82,8 +87,16 @@ const libraryItems = (await getCollection('library'))
 
 <style>
   .hero {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
     margin-top: 4rem;
     margin-bottom: 4rem;
+  }
+
+  .hero-text {
+    flex: 1;
+    min-width: 0;
   }
 
   .hero h1 {
@@ -98,6 +111,30 @@ const libraryItems = (await getCollection('library'))
     max-width: 540px;
     line-height: 1.6;
     margin: 0;
+  }
+
+  .hero-portrait {
+    flex-shrink: 0;
+    width: 220px;
+    height: 220px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="dark"] .hero-portrait {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .hero-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 15%;
+    margin: 0;
+    border: none;
+    filter: contrast(1.05);
   }
 
   .section {
@@ -206,8 +243,24 @@ const libraryItems = (await getCollection('library'))
   }
 
   @media (max-width: 700px) {
+    .hero {
+      flex-direction: column-reverse;
+      gap: 2rem;
+      text-align: center;
+      align-items: center;
+    }
+
     .hero h1 {
       font-size: 2.25rem;
+    }
+
+    .tagline {
+      margin: 0 auto;
+    }
+
+    .hero-portrait {
+      width: 160px;
+      height: 160px;
     }
 
     .post-grid {

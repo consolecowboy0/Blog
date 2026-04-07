@@ -870,7 +870,7 @@ sys.stdout = _stdout_capture
       };
       var headers = { 'Content-Type': 'application/json' };
       if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-      fetch(API_BASE + '/api/legion-state', {
+      fetch('/api/legion-state', {
         method: 'PUT',
         headers: headers,
         body: JSON.stringify(state),
@@ -881,7 +881,7 @@ sys.stdout = _stdout_capture
   function clearServerState() {
     var headers = {};
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-    fetch(API_BASE + '/api/legion-state', {
+    fetch('/api/legion-state', {
       method: 'DELETE',
       headers: headers,
     }).catch(function (e) { console.warn('[legion] clear failed:', e); });
@@ -890,7 +890,7 @@ sys.stdout = _stdout_capture
   function loadServerState() {
     var headers = {};
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-    return fetch(API_BASE + '/api/legion-state', {
+    return fetch('/api/legion-state', {
       method: 'GET',
       headers: headers,
     }).then(function (res) {

@@ -249,6 +249,10 @@ sys.stdout = _stdout_capture
   function show() {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
+    // Load server state after auth
+    loadServerState().then(function (state) {
+      if (state) restoreState(state);
+    });
   }
 
   document.getElementById('sign-out').addEventListener('click', function () {
@@ -837,6 +841,143 @@ sys.stdout = _stdout_capture
   var characterStatus = {}; // name -> { status: 'present'|'dead'|'left', round: number }
   var roomStatus = { name: '', status: 'alive', round: 0 };
 
+  // --- Server state persistence ---
+  var saveTimer = null;
+
+  function saveState() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      var chars = [];
+      document.querySelectorAll('.agent-card').forEach(function (card) {
+        if (card._charData) chars.push(card._charData);
+      });
+      var state = {
+        sessionTranscript: sessionTranscript,
+        sessionAgents: sessionAgents,
+        sessionRun: sessionRun,
+        worldState: worldState,
+        characterStatus: characterStatus,
+        roomStatus: roomStatus,
+        opening: document.getElementById('opening').value,
+        config: {
+          room: roomData,
+          relationships: relsData,
+          characters: chars,
+          model: document.getElementById('model-select').value,
+          orderMode: document.getElementById('order-mode').value,
+          rounds: document.getElementById('rounds').value,
+        },
+      };
+      var headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      fetch(API_BASE + '/api/legion-state', {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(state),
+      }).catch(function (e) { console.warn('[legion] save failed:', e); });
+    }, 500);
+  }
+
+  function clearServerState() {
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    fetch(API_BASE + '/api/legion-state', {
+      method: 'DELETE',
+      headers: headers,
+    }).catch(function (e) { console.warn('[legion] clear failed:', e); });
+  }
+
+  function loadServerState() {
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    return fetch(API_BASE + '/api/legion-state', {
+      method: 'GET',
+      headers: headers,
+    }).then(function (res) {
+      if (!res.ok) return null;
+      return res.json();
+    }).catch(function () { return null; });
+  }
+
+  function restoreState(state) {
+    if (!state || !state.sessionTranscript || state.sessionTranscript.length === 0) return;
+
+    // Restore config first
+    if (state.config) {
+      if (state.config.room) {
+        roomData = state.config.room;
+        document.getElementById('room-status').textContent = roomData.name || 'Loaded';
+        document.getElementById('clear-room').style.display = '';
+      }
+      if (state.config.relationships) {
+        relsData = state.config.relationships;
+        document.getElementById('rels-status').textContent = relsData.name || 'Loaded';
+        document.getElementById('clear-rels').style.display = '';
+      }
+      if (state.config.characters) {
+        document.getElementById('agents-grid').innerHTML = '';
+        state.config.characters.forEach(function (c) { addAgentCard(c, 'Agent'); });
+      }
+      if (state.config.model) document.getElementById('model-select').value = state.config.model;
+      if (state.config.orderMode) document.getElementById('order-mode').value = state.config.orderMode;
+      if (state.config.rounds) document.getElementById('rounds').value = state.config.rounds;
+    }
+    if (state.opening) document.getElementById('opening').value = state.opening;
+
+    // Restore session variables
+    sessionTranscript = state.sessionTranscript || [];
+    sessionAgents = state.sessionAgents || null;
+    sessionRun = state.sessionRun || 0;
+    worldState = state.worldState || [];
+    characterStatus = state.characterStatus || {};
+    roomStatus = state.roomStatus || { name: '', status: 'alive', round: 0 };
+
+    // Re-render chat
+    var chat = document.getElementById('chat');
+    chat.innerHTML = '';
+    currentRoundDetails = null;
+    var lastRound = 0;
+
+    // Show opening prompt
+    if (state.opening) msg('', '', state.opening, true);
+
+    sessionTranscript.forEach(function (entry) {
+      // Insert round header when round changes
+      if (entry.round && entry.round !== lastRound) {
+        lastRound = entry.round;
+        msg('', '', '--- Round ' + entry.round + ' ---', true);
+      }
+      if (entry.name === 'Status' || entry.name === 'Narrator') {
+        msg('', '', entry.text, true);
+      } else {
+        // Find color for this agent
+        var color = '#999';
+        if (sessionAgents) {
+          for (var i = 0; i < sessionAgents.length; i++) {
+            if (sessionAgents[i].name === entry.name) { color = sessionAgents[i].color; break; }
+          }
+        }
+        if (entry.text === '...') {
+          msg(entry.name, color, '...', false);
+        } else {
+          msg(entry.name, color, entry.rawText || entry.text, false);
+        }
+      }
+    });
+
+    // Restore status panel
+    renderStatus();
+
+    // Show controls
+    if (sessionTranscript.length > 0) {
+      document.getElementById('export-btn').style.display = '';
+      document.getElementById('interject-section').style.display = '';
+      document.getElementById('summary-section').style.display = '';
+      document.getElementById('illustration-section').style.display = '';
+      document.getElementById('move-room-btn').style.display = '';
+    }
+  }
+
   function initStatus(agents) {
     characterStatus = {};
     agents.forEach(function (a) {
@@ -1001,6 +1142,7 @@ sys.stdout = _stdout_capture
   document.getElementById('clear-btn').addEventListener('click', function () {
     stopRequested = true;
     if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
+    clearServerState();
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
     document.getElementById('export-btn').style.display = 'none';
     document.getElementById('interject-section').style.display = 'none';
@@ -1058,6 +1200,7 @@ sys.stdout = _stdout_capture
     msg('', '', text, true);
     sessionTranscript.push({ name: 'Narrator', text: text, round: sessionRun });
     worldState.push('Narrator: ' + text);
+    saveState();
     input.value = '';
   });
   document.getElementById('interject-input').addEventListener('keydown', function (e) {
@@ -1307,6 +1450,7 @@ sys.stdout = _stdout_capture
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
             sessionTranscript.push({ name: a.name, text: '...', round: sessionRun });
+            saveState();
           } else {
             var actions = extractActions(a.name, response);
             actions.forEach(function (act) { worldState.push(act); });
@@ -1335,6 +1479,7 @@ sys.stdout = _stdout_capture
             sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
             // Detect deaths and departures
             detectStatusChanges(a.name, response, sessionRun);
+            saveState();
           }
           // Check if all characters are gone
           var anyActive = Object.keys(characterStatus).some(function (n) { return characterStatus[n].status === 'present'; });

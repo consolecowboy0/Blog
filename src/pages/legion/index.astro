@@ -1512,8 +1512,7 @@ sys.stdout = _stdout_capture
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
           // Build SDK tools list based on agent capabilities
-          var sdkTools = [];
-          if (a.canSearch) sdkTools.push('WebSearch', 'WebFetch');
+          var sdkTools = ['WebSearch', 'WebFetch', 'Bash', 'Read', 'Glob', 'Grep'];
           var response = await ask(a.system, messages, null, sdkTools);
           typ.remove();
           if (response.trim() === '[silence]') {

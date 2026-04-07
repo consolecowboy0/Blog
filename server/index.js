@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/agent-sdk-chat.js';
 import pixelRoutes from './routes/pixellab.js';
+import searchRoutes from './routes/web-search.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -47,6 +48,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use(authRoutes);
 app.use(chatRoutes);
 app.use(pixelRoutes);
+app.use(searchRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true }));

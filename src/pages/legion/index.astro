@@ -80,6 +80,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
           </select>
         </div>
+        <div class="control-group">
+          <label class="toggle-label"><input type="checkbox" id="web-search-toggle" /> Web search</label>
+        </div>
       </div>
     </details>
 
@@ -832,6 +835,39 @@ sys.stdout = _stdout_capture
     return data.text;
   }
 
+  // --- Web search ---
+  async function webSearch(query) {
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var res = await fetch(API_BASE + '/api/web-search', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ query: query }),
+    });
+    if (!res.ok) {
+      var err = '';
+      try { var b = await res.json(); err = b.error || JSON.stringify(b); } catch(e) {}
+      throw new Error('Search error: ' + (err || res.status));
+    }
+    var data = await res.json();
+    return data.results || [];
+  }
+
+  function extractSearchQueries(text) {
+    var queries = [];
+    text.replace(/\[SEARCH:\s*([^\]]+)\]/g, function (m, q) {
+      queries.push(q.trim());
+    });
+    return queries;
+  }
+
+  function formatSearchResults(results) {
+    if (!results.length) return 'No results found.';
+    return results.map(function (r, i) {
+      return (i + 1) + '. ' + r.title + '\n   ' + r.description + '\n   ' + r.url;
+    }).join('\n\n');
+  }
+
   // --- Session state ---
   var sessionTranscript = [];
   var sessionAgents = null;
@@ -1285,6 +1321,11 @@ sys.stdout = _stdout_capture
           ensurePyodide();
         }
 
+        var canSearch = document.getElementById('web-search-toggle').checked;
+        if (canSearch) {
+          chatRule += '\n\nWEB SEARCH: You can search the internet for real information. Use [SEARCH: your query] to look something up. Keep queries short and specific. You will receive search results and then respond with your full message incorporating what you learned. Only search when you genuinely need a fact, stat, or current info. Do not search for things you already know. Example:\n[SEARCH: current population of Tokyo]\nYou will get results back, then give your real response using what you found.';
+        }
+
         var rels = getRelsForAgent(allNames[i], allNames);
         var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
         sessionAgents.push({
@@ -1292,6 +1333,7 @@ sys.stdout = _stdout_capture
           system: full,
           color: COLORS[i % COLORS.length],
           canCode: canCode,
+          canSearch: canSearch,
         });
       });
 
@@ -1446,6 +1488,25 @@ sys.stdout = _stdout_capture
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
           var response = await ask(a.system, messages);
+          // Handle web search tags
+          if (a.canSearch) {
+            var searchQueries = extractSearchQueries(response);
+            if (searchQueries.length > 0) {
+              var allResults = [];
+              for (var sq = 0; sq < searchQueries.length; sq++) {
+                try {
+                  var results = await webSearch(searchQueries[sq]);
+                  allResults.push('Search for "' + searchQueries[sq] + '":\n' + formatSearchResults(results));
+                } catch (searchErr) {
+                  allResults.push('Search for "' + searchQueries[sq] + '": failed - ' + searchErr.message);
+                }
+              }
+              msg('', '', a.name + ' searching: ' + searchQueries.join(', '), true);
+              var searchContext = allResults.join('\n\n');
+              var followUp = [{ role: 'user', content: transcript + '\n\n' + a.name + ' searched the web. Here are the results:\n\n' + searchContext + '\n\nNow respond in character using what you found. Do NOT include [SEARCH] tags again. Stay under 80 words.' }];
+              response = await ask(a.system, followUp);
+            }
+          }
           typ.remove();
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
@@ -1721,6 +1782,21 @@ sys.stdout = _stdout_capture
     color: var(--fg-muted);
     cursor: pointer;
     white-space: nowrap;
+  }
+  .toggle-label {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+  .search-indicator {
+    font-style: italic;
+    opacity: 0.6;
+    font-size: 0.85rem;
   }
   #rounds {
     width: 55px;

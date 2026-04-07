@@ -1,6 +1,9 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 
-const SECRET = process.env.AUTH_SECRET || randomBytes(32).toString('hex');
+if (!process.env.AUTH_SECRET) {
+  console.warn('[auth] AUTH_SECRET env var not set. Tokens will not persist across restarts.');
+}
+const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRET-in-env';
 
 const HASHES = {
   legion: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',

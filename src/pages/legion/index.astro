@@ -846,10 +846,11 @@ sys.stdout = _stdout_capture
     return el;
   }
 
-  async function ask(system, messages, agentConfig) {
+  async function ask(system, messages, agentConfig, tools) {
     var model = document.getElementById('model-select').value;
     var payload = { system: system, messages: messages, model: model };
     if (agentConfig) payload.agentConfig = agentConfig;
+    if (tools && tools.length > 0) payload.tools = tools;
     var headers = { 'Content-Type': 'application/json' };
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
     var res = await fetch(API_BASE + '/api/agent-sdk-chat', {
@@ -1361,7 +1362,7 @@ sys.stdout = _stdout_capture
 
         var canSearch = document.getElementById('web-search-toggle').checked;
         if (canSearch) {
-          chatRule += '\n\nWEB SEARCH: You can search the internet for real information. Use [SEARCH: your query] to look something up. Keep queries short and specific. You will receive search results and then respond with your full message incorporating what you learned. Only search when you genuinely need a fact, stat, or current info. Do not search for things you already know. Example:\n[SEARCH: current population of Tokyo]\nYou will get results back, then give your real response using what you found.';
+          chatRule += '\n\nWEB SEARCH: You have access to web search and web fetch tools. Use them when you need real facts, stats, or current info. Only search when you genuinely need it -- do not search for things you already know. Keep responses under 80 words after searching.';
         }
 
         var rels = getRelsForAgent(allNames[i], allNames);
@@ -1543,26 +1544,10 @@ sys.stdout = _stdout_capture
           var transcript = buildTranscript(a.name);
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
           var typ = typing(a.name, a.color);
-          var response = await ask(a.system, messages);
-          // Handle web search tags
-          if (a.canSearch) {
-            var searchQueries = extractSearchQueries(response);
-            if (searchQueries.length > 0) {
-              var allResults = [];
-              for (var sq = 0; sq < searchQueries.length; sq++) {
-                try {
-                  var results = await webSearch(searchQueries[sq]);
-                  allResults.push('Search for "' + searchQueries[sq] + '":\n' + formatSearchResults(results));
-                } catch (searchErr) {
-                  allResults.push('Search for "' + searchQueries[sq] + '": failed - ' + searchErr.message);
-                }
-              }
-              msg('', '', a.name + ' searching: ' + searchQueries.join(', '), true);
-              var searchContext = allResults.join('\n\n');
-              var followUp = [{ role: 'user', content: transcript + '\n\n' + a.name + ' searched the web. Here are the results:\n\n' + searchContext + '\n\nNow respond in character using what you found. Do NOT include [SEARCH] tags again. Stay under 80 words.' }];
-              response = await ask(a.system, followUp);
-            }
-          }
+          // Build SDK tools list based on agent capabilities
+          var sdkTools = [];
+          if (a.canSearch) sdkTools.push('WebSearch', 'WebFetch');
+          var response = await ask(a.system, messages, null, sdkTools);
           typ.remove();
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);

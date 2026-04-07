@@ -8,7 +8,7 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { system, messages, model, agentConfig } = req.body || {};
+  const { system, messages, model, agentConfig, tools } = req.body || {};
 
   if (!system || !messages) {
     return res.status(400).json({ error: 'Missing system or messages' });
@@ -26,16 +26,21 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
       : model?.includes('haiku') ? 'haiku'
       : 'sonnet';
 
+    // Build allowed tools list from client capabilities
+    const allowedTools = [];
+    if (Array.isArray(tools)) allowedTools.push(...tools);
+
     const options = {
       model: sdkModel,
       systemPrompt: system,
-      maxTurns: 1,
+      maxTurns: allowedTools.length > 0 ? 4 : 1,
       permissionMode: 'plan',
+      allowedTools,
     };
 
     if (agentConfig && Object.keys(agentConfig).length > 0) {
       options.agents = agentConfig;
-      options.allowedTools = ['Agent'];
+      if (!allowedTools.includes('Agent')) options.allowedTools.push('Agent');
     }
 
     let result = '';

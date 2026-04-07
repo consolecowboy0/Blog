@@ -255,13 +255,16 @@ sys.stdout = _stdout_capture
     // Load server state after auth, fall back to localStorage
     loadServerState().then(function (state) {
       if (state && state.sessionTranscript && state.sessionTranscript.length > 0) {
+        localLastModified = state.lastModified || 0;
         restoreState(state);
         serverStateLoaded = true;
       } else {
         loadConfig(false);
       }
+      startPolling();
     }).catch(function () {
       loadConfig(false);
+      startPolling();
     });
   }
 
@@ -887,6 +890,9 @@ sys.stdout = _stdout_capture
 
   // --- Server state persistence ---
   var saveTimer = null;
+  var localLastModified = 0;
+  var isRunning = false;
+  var pollInterval = null;
 
   function saveState() {
     if (saveTimer) clearTimeout(saveTimer);
@@ -895,6 +901,8 @@ sys.stdout = _stdout_capture
       document.querySelectorAll('.agent-card').forEach(function (card) {
         if (card._charData) chars.push(card._charData);
       });
+      var now = Date.now();
+      localLastModified = now;
       var state = {
         sessionTranscript: sessionTranscript,
         sessionAgents: sessionAgents,
@@ -902,6 +910,7 @@ sys.stdout = _stdout_capture
         worldState: worldState,
         characterStatus: characterStatus,
         roomStatus: roomStatus,
+        lastModified: now,
         opening: document.getElementById('opening').value,
         config: {
           room: roomData,
@@ -1299,6 +1308,7 @@ sys.stdout = _stdout_capture
     btn.disabled = true;
     btn.textContent = 'Running...';
     stopRequested = false;
+    isRunning = true;
     document.getElementById('stop-btn').style.display = '';
 
     var opening = document.getElementById('opening').value.trim();
@@ -1588,9 +1598,40 @@ sys.stdout = _stdout_capture
       msg('','','Error: ' + err.message, true);
     }
 
+    isRunning = false;
     btn.disabled = false;
     btn.textContent = 'Go';
     document.getElementById('stop-btn').style.display = 'none';
+  });
+
+  // --- Cross-device polling ---
+  function startPolling() {
+    if (pollInterval) return;
+    pollInterval = setInterval(function () {
+      if (isRunning || document.hidden) return;
+      loadServerState().then(function (state) {
+        if (!state || !state.lastModified) return;
+        if (state.lastModified > localLastModified) {
+          localLastModified = state.lastModified;
+          restoreState(state);
+        }
+      });
+    }, 5000);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && authToken) {
+      // Fetch immediately when tab becomes visible
+      if (!isRunning) {
+        loadServerState().then(function (state) {
+          if (!state || !state.lastModified) return;
+          if (state.lastModified > localLastModified) {
+            localLastModified = state.lastModified;
+            restoreState(state);
+          }
+        });
+      }
+    }
   });
 })();
 </script>

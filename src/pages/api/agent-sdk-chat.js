@@ -29,6 +29,11 @@ export async function POST({ request }) {
   try {
     // Dynamic import — the Agent SDK requires Claude Code CLI installed on the host.
     // This won't work in Netlify serverless; use API mode for deployed environments.
+    // Clear ANTHROPIC_API_KEY so the CLI uses OAuth (Max subscription)
+    // instead of Console API billing from .env
+    const savedKey = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[agent-sdk-chat] SDK imported, starting query via Claude Agent SDK');
 
@@ -72,12 +77,26 @@ export async function POST({ request }) {
       }
     }
 
+    // Restore the key for API mode
+    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
+
     console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
+
+    // Detect auth errors returned as "successful" results
+    if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
+      return new Response(
+        JSON.stringify({ error: "Agent SDK auth error: " + result }),
+        { status: 401, headers: corsHeaders }
+      );
+    }
+
     return new Response(JSON.stringify({ text: result }), {
       status: 200,
       headers: corsHeaders,
     });
   } catch (err) {
+    // Restore the key on error too
+    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
     // Provide a helpful error if the SDK isn't available
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {

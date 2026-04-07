@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Agents - dustinlanders.com" description="Multi-agent chat room.">
+<BaseLayout title="Legion - dustinlanders.com" description="Multi-agent chat room.">
   <div id="gate">
     <div class="gate-box">
       <p class="gate-label">This area is private.</p>
@@ -15,7 +15,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <section id="panel" style="display: none;">
     <div class="panel-header">
       <div class="panel-title-row">
-        <h1>Agents</h1>
+        <h1>Legion</h1>
         <div class="header-controls">
           <button id="save-config" class="secondary-btn">Save</button>
           <button id="load-config" class="secondary-btn">Load</button>
@@ -62,10 +62,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <label class="field-label" for="rounds">Rounds</label>
           <input type="number" id="rounds" min="1" max="50" value="2" />
         </div>
-        <div class="control-group">
-          <label class="field-label" for="delay-input">Delay (s)</label>
-          <input type="number" id="delay-input" min="0" max="60" value="10" />
-        </div>
+        <input type="hidden" id="delay-input" value="0" />
         <div class="control-group">
           <label class="field-label" for="mode-select">Mode</label>
           <select id="mode-select">
@@ -76,9 +73,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="control-group">
           <label class="field-label" for="order-mode">Order</label>
           <select id="order-mode">
+            <option value="priority">Priority</option>
             <option value="default">Default</option>
             <option value="random">Random</option>
-            <option value="priority">Priority</option>
           </select>
         </div>
         <div class="control-group">
@@ -106,11 +103,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
     <div class="chat-wrapper">
-      <div class="section-header">
-        <span></span>
-        <button id="copy-chat" class="copy-btn" title="Copy chat">Copy</button>
-      </div>
       <div id="chat" class="chat">
+        <button id="copy-chat" class="copy-btn chat-copy-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
         <p class="chat-placeholder">Hit Go to start.</p>
       </div>
     </div>
@@ -125,7 +119,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <div id="summary-section" class="summary-section" style="display:none;">
       <div class="section-header">
         <label class="field-label">Summary</label>
-        <button id="copy-summary" class="copy-btn" title="Copy summary">Copy</button>
+        <button id="copy-summary" class="copy-btn" title="Copy summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
       </div>
       <textarea id="summary-output" class="summary-output" rows="4" readonly placeholder="Hit Summarize to recap the conversation."></textarea>
       <button id="summarize-btn" class="secondary-btn">Summarize</button>
@@ -163,13 +157,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       script.onload = async function () {
         try {
           pyodideInstance = await loadPyodide();
-          await pyodideInstance.loadPackage('matplotlib');
+          await pyodideInstance.loadPackage(['matplotlib', 'numpy']);
           // Patch plt.show() to capture figures as base64
+          // Add math compat shim for numpy (np.math removed in newer versions)
           pyodideInstance.runPython(`
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import io, base64
+import io, base64, math, numpy as np
+
+# Shim: np.math was removed in numpy 2.x, redirect to stdlib math
+if not hasattr(np, 'math'):
+    np.math = math
 
 _captured_figures = []
 
@@ -587,73 +586,143 @@ sys.stdout = _stdout_capture
   });
 
   // --- Chat helpers ---
+  var currentRoundDetails = null; // the current <details> for the active round
+
+  function getFirstDialogue(text) {
+    // Extract first quoted line for the summary preview
+    var m = text.match(/[""\u201C]([^""\u201D]{0,80})/);
+    return m ? '\u201C' + m[1] + '\u2026\u201D' : '';
+  }
+
+  function renderTextContent(text, container) {
+    // Split out [CODE]...[/CODE] blocks, then parse inner tags
+    var codeSplit = text.split(/(\[CODE\][\s\S]*?\[\/CODE\])/g);
+    codeSplit.forEach(function (segment) {
+      var codeMatch = segment.match(/^\[CODE\]([\s\S]*?)\[\/CODE\]$/);
+      if (codeMatch) {
+        var codeBlock = document.createElement('div');
+        codeBlock.className = 'msg-code-block';
+        var codeLabel = document.createElement('span');
+        codeLabel.className = 'code-label';
+        codeLabel.textContent = 'Python';
+        codeBlock.appendChild(codeLabel);
+        var pre = document.createElement('pre');
+        var codeEl = document.createElement('code');
+        codeEl.textContent = codeMatch[1].trim();
+        pre.appendChild(codeEl);
+        codeBlock.appendChild(pre);
+        var outputDiv = document.createElement('div');
+        outputDiv.className = 'code-output';
+        outputDiv.style.display = 'none';
+        codeBlock.appendChild(outputDiv);
+        container.appendChild(codeBlock);
+        (function (code, out) {
+          runCodeBlock(code, out);
+        })(codeMatch[1].trim(), outputDiv);
+        return;
+      }
+      var parts = segment.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
+      parts.forEach(function (part) {
+        var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+        var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
+        if (actionMatch) {
+          var act = document.createElement('span');
+          act.className = 'msg-action';
+          act.textContent = '[ACTION: ' + actionMatch[1] + ']';
+          container.appendChild(act);
+        } else if (whisperMatch) {
+          var w = document.createElement('span');
+          w.className = 'msg-whisper';
+          w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
+          container.appendChild(w);
+        } else if (part) {
+          var dialogParts = part.split(/(?<=["\u201D])\s+(?=["\u201C])/g);
+          dialogParts.forEach(function (dp) {
+            if (!dp.trim()) return;
+            var p = document.createElement('p');
+            p.className = 'msg-dialogue';
+            p.textContent = dp;
+            container.appendChild(p);
+          });
+        }
+      });
+    });
+  }
+
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
     var ph = chat.querySelector('.chat-placeholder');
     if (ph) ph.remove();
-    var el = document.createElement('div');
-    el.className = 'chat-msg' + (system ? ' chat-sys' : '');
-    if (system) { el.textContent = text; }
-    else {
-      var n = document.createElement('span');
-      n.className = 'msg-name';
-      n.style.color = color;
-      n.textContent = name;
-      var t = document.createElement('div');
-      t.className = 'msg-text';
-      // First split out [CODE]...[/CODE] blocks, then parse inner tags
-      var codeSplit = text.split(/(\[CODE\][\s\S]*?\[\/CODE\])/g);
-      codeSplit.forEach(function (segment) {
-        var codeMatch = segment.match(/^\[CODE\]([\s\S]*?)\[\/CODE\]$/);
-        if (codeMatch) {
-          var codeBlock = document.createElement('div');
-          codeBlock.className = 'msg-code-block';
-          var codeLabel = document.createElement('span');
-          codeLabel.className = 'code-label';
-          codeLabel.textContent = 'Python';
-          codeBlock.appendChild(codeLabel);
-          var pre = document.createElement('pre');
-          var codeEl = document.createElement('code');
-          codeEl.textContent = codeMatch[1].trim();
-          pre.appendChild(codeEl);
-          codeBlock.appendChild(pre);
-          var outputDiv = document.createElement('div');
-          outputDiv.className = 'code-output';
-          outputDiv.style.display = 'none';
-          codeBlock.appendChild(outputDiv);
-          t.appendChild(codeBlock);
-          // Auto-run
-          (function (code, out) {
-            runCodeBlock(code, out);
-          })(codeMatch[1].trim(), outputDiv);
-          return;
-        }
-        // Parse ACTION and WHISPER tags in non-code segments
-        var parts = segment.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
-        parts.forEach(function (part) {
-          var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
-          var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
-          if (actionMatch) {
-            var act = document.createElement('span');
-            act.className = 'msg-action';
-            act.textContent = '[ACTION: ' + actionMatch[1] + ']';
-            t.appendChild(act);
-          } else if (whisperMatch) {
-            var w = document.createElement('span');
-            w.className = 'msg-whisper';
-            w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
-            t.appendChild(w);
-          } else if (part) {
-            t.appendChild(document.createTextNode(part));
-          }
-        });
-      });
-      el.appendChild(n);
-      el.appendChild(t);
+
+    // Round headers become collapsible groups
+    var roundMatch = system && text.match(/^--- Round (\d+) ---$/);
+    if (roundMatch) {
+      var details = document.createElement('details');
+      details.className = 'round-group';
+      var summary = document.createElement('summary');
+      summary.className = 'round-header';
+      summary.textContent = 'Round ' + roundMatch[1];
+      details.appendChild(summary);
+      chat.appendChild(details);
+      currentRoundDetails = details;
+      chat.scrollTop = chat.scrollHeight;
+      return details;
     }
-    chat.appendChild(el);
+
+    // Bidding headers
+    var bidMatch = system && text.match(/^--- Bidding for Round (\d+) ---$/);
+    if (bidMatch) {
+      var bidDetails = document.createElement('details');
+      bidDetails.className = 'bid-group';
+      var bidSummary = document.createElement('summary');
+      bidSummary.className = 'bid-header';
+      bidSummary.textContent = 'Bids for Round ' + bidMatch[1];
+      bidDetails.appendChild(bidSummary);
+      var target = currentRoundDetails || chat;
+      target.appendChild(bidDetails);
+      chat.scrollTop = chat.scrollHeight;
+      return bidDetails;
+    }
+
+    // System messages
+    if (system) {
+      var el = document.createElement('div');
+      el.className = 'chat-msg chat-sys';
+      el.textContent = text;
+      var target = currentRoundDetails || chat;
+      target.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+      return el;
+    }
+
+    // Character messages - collapsible with preview
+    var details = document.createElement('details');
+    details.className = 'chat-msg';
+    details.style.borderLeftColor = color;
+    var summary = document.createElement('summary');
+    summary.className = 'msg-summary';
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'msg-name';
+    nameSpan.style.color = color;
+    nameSpan.textContent = name;
+    summary.appendChild(nameSpan);
+    var preview = getFirstDialogue(text);
+    if (preview) {
+      var previewSpan = document.createElement('span');
+      previewSpan.className = 'msg-preview';
+      previewSpan.textContent = preview;
+      summary.appendChild(previewSpan);
+    }
+    details.appendChild(summary);
+    var t = document.createElement('div');
+    t.className = 'msg-text';
+    renderTextContent(text, t);
+    details.appendChild(t);
+
+    var target = currentRoundDetails || chat;
+    target.appendChild(details);
     chat.scrollTop = chat.scrollHeight;
-    return el;
+    return details;
   }
 
   // Queue for code results to append to worldState/transcript
@@ -926,6 +995,7 @@ sys.stdout = _stdout_capture
     sessionTranscript = [];
     sessionAgents = null;
     sessionRun = 0;
+    currentRoundDetails = null;
     worldState = [];
     characterStatus = {};
     roomStatus = { name: '', status: 'alive', round: 0 };
@@ -943,8 +1013,11 @@ sys.stdout = _stdout_capture
 
   // Copy buttons
   function flashCopyBtn(btn) {
-    btn.textContent = 'Copied!';
-    setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+    // Swap to checkmark SVG
+    var original = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.classList.add('copied');
+    setTimeout(function () { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
   }
 
   document.getElementById('copy-summary').addEventListener('click', function () {
@@ -1052,7 +1125,7 @@ sys.stdout = _stdout_capture
 
         var canCode = charData && charData.can_execute_code === true;
         if (canCode) {
-          chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment with matplotlib, numpy, and standard library available. Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see. Example:\n"Let me show you what I mean."\n[CODE]\nimport matplotlib.pyplot as plt\nx = [1, 2, 3, 4, 5]\ny = [x_i**2 for x_i in x]\nplt.plot(x, y)\nplt.title("Quadratic Growth")\nplt.show()\n[/CODE]';
+          chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment (Pyodide) with matplotlib, numpy, and the standard library available. Important: use the stdlib math module for functions like math.erf, math.sqrt, etc. Do NOT use np.math (it does not exist). Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see. Example:\n"Let me show you what I mean."\n[CODE]\nimport matplotlib.pyplot as plt\nimport numpy as np\nx = np.linspace(0, 10, 100)\nplt.plot(x, x**2)\nplt.title("Quadratic Growth")\nplt.show()\n[/CODE]';
           // Pre-load Pyodide if any agent can code
           ensurePyodide();
         }
@@ -1187,9 +1260,18 @@ sys.stdout = _stdout_capture
               if (b.priority !== a.priority) return b.priority - a.priority;
               return Math.random() - 0.5;
             });
-            // Show bids
-            var bidLines = bids.map(function (b) { return b.agent.name + ': ' + b.priority + '/10' + (b.reason ? ' -- ' + b.reason : ''); });
-            msg('','', bidLines.join('\n'), true);
+            // Show bids inside the bid group
+            var bidEl = document.createElement('div');
+            bidEl.className = 'bid-results';
+            bids.forEach(function (b) {
+              var line = document.createElement('div');
+              line.className = 'bid-line';
+              line.innerHTML = '<span class="bid-name" style="color:' + b.agent.color + '">' + b.agent.name + '</span> <span class="bid-score">' + b.priority + '/10</span>' + (b.reason ? ' <span class="bid-reason">' + b.reason + '</span>' : '');
+              bidEl.appendChild(line);
+            });
+            var lastBid = chat.querySelector('.bid-group:last-of-type') || (currentRoundDetails && currentRoundDetails.querySelector('.bid-group:last-of-type'));
+            if (lastBid) { lastBid.appendChild(bidEl); }
+            else { chat.appendChild(bidEl); }
             // Rebuild agents array: bidded agents in priority order, then inactive agents at the end
             var inactiveAgents = agents.filter(function (a) { return !isActive(a.name); });
             agents = bids.map(function (b) { return b.agent; }).concat(inactiveAgents);
@@ -1483,7 +1565,7 @@ sys.stdout = _stdout_capture
     cursor: pointer;
     white-space: nowrap;
   }
-  #rounds, #delay-input {
+  #rounds {
     width: 55px;
     font-family: var(--font-mono);
     font-size: 0.85rem;
@@ -1586,16 +1668,28 @@ sys.stdout = _stdout_capture
   }
   .section-header .field-label { margin-bottom: 0; }
   .copy-btn {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--border);
-    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
     color: var(--fg-muted);
     cursor: pointer;
-    transition: color 0.15s, border-color 0.15s;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
   }
-  .copy-btn:hover { color: var(--fg); border-color: var(--fg-muted); }
+  .copy-btn:hover { color: var(--fg); background: rgba(128,128,128,0.1); border-color: var(--border); }
+  .copy-btn.copied { color: #22c55e; }
+  .chat-copy-btn {
+    position: sticky;
+    top: 0;
+    float: right;
+    z-index: 10;
+    margin: 0.5rem 0.5rem 0 0;
+  }
   .chat-wrapper { margin-bottom: 2rem; }
 
   /* Summary */
@@ -1639,14 +1733,14 @@ sys.stdout = _stdout_capture
   }
   #illustrate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* Chat */
+  /* Chat - screenplay format */
   .chat {
-    border: 1px solid var(--border);
+    position: relative;
     min-height: 300px;
-    max-height: 65vh;
+    max-height: 75vh;
     overflow-y: auto;
-    padding: 1rem;
-    background: var(--code-bg);
+    padding: 1rem 0;
+    background: var(--bg);
   }
   .chat-placeholder {
     color: var(--fg-muted);
@@ -1655,46 +1749,135 @@ sys.stdout = _stdout_capture
     text-align: center;
     padding: 3rem 0;
   }
-  .chat-msg { margin-bottom: 1rem; line-height: 1.6; }
-  .chat-msg:last-child { margin-bottom: 0; }
-  .chat-sys {
-    font-size: 1.1rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--fg);
-    text-align: center;
-    padding: 1rem 0 0.5rem;
+  /* Round groups */
+  .round-group {
+    margin: 0;
+    border-bottom: 1px solid var(--border);
   }
-  .msg-name {
-    font-size: 0.8rem;
+  .round-group:last-child { border-bottom: none; }
+  .round-header {
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    display: block;
-    margin-bottom: 0.2rem;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    padding: 1rem 1rem 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .round-header::-webkit-details-marker { display: none; }
+  .round-header::before { content: '\25BC  '; font-size: 0.55rem; vertical-align: middle; }
+  .round-group:not([open]) > .round-header::before { content: '\25B6  '; }
+  /* Bid groups */
+  .bid-group {
+    margin: 0 1rem 0.5rem;
+    border: 1px solid var(--border);
+  }
+  .bid-header {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    background: var(--code-bg);
+  }
+  .bid-header::-webkit-details-marker { display: none; }
+  .bid-header::before { content: '\25B6  '; font-size: 0.5rem; vertical-align: middle; }
+  .bid-group[open] > .bid-header::before { content: '\25BC  '; }
+  .bid-results { padding: 0.4rem 0.5rem; }
+  .bid-line {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    padding: 0.15rem 0;
+  }
+  .bid-name { font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.04em; }
+  .bid-score { font-weight: 600; }
+  .bid-reason { color: var(--fg-muted); }
+  /* Character messages */
+  .chat-msg {
+    margin: 0;
+    line-height: 1.7;
+    padding: 0;
+    border-left: 3px solid transparent;
+    animation: msg-in 0.3s ease-out;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-summary {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .msg-summary::-webkit-details-marker { display: none; }
+  .msg-summary:hover { background: rgba(128, 128, 128, 0.05); }
+  .chat-msg[open] > .msg-summary { padding-bottom: 0; }
+  .msg-preview {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .chat-msg[open] > .msg-summary > .msg-preview { display: none; }
+  .chat-sys {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    text-align: center;
+    padding: 0.6rem 1rem;
+    border-left-color: transparent !important;
+  }
+  .msg-name {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .msg-text {
-    font-size: 1.15rem;
-    white-space: pre-wrap;
+    font-size: 1.05rem;
     word-wrap: break-word;
+    padding: 0.25rem 1rem 0.75rem;
   }
+  .msg-dialogue {
+    margin: 0.5rem 0;
+    line-height: 1.7;
+  }
+  .msg-dialogue:first-child { margin-top: 0; }
+  .msg-dialogue:last-child { margin-bottom: 0; }
   .msg-action {
     display: block;
     font-style: italic;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--fg-muted);
     margin: 0.6rem 0;
+    padding-left: 0.5rem;
   }
   .msg-whisper {
     display: block;
     font-style: italic;
     font-size: 0.85rem;
     color: #8b5cf6;
-    background: rgba(139, 92, 246, 0.08);
+    background: rgba(139, 92, 246, 0.06);
     border-left: 2px solid #8b5cf6;
-    padding: 0.2rem 0.5rem;
-    margin: 0.3rem 0;
+    padding: 0.3rem 0.75rem;
+    margin: 0.5rem 0;
   }
   .msg-code-block {
     display: block;

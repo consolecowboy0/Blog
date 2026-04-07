@@ -2,9 +2,18 @@ import { loadEnv } from "vite";
 
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
+
 const env = loadEnv("", process.cwd(), "");
 
 export async function POST({ request }) {
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",

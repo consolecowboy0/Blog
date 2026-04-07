@@ -1,6 +1,15 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
+
 export async function POST({ request }) {
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -27,11 +36,7 @@ export async function POST({ request }) {
   }
 
   try {
-    // Dynamic import — the Agent SDK requires Claude Code CLI installed on the host.
-    // This won't work in Netlify serverless; use API mode for deployed environments.
-    // Clear ANTHROPIC_API_KEY so the CLI uses OAuth (Max subscription)
-    // instead of Console API billing from .env
-    const savedKey = process.env.ANTHROPIC_API_KEY;
+    // Ensure no stray API key overrides OAuth auth
     delete process.env.ANTHROPIC_API_KEY;
 
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
@@ -77,9 +82,6 @@ export async function POST({ request }) {
       }
     }
 
-    // Restore the key for API mode
-    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
-
     console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
 
     // Detect auth errors returned as "successful" results
@@ -95,13 +97,11 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
-    // Restore the key on error too
-    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
     // Provide a helpful error if the SDK isn't available
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK mode requires Claude Code CLI installed on the server. Use API mode for deployed environments." }),
+        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
         { status: 501, headers: corsHeaders }
       );
     }

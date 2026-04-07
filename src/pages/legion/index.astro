@@ -63,13 +63,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <input type="number" id="rounds" min="1" max="50" value="2" />
         </div>
         <input type="hidden" id="delay-input" value="0" />
-        <div class="control-group">
-          <label class="field-label" for="mode-select">Mode</label>
-          <select id="mode-select">
-            <option value="api">API</option>
-            <option value="agent-sdk">Agent SDK</option>
-          </select>
-        </div>
+        <input type="hidden" id="mode-select" value="agent-sdk" />
         <div class="control-group">
           <label class="field-label" for="order-mode">Order</label>
           <select id="order-mode">
@@ -141,9 +135,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script is:inline>
 (function () {
-  var HASH = '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846';
+  var authToken = localStorage.getItem('auth_token') || null;
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316'];
   var MAX_TRANSCRIPT_MESSAGES = 30;
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
 
   // --- Pyodide (browser Python) ---
   var pyodideReady = null; // promise
@@ -215,18 +215,30 @@ sys.stdout = _stdout_capture
     return { stdout: stdout, error: null, figures: Array.from(figs) };
   }
 
-  async function sha256(s) {
-    var b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-    return Array.from(new Uint8Array(b)).map(function (x) { return x.toString(16).padStart(2,'0'); }).join('');
-  }
-
   // Gate
-  if (localStorage.getItem('agents_auth') === 'true') show();
+  if (authToken) show();
 
   document.getElementById('gate-unlock').addEventListener('click', async function () {
-    var h = await sha256(document.getElementById('gate-password').value);
-    if (h === HASH) { localStorage.setItem('agents_auth','true'); show(); }
-    else { document.getElementById('gate-error').textContent = 'Nope.'; document.getElementById('gate-password').value = ''; }
+    var pw = document.getElementById('gate-password').value;
+    try {
+      var res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, scope: 'legion' }),
+      });
+      var data = await res.json();
+      if (res.ok && data.token) {
+        authToken = data.token;
+        localStorage.setItem('auth_token', authToken);
+        show();
+      } else {
+        document.getElementById('gate-error').textContent = 'Nope.';
+        document.getElementById('gate-password').value = '';
+      }
+    } catch (e) {
+      document.getElementById('gate-error').textContent = 'Auth failed.';
+      document.getElementById('gate-password').value = '';
+    }
   });
 
   document.getElementById('gate-password').addEventListener('keydown', function (e) {
@@ -239,7 +251,8 @@ sys.stdout = _stdout_capture
   }
 
   document.getElementById('sign-out').addEventListener('click', function () {
-    localStorage.removeItem('agents_auth');
+    authToken = null;
+    localStorage.removeItem('auth_token');
     document.getElementById('panel').style.display = 'none';
     document.getElementById('gate').style.display = 'flex';
     document.getElementById('gate-password').value = '';
@@ -361,7 +374,7 @@ sys.stdout = _stdout_capture
     card._charData = data;
     card.innerHTML =
       '<span class="agent-dot" style="background:' + color + ';"></span>' +
-      '<span class="agent-name-label">' + name + '</span>' +
+      '<span class="agent-name-label">' + esc(name) + '</span>' +
       '<div class="card-controls">' +
         '<button class="order-btn move-up" title="Move up">^</button>' +
         '<button class="order-btn move-down" title="Move down">v</button>' +
@@ -413,7 +426,6 @@ sys.stdout = _stdout_capture
       rounds: document.getElementById('rounds').value,
       delay: document.getElementById('delay-input').value,
       model: document.getElementById('model-select').value,
-      mode: document.getElementById('mode-select').value,
       orderMode: document.getElementById('order-mode').value
     };
     localStorage.setItem('agents_config', JSON.stringify(config));
@@ -445,7 +457,6 @@ sys.stdout = _stdout_capture
     if (config.rounds) document.getElementById('rounds').value = config.rounds;
     if (config.delay) document.getElementById('delay-input').value = config.delay;
     if (config.model) document.getElementById('model-select').value = config.model;
-    if (config.mode) document.getElementById('mode-select').value = config.mode;
     if (config.orderMode) document.getElementById('order-mode').value = config.orderMode;
 
     if (showFeedback) {
@@ -543,9 +554,11 @@ sys.stdout = _stdout_capture
       [{ role: 'user', content: fullTranscript }]
     );
 
+    var pixelHeaders = { 'Content-Type': 'application/json' };
+    if (authToken) pixelHeaders['Authorization'] = 'Bearer ' + authToken;
     var res = await fetch('/api/pixellab', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: pixelHeaders,
       body: JSON.stringify({ description: pixelPrompt, width: 400, height: 400 }),
     });
     var data = await res.json();
@@ -796,21 +809,19 @@ sys.stdout = _stdout_capture
 
   async function ask(system, messages, agentConfig) {
     var model = document.getElementById('model-select').value;
-    var mode = document.getElementById('mode-select').value;
-    var endpoint = mode === 'agent-sdk' ? '/api/agent-sdk-chat' : '/api/agent-chat';
     var payload = { system: system, messages: messages, model: model };
-    if (mode === 'agent-sdk' && agentConfig) {
-      payload.agentConfig = agentConfig;
-    }
-    var res = await fetch(endpoint, {
+    if (agentConfig) payload.agentConfig = agentConfig;
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var res = await fetch('/api/agent-sdk-chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
       var err = '';
       try { var b = await res.json(); err = b.error || JSON.stringify(b); } catch(e) { try { err = await res.text(); } catch(e2) {} }
-      throw new Error((mode === 'agent-sdk' ? 'Agent SDK' : 'API') + ' error (' + res.status + '): ' + (err || 'unknown'));
+      throw new Error('Agent SDK error (' + res.status + '): ' + (err || 'unknown'));
     }
     var data = await res.json();
     return data.text;
@@ -1266,7 +1277,7 @@ sys.stdout = _stdout_capture
             bids.forEach(function (b) {
               var line = document.createElement('div');
               line.className = 'bid-line';
-              line.innerHTML = '<span class="bid-name" style="color:' + b.agent.color + '">' + b.agent.name + '</span> <span class="bid-score">' + b.priority + '/10</span>' + (b.reason ? ' <span class="bid-reason">' + b.reason + '</span>' : '');
+              line.innerHTML = '<span class="bid-name" style="color:' + esc(b.agent.color) + '">' + esc(b.agent.name) + '</span> <span class="bid-score">' + esc(String(b.priority)) + '/10</span>' + (b.reason ? ' <span class="bid-reason">' + esc(b.reason) + '</span>' : '');
               bidEl.appendChild(line);
             });
             var lastBid = chat.querySelector('.bid-group:last-of-type') || (currentRoundDetails && currentRoundDetails.querySelector('.bid-group:last-of-type'));
@@ -1576,7 +1587,7 @@ sys.stdout = _stdout_capture
     text-align: center;
     outline: none;
   }
-  #model-select, #mode-select, #order-mode {
+  #model-select, #order-mode {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     padding: 0.4rem 0.3rem;

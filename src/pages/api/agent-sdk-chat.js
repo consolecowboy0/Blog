@@ -55,6 +55,7 @@ export async function POST({ request }) {
       systemPrompt: system,
       maxTurns: 1,
       permissionMode: 'default',
+      allowedTools: [],
     };
 
     // If subagent configs are provided, wire them up

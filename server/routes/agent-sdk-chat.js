@@ -31,6 +31,7 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
       systemPrompt: system,
       maxTurns: 1,
       permissionMode: 'plan',
+      allowedTools: [],
     };
 
     if (agentConfig && Object.keys(agentConfig).length > 0) {

@@ -26,7 +26,7 @@ export async function POST({ request }) {
     });
   }
 
-  const { system, messages, model, agentConfig } = body;
+  const { system, messages, model, agentConfig, tools } = body;
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
@@ -50,19 +50,23 @@ export async function POST({ request }) {
       : model?.includes('haiku') ? 'haiku'
       : 'sonnet';
 
+    // Build allowed tools list from client capabilities
+    const allowedTools = [];
+    if (Array.isArray(tools)) allowedTools.push(...tools);
+
     const options = {
       model: sdkModel,
       systemPrompt: system,
-      maxTurns: 1,
-      permissionMode: 'default',
-      allowedTools: [],
+      maxTurns: allowedTools.length > 0 ? 4 : 1,
+      permissionMode: 'plan',
+      allowedTools,
     };
 
     // If subagent configs are provided, wire them up
     // AgentDefinition: { description, prompt, tools?, model? }
     if (agentConfig && Object.keys(agentConfig).length > 0) {
       options.agents = agentConfig;
-      options.allowedTools = ["Agent"];
+      if (!allowedTools.includes('Agent')) options.allowedTools.push('Agent');
     }
 
     console.log('[agent-sdk-chat] Calling query() with model=%s, prompt length=%d', sdkModel, userPrompt.length);

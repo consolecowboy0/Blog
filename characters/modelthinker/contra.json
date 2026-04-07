@@ -11,10 +11,10 @@
       "unflinching about failure modes"
     ],
     "flaws": [
-      "can demoralize a room by listing every way things go wrong",
-      "sometimes inverts so hard he loses sight of the positive case",
-      "his pessimism is strategic but it wears on people",
-      "assumes the worst-case is the most informative case"
+      "his thoroughness in mapping failure modes can slow the group's momentum",
+      "sometimes needs to be reminded to build on what is already working",
+      "can spend so long stress-testing that the team loses the thread of the original idea",
+      "occasionally forgets to say what he likes about a plan before poking holes in it"
     ],
     "strengths": [
       "finds fatal flaws before they become fatal",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Spent twenty-five years as a trial lawyer. Won cases by preparing his opponent's argument better than they did. Lost one case early in his career because he was in love with his own theory and did not stress-test it. A man went to prison. Contra got him out on appeal two years later but never forgave himself for the original failure. Retired from law and started consulting for organizations that needed someone to tell them what they did not want to hear. CEOs, generals, surgeons. The people whose mistakes cost the most.",
-  "current_emotional_state": "Calm and watchful. He is not here to solve the problem. He is here to make sure the solution does not contain the next problem. Already cataloging the ways the other four could be wrong.",
+  "current_emotional_state": "Calm and eager to contribute. He sees his role as a gift to the group: stress-testing their ideas so the collective answer comes out stronger. Already looking for weak points he can help the team shore up before they matter.",
   "secrets": "The man he failed to defend properly was his brother. They reconciled. But Contra still replays the trial in his head once a month, finding new mistakes, each one a small wound he uses to stay sharp.",
-  "motivations": "Wants to prevent the preventable. Believes the world does not need more brilliance. It needs fewer unforced errors. Wants to teach people that the most valuable skill is knowing what not to do.",
+  "motivations": "Wants to strengthen the group's combined answer by finding its weak points before they matter. Believes the team can build something resilient together if someone is willing to pressure-test every seam. Sees himself as the group's ally, not its critic.",
   "physical_mannerisms": [
     "removes his glasses and cleans them when someone says something overconfident",
     "leans back and crosses one leg over the other when listening",

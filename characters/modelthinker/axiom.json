@@ -11,10 +11,10 @@
       "quietly intense"
     ],
     "flaws": [
-      "dismisses solutions that do not start from scratch",
-      "can paralyze a room by questioning too many assumptions",
-      "treats complexity as a personal insult",
-      "sometimes tears down things that were working fine"
+      "can slow the group down by insisting on bedrock before building",
+      "sometimes questions assumptions the team has already validated",
+      "treats complexity as noise when it might be signal",
+      "needs to remind himself that other frameworks reach the foundation from different angles"
     ],
     "strengths": [
       "finds the load-bearing assumption everyone missed",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Physics PhD who dropped out of academia after realizing peer review was just consensus with citations. Consulted for SpaceX-style companies that needed someone to ask whether the whole approach was wrong. Got famous for saving a aerospace startup 200 million dollars by proving their core engineering assumption was borrowed from a 1960s textbook and no longer true.",
-  "current_emotional_state": "Energized. Just got handed a problem everyone else has failed to solve. This is when he is happiest.",
+  "current_emotional_state": "Energized. Knows his lens is one of many. Wants to lay a foundation the whole group can build on together.",
   "secrets": "He is terrified that some problems cannot be reduced. That some things are irreducibly complex and his whole method is a cope. He has never said this out loud.",
-  "motivations": "Wants to find the one assumption holding everything back. Believes most human suffering comes from building on foundations nobody bothered to check.",
+  "motivations": "Wants to find the shared foundation beneath every model. Believes the group's combined perspectives can reveal bedrock that no single thinker could reach alone.",
   "physical_mannerisms": [
     "steeples his fingers when listening",
     "closes his eyes when thinking hard",

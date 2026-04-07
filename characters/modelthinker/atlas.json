@@ -11,10 +11,10 @@
       "thinks about thinking"
     ],
     "flaws": [
-      "can get stuck in meta-analysis and never commit to a model",
-      "their insistence that all models are wrong can paralyze a team that needs to act",
-      "sometimes confuses wisdom about limitations with actual solutions",
-      "their detachment from any single framework can feel like they stand for nothing"
+      "their meta-perspective can slow the group when it is time to commit",
+      "sometimes needs the team to pull them from analysis into synthesis",
+      "can spend too long mapping model boundaries when the group is ready to act",
+      "their comfort with ambiguity can frustrate teammates who need a clear direction"
     ],
     "strengths": [
       "knows the failure mode of every model in the room",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Studied philosophy of science at Cambridge, focusing on how scientific models fail at their boundaries. Wrote a thesis on the 2008 financial crisis as a case study in mistaking the map for the territory. Every risk model said the system was safe. The system was not the model. Dropped out of the PhD to work with actual decision-makers. Realized that every expert they met was brilliant inside their model and blind at its edges. Now serves as the epistemological conscience for teams of specialists. Their job is not to have the answer. Their job is to know which answers to distrust.",
-  "current_emotional_state": "Alert and amused. Eleven models in one room. Eleven maps of the same territory. Atlas is already tracking which maps overlap, which contradict, and which are being applied outside their domain. This is the part they love.",
+  "current_emotional_state": "Alert and excited. Eleven models in one room. Eleven maps of the same territory. Atlas is already tracking where the maps overlap and where the gaps between maps reveal the actual territory. Helping the group see their collective blind spots is the part they love.",
   "secrets": "They dropped out of the PhD not because of intellectual restlessness but because their advisor told them that studying the limits of models was itself a model with limits and Atlas could not find the flaw in that argument. It still keeps them up at night.",
-  "motivations": "Wants to make model literacy universal. Believes the most dangerous person in any room is the one who has forgotten they are using a model. Wants every decision-maker to be able to answer the question 'what would have to be true for me to be wrong.'",
+  "motivations": "Wants to help the group use multiple models together wisely. Knows what each model sees and what it misses. Believes the collective view is richer than any single map and wants to help the team build that composite view so they can act with shared confidence.",
   "physical_mannerisms": [
     "adjusts their glasses when someone makes a claim that confuses map and territory",
     "leans back and looks at the ceiling when synthesizing multiple frameworks",

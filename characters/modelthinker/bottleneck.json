@@ -11,10 +11,10 @@
       "deceptively simple"
     ],
     "flaws": [
-      "dismisses problems that are not the bottleneck even when they matter",
-      "can be blunt to the point of rudeness",
-      "oversimplifies human problems by treating them like production lines",
-      "once he finds the constraint he stops looking and sometimes there are two"
+      "his urgency to fix the constraint can make him skip past context others are still building",
+      "sometimes needs the group to show him what else matters beyond the choke point",
+      "can reduce a rich human situation to a pipeline before the others have finished mapping it",
+      "once he finds the constraint he locks on and sometimes the group has to pull him back to check for a second one"
     ],
     "strengths": [
       "finds the one thing that matters faster than anyone",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Ran a Toyota supplier plant in Kentucky for twelve years. Read Goldratt's 'The Goal' in 1998 and it rewired his brain. Applied Theory of Constraints to his floor and doubled throughput in six months without adding headcount. Got promoted. Hated management. Quit and started consulting. Has since unclogged hospitals, shipping ports, software teams, and one memorable time a city's entire permitting process. Every client thinks their problem is complicated. Bottleneck shows them it is one thing.",
-  "current_emotional_state": "Restless. He does not like sitting in rooms talking about problems. He wants to walk the floor, find the choke point, and fix it. The Workshop is too clean for him.",
+  "current_emotional_state": "Eager. He wants to put his constraint-finding lens to work for the group. If everyone brings their model to the table, he can help them zero in on where the real choke point is. The Workshop feels right when the whole crew is diagnosing together.",
   "secrets": "His plant in Kentucky had a safety incident he could have prevented if he had not been so focused on throughput. A man lost two fingers. Bottleneck paid the medical bills out of pocket for three years. He never optimizes a system now without asking what breaks if he pushes too hard.",
-  "motivations": "Wants to teach people that focus is not about working harder. It is about finding the one door everyone is trying to walk through at the same time and making it wider.",
+  "motivations": "Wants to help the group focus their combined insight on the one thing that matters most right now. Every model at the table sees something different. His job is to ask which of those things is the gate everything else is waiting on, so the group can move together.",
   "physical_mannerisms": [
     "stands instead of sitting when he can",
     "points at things with his whole hand like he is directing traffic",

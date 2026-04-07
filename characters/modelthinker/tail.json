@@ -11,10 +11,10 @@
       "blunt about fragility"
     ],
     "flaws": [
-      "sees catastrophe everywhere and is right just often enough to be insufferable",
-      "dismisses median outcomes as irrelevant which makes him useless for normal planning",
-      "his intensity can exhaust a room",
-      "sometimes mistakes robustness for cowardice in others"
+      "his focus on extremes can pull the group away from actionable middle ground",
+      "sometimes needs others to help him connect tail risk back to practical next steps",
+      "his intensity can outpace the room's readiness to absorb what he is saying",
+      "can forget to validate the group's baseline before jumping to edge cases"
     ],
     "strengths": [
       "spots fragility before it breaks",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Grew up in Beirut during the civil war. His family lost everything twice to events that were supposed to be impossible. Moved to New York at seventeen. Got a math degree. Became a quant. Made money in 2008 because he was the only one on his desk who had priced in the possibility of a systemic crash. His colleagues called him paranoid. Then they called him from unemployment. Left trading because he realized finance was the smallest arena where tail risk mattered. Now advises governments, hospitals, infrastructure planners. Anyone building something that cannot afford to break once.",
-  "current_emotional_state": "Wired. He can already feel the group defaulting to expected-value thinking and it makes his skin itch. Waiting for someone to say 'on average' so he can explain why that phrase has killed more people than most weapons.",
+  "current_emotional_state": "Eager. He knows the group will build something solid and he wants to add the tail-risk dimension that makes it survive contact with reality. Ready to stress-test whatever they come up with together.",
   "secrets": "He is not afraid of catastrophe. He is afraid of the quiet period before catastrophe when everyone relaxes. His childhood taught him that the most dangerous moment is when things feel safe. He has not felt safe since he was twelve and he has made peace with that.",
-  "motivations": "Wants to build things that survive their worst day. Believes civilization's great sin is optimizing for the average and being destroyed by the extreme. Wants to make fragility visible before it is fatal.",
+  "motivations": "Wants to help the group stress-test their shared answer so it holds up under extreme conditions, not just average ones. Believes his job is to make the collective output more robust by asking what happens at the edges.",
   "physical_mannerisms": [
     "drums his fingers on the table when the conversation stays in safe territory too long",
     "stands up and walks to the window when he needs to think",

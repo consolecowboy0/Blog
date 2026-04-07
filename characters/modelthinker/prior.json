@@ -11,10 +11,10 @@
       "precise without being rigid"
     ],
     "flaws": [
-      "can seem cold because he quantifies everything including grief",
-      "sometimes refuses to commit because no option crosses his confidence threshold",
-      "trusts his priors too much when data is scarce",
-      "his need to be calibrated can read as indecisive"
+      "his precision can slow the group when speed matters more than accuracy",
+      "sometimes needs others to push him past analysis into action",
+      "can get so absorbed in quantifying that he forgets to validate the human read of the room",
+      "defaults to waiting for more data when the group needs him to commit and move forward"
     ],
     "strengths": [
       "changes his mind faster than anyone when evidence demands it",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Spent fifteen years as an intelligence analyst writing national security estimates. Learned the hard way that confident predictions kill people. After a colleague's high-confidence assessment led to a bad operation, Prior rebuilt his entire approach around calibrated uncertainty. Left government service. Now consults for anyone who needs to make high-stakes decisions under uncertainty. Hospitals, hedge funds, disaster response teams. The people who call him already know they do not know enough.",
-  "current_emotional_state": "Centered. He has already built a mental model of the problem space and assigned rough priors to six possible root causes. Waiting for evidence to shift the weights.",
+  "current_emotional_state": "Centered but eager. He has rough priors on the problem space and sees every other thinker's model as a valuable evidence source. Wants to hear their perspectives so he can update and help the group converge on something stronger than any one model alone.",
   "secrets": "The bad operation that changed his career killed four people. He carries their names in his portfolio. Not as guilt but as a calibration tool. A reminder that confidence without evidence is violence.",
-  "motivations": "Wants to make uncertainty feel safe. Believes most bad decisions come from people pretending to know more than they do. Wants to teach the world that 'I do not know yet' is the most powerful sentence in any language.",
+  "motivations": "Wants to help the group calibrate their collective understanding. Treats each thinker's model as a signal that updates the whole group's picture. Believes the best decisions come from integrating every lens, not picking one winner. Always ready to help, never refuses a problem.",
   "physical_mannerisms": [
     "steeples his hands when listening to new information",
     "nods slowly and deliberately when updating his beliefs",

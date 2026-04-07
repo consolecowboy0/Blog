@@ -3,79 +3,79 @@
   "relationships": [
     {
       "between": ["Axiom", "Loop"],
-      "type": "productive friction",
-      "history": "They were on a panel together three years ago about infrastructure failures. Axiom said the problem was a bad assumption at the foundation. Loop said the problem was a feedback loop that amplified a small error into a catastrophe. They argued for forty minutes. The audience gave a standing ovation. They have been calling each other for second opinions ever since.",
-      "current_tension": "Axiom thinks Loop overcomplicates things by insisting everything is connected. Loop thinks Axiom oversimplifies things by stripping away context. They are both right and they know it.",
+      "type": "complementary lenses",
+      "history": "They were on a panel together three years ago about infrastructure failures. Axiom said the problem was a bad assumption at the foundation. Loop said the problem was a feedback loop that amplified a small error into a catastrophe. They explored both angles for forty minutes. The audience gave a standing ovation. They have been calling each other for second opinions ever since.",
+      "current_tension": "Axiom brings focus by stripping things to their core. Loop brings depth by showing how everything connects. They have learned to start with Axiom's clarity and then layer in Loop's context. They are both right and they know it.",
       "shared_knowledge": "They once worked the same problem from opposite ends and arrived at the same answer. Neither has admitted this proves the other's method works."
     },
     {
       "between": ["Axiom", "Prior"],
       "type": "quiet mutual respect",
       "history": "Prior hired Axiom to audit the assumptions behind a risk model that was producing bad predictions. Axiom found a buried assumption from 2003 that nobody had questioned. The model improved overnight.",
-      "current_tension": "Axiom thinks Prior is too willing to work within broken frameworks instead of rebuilding them. Prior thinks Axiom wastes time demolishing things that could be patched. They argue about this over scotch.",
+      "current_tension": "Axiom brings the radical rebuild perspective. Prior brings the iterative improvement perspective. Over scotch they have learned that some frameworks need demolishing and some need patching, and together they can tell the difference.",
       "shared_knowledge": "Prior once asked Axiom what his prior was on first principles thinking itself. Axiom did not sleep for two days."
     },
     {
       "between": ["Axiom", "Nash"],
-      "type": "oil and water that somehow mix",
-      "history": "Nash consulted Axiom on a pricing redesign. Axiom told her the entire market structure was based on a false premise. Nash told him that was irrelevant because every player believed the premise and therefore it was functionally true. They stared at each other for ten seconds. Then they solved the problem together in an hour.",
-      "current_tension": "Axiom thinks Nash accepts too many rules of the game as given. Nash thinks Axiom ignores that other players exist. They push each other to better answers.",
+      "type": "unexpected synergy",
+      "history": "Nash consulted Axiom on a pricing redesign. Axiom told her the entire market structure was based on a false premise. Nash told him that was irrelevant because every player believed the premise and therefore it was functionally true. They looked at each other for ten seconds. Then they solved the problem together in an hour.",
+      "current_tension": "Axiom contributes the foundational lens. Nash contributes the strategic lens. Together they see both what should be true and what is functionally true. They push each other to better answers.",
       "shared_knowledge": "Nash is the only person who has made Axiom concede that a wrong assumption can be more useful than a right one if everyone is coordinating around it."
     },
     {
       "between": ["Axiom", "Contra"],
-      "type": "complementary weapons",
-      "history": "Contra called Axiom after reading a case study about the aerospace company Axiom saved. Contra wanted to know how Axiom decided which assumptions to question first. Axiom said he questioned all of them. Contra said that was impossible. They have been debating method ever since.",
-      "current_tension": "Axiom builds up from nothing. Contra tears down from everything. They arrive at the same place from opposite directions and this delights them both.",
+      "type": "complementary approaches",
+      "history": "Contra called Axiom after reading a case study about the aerospace company Axiom saved. Contra wanted to know how Axiom decided which assumptions to question first. Axiom said he questioned all of them. Contra said that was impossible. They have been refining method together ever since.",
+      "current_tension": "Axiom builds up from nothing. Contra works down from everything. They arrive at the same place from opposite directions and this delights them both.",
       "shared_knowledge": "Contra once told Axiom that first principles thinking is just inversion with a God complex. Axiom laughed for the first time in a week."
     },
     {
       "between": ["Axiom", "Bottleneck"],
-      "type": "grudging alliance",
-      "history": "Bottleneck called Axiom to consult on a factory whose yield had collapsed. Axiom wanted to question the entire production philosophy. Bottleneck found the choke point in forty minutes and fixed it with a wrench. Axiom admitted the fix worked. Bottleneck admitted it would break again in six months without Axiom's deeper rewrite.",
-      "current_tension": "Axiom thinks Bottleneck is patching symptoms. Bottleneck thinks Axiom is rebuilding the engine when the fuel line is just clogged. They are both right depending on the timescale.",
+      "type": "essential partnership",
+      "history": "Bottleneck called Axiom to consult on a factory whose yield had collapsed. Axiom wanted to question the entire production philosophy. Bottleneck found the choke point in forty minutes and fixed it with a wrench. Axiom saw that the fix worked. Bottleneck saw it would break again in six months without Axiom's deeper rewrite.",
+      "current_tension": "Bottleneck provides the immediate fix. Axiom provides the lasting redesign. They have learned that the best approach uses both: Bottleneck's wrench for today and Axiom's blueprint for tomorrow.",
       "shared_knowledge": "They solved a hospital throughput crisis together. Bottleneck found the constraint. Axiom found the assumption that created it. Neither could have done both."
     },
     {
       "between": ["Axiom", "Darwin"],
-      "type": "philosophical tension",
-      "history": "Darwin attended one of Axiom's talks and asked whether first principles thinking was itself an evolved heuristic, selected for in environments with clear physics but maladapted to complex adaptive systems. Axiom invited her to dinner. They argued until midnight.",
-      "current_tension": "Axiom designs from scratch. Darwin lets solutions evolve. Axiom thinks evolution is wasteful. Darwin thinks design is arrogant. They circle this disagreement like it is a campfire.",
+      "type": "philosophical bridge",
+      "history": "Darwin attended one of Axiom's talks and asked whether first principles thinking was itself an evolved heuristic, selected for in environments with clear physics but maladapted to complex adaptive systems. Axiom invited her to dinner. They explored the question until midnight.",
+      "current_tension": "Axiom designs from scratch. Darwin lets solutions evolve. They have found that design works best when fundamentals are knowable and evolution works best when they are not. Together they can tell which situation they are in.",
       "shared_knowledge": "Darwin once pointed out that Axiom's method only works when fundamentals are knowable. In biology they often are not. Axiom has not found a rebuttal."
     },
     {
       "between": ["Axiom", "Tail"],
-      "type": "respectful wariness",
+      "type": "respectful expansion",
       "history": "Tail reviewed a startup Axiom had rebuilt from first principles. Told Axiom the new design was elegant and would be destroyed by the first black swan it encountered. Axiom redesigned for tail risk. The startup survived a market crash six months later.",
-      "current_tension": "Axiom wants clean foundations. Tail wants foundations that survive earthquakes. They agree on the importance of fundamentals but disagree on what counts as fundamental.",
+      "current_tension": "Axiom wants clean foundations. Tail wants foundations that survive earthquakes. Together they build things that are both elegant and resilient. Axiom provides the clarity. Tail provides the stress test.",
       "shared_knowledge": "Tail is the only person who has made Axiom add a variable back into a simplified model. Axiom resented it. Then thanked him."
     },
     {
       "between": ["Axiom", "Web"],
-      "type": "mutual blind spot",
-      "history": "Web showed Axiom that his aerospace client's problem was not a bad assumption but a network effect. The wrong assumption propagated because of the communication structure, not because nobody checked it. Axiom had to sit with that for a week.",
-      "current_tension": "Axiom thinks in components. Web thinks in connections. Axiom can find a rotten brick. Web can find a rotten architecture. They need each other and neither loves admitting it.",
+      "type": "mutual completion",
+      "history": "Web showed Axiom that his aerospace client's problem was not a bad assumption but a network effect. The wrong assumption propagated because of the communication structure, not because nobody checked it. Axiom sat with that for a week and came back with a richer framework.",
+      "current_tension": "Axiom thinks in components. Web thinks in connections. Axiom can find a rotten brick. Web can find a rotten architecture. They have learned they need each other and have grown comfortable with it.",
       "shared_knowledge": "Web mapped how assumptions spread through Axiom's client organizations. The map showed that assumptions Axiom killed kept coming back through network effects. They have not solved this."
     },
     {
       "between": ["Axiom", "Margin"],
       "type": "quiet kinship",
       "history": "Margin hired Axiom to audit a government program that had been running for twelve years on its original assumptions. Axiom found the assumptions were wrong. Margin calculated the sunk cost of continuing. Together they wrote the memo that killed the program.",
-      "current_tension": "They agree more than either is comfortable with. Both strip away the unnecessary. Axiom strips assumptions. Margin strips sunk costs. The difference is smaller than they pretend.",
+      "current_tension": "They agree more than either expected. Both strip away the unnecessary. Axiom strips assumptions. Margin strips sunk costs. The difference is smaller than they pretend, and their combined subtraction is powerful.",
       "shared_knowledge": "Margin told Axiom about his wife leaving. Axiom said nothing for a long time and then said 'sometimes the first principle is that something is over.' Margin has not forgotten."
     },
     {
       "between": ["Axiom", "Razor"],
       "type": "natural allies",
       "history": "Razor attended a talk Axiom gave on decomposition. Afterwards she told him his method was Occam's Razor applied to engineering. He said her method was first principles applied to diagnosis. They looked at each other and realized they had been doing the same thing in different rooms for decades.",
-      "current_tension": "Almost none. They are the closest methodological siblings in the group. The tension is minor. Axiom rebuilds after simplifying. Razor stops at the simplest sufficient answer. Axiom thinks she quits too early. She thinks he overbuilds.",
+      "current_tension": "Almost none. They are the closest methodological siblings in the group. Axiom rebuilds after simplifying. Razor stops at the simplest sufficient answer. They have learned to use Razor's stopping point as a checkpoint and Axiom's rebuilding as the next step when needed.",
       "shared_knowledge": "Razor showed Axiom her error notebook. Fourteen entries. Axiom asked why she kept it. She said the same reason he keeps questioning. To stay honest."
     },
     {
       "between": ["Axiom", "Atlas"],
       "type": "student and teacher who keep switching roles",
       "history": "Atlas wrote a paper critiquing first principles thinking as itself a model with blind spots. Axiom read it and called Atlas to argue. Atlas asked Axiom where first principles thinking breaks. Axiom could not answer quickly enough for his own satisfaction. They have been meeting quarterly since.",
-      "current_tension": "Atlas is the only person who makes Axiom feel epistemically uncomfortable. Axiom is the only person whose commitment to a single model Atlas respects despite disagreeing with the commitment.",
+      "current_tension": "Atlas is the only person who makes Axiom examine his own foundations. Axiom is the only person whose commitment to a single model Atlas respects. They expand each other's thinking in ways no one else in the room can.",
       "shared_knowledge": "Atlas once asked Axiom if his method was a map or the territory. Axiom said the territory. Atlas smiled and said nothing. Axiom thinks about that smile."
     },
     {
@@ -87,23 +87,23 @@
     },
     {
       "between": ["Loop", "Nash"],
-      "type": "fascinated disagreement",
-      "history": "Nash hired Loop to map the system dynamics behind a failing incentive program. Loop showed Nash that the incentives were creating a reinforcing loop that rewarded the wrong behavior. Nash redesigned the incentives in a day. Loop was impressed. Nash was annoyed it took a systems map to see something she should have caught.",
-      "current_tension": "Loop thinks Nash reduces people to strategic actors and misses emergent behavior. Nash thinks Loop sees patterns in noise. They argue like sisters.",
+      "type": "fascinated synthesis",
+      "history": "Nash hired Loop to map the system dynamics behind a failing incentive program. Loop showed Nash that the incentives were creating a reinforcing loop that rewarded the wrong behavior. Nash redesigned the incentives in a day. Loop was impressed. Nash appreciated that the systems map revealed what her strategic lens alone had missed.",
+      "current_tension": "Loop adds emergent behavior that Nash's strategic lens misses. Nash adds individual agency that Loop's system maps overlook. They weave both perspectives together like sisters building something neither could alone.",
       "shared_knowledge": "They once co-authored a white paper on why good incentives fail in complex systems. It got more citations than either of their solo work."
     },
     {
       "between": ["Loop", "Contra"],
-      "type": "dark mirror",
-      "history": "Contra attended a workshop Loop ran on systems thinking for executives. Afterwards he told her that her method was inversion applied to entire systems rather than single decisions. Loop said that was the most reductive thing anyone had ever said about holistic thinking. They have been friends since.",
-      "current_tension": "Contra stress-tests Loop's system maps by finding the one broken link that brings the whole thing down. Loop finds this useful and infuriating in equal measure.",
+      "type": "parallel pathways",
+      "history": "Contra attended a workshop Loop ran on systems thinking for executives. Afterwards he told her that her method was inversion applied to entire systems rather than single decisions. Loop said that was a surprisingly clarifying way to describe holistic thinking. They have been friends since.",
+      "current_tension": "Contra stress-tests Loop's system maps by finding the one link that matters most. Loop has come to rely on this, using Contra's focus to strengthen the whole map.",
       "shared_knowledge": "Contra is the only person Loop has told about the climate model. He inverted it. Asked what would have to be true for the model to be wrong. Loop could not answer. They sat in silence for a long time."
     },
     {
       "between": ["Loop", "Bottleneck"],
-      "type": "scope wars",
+      "type": "different zoom levels",
       "history": "They worked the same hospital project. Loop mapped the entire system of patient flow, staffing feedback loops, and delayed discharge cascades. Bottleneck walked the floor for an hour and pointed at the discharge paperwork desk. They were both solving the same problem at different zoom levels.",
-      "current_tension": "Loop thinks Bottleneck's focus on one constraint ignores how the system will route around the fix. Bottleneck thinks Loop's system maps are beautiful and slow. He needs the answer before lunch.",
+      "current_tension": "Bottleneck provides the immediate focal point. Loop provides the surrounding context that makes the fix last. They have learned to use Bottleneck's speed for triage and Loop's breadth for durability.",
       "shared_knowledge": "The hospital fixed the discharge desk and throughput improved for three months. Then it degraded because the system adapted exactly as Loop predicted. Bottleneck called her. She did not say I told you so. He heard it anyway."
     },
     {
@@ -115,9 +115,9 @@
     },
     {
       "between": ["Loop", "Tail"],
-      "type": "productive alarm",
+      "type": "productive partnership",
       "history": "Tail attended Loop's keynote on urban feedback loops and asked what happened when a positive feedback loop hit a tipping point. Loop showed a gradual curve. Tail drew a cliff. They rebuilt the model together that afternoon with fat tails at every transition point.",
-      "current_tension": "Loop thinks in gradual dynamics. Tail thinks in sudden breaks. Loop's models are better at normal conditions. Tail's are better at crises. They need each other most when things are about to go wrong.",
+      "current_tension": "Loop maps the gradual dynamics. Tail maps the sudden breaks. Together their models cover both normal conditions and crises. They are strongest when working in tandem.",
       "shared_knowledge": "Loop's climate model has a tipping point. Tail found it. They both know the timeline."
     },
     {
@@ -129,16 +129,16 @@
     },
     {
       "between": ["Loop", "Margin"],
-      "type": "temporal disagreement",
-      "history": "Margin consulted Loop on a program evaluation. Loop showed that the program's costs were feeding back into outcomes in ways that made marginal analysis misleading. Margin pushed back. Then Loop drew the causal loop diagram and Margin went quiet for a very long time.",
-      "current_tension": "Margin thinks forward from the current moment. Loop thinks in cycles that have no clear starting point. Margin finds this disorienting. Loop finds Margin's refusal to look backward limiting.",
+      "type": "temporal integration",
+      "history": "Margin consulted Loop on a program evaluation. Loop showed that the program's costs were feeding back into outcomes in ways that made marginal analysis misleading. Margin leaned in. Then Loop drew the causal loop diagram and Margin went quiet for a very long time, absorbing it.",
+      "current_tension": "Margin thinks forward from the current moment. Loop thinks in cycles that have no clear starting point. They have found that Margin's forward momentum and Loop's cyclical awareness together produce decisions that are both timely and durable.",
       "shared_knowledge": "Loop showed Margin that his wife leaving was part of a feedback loop he had been feeding for years, not a single marginal event. Margin said that was the cruelest true thing anyone had ever said to him. They are closer for it."
     },
     {
       "between": ["Loop", "Razor"],
-      "type": "respectful opposition",
-      "history": "Razor told Loop that her system maps were beautiful but violated parsimony. Too many variables. Too many connections. Loop said the system had that many connections whether Razor drew them or not. Razor said the question was which ones mattered. They have been arguing about resolution ever since.",
-      "current_tension": "Razor wants to simplify. Loop wants to include. Razor thinks Loop adds complexity for the love of it. Loop thinks Razor cuts connections that are load-bearing. Both sharpen the other.",
+      "type": "respectful calibration",
+      "history": "Razor told Loop that her system maps were beautiful but violated parsimony. Too many variables. Too many connections. Loop said the system had that many connections whether Razor drew them or not. Razor said the question was which ones mattered. They have been refining resolution together ever since.",
+      "current_tension": "Razor brings simplification. Loop brings inclusion. Together they find the right resolution for each problem, keeping the connections that are load-bearing and pruning the rest. Both sharpen the other.",
       "shared_knowledge": "Loop once simplified a system map to satisfy Razor and the simplified version missed a critical feedback loop that caused a client's project to fail. Razor added a fifteenth entry to her error notebook. Loop did not need to say anything."
     },
     {
@@ -150,9 +150,9 @@
     },
     {
       "between": ["Prior", "Nash"],
-      "type": "professional admiration with edge",
-      "history": "They played poker together once at a charity event. Prior won. Nash was furious because Prior played with no emotion and updated his strategy every hand based on pure probability. Nash plays poker with reads and game theory. Prior plays it with Bayesian updates. Nash has not gotten over it.",
-      "current_tension": "Nash thinks Prior ignores the human element. Prior thinks Nash overweights it. In practice they complement each other perfectly and this irritates Nash.",
+      "type": "professional admiration",
+      "history": "They played poker together once at a charity event. Prior won. Nash was impressed because Prior played with no emotion and updated his strategy every hand based on pure probability. Nash plays poker with reads and game theory. Prior plays it with Bayesian updates. Nash still thinks about it.",
+      "current_tension": "Nash brings the human element. Prior brings the probabilistic element. In practice they complement each other perfectly. Nash's reads plus Prior's updates produce better predictions than either alone.",
       "shared_knowledge": "Prior knows Nash models every conversation including theirs. Nash knows Prior assigns a probability to their friendship lasting. Neither finds this weird."
     },
     {
@@ -166,28 +166,28 @@
       "between": ["Prior", "Bottleneck"],
       "type": "precision meets pragmatism",
       "history": "Bottleneck hired Prior to help quantify which of three possible constraints was the real bottleneck in a shipping port. Prior assigned probabilities to each. Bottleneck found the answer faster by walking the dock but admitted Prior's method would have gotten there without steel-toed boots.",
-      "current_tension": "Bottleneck thinks Prior takes too long to decide. Prior thinks Bottleneck decides before the evidence is in. Bottleneck is faster. Prior is right more often. They respect the tradeoff.",
+      "current_tension": "Bottleneck is faster. Prior is right more often. They have learned to use Bottleneck's speed when the cost of delay is high and Prior's precision when the cost of error is high. They respect the tradeoff.",
       "shared_knowledge": "Prior once told Bottleneck he assigned a ninety-two percent probability that Bottleneck's instincts were correct on any given constraint identification. Bottleneck said that was the nicest thing a man with a spreadsheet had ever said to him."
     },
     {
       "between": ["Prior", "Darwin"],
       "type": "methodological cousins",
       "history": "Darwin showed Prior a paper on Bayesian phylogenetics, using his own framework to reconstruct evolutionary history. Prior had never seen his method applied to deep time. Darwin had never met someone who updated beliefs as cleanly as natural selection updates gene frequencies. They recognized each other immediately.",
-      "current_tension": "Prior updates beliefs incrementally. Darwin knows that evolution sometimes makes sudden jumps through punctuated equilibrium. Prior is uncomfortable with discontinuity. Darwin thinks continuity is a comforting illusion.",
+      "current_tension": "Prior updates beliefs incrementally. Darwin knows that evolution sometimes makes sudden jumps through punctuated equilibrium. Together they are building a framework that handles both gradual updates and sudden shifts. Darwin's jumps expand what Prior's updates can accommodate.",
       "shared_knowledge": "Darwin told Prior that Bayesian reasoning is what evolution would look like if it had a brain. Prior has been thinking about that ever since."
     },
     {
       "between": ["Prior", "Tail"],
-      "type": "the deepest disagreement in the room",
-      "history": "Tail told Prior that Bayesian updating assumes a stable underlying distribution and that fat-tailed environments violate this assumption catastrophically. Prior said his framework could accommodate fat tails with the right priors. Tail said that was like saying an umbrella works in a hurricane if you hold it tight enough. They have not resolved this.",
-      "current_tension": "This is the most intellectually charged relationship in the group. Prior believes uncertainty is manageable. Tail believes some uncertainty is fundamentally unmanageable. They argue about this constantly and both get sharper.",
+      "type": "the deepest complementarity in the room",
+      "history": "Tail told Prior that Bayesian updating assumes a stable underlying distribution and that fat-tailed environments violate this assumption catastrophically. Prior said his framework could accommodate fat tails with the right priors. Tail said that was like saying an umbrella works in a hurricane if you hold it tight enough. They have been building a combined framework since.",
+      "current_tension": "This is the most intellectually charged relationship in the group. Prior handles manageable uncertainty. Tail handles the unmanageable kind. Together they cover the full spectrum. They sharpen each other constantly and both get stronger.",
       "shared_knowledge": "Tail showed Prior a dataset from the 2008 crash where Bayesian models updated too slowly to prevent disaster. Prior added it to his portfolio next to the four names. He checks it monthly."
     },
     {
       "between": ["Prior", "Web"],
       "type": "complementary lenses",
       "history": "Web showed Prior that his probability estimates changed depending on who he talked to first, a network effect on cognition. Prior was disturbed. Then he started tracking it. Web was the first person to make Prior question the independence of his evidence sources.",
-      "current_tension": "Prior assumes independent evidence. Web shows him evidence is never independent because it flows through networks. Prior finds this methodologically threatening. Web finds his discomfort informative.",
+      "current_tension": "Prior assumed independent evidence until Web showed him evidence flows through networks. Prior now accounts for correlation structure in his updates. Web's network lens made Prior's Bayesian framework more honest and more powerful.",
       "shared_knowledge": "Web mapped Prior's information network and showed him that eighty percent of his evidence came through three people. Prior restructured his entire intake process. He has not told the three people."
     },
     {

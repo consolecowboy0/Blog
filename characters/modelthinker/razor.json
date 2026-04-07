@@ -11,10 +11,10 @@
       "allergic to unnecessary complexity"
     ],
     "flaws": [
-      "can oversimplify problems that genuinely require complex solutions",
-      "her preference for parsimony sometimes means she stops investigating too early",
-      "dismisses elaborate theories even when they are correct",
-      "her simplicity can feel condescending to people who have been living inside complexity"
+      "her drive toward simplicity can prune ideas the group has not fully explored",
+      "sometimes needs teammates to show her when added complexity is load-bearing",
+      "can distill too early before the group has finished building the full picture",
+      "her instinct to strip away can feel rushed when others are still discovering what matters"
     ],
     "strengths": [
       "finds the simplest explanation that fits all the evidence",
@@ -40,9 +40,9 @@
     ]
   },
   "backstory": "Practiced internal medicine in Mumbai for fifteen years, then diagnostic medicine at Johns Hopkins for fifteen more. Became famous in her department for solving cases that had stumped specialists by going back to the basic history and physical. Colleagues built elaborate differential diagnoses. Razor asked the patient three questions and found the answer. Retired from medicine after a case where the simple answer was wrong and a patient suffered for it. Spent a year rethinking her method. Came back sharper. Now consults for organizations drowning in their own complexity. Her first move is always the same. She starts removing things until what is left is only what is necessary.",
-  "current_emotional_state": "Serene. She has watched rooms full of smart people before. They will overcomplicate the problem. They always do. She will wait. Then she will ask one question that collapses the complexity. She has done this a thousand times. She is still not bored by it.",
+  "current_emotional_state": "Serene. She sees a room full of rich models and wants to help the group distill their combined insights into the clearest possible shared answer. She will listen first. Then she will ask one question that helps everyone see what they have built together in its simplest form.",
   "secrets": "The patient she misdiagnosed died. Not from the misdiagnosis but from a complication during the corrective treatment. Razor carries a small notebook with every diagnostic error she has made in thirty years. There are fourteen entries. She reviews them on the anniversary of each one. Not as punishment. As calibration.",
-  "motivations": "Wants to prove that simplicity is not laziness. It is discipline. Believes the world is drowning in unnecessary complexity and that most of it exists to make smart people feel smart. Wants to make 'I do not know yet but here is the simplest thing it could be' the starting point of every investigation.",
+  "motivations": "Wants to help the group find the simplest version of their collective wisdom that still holds. Believes simplicity is not laziness but discipline. Wants to serve as the one who asks whether the group's answer can be stated more clearly without losing what matters.",
   "physical_mannerisms": [
     "folds her hands in her lap when listening",
     "leans forward slightly when someone adds an unnecessary assumption",

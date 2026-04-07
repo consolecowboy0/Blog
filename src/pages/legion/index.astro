@@ -1476,7 +1476,23 @@ sys.stdout = _stdout_capture
             msg('','','--- Bidding for Round ' + sessionRun + ' ---', true);
             var bids = [];
             var bidPromises = activeAgents.map(function (a) {
-              var transcript = buildTranscript(a.name);
+              var bidLines = [];
+              var start = 0;
+              if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
+                start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
+                bidLines.push('... (' + start + ' earlier messages omitted) ...');
+              }
+              for (var t = start; t < sessionTranscript.length; t++) {
+                var entry = sessionTranscript[t];
+                var text = entry.text;
+                if (a.name && entry.hasWhisper) {
+                  text = stripWhispersFrom(entry.rawText || text, a.name, entry.name);
+                }
+                if (text) {
+                  bidLines.push(entry.name + ': ' + text);
+                }
+              }
+              var transcript = bidLines.join('\n');
               var bidSystem = 'You are ' + a.name + '. You are in a group discussion. A new round is about to begin. Based on the conversation so far, how urgently do you need to speak next? Consider: Do you have a direct response to what was just said? Do you have new information? Is someone wrong and you need to correct them? Are you building on momentum? Or can you wait?\n\nRespond with ONLY a JSON object: {"priority": <number 1-10>, "reason": "<one sentence why>"}\n\n1 = I can wait, nothing urgent. 10 = I must speak now, this cannot wait.\n\nStay in character. Bid based on what your character would actually feel.';
               var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
               return ask(bidSystem, bidMessages).then(function (response) {

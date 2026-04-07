@@ -1463,6 +1463,8 @@ sys.stdout = _stdout_capture
       for (var r = 1; r <= rounds; r++) {
         if (stopRequested) break;
         sessionRun++;
+        // Reset so bidding UI lands at chat root, not inside previous round
+        currentRoundDetails = null;
         var orderMode = document.getElementById('order-mode').value;
         if (orderMode === 'random') {
           for (var s = agents.length - 1; s > 0; s--) {

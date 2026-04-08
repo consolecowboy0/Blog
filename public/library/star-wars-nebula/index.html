@@ -411,6 +411,41 @@ const planets = [
   { id: "crait", name: "Crait", region: "Outer Rim", angle: 110, sig: "Salt flat world, Resistance battle" },
   { id: "eriadu", name: "Eriadu", region: "Outer Rim", angle: 268, sig: "Tarkin's homeworld" },
   { id: "saleucami", name: "Saleucami", region: "Outer Rim", angle: 225, sig: "Clone Wars battle site" },
+  // Hutt Space
+  { id: "nar_shaddaa", name: "Nar Shaddaa", region: "Outer Rim", angle: 348, sig: "Smuggler's Moon, vertical cityscape" },
+  // Mandalorian-era
+  { id: "nevarro", name: "Nevarro", region: "Outer Rim", angle: 75, sig: "Bounty hunter guild, lava flats" },
+  { id: "arvala_7", name: "Arvala-7", region: "Outer Rim", angle: 60, sig: "Desert world where Grogu was found" },
+  { id: "corvus", name: "Corvus", region: "Outer Rim", angle: 85, sig: "Ahsoka's duel with Magistrate Elsbeth" },
+  // Sequel trilogy
+  { id: "kijimi", name: "Kijimi", region: "Mid Rim", angle: 105, sig: "Thieves' quarter, destroyed by Final Order" },
+  { id: "ajan_kloss", name: "Ajan Kloss", region: "Outer Rim", angle: 100, sig: "Resistance jungle base" },
+  { id: "pasaana", name: "Pasaana", region: "Expansion", angle: 210, sig: "Desert world, Sith dagger discovery" },
+  { id: "cantonica", name: "Cantonica", region: "Outer Rim", angle: 155, sig: "Canto Bight casino world" },
+  { id: "dqar", name: "D'Qar", region: "Outer Rim", angle: 95, sig: "Resistance base before evacuation" },
+  // Clone Wars depth
+  { id: "rishi", name: "Rishi", region: "Outer Rim", angle: 335, sig: "Listening post, rookie clone battle" },
+  { id: "christophsis", name: "Christophsis", region: "Outer Rim", angle: 230, sig: "Crystal world, Clone Wars battle" },
+  { id: "lola_sayu", name: "Lola Sayu", region: "Outer Rim", angle: 215, sig: "Citadel prison, Even Piell rescue" },
+  // Sith history
+  { id: "korriban", name: "Korriban", region: "Outer Rim", angle: 345, sig: "Ancient Sith homeworld, Valley of the Dark Lords" },
+  { id: "malachor", name: "Malachor", region: "Outer Rim", angle: 205, sig: "Sith temple, Ahsoka vs Vader" },
+  // Rebels
+  { id: "atollon", name: "Atollon", region: "Outer Rim", angle: 78, sig: "Rebel base, Bendu's world" },
+  { id: "krownest", name: "Krownest", region: "Outer Rim", angle: 55, sig: "Clan Wren stronghold, Mandalorian world" },
+  // Key species/faction worlds
+  { id: "rodia", name: "Rodia", region: "Mid Rim", angle: 280, sig: "Rodian homeworld, swamp world" },
+  { id: "glee_anselm", name: "Glee Anselm", region: "Mid Rim", angle: 160, sig: "Nautolan homeworld, Kit Fisto's world" },
+  // Corporate Sector / trade
+  { id: "muunilinst", name: "Muunilinst", region: "Outer Rim", angle: 35, sig: "Banking Clan headquarters" },
+  { id: "bonadan", name: "Bonadan", region: "Outer Rim", angle: 25, sig: "Corporate Sector industrial world" },
+  // Wild Space
+  { id: "rakata_prime", name: "Rakata Prime", region: "Unknown Regions", angle: 250, sig: "Ancient Infinite Empire homeworld" },
+  { id: "peridea", name: "Peridea", region: "Unknown Regions", angle: 160, sig: "Ancient ruins beyond the galaxy, Thrawn's exile" },
+  // Fill gaps
+  { id: "coaxium", name: "Savareen", region: "Outer Rim", angle: 248, sig: "Coaxium refinery, Solo finale" },
+  { id: "wobani", name: "Wobani", region: "Mid Rim", angle: 220, sig: "Imperial labor camp, Jyn Erso rescued" },
+  { id: "eadu", name: "Eadu", region: "Outer Rim", angle: 245, sig: "Imperial research facility, Galen Erso killed" },
   // Unknown Regions
   { id: "ilum", name: "Ilum", region: "Unknown Regions", angle: 20, sig: "Kyber crystal caves, became Starkiller Base" },
   { id: "ahch_to", name: "Ahch-To", region: "Unknown Regions", angle: 180, sig: "First Jedi Temple, Luke's exile" },
@@ -459,7 +494,32 @@ const extraEdges = [
   ["mon_cala","crait"],["crait","hoth"],["dathomir","nal_hutta"],["ryloth","dathomir"],["balmorra","kuat"],
   ["exegol","byss"],["exegol","tython"],["ilum","csilla"],["ilum","ahch_to"],["commenor","alderaan"],
   ["hosnian_prime","chandrila"],["eriadu","geonosis"],["duro","fondor"],["ord_mantell","kashyyyk"],
-  ["kamino","naboo"],["dagobah","scarif"]
+  ["kamino","naboo"],["dagobah","scarif"],
+  // New system connections
+  ["nar_shaddaa","nal_hutta"],["nar_shaddaa","teth"],["nar_shaddaa","dathomir"],["nar_shaddaa","tatooine"],
+  ["nevarro","lothal"],["nevarro","arvala_7"],["nevarro","mandalore"],["nevarro","corvus"],
+  ["arvala_7","lothal"],["corvus","lothal"],["corvus","kashyyyk"],
+  ["kijimi","takodana"],["kijimi","ord_mantell"],["kijimi","bothawui"],
+  ["ajan_kloss","dqar"],["ajan_kloss","endor"],["ajan_kloss","crait"],
+  ["pasaana","jedha"],["pasaana","jakku"],["pasaana","onderon"],
+  ["cantonica","bespin"],["cantonica","crait"],["cantonica","endor"],
+  ["dqar","takodana"],["dqar","hoth"],["dqar","ajan_kloss"],
+  ["rishi","kamino"],["rishi","yavin"],["rishi","nal_hutta"],
+  ["christophsis","felucia"],["christophsis","saleucami"],["christophsis","utapau"],
+  ["lola_sayu","onderon"],["lola_sayu","felucia"],["lola_sayu","christophsis"],
+  ["korriban","dathomir"],["korriban","nal_hutta"],["korriban","exegol"],["korriban","malachor"],
+  ["malachor","mustafar"],["malachor","dagobah"],["malachor","jedha"],
+  ["atollon","lothal"],["atollon","mandalore"],["atollon","kessel"],
+  ["krownest","mandalore"],["krownest","mygeeto"],["krownest","csilla"],
+  ["rodia","naboo"],["rodia","malastare"],["rodia","dagobah"],
+  ["glee_anselm","kashyyyk"],["glee_anselm","bothawui"],["glee_anselm","takodana"],
+  ["muunilinst","mygeeto"],["muunilinst","csilla"],["muunilinst","bonadan"],
+  ["bonadan","csilla"],["bonadan","ilum"],["bonadan","dantooine"],
+  ["rakata_prime","ahch_to"],["rakata_prime","exegol"],["rakata_prime","tython"],
+  ["peridea","ahch_to"],["peridea","csilla"],["peridea","exegol"],
+  ["coaxium","sullust"],["coaxium","scarif"],["coaxium","eriadu"],["coaxium","kessel"],
+  ["wobani","jedha"],["wobani","scarif"],["wobani","onderon"],
+  ["eadu","scarif"],["eadu","wobani"],["eadu","sullust"],["eadu","mustafar"]
 ];
 extraEdges.forEach(([s, t]) => {
   const key = ek(s, t);

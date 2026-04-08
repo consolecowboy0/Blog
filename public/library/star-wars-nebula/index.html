@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Star Wars Galaxy Network</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #07080f;
+  --bg-panel: #0d1017;
+  --bg-panel-hover: #161d2a;
+  --border: #1b2030;
+  --text: #e0e6f0;
+  --text-sec: #8090a8;
+  --text-muted: #506070;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --deep-core: #fbbf24;
+  --core: #22d3ee;
+  --colonies: #60a5fa;
+  --inner-rim: #4ade80;
+  --expansion: #2dd4bf;
+  --mid-rim: #c084fc;
+  --outer-rim: #fb923c;
+  --unknown: #f87171;
+
+  --route-corellian-run: #22d3ee;
+  --route-trade-spine: #4ade80;
+  --route-perlemian: #fbbf24;
+  --route-rimma: #f87171;
+  --route-hydian: #c084fc;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  margin: 0;
+  overflow: hidden;
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.header h1 {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin: 0;
+}
+
+.header .subtitle {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .side-panel {
+    max-height: 40vh;
+  }
+}
+
+.graph-panel {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.graph-panel svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.side-panel {
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.panel {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-sec);
+  margin-bottom: 10px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: #111620;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  outline: none;
+  border-radius: 0;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-input:focus {
+  border-color: #2a3548;
+}
+
+.route-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  background: #111620;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--route-color, var(--border));
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: all 0.15s;
+}
+
+.route-btn:hover {
+  background: var(--bg-panel-hover);
+}
+
+.route-btn.active {
+  background: var(--bg-panel-hover);
+  border-color: var(--route-color);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  font-size: 0.72rem;
+  transition: opacity 0.2s;
+}
+
+.legend-item.dimmed {
+  opacity: 0.25;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.info-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.info-region {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.info-sig {
+  font-size: 0.72rem;
+  color: var(--text-sec);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.info-stat {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.info-stat span {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.info-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.info-path {
+  margin-top: 8px;
+  padding: 10px;
+  background: #111620;
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  line-height: 1.8;
+  color: var(--text-sec);
+}
+
+.info-path .path-planet {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.info-path .path-arrow {
+  color: var(--text-muted);
+  margin: 0 2px;
+}
+
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: #1a1e2e;
+  color: #fff;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  padding: 5px 10px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 100;
+  border: 1px solid #2a3548;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <h1>Star Wars Galaxy Network</h1>
+      <span class="subtitle">57 systems &middot; 5 trade routes</span>
+    </div>
+    <div class="main">
+      <div class="graph-panel" id="graph"></div>
+      <div class="side-panel">
+        <div class="panel">
+          <div class="panel-title">Search Systems</div>
+          <input type="text" class="search-input" id="search" placeholder="Find a system..." />
+        </div>
+        <div class="panel" id="info-panel">
+          <div class="panel-title">System Info</div>
+          <div id="info-content">
+            <div class="info-hint">Click a system to inspect</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Hyperspace Routes</div>
+          <div id="route-buttons"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Galactic Regions</div>
+          <div id="legend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tooltip" id="tooltip"></div>
+  <script>
+// === DATA ===
+const regionRadius = {
+  "Deep Core": 0.08, "Core": 0.18, "Colonies": 0.28, "Inner Rim": 0.38,
+  "Expansion": 0.48, "Mid Rim": 0.58, "Outer Rim": 0.75, "Unknown Regions": 0.92
+};
+
+const regionColors = {
+  "Deep Core": "#fbbf24", "Core": "#22d3ee", "Colonies": "#60a5fa", "Inner Rim": "#4ade80",
+  "Expansion": "#2dd4bf", "Mid Rim": "#c084fc", "Outer Rim": "#fb923c", "Unknown Regions": "#f87171"
+};
+
+const planets = [
+  // Deep Core
+  { id: "byss", name: "Byss", region: "Deep Core", angle: 180, sig: "Emperor's secret throne world" },
+  { id: "tython", name: "Tython", region: "Deep Core", angle: 220, sig: "Birthplace of the Jedi Order" },
+  // Core
+  { id: "coruscant", name: "Coruscant", region: "Core", angle: 200, sig: "Capital of the Republic and Empire" },
+  { id: "corellia", name: "Corellia", region: "Core", angle: 240, sig: "Homeworld of Han Solo, major shipyards" },
+  { id: "alderaan", name: "Alderaan", region: "Core", angle: 160, sig: "Peaceful world destroyed by the Death Star" },
+  { id: "kuat", name: "Kuat", region: "Core", angle: 130, sig: "Kuat Drive Yards, Imperial shipbuilder" },
+  { id: "chandrila", name: "Chandrila", region: "Core", angle: 150, sig: "Homeworld of Mon Mothma" },
+  { id: "duro", name: "Duro", region: "Core", angle: 250, sig: "Ancient spacefaring civilization" },
+  { id: "hosnian_prime", name: "Hosnian Prime", region: "Core", angle: 190, sig: "New Republic capital destroyed by Starkiller" },
+  { id: "brentaal", name: "Brentaal", region: "Core", angle: 100, sig: "Major trade hub at route intersection" },
+  // Colonies
+  { id: "fondor", name: "Fondor", region: "Colonies", angle: 260, sig: "Major shipyard world" },
+  { id: "cato_neimoidia", name: "Cato Neimoidia", region: "Colonies", angle: 180, sig: "Neimoidian purse world" },
+  { id: "commenor", name: "Commenor", region: "Colonies", angle: 220, sig: "Trade world along the Corellian Run" },
+  { id: "balmorra", name: "Balmorra", region: "Colonies", angle: 110, sig: "Weapons manufacturing center" },
+  // Inner Rim
+  { id: "onderon", name: "Onderon", region: "Inner Rim", angle: 170, sig: "Saw Gerrera's homeworld" },
+  { id: "jakku", name: "Jakku", region: "Inner Rim", angle: 280, sig: "Desert world where Rey grew up" },
+  { id: "bestine", name: "Bestine", region: "Inner Rim", angle: 255, sig: "Stop along the Corellian Run" },
+  // Expansion
+  { id: "umbara", name: "Umbara", region: "Expansion", angle: 175, sig: "Shadow world of the Clone Wars" },
+  { id: "mimban", name: "Mimban", region: "Expansion", angle: 230, sig: "Swamp world from Solo" },
+  // Mid Rim
+  { id: "naboo", name: "Naboo", region: "Mid Rim", angle: 265, sig: "Homeworld of Padme and Palpatine" },
+  { id: "kashyyyk", name: "Kashyyyk", region: "Mid Rim", angle: 80, sig: "Wookiee homeworld" },
+  { id: "bothawui", name: "Bothawui", region: "Mid Rim", angle: 145, sig: "Bothan spynet headquarters" },
+  { id: "ord_mantell", name: "Ord Mantell", region: "Mid Rim", angle: 90, sig: "Scrapyard world" },
+  { id: "jedha", name: "Jedha", region: "Mid Rim", angle: 195, sig: "Holy city, kyber crystal source" },
+  { id: "takodana", name: "Takodana", region: "Mid Rim", angle: 95, sig: "Maz Kanata's castle" },
+  { id: "malastare", name: "Malastare", region: "Mid Rim", angle: 245, sig: "Fuel production, podracing" },
+  { id: "iridonia", name: "Iridonia", region: "Mid Rim", angle: 200, sig: "Zabrak homeworld" },
+  { id: "teth", name: "Teth", region: "Mid Rim", angle: 330, sig: "Clone Wars battle site" },
+  // Outer Rim
+  { id: "tatooine", name: "Tatooine", region: "Outer Rim", angle: 300, sig: "Desert world, Luke's homeworld" },
+  { id: "hoth", name: "Hoth", region: "Outer Rim", angle: 120, sig: "Ice world, Rebel Echo Base" },
+  { id: "dagobah", name: "Dagobah", region: "Outer Rim", angle: 280, sig: "Yoda's exile swamp world" },
+  { id: "endor", name: "Endor", region: "Outer Rim", angle: 135, sig: "Forest moon, Death Star II battle" },
+  { id: "bespin", name: "Bespin", region: "Outer Rim", angle: 125, sig: "Cloud City, tibanna gas mining" },
+  { id: "yavin", name: "Yavin 4", region: "Outer Rim", angle: 320, sig: "Rebel base, Death Star battle" },
+  { id: "mon_cala", name: "Mon Cala", region: "Outer Rim", angle: 55, sig: "Mon Calamari homeworld" },
+  { id: "sullust", name: "Sullust", region: "Outer Rim", angle: 265, sig: "Volcanic world, Rebel staging point" },
+  { id: "mustafar", name: "Mustafar", region: "Outer Rim", angle: 295, sig: "Lava world, Vader's castle" },
+  { id: "geonosis", name: "Geonosis", region: "Outer Rim", angle: 290, sig: "First battle of the Clone Wars" },
+  { id: "kamino", name: "Kamino", region: "Outer Rim", angle: 340, sig: "Clone army production facility" },
+  { id: "scarif", name: "Scarif", region: "Outer Rim", angle: 255, sig: "Imperial data vault, Rogue One battle" },
+  { id: "lothal", name: "Lothal", region: "Outer Rim", angle: 70, sig: "Rebels base of operations" },
+  { id: "dathomir", name: "Dathomir", region: "Outer Rim", angle: 350, sig: "Nightsisters homeworld" },
+  { id: "kessel", name: "Kessel", region: "Outer Rim", angle: 115, sig: "Spice mines, the Kessel Run" },
+  { id: "ryloth", name: "Ryloth", region: "Outer Rim", angle: 310, sig: "Twi'lek homeworld" },
+  { id: "mandalore", name: "Mandalore", region: "Outer Rim", angle: 65, sig: "Mandalorian homeworld" },
+  { id: "felucia", name: "Felucia", region: "Outer Rim", angle: 235, sig: "Fungal world, Order 66 battle" },
+  { id: "mygeeto", name: "Mygeeto", region: "Outer Rim", angle: 40, sig: "Crystalline world, Order 66 battle" },
+  { id: "utapau", name: "Utapau", region: "Outer Rim", angle: 240, sig: "Sinkhole world, Grievous defeated" },
+  { id: "dantooine", name: "Dantooine", region: "Outer Rim", angle: 50, sig: "Remote world, former Rebel base" },
+  { id: "nal_hutta", name: "Nal Hutta", region: "Outer Rim", angle: 355, sig: "Hutt homeworld" },
+  { id: "crait", name: "Crait", region: "Outer Rim", angle: 110, sig: "Salt flat world, Resistance battle" },
+  { id: "eriadu", name: "Eriadu", region: "Outer Rim", angle: 268, sig: "Tarkin's homeworld" },
+  { id: "saleucami", name: "Saleucami", region: "Outer Rim", angle: 225, sig: "Clone Wars battle site" },
+  // Unknown Regions
+  { id: "ilum", name: "Ilum", region: "Unknown Regions", angle: 20, sig: "Kyber crystal caves, became Starkiller Base" },
+  { id: "ahch_to", name: "Ahch-To", region: "Unknown Regions", angle: 180, sig: "First Jedi Temple, Luke's exile" },
+  { id: "exegol", name: "Exegol", region: "Unknown Regions", angle: 210, sig: "Sith Eternal fortress, Final Order" },
+  { id: "csilla", name: "Csilla", region: "Unknown Regions", angle: 30, sig: "Chiss Ascendancy capital" },
+];
+
+const tradeRoutes = {
+  "Corellian Run": { color: "#22d3ee", path: ["coruscant","commenor","corellia","duro","bestine","naboo","ryloth","tatooine"] },
+  "Corellian Trade Spine": { color: "#4ade80", path: ["corellia","fondor","sullust","eriadu"] },
+  "Perlemian Trade Route": { color: "#fbbf24", path: ["coruscant","brentaal","chandrila","balmorra","kashyyyk","mon_cala","mygeeto"] },
+  "Rimma Trade Route": { color: "#f87171", path: ["fondor","malastare","sullust","eriadu"] },
+  "Hydian Way": { color: "#c084fc", path: ["coruscant","brentaal","takodana","ord_mantell","bothawui","hoth","dantooine"] },
+};
+
+// Build edge list. Tag edges that belong to named routes.
+const rawEdges = [];
+const edgeRouteMap = {};
+function ek(a, b) { return a < b ? a + "|" + b : b + "|" + a; }
+
+// Add route edges
+Object.entries(tradeRoutes).forEach(([name, route]) => {
+  for (let i = 0; i < route.path.length - 1; i++) {
+    const key = ek(route.path[i], route.path[i+1]);
+    if (!edgeRouteMap[key]) {
+      edgeRouteMap[key] = [];
+      rawEdges.push({ source: route.path[i], target: route.path[i+1] });
+    }
+    edgeRouteMap[key].push(name);
+  }
+});
+
+// Additional hyperspace lanes
+const extraEdges = [
+  ["coruscant","kuat"],["coruscant","alderaan"],["coruscant","hosnian_prime"],["coruscant","byss"],["coruscant","tython"],
+  ["tython","byss"],["kuat","alderaan"],["alderaan","chandrila"],["alderaan","hosnian_prime"],["corellia","brentaal"],
+  ["brentaal","cato_neimoidia"],["cato_neimoidia","onderon"],["cato_neimoidia","commenor"],["onderon","jedha"],["onderon","umbara"],
+  ["jakku","bestine"],["jakku","geonosis"],["jakku","tatooine"],["naboo","malastare"],["naboo","geonosis"],["naboo","dagobah"],
+  ["geonosis","tatooine"],["tatooine","mustafar"],["tatooine","yavin"],["kamino","tatooine"],["yavin","dathomir"],["yavin","nal_hutta"],
+  ["teth","yavin"],["teth","nal_hutta"],["bespin","hoth"],["bespin","endor"],["bespin","kessel"],["crait","bespin"],
+  ["endor","kessel"],["endor","dagobah"],["kashyyyk","kessel"],["kashyyyk","bespin"],["lothal","mandalore"],["lothal","takodana"],
+  ["lothal","ord_mantell"],["mandalore","mygeeto"],["mandalore","csilla"],["mandalore","dantooine"],["mygeeto","dantooine"],
+  ["felucia","utapau"],["felucia","saleucami"],["utapau","scarif"],["saleucami","utapau"],["saleucami","eriadu"],
+  ["scarif","sullust"],["scarif","jedha"],["kamino","geonosis"],["mustafar","sullust"],["mustafar","dagobah"],
+  ["iridonia","bothawui"],["iridonia","jedha"],["umbara","mimban"],["umbara","cato_neimoidia"],["mimban","malastare"],["mimban","jedha"],
+  ["mon_cala","crait"],["crait","hoth"],["dathomir","nal_hutta"],["ryloth","dathomir"],["balmorra","kuat"],
+  ["exegol","byss"],["exegol","tython"],["ilum","csilla"],["ilum","ahch_to"],["commenor","alderaan"],
+  ["hosnian_prime","chandrila"],["eriadu","geonosis"],["duro","fondor"],["ord_mantell","kashyyyk"],
+  ["kamino","naboo"],["dagobah","scarif"]
+];
+extraEdges.forEach(([s, t]) => {
+  const key = ek(s, t);
+  if (!edgeRouteMap[key]) {
+    edgeRouteMap[key] = [];
+    rawEdges.push({ source: s, target: t });
+  }
+});
+// ── 1. Setup & Graph Init ──────────────────────────────────────────
+
+const degree = {};
+rawEdges.forEach(e => {
+  degree[e.source] = (degree[e.source] || 0) + 1;
+  degree[e.target] = (degree[e.target] || 0) + 1;
+});
+const maxDeg = Math.max(...Object.values(degree));
+
+const container = document.getElementById('graph');
+const W = container.clientWidth;
+const H = container.clientHeight;
+const cx = W / 2, cy = H / 2;
+const scale = Math.min(W, H) / 2 * 0.88;
+
+const rScale = d3.scaleSqrt().domain([1, maxDeg]).range([4, 16]);
+
+const nodes = planets.map(p => {
+  const r = regionRadius[p.region] * scale;
+  const a = p.angle * Math.PI / 180;
+  return {
+    ...p,
+    deg: degree[p.id] || 0,
+    x: cx + r * Math.cos(a) + (Math.random() - 0.5) * 15,
+    y: cy + r * Math.sin(a) + (Math.random() - 0.5) * 15,
+  };
+});
+
+const nodeMap = new Map(nodes.map(n => [n.id, n]));
+const links = rawEdges.map(e => ({ source: e.source, target: e.target, routes: edgeRouteMap[ek(e.source, e.target)] || [] }));
+
+const adjacency = {};
+nodes.forEach(n => adjacency[n.id] = []);
+rawEdges.forEach(e => {
+  adjacency[e.source].push(e.target);
+  adjacency[e.target].push(e.source);
+});
+
+// ── 2. SVG Creation ────────────────────────────────────────────────
+
+const svg = d3.select('#graph').append('svg')
+  .attr('viewBox', `0 0 ${W} ${H}`)
+  .attr('preserveAspectRatio', 'xMidYMid meet')
+  .style('width', '100%')
+  .style('height', '100%');
+
+const g = svg.append('g');
+
+// Defs: glow filters
+const defs = svg.append('defs');
+
+const filterGlow = defs.append('filter').attr('id', 'glow');
+filterGlow.append('feGaussianBlur').attr('stdDeviation', 2.5).attr('result', 'blur');
+const feMergeGlow = filterGlow.append('feMerge');
+feMergeGlow.append('feMergeNode').attr('in', 'blur');
+feMergeGlow.append('feMergeNode').attr('in', 'SourceGraphic');
+
+const filterGlowStrong = defs.append('filter').attr('id', 'glow-strong');
+filterGlowStrong.append('feGaussianBlur').attr('stdDeviation', 4).attr('result', 'blur');
+const feMergeStrong = filterGlowStrong.append('feMerge');
+feMergeStrong.append('feMergeNode').attr('in', 'blur');
+feMergeStrong.append('feMergeNode').attr('in', 'SourceGraphic');
+
+// Radial gradient for galaxy center
+const radGrad = defs.append('radialGradient').attr('id', 'galaxy-center');
+radGrad.append('stop').attr('offset', '0%').attr('stop-color', '#1a1040').attr('stop-opacity', 0.4);
+radGrad.append('stop').attr('offset', '50%').attr('stop-color', '#0f1525').attr('stop-opacity', 0.2);
+radGrad.append('stop').attr('offset', '100%').attr('stop-color', 'transparent').attr('stop-opacity', 0);
+
+// Background
+g.append('rect').attr('width', W).attr('height', H).attr('fill', '#07080f');
+g.append('circle').attr('cx', cx).attr('cy', cy).attr('r', scale * 0.6).attr('fill', 'url(#galaxy-center)');
+
+// Star field
+const starGroup = g.append('g').attr('class', 'stars');
+for (let i = 0; i < 300; i++) {
+  starGroup.append('circle')
+    .attr('cx', Math.random() * W)
+    .attr('cy', Math.random() * H)
+    .attr('r', 0.3 + Math.random() * 0.7)
+    .attr('fill', 'white')
+    .attr('opacity', 0.1 + Math.random() * 0.4);
+}
+
+// ── 3. Draw Links and Nodes ───────────────────────────────────────
+
+const linkGroup = g.append('g').attr('class', 'links');
+let linkSel = linkGroup.selectAll('line')
+  .data(links)
+  .join('line')
+  .attr('stroke', d => d.routes.length ? '#2a3548' : '#1b2030')
+  .attr('stroke-opacity', d => d.routes.length ? 0.45 : 0.35)
+  .attr('stroke-width', 1);
+
+const nodeGroup = g.append('g').attr('class', 'nodes');
+let nodeSel = nodeGroup.selectAll('circle')
+  .data(nodes)
+  .join('circle')
+  .attr('r', d => rScale(d.deg))
+  .attr('fill', d => regionColors[d.region])
+  .attr('stroke', d => regionColors[d.region])
+  .attr('stroke-width', 0.5)
+  .attr('filter', 'url(#glow)')
+  .style('cursor', 'pointer');
+
+const labelGroup = g.append('g').attr('class', 'labels');
+let labelSel = labelGroup.selectAll('text')
+  .data(nodes.filter(d => d.deg >= 5))
+  .join('text')
+  .text(d => d.name)
+  .attr('font-size', '7px')
+  .attr('fill', '#8090a8')
+  .attr('text-anchor', 'middle')
+  .attr('dy', d => rScale(d.deg) + 10)
+  .attr('pointer-events', 'none')
+  .attr('font-family', 'Inter, sans-serif')
+  .attr('opacity', 0.7);
+
+// ── 4. Force Simulation ───────────────────────────────────────────
+
+const simulation = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id).distance(70).strength(0.2))
+  .force('charge', d3.forceManyBody().strength(-100))
+  .force('radial', d3.forceRadial(d => regionRadius[d.region] * scale, cx, cy).strength(0.35))
+  .force('collide', d3.forceCollide().radius(d => rScale(d.deg) + 3))
+  .on('tick', ticked);
+
+function ticked() {
+  linkSel
+    .attr('x1', d => d.source.x)
+    .attr('y1', d => d.source.y)
+    .attr('x2', d => d.target.x)
+    .attr('y2', d => d.target.y);
+
+  nodeSel
+    .attr('cx', d => d.x)
+    .attr('cy', d => d.y);
+
+  labelSel
+    .attr('x', d => d.x)
+    .attr('y', d => d.y);
+}
+
+// ── 5. Zoom ───────────────────────────────────────────────────────
+
+const zoom = d3.zoom().scaleExtent([0.3, 5]).on('zoom', e => g.attr('transform', e.transform));
+svg.call(zoom);
+
+// ── 6. Tooltip ────────────────────────────────────────────────────
+
+const tooltip = d3.select('#tooltip');
+
+nodeSel.on('mouseenter', (event, d) => {
+  tooltip
+    .style('display', 'block')
+    .style('left', (event.pageX + 12) + 'px')
+    .style('top', (event.pageY - 10) + 'px')
+    .html(`${d.name} &middot; ${d.region}`);
+}).on('mousemove', (event) => {
+  tooltip
+    .style('left', (event.pageX + 12) + 'px')
+    .style('top', (event.pageY - 10) + 'px');
+}).on('mouseleave', () => {
+  tooltip.style('display', 'none');
+});
+
+// ── 7. Drag ───────────────────────────────────────────────────────
+
+const drag = d3.drag()
+  .on('start', (event, d) => {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  })
+  .on('drag', (event, d) => {
+    d.fx = event.x;
+    d.fy = event.y;
+  })
+  .on('end', (event, d) => {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  });
+
+nodeSel.call(drag);
+
+// ── 8. Node Click / Selection / Pathfinding ───────────────────────
+
+let selectedA = null, selectedB = null;
+
+function findPath(startId, endId) {
+  const queue = [[startId]];
+  const visited = new Set([startId]);
+  while (queue.length) {
+    const path = queue.shift();
+    const cur = path[path.length - 1];
+    if (cur === endId) return path;
+    for (const nb of (adjacency[cur] || [])) {
+      if (!visited.has(nb)) {
+        visited.add(nb);
+        queue.push([...path, nb]);
+      }
+    }
+  }
+  return null;
+}
+
+nodeSel.on('click', (event, d) => {
+  event.stopPropagation();
+
+  // Clear any active route
+  if (activeRoute) {
+    activeRoute = null;
+    document.querySelectorAll('.route-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  if (!selectedA) {
+    // First selection
+    selectedA = d;
+    selectedB = null;
+
+    const connectedIds = new Set(adjacency[d.id] || []);
+    connectedIds.add(d.id);
+
+    nodeSel.transition().duration(300)
+      .attr('opacity', n => connectedIds.has(n.id) ? 1 : 0.1)
+      .attr('stroke', n => n.id === d.id ? '#ffd700' : regionColors[n.region])
+      .attr('stroke-width', n => n.id === d.id ? 2 : 0.5);
+
+    linkSel.transition().duration(300)
+      .attr('stroke-opacity', l => {
+        const sid = typeof l.source === 'object' ? l.source.id : l.source;
+        const tid = typeof l.target === 'object' ? l.target.id : l.target;
+        return (sid === d.id || tid === d.id) ? 0.7 : 0.05;
+      });
+
+    if (labelSel) labelSel.transition().duration(300)
+      .attr('opacity', n => connectedIds.has(n.id) ? 0.8 : 0);
+
+    showPlanetInfo(d);
+
+  } else if (selectedA.id === d.id) {
+    // Deselect
+    selectedA = null;
+    selectedB = null;
+    restoreAll();
+    clearSelection();
+
+  } else {
+    // Second selection -- pathfinding
+    selectedB = d;
+    const pathIds = findPath(selectedA.id, d.id);
+
+    if (pathIds) {
+      const pathSet = new Set(pathIds);
+      const pathEdges = new Set();
+      for (let i = 0; i < pathIds.length - 1; i++) {
+        pathEdges.add(ek(pathIds[i], pathIds[i + 1]));
+      }
+
+      nodeSel.transition().duration(300)
+        .attr('opacity', n => pathSet.has(n.id) ? 1 : 0.1)
+        .attr('stroke', n => pathSet.has(n.id) ? '#ffd700' : regionColors[n.region])
+        .attr('stroke-width', n => pathSet.has(n.id) ? 2 : 0.5);
+
+      linkSel.transition().duration(300)
+        .attr('stroke', l => {
+          const key = ek(
+            typeof l.source === 'object' ? l.source.id : l.source,
+            typeof l.target === 'object' ? l.target.id : l.target
+          );
+          return pathEdges.has(key) ? '#ffffff' : '#1b2030';
+        })
+        .attr('stroke-opacity', l => {
+          const key = ek(
+            typeof l.source === 'object' ? l.source.id : l.source,
+            typeof l.target === 'object' ? l.target.id : l.target
+          );
+          return pathEdges.has(key) ? 0.9 : 0.05;
+        })
+        .attr('stroke-width', l => {
+          const key = ek(
+            typeof l.source === 'object' ? l.source.id : l.source,
+            typeof l.target === 'object' ? l.target.id : l.target
+          );
+          return pathEdges.has(key) ? 2.5 : 1;
+        });
+
+      linkSel.attr('filter', l => {
+        const key = ek(
+          typeof l.source === 'object' ? l.source.id : l.source,
+          typeof l.target === 'object' ? l.target.id : l.target
+        );
+        return pathEdges.has(key) ? 'url(#glow-strong)' : null;
+      });
+
+      if (labelSel) labelSel.transition().duration(300)
+        .attr('opacity', n => pathSet.has(n.id) ? 0.8 : 0);
+
+      showPathInfo(pathIds);
+    }
+  }
+});
+
+svg.on('click', () => {
+  selectedA = null;
+  selectedB = null;
+  if (activeRoute) {
+    activeRoute = null;
+    document.querySelectorAll('.route-btn').forEach(b => b.classList.remove('active'));
+  }
+  restoreAll();
+  clearSelection();
+});
+
+// ── 9. Info Panel Updates ─────────────────────────────────────────
+
+function showPlanetInfo(planet) {
+  const routes = [];
+  Object.entries(tradeRoutes).forEach(([name, r]) => {
+    if (r.path.includes(planet.id)) routes.push(name);
+  });
+  const connected = (adjacency[planet.id] || []).map(id => nodeMap.get(id)?.name).filter(Boolean);
+
+  document.getElementById('info-content').innerHTML = `
+    <div class="info-name">${planet.name}</div>
+    <div class="info-region" style="background:${regionColors[planet.region]}22;color:${regionColors[planet.region]}">${planet.region}</div>
+    <div class="info-sig">${planet.sig}</div>
+    <div class="info-stat">Connections: <span>${planet.deg}</span></div>
+    <div class="info-stat">Routes: <span>${routes.length ? routes.join(', ') : 'None'}</span></div>
+    <div class="info-hint" style="margin-top:10px">Click another system to find route</div>
+  `;
+}
+
+function showPathInfo(pathIds) {
+  const names = pathIds.map(id => nodeMap.get(id)?.name || id);
+  const start = names[0], end = names[names.length - 1];
+  const pathHtml = names.map(n => `<span class="path-planet">${n}</span>`).join(' <span class="path-arrow">&rarr;</span> ');
+
+  document.getElementById('info-content').innerHTML = `
+    <div class="info-name">${start} &rarr; ${end}</div>
+    <div class="info-stat">${pathIds.length - 1} hyperspace jump${pathIds.length - 1 !== 1 ? 's' : ''}</div>
+    <div class="info-path">${pathHtml}</div>
+    <div class="info-hint" style="margin-top:10px">Click background to clear</div>
+  `;
+}
+
+function clearSelection() {
+  document.getElementById('info-content').innerHTML = `
+    <div class="info-hint">Click a system to explore</div>
+  `;
+}
+
+// ── 10. Route Highlighting ────────────────────────────────────────
+
+let activeRoute = null;
+
+Object.entries(tradeRoutes).forEach(([name, route]) => {
+  const btn = document.createElement('button');
+  btn.className = 'route-btn';
+  btn.style.setProperty('--route-color', route.color);
+  btn.textContent = name;
+  btn.addEventListener('click', () => {
+    clearSelection();
+    selectedA = null;
+    selectedB = null;
+
+    if (activeRoute === name) {
+      activeRoute = null;
+      btn.classList.remove('active');
+      restoreAll();
+      return;
+    }
+    document.querySelectorAll('.route-btn').forEach(b => b.classList.remove('active'));
+    activeRoute = name;
+    btn.classList.add('active');
+
+    const routeSet = new Set(route.path);
+    nodeSel.transition().duration(300).attr('opacity', d => routeSet.has(d.id) ? 1 : 0.08);
+    linkSel.transition().duration(300)
+      .attr('stroke', d => {
+        const key = ek(
+          typeof d.source === 'object' ? d.source.id : d.source,
+          typeof d.target === 'object' ? d.target.id : d.target
+        );
+        return (edgeRouteMap[key] || []).includes(name) ? route.color : '#1b2030';
+      })
+      .attr('stroke-opacity', d => {
+        const key = ek(
+          typeof d.source === 'object' ? d.source.id : d.source,
+          typeof d.target === 'object' ? d.target.id : d.target
+        );
+        return (edgeRouteMap[key] || []).includes(name) ? 0.9 : 0.03;
+      })
+      .attr('stroke-width', d => {
+        const key = ek(
+          typeof d.source === 'object' ? d.source.id : d.source,
+          typeof d.target === 'object' ? d.target.id : d.target
+        );
+        return (edgeRouteMap[key] || []).includes(name) ? 2.5 : 1;
+      });
+    if (labelSel) labelSel.transition().duration(300).attr('opacity', d => routeSet.has(d.id) ? 0.8 : 0);
+  });
+  document.getElementById('route-buttons').appendChild(btn);
+});
+
+// ── 11. Legend ─────────────────────────────────────────────────────
+
+const hiddenRegions = new Set();
+
+Object.entries(regionColors).forEach(([region, color]) => {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `<span class="legend-dot" style="background:${color}"></span><span>${region}</span>`;
+  item.addEventListener('click', () => {
+    if (hiddenRegions.has(region)) {
+      hiddenRegions.delete(region);
+      item.classList.remove('dimmed');
+    } else {
+      hiddenRegions.add(region);
+      item.classList.add('dimmed');
+    }
+    nodeSel.transition().duration(300).attr('opacity', d => hiddenRegions.has(d.region) ? 0.03 : 1);
+    if (labelSel) labelSel.transition().duration(300).attr('opacity', d => hiddenRegions.has(d.region) ? 0 : (d.deg >= 5 ? 0.7 : 0));
+  });
+  document.getElementById('legend').appendChild(item);
+});
+
+// ── 12. Search ────────────────────────────────────────────────────
+
+document.getElementById('search').addEventListener('input', (e) => {
+  const query = e.target.value.trim().toLowerCase();
+
+  // Clear active route and selection
+  if (activeRoute) {
+    activeRoute = null;
+    document.querySelectorAll('.route-btn').forEach(b => b.classList.remove('active'));
+  }
+  selectedA = null;
+  selectedB = null;
+  clearSelection();
+
+  if (!query) {
+    restoreAll();
+    return;
+  }
+
+  const matchIds = new Set(nodes.filter(n => n.name.toLowerCase().includes(query)).map(n => n.id));
+
+  nodeSel.transition().duration(300)
+    .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.08)
+    .attr('stroke', d => regionColors[d.region])
+    .attr('stroke-width', 0.5);
+
+  linkSel.transition().duration(300)
+    .attr('stroke-opacity', 0.05)
+    .attr('stroke', '#1b2030')
+    .attr('stroke-width', 1);
+
+  if (labelSel) labelSel.transition().duration(300)
+    .attr('opacity', d => matchIds.has(d.id) ? 0.9 : 0);
+});
+
+// ── 13. restoreAll ────────────────────────────────────────────────
+
+function restoreAll() {
+  nodeSel.transition().duration(300)
+    .attr('opacity', d => hiddenRegions.has(d.region) ? 0.03 : 1)
+    .attr('stroke', d => regionColors[d.region])
+    .attr('stroke-width', 0.5);
+  linkSel.transition().duration(300)
+    .attr('stroke', d => {
+      const key = ek(
+        typeof d.source === 'object' ? d.source.id : d.source,
+        typeof d.target === 'object' ? d.target.id : d.target
+      );
+      return (edgeRouteMap[key] || []).length ? '#2a3548' : '#1b2030';
+    })
+    .attr('stroke-opacity', d => {
+      const key = ek(
+        typeof d.source === 'object' ? d.source.id : d.source,
+        typeof d.target === 'object' ? d.target.id : d.target
+      );
+      return (edgeRouteMap[key] || []).length ? 0.45 : 0.35;
+    })
+    .attr('stroke-width', 1);
+  linkSel.attr('filter', null);
+  if (labelSel) labelSel.transition().duration(300).attr('opacity', d => d.deg >= 5 ? 0.7 : 0);
+}
+
+// ── 14. Subtitle update & close ───────────────────────────────────
+
+document.querySelector('.subtitle').textContent = `${nodes.length} systems \u00b7 ${links.length} lanes \u00b7 5 trade routes`;
+
+</script>
+</body>
+</html>

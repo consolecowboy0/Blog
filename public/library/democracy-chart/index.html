@@ -579,7 +579,7 @@ function DemocracyChart() {
         <p
           style={{
             fontSize: "0.8rem",
-            color: "#555",
+            color: "var(--text-sec)",
             lineHeight: 1.6,
             fontStyle: "italic",
           }}
@@ -598,6 +598,14 @@ function DemocracyChart() {
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<DemocracyChart />);
+    </script>
+    <script>
+document.getElementById('theme-toggle').addEventListener('click', function() {
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  var next = isDark ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+});
     </script>
   </body>
 </html>

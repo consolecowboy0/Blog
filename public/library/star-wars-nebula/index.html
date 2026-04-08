@@ -39,6 +39,7 @@
   --mid-rim: #c084fc;
   --outer-rim: #fb923c;
   --unknown: #f87171;
+  --wild-space: #94a3b8;
 }
 
 [data-theme="dark"] {
@@ -97,7 +98,7 @@ body {
 .main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: 1fr 300px;
   overflow: hidden;
 }
 
@@ -302,6 +303,18 @@ body {
 .icon-sun { display: none; }
 [data-theme="dark"] .icon-moon { display: none; }
 [data-theme="dark"] .icon-sun { display: block; }
+
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.stats-bar span { color: var(--text); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -309,7 +322,7 @@ body {
     <div class="header">
       <div style="display:flex;align-items:center;gap:12px">
         <h1>Star Wars Galaxy Network</h1>
-        <span class="subtitle">57 systems &middot; 5 trade routes</span>
+        <span class="subtitle" id="subtitle">Loading...</span>
       </div>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
@@ -345,19 +358,24 @@ body {
 // === DATA ===
 const regionRadius = {
   "Deep Core": 0.08, "Core": 0.18, "Colonies": 0.28, "Inner Rim": 0.38,
-  "Expansion": 0.48, "Mid Rim": 0.58, "Outer Rim": 0.75, "Unknown Regions": 0.92
+  "Expansion": 0.48, "Mid Rim": 0.58, "Outer Rim": 0.75, "Wild Space": 0.88, "Unknown Regions": 0.95
 };
 
 const regionColors = {
   "Deep Core": "#fbbf24", "Core": "#22d3ee", "Colonies": "#60a5fa", "Inner Rim": "#4ade80",
-  "Expansion": "#2dd4bf", "Mid Rim": "#c084fc", "Outer Rim": "#fb923c", "Unknown Regions": "#f87171"
+  "Expansion": "#2dd4bf", "Mid Rim": "#c084fc", "Outer Rim": "#fb923c", "Wild Space": "#94a3b8", "Unknown Regions": "#f87171"
 };
 
 const planets = [
-  // Deep Core
+  // ── DEEP CORE (6) ──────────────────────────────────────────────
   { id: "byss", name: "Byss", region: "Deep Core", angle: 180, sig: "Emperor's secret throne world" },
   { id: "tython", name: "Tython", region: "Deep Core", angle: 220, sig: "Birthplace of the Jedi Order" },
-  // Core
+  { id: "empress_teta", name: "Empress Teta", region: "Deep Core", angle: 140, sig: "Ancient Krath stronghold, rich in carbonite" },
+  { id: "prakith", name: "Prakith", region: "Deep Core", angle: 260, sig: "Inquisitorius fortress world" },
+  { id: "vulpter", name: "Vulpter", region: "Deep Core", angle: 310, sig: "Polluted industrial world" },
+  { id: "jerrilek", name: "Jerrilek", region: "Deep Core", angle: 50, sig: "Ancient hyperspace waypoint" },
+
+  // ── CORE (16) ──────────────────────────────────────────────────
   { id: "coruscant", name: "Coruscant", region: "Core", angle: 200, sig: "Capital of the Republic and Empire" },
   { id: "corellia", name: "Corellia", region: "Core", angle: 240, sig: "Homeworld of Han Solo, major shipyards" },
   { id: "alderaan", name: "Alderaan", region: "Core", angle: 160, sig: "Peaceful world destroyed by the Death Star" },
@@ -366,19 +384,62 @@ const planets = [
   { id: "duro", name: "Duro", region: "Core", angle: 250, sig: "Ancient spacefaring civilization" },
   { id: "hosnian_prime", name: "Hosnian Prime", region: "Core", angle: 190, sig: "New Republic capital destroyed by Starkiller" },
   { id: "brentaal", name: "Brentaal", region: "Core", angle: 100, sig: "Major trade hub at route intersection" },
-  // Colonies
+  { id: "anaxes", name: "Anaxes", region: "Core", angle: 115, sig: "Fortress world, Imperial naval academy" },
+  { id: "metellos", name: "Metellos", region: "Core", angle: 175, sig: "Overpopulated ecumenopolis" },
+  { id: "alsakan", name: "Alsakan", region: "Core", angle: 85, sig: "Ancient rival of Coruscant" },
+  { id: "rendili", name: "Rendili", region: "Core", angle: 270, sig: "Rendili StarDrive shipyards" },
+  { id: "humbarine", name: "Humbarine", region: "Core", angle: 210, sig: "Devastated by Grievous during Clone Wars" },
+  { id: "esseles", name: "Esseles", region: "Core", angle: 95, sig: "Manufacturing world on Perlemian" },
+  { id: "ralltiir", name: "Ralltiir", region: "Core", angle: 225, sig: "Financial center, early rebel sympathizer" },
+  { id: "caamas", name: "Caamas", region: "Core", angle: 170, sig: "Bombed world, pacifist Caamasi species" },
+
+  // ── COLONIES (14) ──────────────────────────────────────────────
   { id: "fondor", name: "Fondor", region: "Colonies", angle: 260, sig: "Major shipyard world" },
   { id: "cato_neimoidia", name: "Cato Neimoidia", region: "Colonies", angle: 180, sig: "Neimoidian purse world" },
   { id: "commenor", name: "Commenor", region: "Colonies", angle: 220, sig: "Trade world along the Corellian Run" },
   { id: "balmorra", name: "Balmorra", region: "Colonies", angle: 110, sig: "Weapons manufacturing center" },
-  // Inner Rim
+  { id: "neimoidia", name: "Neimoidia", region: "Colonies", angle: 195, sig: "Homeworld of the Trade Federation leaders" },
+  { id: "arkania", name: "Arkania", region: "Colonies", angle: 75, sig: "Genetic engineering specialists" },
+  { id: "devaron", name: "Devaron", region: "Colonies", angle: 155, sig: "Devaronian homeworld, Jedi temple" },
+  { id: "borleias", name: "Borleias", region: "Colonies", angle: 90, sig: "Strategic military staging world" },
+  { id: "castell", name: "Castell", region: "Colonies", angle: 240, sig: "Gossam homeworld, CIS loyalist" },
+  { id: "abregado_rae", name: "Abregado-rae", region: "Colonies", angle: 280, sig: "Trade port and smuggler haven" },
+  { id: "yag_dhul", name: "Yag'Dhul", region: "Colonies", angle: 300, sig: "Givin homeworld, mathematical savants" },
+  { id: "tepasi", name: "Tepasi", region: "Colonies", angle: 130, sig: "Core-ward colony world" },
+  { id: "skako", name: "Skako", region: "Colonies", angle: 250, sig: "Techno Union homeworld, high-pressure atmosphere" },
+  { id: "haruun_kal", name: "Haruun Kal", region: "Colonies", angle: 320, sig: "Mace Windu's homeworld, toxic lowlands" },
+
+  // ── INNER RIM (14) ─────────────────────────────────────────────
   { id: "onderon", name: "Onderon", region: "Inner Rim", angle: 170, sig: "Saw Gerrera's homeworld" },
   { id: "jakku", name: "Jakku", region: "Inner Rim", angle: 280, sig: "Desert world where Rey grew up" },
   { id: "bestine", name: "Bestine", region: "Inner Rim", angle: 255, sig: "Stop along the Corellian Run" },
-  // Expansion
+  { id: "manaan", name: "Manaan", region: "Inner Rim", angle: 85, sig: "Ocean world, kolto healing source" },
+  { id: "ambria", name: "Ambria", region: "Inner Rim", angle: 200, sig: "Dark side nexus, Sith training ground" },
+  { id: "hapes", name: "Hapes", region: "Inner Rim", angle: 140, sig: "Hapes Consortium capital, isolated cluster" },
+  { id: "obroa_skai", name: "Obroa-skai", region: "Inner Rim", angle: 55, sig: "Great library world, vast archives" },
+  { id: "denon", name: "Denon", region: "Inner Rim", angle: 215, sig: "Ecumenopolis along the Corellian Run" },
+  { id: "thyferra", name: "Thyferra", region: "Inner Rim", angle: 300, sig: "Bacta production monopoly" },
+  { id: "bilbringi", name: "Bilbringi", region: "Inner Rim", angle: 65, sig: "Major shipyard, Thrawn campaign battle" },
+  { id: "champala", name: "Champala", region: "Inner Rim", angle: 120, sig: "Chagrian homeworld" },
+  { id: "pergitor", name: "Pergitor", region: "Inner Rim", angle: 340, sig: "Imperial penal world" },
+  { id: "ringo_vinda", name: "Ringo Vinda", region: "Inner Rim", angle: 235, sig: "Space station ring world, Clone Wars battle" },
+  { id: "riosa", name: "Riosa", region: "Inner Rim", angle: 155, sig: "Farming world, grain supplier" },
+
+  // ── EXPANSION REGION (12) ──────────────────────────────────────
   { id: "umbara", name: "Umbara", region: "Expansion", angle: 175, sig: "Shadow world of the Clone Wars" },
   { id: "mimban", name: "Mimban", region: "Expansion", angle: 230, sig: "Swamp world from Solo" },
-  // Mid Rim
+  { id: "pasaana", name: "Pasaana", region: "Expansion", angle: 210, sig: "Desert world, Sith dagger discovery" },
+  { id: "aquaris", name: "Aquaris", region: "Expansion", angle: 300, sig: "Aquatic rebel sympathizer world" },
+  { id: "kintan", name: "Kintan", region: "Expansion", angle: 340, sig: "Nikto homeworld, Hutt vassal" },
+  { id: "thustra", name: "Thustra", region: "Expansion", angle: 130, sig: "Sephi world, Clone Wars defection" },
+  { id: "dathomir_exp", name: "Dorin", region: "Expansion", angle: 95, sig: "Kel Dor homeworld, Plo Koon's world" },
+  { id: "halcyon", name: "Halcyon", region: "Expansion", angle: 260, sig: "Luxury liner waypoint" },
+  { id: "excarga", name: "Excarga", region: "Expansion", angle: 60, sig: "Mining colony, rare minerals" },
+  { id: "cirrus", name: "Cirrus", region: "Expansion", angle: 150, sig: "Cloud mining, tibanna gas reserves" },
+  { id: "neelanon", name: "Neelanon", region: "Expansion", angle: 25, sig: "Agricultural breadbasket world" },
+  { id: "boz_pity", name: "Boz Pity", region: "Expansion", angle: 280, sig: "Graveyard world, Ventress fell here" },
+
+  // ── MID RIM (24) ───────────────────────────────────────────────
   { id: "naboo", name: "Naboo", region: "Mid Rim", angle: 265, sig: "Homeworld of Padme and Palpatine" },
   { id: "kashyyyk", name: "Kashyyyk", region: "Mid Rim", angle: 80, sig: "Wookiee homeworld" },
   { id: "bothawui", name: "Bothawui", region: "Mid Rim", angle: 145, sig: "Bothan spynet headquarters" },
@@ -388,7 +449,23 @@ const planets = [
   { id: "malastare", name: "Malastare", region: "Mid Rim", angle: 245, sig: "Fuel production, podracing" },
   { id: "iridonia", name: "Iridonia", region: "Mid Rim", angle: 200, sig: "Zabrak homeworld" },
   { id: "teth", name: "Teth", region: "Mid Rim", angle: 330, sig: "Clone Wars battle site" },
-  // Outer Rim
+  { id: "kijimi", name: "Kijimi", region: "Mid Rim", angle: 105, sig: "Thieves' quarter, destroyed by Final Order" },
+  { id: "rodia", name: "Rodia", region: "Mid Rim", angle: 280, sig: "Rodian homeworld, swamp world" },
+  { id: "glee_anselm", name: "Glee Anselm", region: "Mid Rim", angle: 160, sig: "Nautolan homeworld, Kit Fisto's world" },
+  { id: "wobani", name: "Wobani", region: "Mid Rim", angle: 220, sig: "Imperial labor camp, Jyn Erso rescued" },
+  { id: "ithor", name: "Ithor", region: "Mid Rim", angle: 120, sig: "Ithorian herd ships, nature priests" },
+  { id: "toydaria", name: "Toydaria", region: "Mid Rim", angle: 310, sig: "Toydarian homeworld, Watto's species" },
+  { id: "trandosha", name: "Trandosha", region: "Mid Rim", angle: 75, sig: "Trandoshan homeworld, Wookiee rivals" },
+  { id: "ansion", name: "Ansion", region: "Mid Rim", angle: 180, sig: "Border world, pre-Clone Wars diplomacy" },
+  { id: "concord_dawn", name: "Concord Dawn", region: "Mid Rim", angle: 55, sig: "Mandalorian protectorate, Fenn Rau" },
+  { id: "florrum", name: "Florrum", region: "Mid Rim", angle: 300, sig: "Hondo Ohnaka's pirate base" },
+  { id: "serenno", name: "Serenno", region: "Mid Rim", angle: 135, sig: "Count Dooku's homeworld" },
+  { id: "iego", name: "Iego", region: "Mid Rim", angle: 290, sig: "Thousand moons, Angel legends" },
+  { id: "lannik", name: "Lannik", region: "Mid Rim", angle: 235, sig: "Even Piell's homeworld" },
+  { id: "stygeon_prime", name: "Stygeon Prime", region: "Mid Rim", angle: 60, sig: "Spire prison, Inquisitor stronghold" },
+  { id: "chalacta", name: "Chalacta", region: "Mid Rim", angle: 170, sig: "Depa Billaba's homeworld" },
+
+  // ── OUTER RIM (60) ─────────────────────────────────────────────
   { id: "tatooine", name: "Tatooine", region: "Outer Rim", angle: 300, sig: "Desert world, Luke's homeworld" },
   { id: "hoth", name: "Hoth", region: "Outer Rim", angle: 120, sig: "Ice world, Rebel Echo Base" },
   { id: "dagobah", name: "Dagobah", region: "Outer Rim", angle: 280, sig: "Yoda's exile swamp world" },
@@ -414,54 +491,80 @@ const planets = [
   { id: "crait", name: "Crait", region: "Outer Rim", angle: 110, sig: "Salt flat world, Resistance battle" },
   { id: "eriadu", name: "Eriadu", region: "Outer Rim", angle: 268, sig: "Tarkin's homeworld" },
   { id: "saleucami", name: "Saleucami", region: "Outer Rim", angle: 225, sig: "Clone Wars battle site" },
-  // Hutt Space
   { id: "nar_shaddaa", name: "Nar Shaddaa", region: "Outer Rim", angle: 348, sig: "Smuggler's Moon, vertical cityscape" },
-  // Mandalorian-era
   { id: "nevarro", name: "Nevarro", region: "Outer Rim", angle: 75, sig: "Bounty hunter guild, lava flats" },
   { id: "arvala_7", name: "Arvala-7", region: "Outer Rim", angle: 60, sig: "Desert world where Grogu was found" },
   { id: "corvus", name: "Corvus", region: "Outer Rim", angle: 85, sig: "Ahsoka's duel with Magistrate Elsbeth" },
-  // Sequel trilogy
-  { id: "kijimi", name: "Kijimi", region: "Mid Rim", angle: 105, sig: "Thieves' quarter, destroyed by Final Order" },
   { id: "ajan_kloss", name: "Ajan Kloss", region: "Outer Rim", angle: 100, sig: "Resistance jungle base" },
-  { id: "pasaana", name: "Pasaana", region: "Expansion", angle: 210, sig: "Desert world, Sith dagger discovery" },
   { id: "cantonica", name: "Cantonica", region: "Outer Rim", angle: 155, sig: "Canto Bight casino world" },
   { id: "dqar", name: "D'Qar", region: "Outer Rim", angle: 95, sig: "Resistance base before evacuation" },
-  // Clone Wars depth
   { id: "rishi", name: "Rishi", region: "Outer Rim", angle: 335, sig: "Listening post, rookie clone battle" },
   { id: "christophsis", name: "Christophsis", region: "Outer Rim", angle: 230, sig: "Crystal world, Clone Wars battle" },
   { id: "lola_sayu", name: "Lola Sayu", region: "Outer Rim", angle: 215, sig: "Citadel prison, Even Piell rescue" },
-  // Sith history
   { id: "korriban", name: "Korriban", region: "Outer Rim", angle: 345, sig: "Ancient Sith homeworld, Valley of the Dark Lords" },
   { id: "malachor", name: "Malachor", region: "Outer Rim", angle: 205, sig: "Sith temple, Ahsoka vs Vader" },
-  // Rebels
   { id: "atollon", name: "Atollon", region: "Outer Rim", angle: 78, sig: "Rebel base, Bendu's world" },
-  { id: "krownest", name: "Krownest", region: "Outer Rim", angle: 55, sig: "Clan Wren stronghold, Mandalorian world" },
-  // Key species/faction worlds
-  { id: "rodia", name: "Rodia", region: "Mid Rim", angle: 280, sig: "Rodian homeworld, swamp world" },
-  { id: "glee_anselm", name: "Glee Anselm", region: "Mid Rim", angle: 160, sig: "Nautolan homeworld, Kit Fisto's world" },
-  // Corporate Sector / trade
+  { id: "krownest", name: "Krownest", region: "Outer Rim", angle: 55, sig: "Clan Wren stronghold" },
   { id: "muunilinst", name: "Muunilinst", region: "Outer Rim", angle: 35, sig: "Banking Clan headquarters" },
   { id: "bonadan", name: "Bonadan", region: "Outer Rim", angle: 25, sig: "Corporate Sector industrial world" },
-  // Wild Space
-  { id: "rakata_prime", name: "Rakata Prime", region: "Unknown Regions", angle: 250, sig: "Ancient Infinite Empire homeworld" },
-  { id: "peridea", name: "Peridea", region: "Unknown Regions", angle: 160, sig: "Ancient ruins beyond the galaxy, Thrawn's exile" },
-  // Fill gaps
   { id: "coaxium", name: "Savareen", region: "Outer Rim", angle: 248, sig: "Coaxium refinery, Solo finale" },
-  { id: "wobani", name: "Wobani", region: "Mid Rim", angle: 220, sig: "Imperial labor camp, Jyn Erso rescued" },
   { id: "eadu", name: "Eadu", region: "Outer Rim", angle: 245, sig: "Imperial research facility, Galen Erso killed" },
-  // Unknown Regions
+  { id: "batuu", name: "Batuu", region: "Outer Rim", angle: 62, sig: "Black Spire Outpost, edge of Wild Space" },
+  { id: "vandor", name: "Vandor", region: "Outer Rim", angle: 148, sig: "Frozen mountain world, train heist" },
+  { id: "polis_massa", name: "Polis Massa", region: "Outer Rim", angle: 275, sig: "Asteroid base, Luke and Leia born here" },
+  { id: "rattatak", name: "Rattatak", region: "Outer Rim", angle: 200, sig: "Gladiatorial world, Ventress found here" },
+  { id: "ossus", name: "Ossus", region: "Outer Rim", angle: 45, sig: "Ancient Jedi library world" },
+  { id: "ziost", name: "Ziost", region: "Outer Rim", angle: 358, sig: "Ancient Sith capital, frozen wastes" },
+  { id: "dromund_kaas", name: "Dromund Kaas", region: "Outer Rim", angle: 5, sig: "Sith Empire capital, dark side storms" },
+  { id: "ruusan", name: "Ruusan", region: "Outer Rim", angle: 250, sig: "Final battle of Sith wars, thought bomb" },
+  { id: "taris", name: "Taris", region: "Outer Rim", angle: 30, sig: "Destroyed ecumenopolis, Revan's crash site" },
+  { id: "wayland", name: "Wayland", region: "Outer Rim", angle: 42, sig: "Emperor's secret storehouse, Mount Tantiss" },
+  { id: "nkllon", name: "Nkllon", region: "Outer Rim", angle: 190, sig: "Mining world, Lando's operation" },
+  { id: "lehon", name: "Lehon", region: "Outer Rim", angle: 15, sig: "Rakata homeworld, Star Forge" },
+  { id: "jakelia", name: "Jakelia", region: "Outer Rim", angle: 175, sig: "Outer Rim trade relay station" },
+  { id: "ring_of_kafrene", name: "Ring of Kafrene", region: "Outer Rim", angle: 260, sig: "Mining hub, Cassian's intel source" },
+  { id: "numidian_prime", name: "Numidian Prime", region: "Outer Rim", angle: 165, sig: "Remote Rebel outpost world" },
+  { id: "sorgan", name: "Sorgan", region: "Outer Rim", angle: 90, sig: "Backwater krill-farming world" },
+  { id: "trask", name: "Trask", region: "Outer Rim", angle: 80, sig: "Black market port, Mon Calamari fishing" },
+
+  // ── WILD SPACE (8) ─────────────────────────────────────────────
+  { id: "kamparas", name: "Kamparas", region: "Wild Space", angle: 120, sig: "Remote Jedi training outpost" },
+  { id: "lah_mu", name: "Lah'mu", region: "Wild Space", angle: 250, sig: "Jyn Erso's childhood hiding place" },
+  { id: "elphrona", name: "Elphrona", region: "Wild Space", angle: 30, sig: "Chiss frontier outpost" },
+  { id: "rakata_prime", name: "Rakata Prime", region: "Wild Space", angle: 180, sig: "Ancient Infinite Empire homeworld" },
+  { id: "zakuul", name: "Zakuul", region: "Wild Space", angle: 340, sig: "Eternal Empire capital, Vitiate's throne" },
+  { id: "terminus", name: "Terminus", region: "Wild Space", angle: 270, sig: "Last stop before Unknown Regions" },
+  { id: "koboh", name: "Koboh", region: "Wild Space", angle: 90, sig: "High Republic era observatory world" },
+  { id: "seatos", name: "Seatos", region: "Wild Space", angle: 155, sig: "Pathway to Peridea, ancient star map" },
+
+  // ── UNKNOWN REGIONS (12) ───────────────────────────────────────
   { id: "ilum", name: "Ilum", region: "Unknown Regions", angle: 20, sig: "Kyber crystal caves, became Starkiller Base" },
   { id: "ahch_to", name: "Ahch-To", region: "Unknown Regions", angle: 180, sig: "First Jedi Temple, Luke's exile" },
   { id: "exegol", name: "Exegol", region: "Unknown Regions", angle: 210, sig: "Sith Eternal fortress, Final Order" },
   { id: "csilla", name: "Csilla", region: "Unknown Regions", angle: 30, sig: "Chiss Ascendancy capital" },
+  { id: "peridea", name: "Peridea", region: "Unknown Regions", angle: 160, sig: "Ancient ruins beyond galaxy, Thrawn's exile" },
+  { id: "mortis", name: "Mortis", region: "Unknown Regions", angle: 90, sig: "Force nexus realm, Father/Son/Daughter" },
+  { id: "lira_san", name: "Lira San", region: "Unknown Regions", angle: 300, sig: "Lasat original homeworld" },
+  { id: "iokath", name: "Iokath", region: "Unknown Regions", angle: 250, sig: "Self-sustaining AI weapon-factory world" },
+  { id: "nirauan", name: "Nirauan", region: "Unknown Regions", angle: 50, sig: "Thrawn's Hand of Thrawn fortress" },
+  { id: "rakata_rift", name: "Rakata Rift", region: "Unknown Regions", angle: 130, sig: "Unstable hyperspace anomaly zone" },
+  { id: "starkiller", name: "Starkiller Base", region: "Unknown Regions", angle: 15, sig: "First Order superweapon, converted from Ilum" },
+  { id: "copero", name: "Copero", region: "Unknown Regions", angle: 60, sig: "Chiss Ascendancy world, political intrigue" },
 ];
 
 const tradeRoutes = {
-  "Corellian Run": { color: "#22d3ee", path: ["coruscant","commenor","corellia","duro","bestine","naboo","ryloth","tatooine"] },
-  "Corellian Trade Spine": { color: "#4ade80", path: ["corellia","fondor","sullust","eriadu"] },
-  "Perlemian Trade Route": { color: "#fbbf24", path: ["coruscant","brentaal","chandrila","balmorra","kashyyyk","mon_cala","mygeeto"] },
-  "Rimma Trade Route": { color: "#f87171", path: ["fondor","malastare","sullust","eriadu"] },
-  "Hydian Way": { color: "#c084fc", path: ["coruscant","brentaal","takodana","ord_mantell","bothawui","hoth","dantooine"] },
+  "Corellian Run": { color: "#22d3ee", path: ["coruscant","metellos","commenor","corellia","duro","bestine","denon","naboo","ryloth","tatooine"] },
+  "Corellian Trade Spine": { color: "#4ade80", path: ["corellia","fondor","yag_dhul","sullust","eriadu","scarif"] },
+  "Perlemian Trade Route": { color: "#fbbf24", path: ["coruscant","esseles","brentaal","chandrila","balmorra","kashyyyk","mon_cala","mygeeto","bonadan"] },
+  "Rimma Trade Route": { color: "#f87171", path: ["abregado_rae","fondor","thyferra","malastare","sullust","eriadu","dagobah"] },
+  "Hydian Way": { color: "#c084fc", path: ["coruscant","brentaal","takodana","ord_mantell","bothawui","hoth","dantooine","bonadan"] },
+  "Braxant Run": { color: "#fb923c", path: ["brentaal","anaxes","balmorra","obroa_skai","mygeeto","muunilinst","csilla"] },
+  "Triellus Trade Route": { color: "#60a5fa", path: ["nal_hutta","nar_shaddaa","tatooine","geonosis","mustafar","ryloth"] },
+  "Salin Corridor": { color: "#2dd4bf", path: ["humbarine","jedha","onderon","lola_sayu","felucia","utapau"] },
+  "Shipwrights' Trace": { color: "#e879f9", path: ["corellia","fondor","kuat","brentaal","alsakan"] },
+  "Manda Merchant Route": { color: "#fbbf24", path: ["mandalore","concord_dawn","lothal","atollon","batuu"] },
+  "Kessel Run": { color: "#a3e635", path: ["kessel","coaxium","scarif","sullust","bespin"] },
+  "Daragon Trail": { color: "#facc15", path: ["empress_teta","coruscant","kuat","hapes","serenno","taris","ossus"] },
 };
 
 // Build edge list. Tag edges that belong to named routes.
@@ -483,47 +586,148 @@ Object.entries(tradeRoutes).forEach(([name, route]) => {
 
 // Additional hyperspace lanes
 const extraEdges = [
+  // Deep Core internal
+  ["byss","tython"],["byss","empress_teta"],["byss","prakith"],["byss","vulpter"],["tython","empress_teta"],
+  ["prakith","vulpter"],["prakith","jerrilek"],["vulpter","jerrilek"],["empress_teta","coruscant"],
+
+  // Core connections
   ["coruscant","kuat"],["coruscant","alderaan"],["coruscant","hosnian_prime"],["coruscant","byss"],["coruscant","tython"],
-  ["tython","byss"],["kuat","alderaan"],["alderaan","chandrila"],["alderaan","hosnian_prime"],["corellia","brentaal"],
-  ["brentaal","cato_neimoidia"],["cato_neimoidia","onderon"],["cato_neimoidia","commenor"],["onderon","jedha"],["onderon","umbara"],
-  ["jakku","bestine"],["jakku","geonosis"],["jakku","tatooine"],["naboo","malastare"],["naboo","geonosis"],["naboo","dagobah"],
-  ["geonosis","tatooine"],["tatooine","mustafar"],["tatooine","yavin"],["kamino","tatooine"],["yavin","dathomir"],["yavin","nal_hutta"],
-  ["teth","yavin"],["teth","nal_hutta"],["bespin","hoth"],["bespin","endor"],["bespin","kessel"],["crait","bespin"],
-  ["endor","kessel"],["endor","dagobah"],["kashyyyk","kessel"],["kashyyyk","bespin"],["lothal","mandalore"],["lothal","takodana"],
-  ["lothal","ord_mantell"],["mandalore","mygeeto"],["mandalore","csilla"],["mandalore","dantooine"],["mygeeto","dantooine"],
-  ["felucia","utapau"],["felucia","saleucami"],["utapau","scarif"],["saleucami","utapau"],["saleucami","eriadu"],
-  ["scarif","sullust"],["scarif","jedha"],["kamino","geonosis"],["mustafar","sullust"],["mustafar","dagobah"],
-  ["iridonia","bothawui"],["iridonia","jedha"],["umbara","mimban"],["umbara","cato_neimoidia"],["mimban","malastare"],["mimban","jedha"],
-  ["mon_cala","crait"],["crait","hoth"],["dathomir","nal_hutta"],["ryloth","dathomir"],["balmorra","kuat"],
-  ["exegol","byss"],["exegol","tython"],["ilum","csilla"],["ilum","ahch_to"],["commenor","alderaan"],
-  ["hosnian_prime","chandrila"],["eriadu","geonosis"],["duro","fondor"],["ord_mantell","kashyyyk"],
-  ["kamino","naboo"],["dagobah","scarif"],
-  // New system connections
+  ["coruscant","caamas"],["coruscant","rendili"],["kuat","alderaan"],["alderaan","chandrila"],["alderaan","hosnian_prime"],
+  ["corellia","brentaal"],["corellia","ralltiir"],["anaxes","kuat"],["anaxes","alsakan"],
+  ["metellos","coruscant"],["metellos","caamas"],["alsakan","esseles"],
+  ["rendili","duro"],["rendili","ralltiir"],["humbarine","coruscant"],["humbarine","metellos"],
+  ["hosnian_prime","chandrila"],["esseles","brentaal"],["ralltiir","commenor"],
+
+  // Colonies connections
+  ["brentaal","cato_neimoidia"],["cato_neimoidia","onderon"],["cato_neimoidia","commenor"],["cato_neimoidia","neimoidia"],
+  ["neimoidia","devaron"],["neimoidia","fondor"],["devaron","bothawui"],["devaron","hapes"],
+  ["borleias","balmorra"],["borleias","arkania"],["arkania","obroa_skai"],
+  ["castell","fondor"],["castell","skako"],["abregado_rae","yag_dhul"],
+  ["skako","duro"],["skako","rendili"],["haruun_kal","yag_dhul"],["haruun_kal","thyferra"],
+  ["tepasi","balmorra"],["tepasi","devaron"],["commenor","alderaan"],
+
+  // Inner Rim connections
+  ["onderon","jedha"],["onderon","umbara"],["onderon","ambria"],
+  ["jakku","bestine"],["jakku","geonosis"],["jakku","tatooine"],
+  ["manaan","kashyyyk"],["manaan","bilbringi"],["manaan","obroa_skai"],
+  ["ambria","jedha"],["ambria","denon"],
+  ["hapes","serenno"],["hapes","devaron"],
+  ["denon","bestine"],["denon","commenor"],
+  ["thyferra","aquaris"],["thyferra","bestine"],
+  ["bilbringi","obroa_skai"],["bilbringi","balmorra"],
+  ["champala","hapes"],["champala","bothawui"],
+  ["pergitor","jakku"],["pergitor","thyferra"],
+  ["ringo_vinda","onderon"],["ringo_vinda","umbara"],["ringo_vinda","denon"],
+  ["riosa","devaron"],["riosa","hapes"],
+
+  // Expansion connections
+  ["umbara","mimban"],["umbara","cato_neimoidia"],["mimban","malastare"],["mimban","jedha"],
+  ["pasaana","jedha"],["pasaana","jakku"],["pasaana","onderon"],
+  ["aquaris","halcyon"],["aquaris","thyferra"],
+  ["kintan","nal_hutta"],["kintan","florrum"],["kintan","teth"],
+  ["thustra","serenno"],["thustra","ithor"],
+  ["dathomir_exp","kashyyyk"],["dathomir_exp","ithor"],["dathomir_exp","manaan"],
+  ["halcyon","naboo"],["halcyon","bestine"],
+  ["excarga","ord_mantell"],["excarga","takodana"],
+  ["cirrus","bothawui"],["cirrus","devaron"],
+  ["neelanon","bilbringi"],["neelanon","concord_dawn"],
+  ["boz_pity","jakku"],["boz_pity","aquaris"],["boz_pity","rodia"],
+
+  // Mid Rim connections
+  ["naboo","malastare"],["naboo","geonosis"],["naboo","dagobah"],["naboo","rodia"],
+  ["kashyyyk","kessel"],["kashyyyk","bespin"],["kashyyyk","trandosha"],
+  ["iridonia","bothawui"],["iridonia","jedha"],
+  ["ithor","takodana"],["ithor","serenno"],["ithor","kashyyyk"],
+  ["toydaria","nal_hutta"],["toydaria","florrum"],["toydaria","teth"],
+  ["trandosha","kashyyyk"],["trandosha","concord_dawn"],
+  ["ansion","jedha"],["ansion","iridonia"],["ansion","umbara"],
+  ["concord_dawn","mandalore"],["concord_dawn","lothal"],
+  ["florrum","iego"],["florrum","tatooine"],["florrum","toydaria"],
+  ["serenno","bothawui"],["serenno","glee_anselm"],
+  ["iego","rodia"],["iego","naboo"],["iego","dagobah"],
+  ["lannik","malastare"],["lannik","jedha"],["lannik","wobani"],
+  ["stygeon_prime","lothal"],["stygeon_prime","mandalore"],
+  ["chalacta","ansion"],["chalacta","glee_anselm"],
+  ["kijimi","takodana"],["kijimi","ord_mantell"],["kijimi","bothawui"],
+  ["glee_anselm","kashyyyk"],["glee_anselm","bothawui"],["glee_anselm","takodana"],
+  ["wobani","jedha"],["wobani","scarif"],["wobani","onderon"],
+
+  // Outer Rim connections -- massive web
+  ["tatooine","mustafar"],["tatooine","yavin"],["tatooine","geonosis"],
+  ["kamino","tatooine"],["kamino","geonosis"],["kamino","naboo"],["kamino","rishi"],
+  ["yavin","dathomir"],["yavin","nal_hutta"],["yavin","rishi"],
+  ["teth","yavin"],["teth","nal_hutta"],
+  ["bespin","hoth"],["bespin","endor"],["bespin","kessel"],
+  ["crait","bespin"],["crait","hoth"],["crait","mon_cala"],
+  ["endor","kessel"],["endor","dagobah"],
+  ["dagobah","scarif"],["dagobah","mustafar"],
+  ["mustafar","sullust"],
+  ["lothal","mandalore"],["lothal","takodana"],["lothal","ord_mantell"],
+  ["mandalore","mygeeto"],["mandalore","csilla"],["mandalore","dantooine"],
+  ["mygeeto","dantooine"],["mygeeto","ossus"],
+  ["felucia","utapau"],["felucia","saleucami"],
+  ["utapau","scarif"],["saleucami","utapau"],["saleucami","eriadu"],
+  ["scarif","sullust"],["scarif","jedha"],
+  ["dathomir","nal_hutta"],["ryloth","dathomir"],
   ["nar_shaddaa","nal_hutta"],["nar_shaddaa","teth"],["nar_shaddaa","dathomir"],["nar_shaddaa","tatooine"],
   ["nevarro","lothal"],["nevarro","arvala_7"],["nevarro","mandalore"],["nevarro","corvus"],
-  ["arvala_7","lothal"],["corvus","lothal"],["corvus","kashyyyk"],
-  ["kijimi","takodana"],["kijimi","ord_mantell"],["kijimi","bothawui"],
+  ["arvala_7","lothal"],["arvala_7","batuu"],
+  ["corvus","lothal"],["corvus","kashyyyk"],["corvus","trask"],
   ["ajan_kloss","dqar"],["ajan_kloss","endor"],["ajan_kloss","crait"],
-  ["pasaana","jedha"],["pasaana","jakku"],["pasaana","onderon"],
-  ["cantonica","bespin"],["cantonica","crait"],["cantonica","endor"],
-  ["dqar","takodana"],["dqar","hoth"],["dqar","ajan_kloss"],
-  ["rishi","kamino"],["rishi","yavin"],["rishi","nal_hutta"],
+  ["cantonica","bespin"],["cantonica","crait"],["cantonica","endor"],["cantonica","vandor"],
+  ["dqar","takodana"],["dqar","hoth"],
   ["christophsis","felucia"],["christophsis","saleucami"],["christophsis","utapau"],
   ["lola_sayu","onderon"],["lola_sayu","felucia"],["lola_sayu","christophsis"],
-  ["korriban","dathomir"],["korriban","nal_hutta"],["korriban","exegol"],["korriban","malachor"],
+  ["korriban","dathomir"],["korriban","nal_hutta"],["korriban","exegol"],["korriban","malachor"],["korriban","ziost"],
   ["malachor","mustafar"],["malachor","dagobah"],["malachor","jedha"],
   ["atollon","lothal"],["atollon","mandalore"],["atollon","kessel"],
   ["krownest","mandalore"],["krownest","mygeeto"],["krownest","csilla"],
-  ["rodia","naboo"],["rodia","malastare"],["rodia","dagobah"],
-  ["glee_anselm","kashyyyk"],["glee_anselm","bothawui"],["glee_anselm","takodana"],
   ["muunilinst","mygeeto"],["muunilinst","csilla"],["muunilinst","bonadan"],
   ["bonadan","csilla"],["bonadan","ilum"],["bonadan","dantooine"],
-  ["rakata_prime","ahch_to"],["rakata_prime","exegol"],["rakata_prime","tython"],
-  ["peridea","ahch_to"],["peridea","csilla"],["peridea","exegol"],
   ["coaxium","sullust"],["coaxium","scarif"],["coaxium","eriadu"],["coaxium","kessel"],
-  ["wobani","jedha"],["wobani","scarif"],["wobani","onderon"],
-  ["eadu","scarif"],["eadu","wobani"],["eadu","sullust"],["eadu","mustafar"]
+  ["eadu","scarif"],["eadu","wobani"],["eadu","sullust"],["eadu","mustafar"],
+  ["eriadu","geonosis"],["duro","fondor"],["ord_mantell","kashyyyk"],
+  ["batuu","lothal"],["batuu","arvala_7"],
+  ["vandor","hoth"],["vandor","bespin"],["vandor","crait"],
+  ["polis_massa","geonosis"],["polis_massa","dagobah"],["polis_massa","naboo"],["polis_massa","rodia"],
+  ["rattatak","malachor"],["rattatak","lola_sayu"],["rattatak","nkllon"],
+  ["ossus","dantooine"],["ossus","wayland"],["ossus","taris"],
+  ["ziost","dromund_kaas"],["ziost","korriban"],["ziost","nal_hutta"],
+  ["dromund_kaas","dathomir"],["dromund_kaas","nal_hutta"],["dromund_kaas","lehon"],
+  ["ruusan","sullust"],["ruusan","eadu"],["ruusan","coaxium"],
+  ["taris","mygeeto"],["taris","ossus"],["taris","muunilinst"],
+  ["wayland","taris"],["wayland","mygeeto"],["wayland","muunilinst"],
+  ["nkllon","malachor"],["nkllon","rattatak"],["nkllon","lola_sayu"],
+  ["lehon","bonadan"],["lehon","taris"],["lehon","dromund_kaas"],
+  ["jakelia","cantonica"],["jakelia","numidian_prime"],["jakelia","nkllon"],
+  ["ring_of_kafrene","scarif"],["ring_of_kafrene","eadu"],["ring_of_kafrene","sullust"],
+  ["numidian_prime","jakelia"],["numidian_prime","cantonica"],["numidian_prime","endor"],
+  ["sorgan","corvus"],["sorgan","trask"],["sorgan","ajan_kloss"],
+  ["trask","mon_cala"],["trask","corvus"],["trask","nevarro"],
+
+  // Wild Space connections
+  ["kamparas","hoth"],["kamparas","endor"],["kamparas","koboh"],
+  ["lah_mu","scarif"],["lah_mu","eadu"],["lah_mu","terminus"],
+  ["elphrona","csilla"],["elphrona","bonadan"],["elphrona","nirauan"],
+  ["rakata_prime","ahch_to"],["rakata_prime","exegol"],["rakata_prime","tython"],
+  ["zakuul","dromund_kaas"],["zakuul","ziost"],["zakuul","korriban"],
+  ["terminus","lah_mu"],["terminus","dagobah"],["terminus","ruusan"],
+  ["koboh","kessel"],["koboh","endor"],["koboh","kamparas"],
+  ["seatos","peridea"],["seatos","ahch_to"],["seatos","rakata_prime"],
+
+  // Unknown Regions internal and bridges
+  ["exegol","byss"],["exegol","tython"],
+  ["ilum","csilla"],["ilum","ahch_to"],["ilum","starkiller"],
+  ["peridea","ahch_to"],["peridea","csilla"],["peridea","exegol"],
+  ["mortis","ahch_to"],["mortis","tython"],["mortis","ilum"],
+  ["lira_san","atollon"],["lira_san","lothal"],["lira_san","iokath"],
+  ["iokath","exegol"],["iokath","rakata_prime"],
+  ["nirauan","csilla"],["nirauan","copero"],["nirauan","ilum"],
+  ["rakata_rift","ahch_to"],["rakata_rift","peridea"],["rakata_rift","mortis"],
+  ["starkiller","ilum"],["starkiller","csilla"],["starkiller","nirauan"],
+  ["copero","csilla"],["copero","nirauan"],["copero","elphrona"],
 ];
+
 extraEdges.forEach(([s, t]) => {
   const key = ek(s, t);
   if (!edgeRouteMap[key]) {
@@ -531,6 +735,7 @@ extraEdges.forEach(([s, t]) => {
     rawEdges.push({ source: s, target: t });
   }
 });
+
 // ── Theme System ──────────────────────────────────────────────────
 
 const themeColors = {
@@ -566,7 +771,7 @@ const H = container.clientHeight;
 const cx = W / 2, cy = H / 2;
 const scale = Math.min(W, H) / 2 * 0.88;
 
-const rScale = d3.scaleSqrt().domain([1, maxDeg]).range([4, 16]);
+const rScale = d3.scaleSqrt().domain([1, maxDeg]).range([3, 14]);
 
 const nodes = planets.map(p => {
   const r = regionRadius[p.region] * scale;
@@ -626,7 +831,7 @@ g.append('circle').attr('cx', cx).attr('cy', cy).attr('r', scale * 0.6).attr('fi
 
 // Star field
 const starGroup = g.append('g').attr('class', 'stars').attr('opacity', T().starOpacity);
-for (let i = 0; i < 300; i++) {
+for (let i = 0; i < 500; i++) {
   starGroup.append('circle')
     .attr('cx', Math.random() * W)
     .attr('cy', Math.random() * H)
@@ -635,6 +840,19 @@ for (let i = 0; i < 300; i++) {
     .attr('opacity', 0.1 + Math.random() * 0.4);
 }
 
+// Region ring guides (subtle)
+const ringGroup = g.append('g').attr('class', 'rings');
+Object.entries(regionRadius).forEach(([region, r]) => {
+  ringGroup.append('circle')
+    .attr('cx', cx).attr('cy', cy)
+    .attr('r', r * scale)
+    .attr('fill', 'none')
+    .attr('stroke', regionColors[region])
+    .attr('stroke-opacity', isDark() ? 0.06 : 0.08)
+    .attr('stroke-width', 0.5)
+    .attr('stroke-dasharray', '4,6');
+});
+
 // ── 3. Draw Links and Nodes ───────────────────────────────────────
 
 const linkGroup = g.append('g').attr('class', 'links');
@@ -642,8 +860,8 @@ let linkSel = linkGroup.selectAll('line')
   .data(links)
   .join('line')
   .attr('stroke', d => d.routes.length ? T().edgeRoute : T().edgeDefault)
-  .attr('stroke-opacity', d => d.routes.length ? 0.6 : 0.5)
-  .attr('stroke-width', 1);
+  .attr('stroke-opacity', d => d.routes.length ? 0.6 : 0.4)
+  .attr('stroke-width', d => d.routes.length ? 1.2 : 0.7);
 
 const nodeGroup = g.append('g').attr('class', 'nodes');
 let nodeSel = nodeGroup.selectAll('circle')
@@ -658,13 +876,13 @@ let nodeSel = nodeGroup.selectAll('circle')
 
 const labelGroup = g.append('g').attr('class', 'labels');
 let labelSel = labelGroup.selectAll('text')
-  .data(nodes.filter(d => d.deg >= 5))
+  .data(nodes.filter(d => d.deg >= 6))
   .join('text')
   .text(d => d.name)
-  .attr('font-size', '7px')
+  .attr('font-size', '6.5px')
   .attr('fill', T().labelColor)
   .attr('text-anchor', 'middle')
-  .attr('dy', d => rScale(d.deg) + 10)
+  .attr('dy', d => rScale(d.deg) + 9)
   .attr('pointer-events', 'none')
   .attr('font-family', 'Inter, sans-serif')
   .attr('opacity', 0.7);
@@ -672,10 +890,10 @@ let labelSel = labelGroup.selectAll('text')
 // ── 4. Force Simulation ───────────────────────────────────────────
 
 const simulation = d3.forceSimulation(nodes)
-  .force('link', d3.forceLink(links).id(d => d.id).distance(70).strength(0.2))
-  .force('charge', d3.forceManyBody().strength(-100))
-  .force('radial', d3.forceRadial(d => regionRadius[d.region] * scale, cx, cy).strength(0.35))
-  .force('collide', d3.forceCollide().radius(d => rScale(d.deg) + 3))
+  .force('link', d3.forceLink(links).id(d => d.id).distance(50).strength(0.15))
+  .force('charge', d3.forceManyBody().strength(-80))
+  .force('radial', d3.forceRadial(d => regionRadius[d.region] * scale, cx, cy).strength(0.4))
+  .force('collide', d3.forceCollide().radius(d => rScale(d.deg) + 2))
   .on('tick', ticked);
 
 function ticked() {
@@ -696,7 +914,7 @@ function ticked() {
 
 // ── 5. Zoom ───────────────────────────────────────────────────────
 
-const zoom = d3.zoom().scaleExtent([0.3, 5]).on('zoom', e => g.attr('transform', e.transform));
+const zoom = d3.zoom().scaleExtent([0.3, 8]).on('zoom', e => g.attr('transform', e.transform));
 svg.call(zoom);
 
 // ── 6. Tooltip ────────────────────────────────────────────────────
@@ -706,15 +924,16 @@ const tooltip = d3.select('#tooltip');
 nodeSel.on('mouseenter', (event, d) => {
   tooltip
     .style('display', 'block')
+    .style('opacity', 1)
     .style('left', (event.pageX + 12) + 'px')
     .style('top', (event.pageY - 10) + 'px')
-    .html(`${d.name} &middot; ${d.region}`);
+    .html(`${d.name} · ${d.region} · ${d.deg} links`);
 }).on('mousemove', (event) => {
   tooltip
     .style('left', (event.pageX + 12) + 'px')
     .style('top', (event.pageY - 10) + 'px');
 }).on('mouseleave', () => {
-  tooltip.style('display', 'none');
+  tooltip.style('opacity', 0).style('display', 'none');
 });
 
 // ── 7. Drag ───────────────────────────────────────────────────────
@@ -768,7 +987,6 @@ nodeSel.on('click', (event, d) => {
   }
 
   if (!selectedA) {
-    // First selection
     selectedA = d;
     selectedB = null;
 
@@ -793,14 +1011,12 @@ nodeSel.on('click', (event, d) => {
     showPlanetInfo(d);
 
   } else if (selectedA.id === d.id) {
-    // Deselect
     selectedA = null;
     selectedB = null;
     restoreAll();
     clearSelection();
 
   } else {
-    // Second selection -- pathfinding
     selectedB = d;
     const pathIds = findPath(selectedA.id, d.id);
 
@@ -881,6 +1097,7 @@ function showPlanetInfo(planet) {
     <div class="info-sig">${planet.sig}</div>
     <div class="info-stat">Connections: <span>${planet.deg}</span></div>
     <div class="info-stat">Routes: <span>${routes.length ? routes.join(', ') : 'None'}</span></div>
+    <div class="info-stat">Neighbors: <span>${connected.slice(0, 8).join(', ')}${connected.length > 8 ? '...' : ''}</span></div>
     <div class="info-hint" style="margin-top:10px">Click another system to find route</div>
   `;
 }
@@ -890,9 +1107,17 @@ function showPathInfo(pathIds) {
   const start = names[0], end = names[names.length - 1];
   const pathHtml = names.map(n => `<span class="path-planet">${n}</span>`).join(' <span class="path-arrow">&rarr;</span> ');
 
+  // Find which named routes this path traverses
+  const routesUsed = new Set();
+  for (let i = 0; i < pathIds.length - 1; i++) {
+    const key = ek(pathIds[i], pathIds[i+1]);
+    (edgeRouteMap[key] || []).forEach(r => routesUsed.add(r));
+  }
+
   document.getElementById('info-content').innerHTML = `
     <div class="info-name">${start} &rarr; ${end}</div>
     <div class="info-stat">${pathIds.length - 1} hyperspace jump${pathIds.length - 1 !== 1 ? 's' : ''}</div>
+    ${routesUsed.size ? `<div class="info-stat">Via: <span>${[...routesUsed].join(', ')}</span></div>` : ''}
     <div class="info-path">${pathHtml}</div>
     <div class="info-hint" style="margin-top:10px">Click background to clear</div>
   `;
@@ -953,6 +1178,13 @@ Object.entries(tradeRoutes).forEach(([name, route]) => {
         return (edgeRouteMap[key] || []).includes(name) ? 2.5 : 1;
       });
     if (labelSel) labelSel.transition().duration(300).attr('opacity', d => routeSet.has(d.id) ? 0.8 : 0);
+
+    // Show route info
+    document.getElementById('info-content').innerHTML = `
+      <div class="info-name">${name}</div>
+      <div class="info-stat">${route.path.length} systems, ${route.path.length - 1} jumps</div>
+      <div class="info-path">${route.path.map(id => `<span class="path-planet">${nodeMap.get(id)?.name || id}</span>`).join(' <span class="path-arrow">&rarr;</span> ')}</div>
+    `;
   });
   document.getElementById('route-buttons').appendChild(btn);
 });
@@ -962,9 +1194,10 @@ Object.entries(tradeRoutes).forEach(([name, route]) => {
 const hiddenRegions = new Set();
 
 Object.entries(regionColors).forEach(([region, color]) => {
+  const count = nodes.filter(n => n.region === region).length;
   const item = document.createElement('div');
   item.className = 'legend-item';
-  item.innerHTML = `<span class="legend-dot" style="background:${color}"></span><span>${region}</span>`;
+  item.innerHTML = `<span class="legend-dot" style="background:${color}"></span><span>${region} (${count})</span>`;
   item.addEventListener('click', () => {
     if (hiddenRegions.has(region)) {
       hiddenRegions.delete(region);
@@ -974,7 +1207,7 @@ Object.entries(regionColors).forEach(([region, color]) => {
       item.classList.add('dimmed');
     }
     nodeSel.transition().duration(300).attr('opacity', d => hiddenRegions.has(d.region) ? 0.03 : 1);
-    if (labelSel) labelSel.transition().duration(300).attr('opacity', d => hiddenRegions.has(d.region) ? 0 : (d.deg >= 5 ? 0.7 : 0));
+    if (labelSel) labelSel.transition().duration(300).attr('opacity', d => hiddenRegions.has(d.region) ? 0 : (d.deg >= 6 ? 0.7 : 0));
   });
   document.getElementById('legend').appendChild(item);
 });
@@ -984,7 +1217,6 @@ Object.entries(regionColors).forEach(([region, color]) => {
 document.getElementById('search').addEventListener('input', (e) => {
   const query = e.target.value.trim().toLowerCase();
 
-  // Clear active route and selection
   if (activeRoute) {
     activeRoute = null;
     document.querySelectorAll('.route-btn').forEach(b => b.classList.remove('active'));
@@ -998,7 +1230,11 @@ document.getElementById('search').addEventListener('input', (e) => {
     return;
   }
 
-  const matchIds = new Set(nodes.filter(n => n.name.toLowerCase().includes(query)).map(n => n.id));
+  const matchIds = new Set(nodes.filter(n =>
+    n.name.toLowerCase().includes(query) ||
+    n.region.toLowerCase().includes(query) ||
+    n.sig.toLowerCase().includes(query)
+  ).map(n => n.id));
 
   nodeSel.transition().duration(300)
     .attr('opacity', d => matchIds.has(d.id) ? 1 : 0.08)
@@ -1034,13 +1270,19 @@ function restoreAll() {
         typeof d.source === 'object' ? d.source.id : d.source,
         typeof d.target === 'object' ? d.target.id : d.target
       );
-      return (edgeRouteMap[key] || []).length ? 0.6 : 0.5;
+      return (edgeRouteMap[key] || []).length ? 0.6 : 0.4;
     })
-    .attr('stroke-width', 1);
+    .attr('stroke-width', d => {
+      const key = ek(
+        typeof d.source === 'object' ? d.source.id : d.source,
+        typeof d.target === 'object' ? d.target.id : d.target
+      );
+      return (edgeRouteMap[key] || []).length ? 1.2 : 0.7;
+    });
   linkSel.attr('filter', null);
   if (labelSel) labelSel.transition().duration(300)
     .attr('fill', T().labelColor)
-    .attr('opacity', d => d.deg >= 5 ? 0.7 : 0);
+    .attr('opacity', d => d.deg >= 6 ? 0.7 : 0);
 }
 
 // ── 14. Theme toggle ─────────────────────────────────────────────
@@ -1061,9 +1303,10 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
   applyTheme();
 });
 
-// ── 15. Subtitle update & close ───────────────────────────────────
+// ── 15. Subtitle ─────────────────────────────────────────────────
 
-document.querySelector('.subtitle').textContent = `${nodes.length} systems \u00b7 ${links.length} lanes \u00b7 5 trade routes`;
+const routeCount = Object.keys(tradeRoutes).length;
+document.getElementById('subtitle').textContent = `${nodes.length} systems \u00b7 ${links.length} lanes \u00b7 ${routeCount} trade routes`;
 
 </script>
 </body>

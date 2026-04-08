@@ -135,37 +135,51 @@ const nodes = S.map((s, i) => ({
   color: REGION_COLORS[s[3]],
 }));
 
-// Grid -> pixel position. Grid: A-U (col 1-21), rows 1-21
-// Galaxy center ~= L-9.5 = col 12, row 9.5
-const GCX = 12, GCY = 10;
+// Galaxy layout: convert grid (A-U=1-21, rows 1-21) to polar galaxy disc
+// Galaxy center = Coruscant area ~ L-9 = col 12, row 9.5
+const GCX = 12, GCY = 9.5;
 const container = document.getElementById('graph');
 const W = container.clientWidth, H = container.clientHeight;
-const SCALE = Math.min(W, H) / 24;
+const GALAXY_R = Math.min(W, H) * 0.44; // galaxy disc radius in pixels
 
-function gridToPixel(col, row) {
-  return {
-    x: W/2 + (col - GCX) * SCALE,
-    y: H/2 + (row - GCY) * SCALE
-  };
-}
+// Convert grid coords to angle + distance from center, then to pixel
+// Use golden-angle offset per cell to spread systems in same cell
+const cellIndex = {};
+// Seeded random for reproducibility
+let _seed = 42;
+function srand() { _seed = (_seed * 16807 + 0) % 2147483647; return (_seed - 1) / 2147483646; }
 
-// Assign pixel positions with jitter for same-cell overlap
-const cellCount = {};
 nodes.forEach(n => {
+  const dx = n.col - GCX;
+  const dy = n.row - GCY;
+  const gridAngle = Math.atan2(dy, dx);
+  const gridDist = Math.sqrt(dx*dx + dy*dy);
+
+  // Normalize distance: max grid distance is ~14, map to 0-1
+  const normDist = Math.min(gridDist / 13, 1.0);
+
+  // Per-cell spread using golden angle
   const key = `${n.col},${n.row}`;
-  cellCount[key] = (cellCount[key] || 0);
-  const jx = (cellCount[key] % 5 - 2) * SCALE * 0.12;
-  const jy = (Math.floor(cellCount[key] / 5) - 1) * SCALE * 0.12;
-  cellCount[key]++;
-  const p = gridToPixel(n.col, n.row);
-  n.x = p.x + jx + (Math.random()-0.5)*SCALE*0.08;
-  n.y = p.y + jy + (Math.random()-0.5)*SCALE*0.08;
+  cellIndex[key] = (cellIndex[key] || 0);
+  const idx = cellIndex[key]++;
+
+  // Golden angle spread within cell (2.399 radians)
+  const cellAngleOffset = idx * 2.399;
+  // Spiral outward within cell
+  const cellRadOffset = Math.sqrt(idx) * GALAXY_R * 0.018;
+
+  // Final polar position
+  const finalAngle = gridAngle + cellAngleOffset * 0.15;
+  const finalDist = normDist * GALAXY_R + cellRadOffset + (srand()-0.5) * GALAXY_R * 0.02;
+
+  n.x = W/2 + Math.cos(finalAngle) * finalDist;
+  n.y = H/2 + Math.sin(finalAngle) * finalDist;
 });
 
-// Size by degree
+// Size by degree -- tiny for 4500+ systems
 const maxDeg = Math.max(...nodes.map(n => n.deg));
 function nodeRadius(deg) {
-  return 1.5 + Math.sqrt(deg / maxDeg) * 5;
+  return 0.6 + Math.sqrt(deg / maxDeg) * 2.5;
 }
 
 // Build adjacency
@@ -230,8 +244,10 @@ function render() {
 
   // Galaxy center glow
   const gc = toScreen(W/2, H/2);
-  const grad = ctx.createRadialGradient(gc.x, gc.y, 0, gc.x, gc.y, 200 * transform.k);
-  grad.addColorStop(0, t.glow);
+  const glowR = GALAXY_R * 0.5 * transform.k;
+  const grad = ctx.createRadialGradient(gc.x, gc.y, 0, gc.x, gc.y, glowR);
+  grad.addColorStop(0, isDark() ? 'rgba(40,30,80,0.35)' : 'rgba(220,200,160,0.15)');
+  grad.addColorStop(0.5, isDark() ? 'rgba(20,15,50,0.15)' : 'rgba(230,220,190,0.06)');
   grad.addColorStop(1, 'transparent');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
@@ -248,16 +264,18 @@ function render() {
     }
   }
 
-  // Grid rings (subtle)
-  ctx.strokeStyle = isDark() ? 'rgba(100,100,150,0.06)' : 'rgba(150,150,140,0.08)';
+  // Region rings (subtle concentric circles like the galaxy image)
+  const regionRingRadii = [0.06, 0.14, 0.22, 0.30, 0.38, 0.46, 0.60, 0.78, 0.92];
+  const regionRingColors = REGION_COLORS;
   ctx.lineWidth = 0.5 / transform.k;
-  ctx.setLineDash([3/transform.k, 5/transform.k]);
-  for (let r = 2; r <= 12; r += 2) {
+  ctx.setLineDash([3/transform.k, 6/transform.k]);
+  regionRingRadii.forEach((frac, i) => {
     const sc = toScreen(W/2, H/2);
+    ctx.strokeStyle = (regionRingColors[i] || '#888') + (isDark() ? '15' : '18');
     ctx.beginPath();
-    ctx.arc(sc.x, sc.y, r * SCALE * transform.k, 0, Math.PI*2);
+    ctx.arc(sc.x, sc.y, frac * GALAXY_R * transform.k, 0, Math.PI*2);
     ctx.stroke();
-  }
+  });
   ctx.setLineDash([]);
 
   // Determine highlight state
@@ -295,8 +313,8 @@ function render() {
     if (sa.y > H+50 && sb.y > H+50) return;
 
     const edgeKey = ek(a, b);
-    let alpha = isRoute ? 0.25 : 0.1;
-    let width = isRoute ? 0.8 : 0.4;
+    let alpha = isRoute ? 0.15 : 0.04;
+    let width = isRoute ? 0.6 : 0.3;
     let color = isRoute ? t.edgeRoute : t.edge;
 
     if (dimAll) {
@@ -334,11 +352,11 @@ function render() {
     const s = toScreen(n.x, n.y);
     if (s.x < -20 || s.x > W+20 || s.y < -20 || s.y > H+20) return;
 
-    const r = nodeRadius(n.deg) * Math.min(transform.k * 0.7, 1.5);
+    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
     let alpha = 1;
 
     if (dimAll && !highlightSet.has(i)) {
-      alpha = 0.06;
+      alpha = 0.04;
     }
 
     ctx.globalAlpha = alpha;
@@ -347,12 +365,12 @@ function render() {
     ctx.fillStyle = n.color;
     ctx.fill();
 
-    // Glow for high-degree or selected
-    if ((n.deg > 8 || i === selectedA || i === hoveredNode) && alpha > 0.5) {
+    // Glow for selected/hovered only (too expensive for all high-degree at this scale)
+    if ((i === selectedA || i === hoveredNode) && alpha > 0.5) {
       ctx.beginPath();
-      ctx.arc(s.x, s.y, r * 2, 0, Math.PI*2);
-      const g = ctx.createRadialGradient(s.x, s.y, r*0.5, s.x, s.y, r*2);
-      g.addColorStop(0, n.color + '40');
+      ctx.arc(s.x, s.y, r * 3, 0, Math.PI*2);
+      const g = ctx.createRadialGradient(s.x, s.y, r*0.5, s.x, s.y, r*3);
+      g.addColorStop(0, n.color + '60');
       g.addColorStop(1, 'transparent');
       ctx.fillStyle = g;
       ctx.fill();
@@ -371,9 +389,9 @@ function render() {
   });
 
   // ── Draw labels (only at sufficient zoom) ─────────────────
-  if (transform.k > 0.6) {
-    const minDeg = transform.k > 2 ? 2 : transform.k > 1.2 ? 5 : 8;
-    ctx.font = `${Math.max(6, 8/transform.k)}px Inter, sans-serif`;
+  if (transform.k > 0.8) {
+    const minDeg = transform.k > 4 ? 2 : transform.k > 2 ? 5 : transform.k > 1.2 ? 10 : 15;
+    ctx.font = `${Math.max(5, 7/transform.k)}px Inter, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillStyle = t.label;
 
@@ -385,7 +403,7 @@ function render() {
       const s = toScreen(n.x, n.y);
       if (s.x < -50 || s.x > W+50 || s.y < -50 || s.y > H+50) return;
 
-      const r = nodeRadius(n.deg) * Math.min(transform.k * 0.7, 1.5);
+      const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
       ctx.fillText(n.name, s.x, s.y + r + 10);
     });
   }
@@ -397,7 +415,7 @@ function render() {
     ctx.font = 'bold 10px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = isDark() ? '#fff' : '#111';
-    const r = nodeRadius(n.deg) * Math.min(transform.k * 0.7, 1.5);
+    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
     ctx.fillText(n.name, s.x, s.y + r + 12);
   }
 
@@ -412,7 +430,7 @@ function hitTest(sx, sy) {
     if (hiddenRegions.has(n.regionIdx)) return;
     const dx = n.x - w.x, dy = n.y - w.y;
     const d = dx*dx + dy*dy;
-    const r = nodeRadius(n.deg) * 2 / transform.k;
+    const r = Math.max(nodeRadius(n.deg) * 3, 6) / transform.k;
     if (d < r*r && d < bestDist) {
       bestDist = d;
       best = i;

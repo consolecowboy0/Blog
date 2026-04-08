@@ -21,7 +21,11 @@ const rendered = !isEmbed ? await render(item) : null;
 
 {isEmbed ? (
   <BaseLayout title={`${item.data.title} · Library`} description={item.data.description}>
-    <a href="/library" class="back-link">&larr; Library</a>
+    <nav class="back-nav">
+      <a href="/" class="back-link">Home</a>
+      <span class="back-sep">/</span>
+      <a href="/library" class="back-link">Library</a>
+    </nav>
     <LibraryEmbed
       src={item.data.file!}
       title={item.data.title}
@@ -31,24 +35,39 @@ const rendered = !isEmbed ? await render(item) : null;
   </BaseLayout>
 ) : (
   <PostLayout frontmatter={item.data}>
-    <a href="/library" class="back-link">&larr; Library</a>
+    <nav class="back-nav">
+      <a href="/" class="back-link">Home</a>
+      <span class="back-sep">/</span>
+      <a href="/library" class="back-link">Library</a>
+    </nav>
     {rendered && <rendered.Content />}
   </PostLayout>
 )}
 
 <style>
+  .back-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
   .back-link {
-    display: inline-block;
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--fg-muted);
     text-decoration: none;
     border: none;
-    margin-bottom: 1rem;
     transition: color 0.2s;
   }
 
   .back-link:hover {
     color: var(--fg);
+  }
+
+  .back-sep {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    opacity: 0.5;
   }
 </style>

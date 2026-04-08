@@ -20,6 +20,8 @@ const { title, description = 'A blog.' } = Astro.props;
     <meta name="description" content={description} />
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (function() {
         const saved = localStorage.getItem('theme');
@@ -633,12 +635,15 @@ const { title, description = 'A blog.' } = Astro.props;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
     let lastMsgCount = 0;
     let lastSendTime = 0;
+    let initialized = false;
 
     toggleBtn?.addEventListener('click', () => {
       isOpen = !isOpen;
       panel?.classList.toggle('dm-open', isOpen);
-      if (isOpen) { pollMessages(); startPolling(); }
-      else { stopPolling(); }
+      if (isOpen) {
+        if (!initialized) { initialized = true; }
+        pollMessages(); startPolling();
+      } else { stopPolling(); }
     });
 
     closeBtn?.addEventListener('click', () => {

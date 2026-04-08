@@ -6,6 +6,10 @@ export default defineConfig({
   integrations: [mdx()],
   site: 'https://example.com',
   adapter: netlify(),
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'viewport',
+  },
   vite: {
     ssr: {
       // Agent SDK requires Claude Code CLI — exclude from Netlify bundle

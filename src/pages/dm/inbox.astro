@@ -1,0 +1,833 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="DM Inbox">
+  <!-- Password gate -->
+  <div id="gate">
+    <div class="gate-box">
+      <h2>DM Inbox</h2>
+      <p class="gate-sub">Enter password to continue.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-pw" placeholder="Password" autocomplete="off" />
+        <button type="submit">Unlock</button>
+      </form>
+      <p id="gate-error" class="gate-error" hidden>Wrong password</p>
+    </div>
+  </div>
+
+  <!-- Inbox (hidden until auth) -->
+  <div id="inbox" class="inbox" hidden>
+    <div class="inbox-header">
+      <h1>DM Inbox</h1>
+      <button id="refresh-btn" class="icon-btn" title="Refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="inbox-layout">
+      <!-- Conversation list -->
+      <div id="conv-list-panel" class="conv-list-panel">
+        <div id="conv-list" class="conv-list">
+          <div class="empty-state" id="empty-state">No messages yet</div>
+        </div>
+      </div>
+
+      <!-- Message view -->
+      <div id="msg-panel" class="msg-panel" hidden>
+        <div class="msg-header">
+          <button id="back-btn" class="icon-btn back-btn" title="Back to list">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <div class="msg-header-info">
+            <span id="msg-visitor-id" class="visitor-id mono"></span>
+            <span id="msg-fingerprint" class="fingerprint"></span>
+          </div>
+          <button id="delete-btn" class="icon-btn delete-btn" title="Delete conversation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div id="msg-area" class="msg-area">
+          <div id="msg-loading" class="loading-state">Loading...</div>
+        </div>
+
+        <div class="reply-bar">
+          <textarea id="reply-input" placeholder="Type a reply..." rows="2"></textarea>
+          <button id="send-btn" class="send-btn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div id="delete-modal" class="modal-overlay" hidden>
+    <div class="modal-box">
+      <p>Delete this conversation?</p>
+      <div class="modal-actions">
+        <button id="delete-cancel" class="modal-btn">Cancel</button>
+        <button id="delete-confirm" class="modal-btn modal-btn-danger">Delete</button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Gate */
+  #gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+  }
+
+  .gate-box {
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .gate-box h2 {
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  .gate-sub {
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  #gate-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  #gate-pw {
+    flex: 1;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #gate-pw:focus {
+    border-color: var(--fg-muted);
+  }
+
+  #gate-form button {
+    padding: 0.6rem 1.25rem;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  #gate-form button:hover {
+    opacity: 0.85;
+  }
+
+  .gate-error {
+    color: #d44;
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Inbox */
+  .inbox-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+
+  .inbox-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .icon-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    cursor: pointer;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .icon-btn:hover {
+    color: var(--fg);
+    border-color: var(--fg-muted);
+  }
+
+  /* Two-column layout */
+  .inbox-layout {
+    display: flex;
+    gap: 1px;
+    border: 1px solid var(--border);
+    min-height: 60vh;
+    background: var(--border);
+  }
+
+  .conv-list-panel {
+    width: 300px;
+    flex-shrink: 0;
+    background: var(--bg);
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+
+  .msg-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    min-width: 0;
+  }
+
+  /* Conversation list */
+  .conv-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .conv-item {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .conv-item:hover {
+    background: var(--code-bg);
+  }
+
+  .conv-item.active {
+    background: var(--code-bg);
+  }
+
+  .conv-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .conv-item-id {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 140px;
+  }
+
+  .conv-item-time {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+
+  .conv-item-preview {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .unread-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #d44;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-left: 0.25rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+  }
+
+  .loading-state {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+  }
+
+  /* Message header */
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .msg-header-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .visitor-id {
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  .fingerprint {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .delete-btn:hover {
+    color: #d44;
+    border-color: #d44;
+  }
+
+  .back-btn {
+    display: none;
+  }
+
+  /* Message area */
+  .msg-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+
+  .bubble-visitor {
+    align-self: flex-start;
+    background: var(--code-bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+
+  .bubble-admin {
+    align-self: flex-end;
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .bubble-time {
+    font-size: 0.65rem;
+    color: var(--fg-muted);
+    margin-top: 0.2rem;
+  }
+
+  .bubble-admin + .bubble-time {
+    align-self: flex-end;
+  }
+
+  .bubble-visitor + .bubble-time {
+    align-self: flex-start;
+  }
+
+  /* Reply bar */
+  .reply-bar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  #reply-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    resize: vertical;
+    outline: none;
+    min-height: 2.5rem;
+    line-height: 1.5;
+  }
+
+  #reply-input:focus {
+    border-color: var(--fg-muted);
+  }
+
+  .send-btn {
+    padding: 0.5rem 1.25rem;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: opacity 0.2s;
+  }
+
+  .send-btn:hover {
+    opacity: 0.85;
+  }
+
+  .send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    max-width: 340px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .modal-box p {
+    margin-bottom: 1.25rem;
+    font-weight: 600;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  .modal-btn {
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .modal-btn:hover {
+    background: var(--code-bg);
+  }
+
+  .modal-btn-danger {
+    background: #d44;
+    color: #fff;
+    border-color: #d44;
+  }
+
+  .modal-btn-danger:hover {
+    background: #b33;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .inbox-layout {
+      flex-direction: column;
+      min-height: auto;
+    }
+
+    .conv-list-panel {
+      width: 100%;
+      max-height: none;
+    }
+
+    .msg-panel {
+      min-height: 60vh;
+    }
+
+    .back-btn {
+      display: flex;
+    }
+
+    /* In mobile, toggle panels */
+    .conv-list-panel.hidden-mobile {
+      display: none;
+    }
+
+    .msg-panel.hidden-mobile {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const API_AUTH = '/api/auth';
+  const API_DM = '/api/dm';
+
+  // Elements
+  const gate = document.getElementById('gate');
+  const gateForm = document.getElementById('gate-form');
+  const gatePw = document.getElementById('gate-pw');
+  const gateError = document.getElementById('gate-error');
+  const inbox = document.getElementById('inbox');
+  const convListPanel = document.getElementById('conv-list-panel');
+  const convList = document.getElementById('conv-list');
+  const emptyState = document.getElementById('empty-state');
+  const msgPanel = document.getElementById('msg-panel');
+  const msgArea = document.getElementById('msg-area');
+  const msgLoading = document.getElementById('msg-loading');
+  const msgVisitorId = document.getElementById('msg-visitor-id');
+  const msgFingerprint = document.getElementById('msg-fingerprint');
+  const backBtn = document.getElementById('back-btn');
+  const deleteBtn = document.getElementById('delete-btn');
+  const deleteModal = document.getElementById('delete-modal');
+  const deleteCancel = document.getElementById('delete-cancel');
+  const deleteConfirm = document.getElementById('delete-confirm');
+  const replyInput = document.getElementById('reply-input');
+  const sendBtn = document.getElementById('send-btn');
+  const refreshBtn = document.getElementById('refresh-btn');
+
+  let token = localStorage.getItem('auth_token') || '';
+  let conversations = [];
+  let activeConvId = null;
+  let refreshInterval = null;
+
+  // Relative time
+  function relTime(dateStr) {
+    const now = Date.now();
+    const then = new Date(dateStr).getTime();
+    const diff = Math.max(0, now - then);
+    const secs = Math.floor(diff / 1000);
+    if (secs < 60) return secs + 's ago';
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return mins + 'm ago';
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    const days = Math.floor(hrs / 24);
+    return days + 'd ago';
+  }
+
+  // API helper
+  async function dmApi(body) {
+    const res = await fetch(API_DM, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    return res.json();
+  }
+
+  // Auth check on load
+  function checkAuth() {
+    if (token) {
+      gate.hidden = true;
+      inbox.hidden = false;
+      loadConversations();
+      startAutoRefresh();
+    }
+  }
+
+  // Gate submit
+  gateForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    gateError.hidden = true;
+    const pw = gatePw.value.trim();
+    if (!pw) return;
+
+    try {
+      const res = await fetch(API_AUTH, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, scope: 'legion' }),
+      });
+      if (!res.ok) throw new Error('auth failed');
+      const data = await res.json();
+      token = data.token;
+      localStorage.setItem('auth_token', token);
+      document.cookie = 'auth_token=' + token + '; path=/; SameSite=Lax';
+      gate.hidden = true;
+      inbox.hidden = false;
+      loadConversations();
+      startAutoRefresh();
+    } catch {
+      gateError.hidden = false;
+    }
+  });
+
+  // Load conversations
+  async function loadConversations() {
+    try {
+      const data = await dmApi({ action: 'list' });
+      conversations = data.conversations || [];
+      renderConvList();
+    } catch (err) {
+      console.error('Failed to load conversations', err);
+      // Token might be stale
+      if (err.message.includes('401') || err.message.includes('403')) {
+        token = '';
+        localStorage.removeItem('auth_token');
+        gate.hidden = false;
+        inbox.hidden = true;
+        stopAutoRefresh();
+      }
+    }
+  }
+
+  // Render conversation list
+  function renderConvList() {
+    // Clear existing items but keep empty state
+    const items = convList.querySelectorAll('.conv-item');
+    items.forEach(el => el.remove());
+
+    if (conversations.length === 0) {
+      emptyState.style.display = '';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+
+    conversations.forEach(conv => {
+      const item = document.createElement('div');
+      item.className = 'conv-item' + (conv.id === activeConvId ? ' active' : '');
+      item.dataset.id = conv.id;
+
+      const top = document.createElement('div');
+      top.className = 'conv-item-top';
+
+      const idSpan = document.createElement('span');
+      idSpan.className = 'conv-item-id';
+      idSpan.textContent = conv.id.slice(0, 12);
+      top.appendChild(idSpan);
+
+      const rightGroup = document.createElement('span');
+      rightGroup.style.display = 'flex';
+      rightGroup.style.alignItems = 'center';
+      rightGroup.style.gap = '0.35rem';
+
+      const timeSpan = document.createElement('span');
+      timeSpan.className = 'conv-item-time';
+      timeSpan.textContent = relTime(conv.time);
+      rightGroup.appendChild(timeSpan);
+
+      if (conv.unread) {
+        const dot = document.createElement('span');
+        dot.className = 'unread-dot';
+        rightGroup.appendChild(dot);
+      }
+
+      top.appendChild(rightGroup);
+      item.appendChild(top);
+
+      const preview = document.createElement('div');
+      preview.className = 'conv-item-preview';
+      preview.textContent = conv.preview || '(empty)';
+      item.appendChild(preview);
+
+      item.addEventListener('click', () => openConversation(conv.id));
+      convList.appendChild(item);
+    });
+  }
+
+  // Open conversation
+  async function openConversation(id) {
+    activeConvId = id;
+
+    // Highlight active item
+    convList.querySelectorAll('.conv-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    // Show message panel
+    msgPanel.hidden = false;
+    msgLoading.style.display = '';
+    msgArea.querySelectorAll('.bubble, .bubble-time').forEach(el => el.remove());
+
+    // Mobile: hide list, show messages
+    if (window.innerWidth <= 768) {
+      convListPanel.classList.add('hidden-mobile');
+      msgPanel.classList.remove('hidden-mobile');
+    }
+
+    try {
+      const data = await dmApi({ action: 'read', conversation_id: id });
+      renderMessages(data);
+    } catch (err) {
+      console.error('Failed to read conversation', err);
+      msgLoading.textContent = 'Failed to load.';
+    }
+  }
+
+  // Render messages
+  function renderMessages(data) {
+    msgLoading.style.display = 'none';
+    msgVisitorId.textContent = data.id ? data.id.slice(0, 16) : 'Unknown';
+    msgFingerprint.textContent = data.fingerprint || '';
+
+    // Clear old
+    msgArea.querySelectorAll('.bubble, .bubble-time').forEach(el => el.remove());
+
+    const messages = data.messages || [];
+    if (messages.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'loading-state';
+      empty.textContent = 'No messages in this conversation.';
+      msgArea.appendChild(empty);
+      return;
+    }
+
+    messages.forEach(msg => {
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + (msg.from === 'admin' ? 'bubble-admin' : 'bubble-visitor');
+      bubble.textContent = msg.text;
+      msgArea.appendChild(bubble);
+
+      const time = document.createElement('div');
+      time.className = 'bubble-time';
+      time.textContent = relTime(msg.time);
+      msgArea.appendChild(time);
+    });
+
+    // Scroll to bottom
+    msgArea.scrollTop = msgArea.scrollHeight;
+  }
+
+  // Back button (mobile)
+  backBtn.addEventListener('click', () => {
+    activeConvId = null;
+    msgPanel.classList.add('hidden-mobile');
+    convListPanel.classList.remove('hidden-mobile');
+    msgPanel.hidden = true;
+    renderConvList();
+  });
+
+  // Send reply
+  async function sendReply() {
+    const text = replyInput.value.trim();
+    if (!text || !activeConvId) return;
+
+    sendBtn.disabled = true;
+    try {
+      await dmApi({ action: 'reply', conversation_id: activeConvId, text });
+      replyInput.value = '';
+      // Reload conversation
+      await openConversation(activeConvId);
+      // Refresh list too
+      loadConversations();
+    } catch (err) {
+      console.error('Failed to send reply', err);
+      alert('Failed to send reply.');
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  sendBtn.addEventListener('click', sendReply);
+  replyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendReply();
+    }
+  });
+
+  // Delete conversation
+  deleteBtn.addEventListener('click', () => {
+    if (!activeConvId) return;
+    deleteModal.hidden = false;
+  });
+
+  deleteCancel.addEventListener('click', () => {
+    deleteModal.hidden = true;
+  });
+
+  deleteConfirm.addEventListener('click', async () => {
+    deleteModal.hidden = true;
+    if (!activeConvId) return;
+
+    try {
+      await dmApi({ action: 'delete', conversation_id: activeConvId });
+      activeConvId = null;
+      msgPanel.hidden = true;
+      // Mobile: show list
+      convListPanel.classList.remove('hidden-mobile');
+      msgPanel.classList.add('hidden-mobile');
+      await loadConversations();
+    } catch (err) {
+      console.error('Failed to delete conversation', err);
+      alert('Failed to delete.');
+    }
+  });
+
+  // Close modal on overlay click
+  deleteModal.addEventListener('click', (e) => {
+    if (e.target === deleteModal) deleteModal.hidden = true;
+  });
+
+  // Refresh
+  refreshBtn.addEventListener('click', () => loadConversations());
+
+  function startAutoRefresh() {
+    stopAutoRefresh();
+    refreshInterval = setInterval(loadConversations, 30000);
+  }
+
+  function stopAutoRefresh() {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+  }
+
+  // Init
+  checkAuth();
+</script>

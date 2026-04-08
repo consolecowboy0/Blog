@@ -37,6 +37,7 @@ const { title, description = 'A blog.' } = Astro.props;
         <div class="nav-links">
           <a href="/posts">Writing</a>
           <a href="/library">Library</a>
+          <a href="/dm">DM</a>
           <button id="theme-toggle" aria-label="Toggle dark mode">
             <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="5"></circle>
@@ -80,9 +81,40 @@ const { title, description = 'A blog.' } = Astro.props;
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </a>
+        <a href="/dm/inbox" aria-label="DM Inbox" class="social-link secret-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+          </svg>
+        </a>
         </div>
       </div>
     </footer>
+
+    <!-- DM Chat Widget -->
+    <button id="dm-chat-toggle" aria-label="Send a message">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+      </svg>
+    </button>
+
+    <div id="dm-chat-panel">
+      <div class="dm-header">
+        <div>
+          <span class="dm-title">Send a message</span>
+          <span class="dm-visitor-id" id="dm-visitor-id"></span>
+        </div>
+        <button id="dm-chat-close" aria-label="Close chat">&times;</button>
+      </div>
+      <div class="dm-messages" id="dm-messages">
+        <p class="dm-empty">No messages yet. Say hello!</p>
+      </div>
+      <div class="dm-input-area">
+        <textarea id="dm-input" rows="2" placeholder="Type a message..."></textarea>
+        <button id="dm-send">Send</button>
+      </div>
+      <div class="dm-confirmation" id="dm-confirmation">Message sent!</div>
+    </div>
+
   </body>
 </html>
 
@@ -226,6 +258,214 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="dark"]) .icon-sun { display: block; }
   .icon-sun { display: none; }
   .icon-moon { display: block; }
+
+  /* DM Chat Widget */
+  #dm-chat-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #dm-chat-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  #dm-chat-panel {
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    width: 340px;
+    max-height: 420px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    z-index: 9998;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #dm-chat-panel.dm-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .dm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dm-title {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .dm-visitor-id {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--fg-muted);
+    margin-top: 0.15rem;
+  }
+
+  #dm-chat-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    color: var(--fg-muted);
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  #dm-chat-close:hover {
+    color: var(--fg);
+  }
+
+  .dm-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+    min-height: 180px;
+    max-height: 260px;
+  }
+
+  .dm-empty {
+    text-align: center;
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    margin-top: 2rem;
+  }
+
+  .dm-msg {
+    margin-bottom: 0.6rem;
+    max-width: 85%;
+  }
+
+  .dm-msg-visitor {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .dm-msg-admin {
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .dm-msg-text {
+    display: inline-block;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    font-family: var(--font-body);
+    color: var(--fg);
+  }
+
+  .dm-msg-visitor .dm-msg-text {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+  }
+
+  .dm-msg-admin .dm-msg-text {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .dm-msg-time {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--fg-muted);
+    margin-top: 0.15rem;
+    font-family: var(--font-mono);
+  }
+
+  .dm-input-area {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  #dm-input {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    padding: 0.4rem 0.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #dm-input:focus {
+    border-color: var(--fg-muted);
+  }
+
+  #dm-send {
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.4rem 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: opacity 0.2s;
+    align-self: flex-end;
+  }
+
+  #dm-send:hover {
+    opacity: 0.85;
+  }
+
+  .dm-confirmation {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    padding: 0.35rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .dm-confirmation.dm-show {
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    #dm-chat-panel {
+      width: calc(100% - 2rem);
+      right: 1rem;
+      left: 1rem;
+    }
+  }
 </style>
 
 <script>
@@ -235,4 +475,196 @@ const { title, description = 'A blog.' } = Astro.props;
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
   });
+</script>
+
+<script>
+  (function () {
+    // Hide widget on /dm pages
+    if (window.location.pathname.startsWith('/dm/inbox') || window.location.pathname === '/dm' || window.location.pathname === '/dm/') {
+      const toggle = document.getElementById('dm-chat-toggle');
+      const panel = document.getElementById('dm-chat-panel');
+      if (toggle) toggle.style.display = 'none';
+      if (panel) panel.style.display = 'none';
+      return;
+    }
+
+    // Fingerprint + visitor ID
+    function djb2(str: string): string {
+      let hash = 5381;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        hash = hash & hash; // Convert to 32-bit int
+      }
+      return (hash >>> 0).toString(16).padStart(8, '0').slice(0, 8);
+    }
+
+    function getFingerprint(): string {
+      const parts = [
+        navigator.userAgent,
+        screen.width + 'x' + screen.height,
+        String(screen.colorDepth),
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        navigator.language,
+        String(navigator.hardwareConcurrency || 0),
+        navigator.platform,
+      ];
+      return parts.join('|');
+    }
+
+    let visitorId = localStorage.getItem('dm_visitor_id');
+    const fingerprint = getFingerprint();
+    if (!visitorId) {
+      visitorId = djb2(fingerprint);
+      localStorage.setItem('dm_visitor_id', visitorId);
+    }
+
+    const idDisplay = document.getElementById('dm-visitor-id');
+    if (idDisplay) idDisplay.textContent = 'Your ID: ' + visitorId;
+
+    // Elements
+    const toggleBtn = document.getElementById('dm-chat-toggle');
+    const panel = document.getElementById('dm-chat-panel');
+    const closeBtn = document.getElementById('dm-chat-close');
+    const messagesDiv = document.getElementById('dm-messages');
+    const input = document.getElementById('dm-input') as HTMLTextAreaElement | null;
+    const sendBtn = document.getElementById('dm-send');
+    const confirmation = document.getElementById('dm-confirmation');
+
+    let isOpen = false;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+
+    // Toggle panel
+    toggleBtn?.addEventListener('click', () => {
+      isOpen = !isOpen;
+      panel?.classList.toggle('dm-open', isOpen);
+      if (isOpen) {
+        pollMessages();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    });
+
+    closeBtn?.addEventListener('click', () => {
+      isOpen = false;
+      panel?.classList.remove('dm-open');
+      stopPolling();
+    });
+
+    // Polling
+    function startPolling() {
+      stopPolling();
+      pollInterval = setInterval(pollMessages, 30000);
+    }
+
+    function stopPolling() {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+      }
+    }
+
+    // Send message
+    async function sendMessage() {
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        const res = await fetch('/api/dm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint }),
+        });
+        if (res.ok) {
+          input.value = '';
+          appendMessage(text, 'visitor', Date.now());
+          showConfirmation();
+        }
+      } catch (_e) {
+        // Silently fail
+      }
+    }
+
+    sendBtn?.addEventListener('click', sendMessage);
+    input?.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Poll messages
+    async function pollMessages() {
+      try {
+        const res = await fetch('/api/dm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'poll', visitor_id: visitorId }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.messages && Array.isArray(data.messages)) {
+            renderMessages(data.messages);
+          }
+        }
+      } catch (_e) {
+        // Silently fail
+      }
+    }
+
+    // Render messages
+    function renderMessages(messages: Array<{ text: string; from: string; time: number }>) {
+      if (!messagesDiv) return;
+      if (messages.length === 0) {
+        messagesDiv.innerHTML = '<p class="dm-empty">No messages yet. Say hello!</p>';
+        return;
+      }
+      messagesDiv.innerHTML = messages
+        .map((msg) => {
+          const cls = msg.from === 'admin' ? 'dm-msg-admin' : 'dm-msg-visitor';
+          const time = formatTime(msg.time);
+          return `<div class="dm-msg ${cls}"><span class="dm-msg-text">${escapeHtml(msg.text)}</span><span class="dm-msg-time">${time}</span></div>`;
+        })
+        .join('');
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Append single message locally
+    function appendMessage(text: string, from: string, time: number) {
+      if (!messagesDiv) return;
+      const empty = messagesDiv.querySelector('.dm-empty');
+      if (empty) empty.remove();
+      const cls = from === 'admin' ? 'dm-msg-admin' : 'dm-msg-visitor';
+      const timeStr = formatTime(time);
+      const div = document.createElement('div');
+      div.className = `dm-msg ${cls}`;
+      div.innerHTML = `<span class="dm-msg-text">${escapeHtml(text)}</span><span class="dm-msg-time">${timeStr}</span>`;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Confirmation flash
+    function showConfirmation() {
+      if (!confirmation) return;
+      confirmation.classList.add('dm-show');
+      setTimeout(() => confirmation.classList.remove('dm-show'), 2000);
+    }
+
+    // Helpers
+    function formatTime(ts: number | string): string {
+      try {
+        const d = new Date(ts);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } catch {
+        return '';
+      }
+    }
+
+    function escapeHtml(str: string): string {
+      const el = document.createElement('span');
+      el.textContent = str;
+      return el.innerHTML;
+    }
+  })();
 </script>

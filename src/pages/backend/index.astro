@@ -705,7 +705,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const dateStr = new Date((post as any).date).toLocaleDateString('en-US', {
         year: 'numeric', month: 'short', day: 'numeric',
       });
-      metaDiv.textContent = dateStr;
+      const dateSpan = document.createElement('span');
+      dateSpan.textContent = dateStr;
+      metaDiv.appendChild(dateSpan);
 
       if ((post as any).draft) {
         const badge = document.createElement('span');

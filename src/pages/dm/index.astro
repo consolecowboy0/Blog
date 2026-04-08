@@ -612,11 +612,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     sendBtn.toggleAttribute('disabled', !msgInput.value.trim());
   });
 
-  // Adaptive polling: 5s after recent send, 30s otherwise
+  // Adaptive polling: 3s after recent send, 15s idle
   loadMessages();
-  setInterval(() => {
-    const recentlySent = (Date.now() - lastSendTime) < 120000;
-    loadMessages();
-    // Next interval handles itself
-  }, 5000);
+  let pollTimer: ReturnType<typeof setTimeout>;
+  function schedulePoll() {
+    const interval = (Date.now() - lastSendTime) < 120000 ? 3000 : 15000;
+    pollTimer = setTimeout(async () => {
+      await loadMessages();
+      schedulePoll();
+    }, interval);
+  }
+  schedulePoll();
 </script>

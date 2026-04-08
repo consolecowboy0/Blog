@@ -651,12 +651,19 @@ const { title, description = 'A blog.' } = Astro.props;
 
     function startPolling() {
       stopPolling();
-      // 5s polling when panel is open
-      pollInterval = setInterval(pollMessages, 5000);
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      const interval = (Date.now() - lastSendTime) < 120000 ? 3000 : 10000;
+      pollInterval = setTimeout(async () => {
+        await pollMessages();
+        if (isOpen) scheduleNext();
+      }, interval);
     }
 
     function stopPolling() {
-      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+      if (pollInterval) { clearTimeout(pollInterval); pollInterval = null; }
     }
 
     function escapeHtml(str: string): string {

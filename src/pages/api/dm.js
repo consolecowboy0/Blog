@@ -1,7 +1,8 @@
 export const prerender = false;
 
-import { getStore } from '@netlify/blobs';
+import { getDb } from '../../lib/firebase.js';
 import { requireAuth } from '../../lib/auth.js';
+import { FieldValue } from 'firebase-admin/firestore';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,11 +17,6 @@ function json(data, status = 200) {
   });
 }
 
-async function getIndex(store) {
-  const data = await store.get('index', { type: 'json' });
-  return data || { conversations: [] };
-}
-
 export async function POST({ request }) {
   let body;
   try {
@@ -30,7 +26,8 @@ export async function POST({ request }) {
   }
 
   const { action } = body;
-  const store = getStore('dm');
+  const db = getDb();
+  const convCol = db.collection('dm_conversations');
 
   // --- Public actions ---
 
@@ -39,36 +36,29 @@ export async function POST({ request }) {
     if (!visitor_id || !text) return json({ error: 'Missing fields' }, 400);
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
-    const key = `conv:${visitor_id}`;
-    let conv = await store.get(key, { type: 'json' });
+    const docRef = convCol.doc(visitor_id);
+    const doc = await docRef.get();
+    const now = Date.now();
 
-    if (!conv) {
-      conv = {
+    if (doc.exists) {
+      await docRef.update({
+        messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
+        preview: text.substring(0, 80),
+        updated: now,
+        unread: FieldValue.increment(1),
+        ...(fingerprint ? { fingerprint } : {}),
+      });
+    } else {
+      await docRef.set({
         id: visitor_id,
         fingerprint: fingerprint || '',
-        messages: [],
-        created: Date.now(),
-      };
-    }
-
-    conv.messages.push({ from: 'visitor', text, time: Date.now() });
-    await store.setJSON(key, conv);
-
-    const index = await getIndex(store);
-    const existing = index.conversations.find(c => c.id === visitor_id);
-    if (existing) {
-      existing.preview = text.substring(0, 80);
-      existing.time = Date.now();
-      existing.unread = (existing.unread || 0) + 1;
-    } else {
-      index.conversations.push({
-        id: visitor_id,
+        messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
-        time: Date.now(),
+        created: now,
+        updated: now,
         unread: 1,
       });
     }
-    await store.setJSON('index', index);
 
     return json({ ok: true });
   }
@@ -77,10 +67,9 @@ export async function POST({ request }) {
     const { visitor_id } = body;
     if (!visitor_id) return json({ error: 'Missing visitor_id' }, 400);
 
-    const key = `conv:${visitor_id}`;
-    const conv = await store.get(key, { type: 'json' });
-    if (!conv) return json({ messages: [] });
-    return json({ messages: conv.messages });
+    const doc = await convCol.doc(visitor_id).get();
+    if (!doc.exists) return json({ messages: [] });
+    return json({ messages: doc.data().messages || [] });
   }
 
   // --- Admin actions (auth required) ---
@@ -90,47 +79,52 @@ export async function POST({ request }) {
   }
 
   if (action === 'list') {
-    const index = await getIndex(store);
-    index.conversations.sort((a, b) => b.time - a.time);
-    return json(index);
+    const snapshot = await convCol.orderBy('updated', 'desc').get();
+    const conversations = snapshot.docs.map(doc => {
+      const d = doc.data();
+      return {
+        id: d.id,
+        preview: d.preview || '',
+        time: d.updated || d.created,
+        unread: d.unread || 0,
+      };
+    });
+    return json({ conversations });
   }
 
   if (action === 'read') {
     const { conversation_id } = body;
     if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
 
-    const key = `conv:${conversation_id}`;
-    const conv = await store.get(key, { type: 'json' });
-    if (!conv) return json({ error: 'Not found' }, 404);
+    const docRef = convCol.doc(conversation_id);
+    const doc = await docRef.get();
+    if (!doc.exists) return json({ error: 'Not found' }, 404);
 
-    const index = await getIndex(store);
-    const entry = index.conversations.find(c => c.id === conversation_id);
-    if (entry) {
-      entry.unread = 0;
-      await store.setJSON('index', index);
-    }
+    // Mark read
+    await docRef.update({ unread: 0 });
 
-    return json(conv);
+    const data = doc.data();
+    return json({
+      id: data.id,
+      fingerprint: data.fingerprint || '',
+      messages: data.messages || [],
+    });
   }
 
   if (action === 'reply') {
     const { conversation_id, text } = body;
     if (!conversation_id || !text) return json({ error: 'Missing fields' }, 400);
 
-    const key = `conv:${conversation_id}`;
-    const conv = await store.get(key, { type: 'json' });
-    if (!conv) return json({ error: 'Not found' }, 404);
+    const docRef = convCol.doc(conversation_id);
+    const doc = await docRef.get();
+    if (!doc.exists) return json({ error: 'Not found' }, 404);
 
-    conv.messages.push({ from: 'admin', text, time: Date.now() });
-    await store.setJSON(key, conv);
-
-    const index = await getIndex(store);
-    const entry = index.conversations.find(c => c.id === conversation_id);
-    if (entry) {
-      entry.preview = `You: ${text.substring(0, 75)}`;
-      entry.time = Date.now();
-      await store.setJSON('index', index);
-    }
+    const now = Date.now();
+    await docRef.update({
+      messages: FieldValue.arrayUnion({ from: 'admin', text, time: now }),
+      preview: `You: ${text.substring(0, 75)}`,
+      updated: now,
+    });
 
     return json({ ok: true });
   }
@@ -139,12 +133,7 @@ export async function POST({ request }) {
     const { conversation_id } = body;
     if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
 
-    await store.delete(`conv:${conversation_id}`);
-
-    const index = await getIndex(store);
-    index.conversations = index.conversations.filter(c => c.id !== conversation_id);
-    await store.setJSON('index', index);
-
+    await convCol.doc(conversation_id).delete();
     return json({ ok: true });
   }
 

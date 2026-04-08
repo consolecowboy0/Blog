@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    (function(){
+      var t = localStorage.getItem('theme');
+      if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <style>
     :root {
       --bg: #ffffff;
@@ -25,6 +32,18 @@
       --accent-gold: #b45309;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg: #111111;
+      --bg-card: #111111;
+      --bg-card-hover: #1a1a1a;
+      --bg-track: #1a1a1a;
+      --border: #2a2a2a;
+      --border-light: #333333;
+      --text: #e5e5e5;
+      --text-secondary: #999999;
+      --text-muted: #666666;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -335,6 +354,22 @@
       margin-bottom: 4px;
       min-height: 1.2em;
     }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+    .theme-toggle:hover { color: var(--text); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    .icon-sun { display: none; }
+    [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="dark"] .icon-sun { display: block; }
   </style>
 </head>
 <body>
@@ -343,6 +378,10 @@
       <h1>Superhero Network Simulator</h1>
       <span class="subtitle">Project Caviar &mdash; 110 nodes, 205 edges</span>
     </div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
   </div>
 
   <div class="main-content">
@@ -478,7 +517,7 @@
         .join('circle')
         .attr('r', d => rScale(d.degree))
         .attr('fill', d => communityColors[d.community] || '#999')
-        .attr('stroke', '#fff')
+        .attr('stroke', document.documentElement.getAttribute('data-theme') === 'dark' ? '#111111' : '#ffffff')
         .attr('stroke-width', 1.2)
         .attr('cursor', 'pointer');
 
@@ -828,6 +867,16 @@
       initGraph();
       updateMiniChart();
     }
+
+    // Theme toggle
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      // Update node strokes
+      d3.selectAll('.nodes circle').attr('stroke', next === 'dark' ? '#111111' : '#ffffff');
+    });
   </script>
 </body>
 </html>

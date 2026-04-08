@@ -6,7 +6,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <!-- Password gate -->
   <div id="gate">
     <div class="gate-box">
-      <h2>Private Area</h2>
+      <div class="gate-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2>Private area</h2>
       <p class="gate-sub">Enter password to continue.</p>
       <form id="gate-form">
         <input type="password" id="gate-pw" placeholder="Password" autocomplete="off" />
@@ -19,9 +25,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <!-- Inbox (hidden until auth) -->
   <div id="inbox" class="inbox inbox-hidden">
     <div class="inbox-header">
-      <h1>DM Inbox</h1>
+      <div class="inbox-header-left">
+        <div class="inbox-header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+          </svg>
+        </div>
+        <h1>Inbox</h1>
+      </div>
       <button id="refresh-btn" class="icon-btn" title="Refresh">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="23 4 23 10 17 10"></polyline>
           <polyline points="1 20 1 14 7 14"></polyline>
           <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -33,7 +46,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <!-- Conversation list -->
       <div id="conv-list-panel" class="conv-list-panel">
         <div id="conv-list" class="conv-list">
-          <div class="empty-state" id="empty-state">No messages yet</div>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-state-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+              </svg>
+            </div>
+            <span>No conversations yet</span>
+          </div>
         </div>
       </div>
 
@@ -41,7 +61,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div id="msg-panel" class="msg-panel" hidden>
         <div class="msg-header">
           <button id="back-btn" class="icon-btn back-btn" title="Back to list">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
@@ -51,7 +71,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <span id="msg-fingerprint" class="fingerprint"></span>
           </div>
           <button id="delete-btn" class="icon-btn delete-btn" title="Delete conversation">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -63,8 +83,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </div>
 
         <div class="reply-bar">
-          <textarea id="reply-input" placeholder="Type a reply..." rows="2"></textarea>
-          <button id="send-btn" class="send-btn">Send</button>
+          <textarea id="reply-input" placeholder="Write a reply..." rows="1"></textarea>
+          <button id="send-btn" class="send-btn" title="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -74,6 +99,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   <div id="delete-modal" class="modal-overlay modal-hidden">
     <div class="modal-box">
       <p>Delete this conversation?</p>
+      <p class="modal-sub">This cannot be undone.</p>
       <div class="modal-actions">
         <button id="delete-cancel" class="modal-btn">Cancel</button>
         <button id="delete-confirm" class="modal-btn modal-btn-danger">Delete</button>
@@ -97,48 +123,64 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     width: 100%;
   }
 
+  .gate-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--code-bg);
+    color: var(--fg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
   .gate-box h2 {
     margin-top: 0;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
+    font-size: 1.25rem;
   }
 
   .gate-sub {
     color: var(--fg-muted);
-    font-size: 0.85rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
   }
 
   #gate-form {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
   #gate-pw {
     flex: 1;
-    padding: 0.6rem 0.75rem;
+    padding: 0.55rem 0.85rem;
     border: 1px solid var(--border);
+    border-radius: 10px;
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
   #gate-pw:focus {
     border-color: var(--fg-muted);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-muted) 10%, transparent);
   }
 
   #gate-form button {
-    padding: 0.6rem 1.25rem;
+    padding: 0.55rem 1.25rem;
     background: var(--fg);
     color: var(--bg);
     border: none;
+    border-radius: 10px;
     font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: opacity 0.15s;
   }
 
   #gate-form button:hover {
@@ -146,8 +188,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   .gate-error {
-    color: #d44;
-    font-size: 0.8rem;
+    color: #e54;
+    font-size: 0.78rem;
     margin-top: 0.75rem;
   }
 
@@ -159,43 +201,64 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     display: none !important;
   }
 
-  /* Inbox */
+  /* Inbox header */
   .inbox-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .inbox-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .inbox-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--fg);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 
   .inbox-header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
   }
 
   .icon-btn {
     background: none;
     border: 1px solid var(--border);
+    border-radius: 8px;
     color: var(--fg-muted);
     cursor: pointer;
     padding: 0.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s, border-color 0.2s;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
   }
 
   .icon-btn:hover {
     color: var(--fg);
     border-color: var(--fg-muted);
+    background: var(--code-bg);
   }
 
   /* Two-column layout */
   .inbox-layout {
     display: flex;
-    gap: 1px;
     border: 1px solid var(--border);
+    border-radius: 14px;
     min-height: 60vh;
-    background: var(--border);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
   }
 
   .conv-list-panel {
@@ -204,6 +267,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     background: var(--bg);
     overflow-y: auto;
     max-height: 70vh;
+    border-right: 1px solid var(--border);
   }
 
   .msg-panel {
@@ -220,34 +284,37 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     flex-direction: column;
   }
 
-  .conv-item {
-    padding: 0.75rem 1rem;
+  /* JS-rendered conv items need :global */
+  :global(.conv-item) {
+    padding: 0.7rem 0.85rem;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.12s;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.2rem;
   }
 
-  .conv-item:hover {
+  :global(.conv-item:hover) {
     background: var(--code-bg);
   }
 
-  .conv-item.active {
+  :global(.conv-item.active) {
     background: var(--code-bg);
+    border-left: 3px solid var(--fg);
   }
 
-  .conv-item-top {
+  :global(.conv-item-top) {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
   }
 
-  .conv-item-id {
+  :global(.conv-item-id) {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.74rem;
+    font-weight: 600;
     color: var(--fg);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -255,50 +322,67 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     max-width: 140px;
   }
 
-  .conv-item-time {
-    font-size: 0.7rem;
+  :global(.conv-item-time) {
+    font-size: 0.65rem;
     color: var(--fg-muted);
     white-space: nowrap;
+    font-family: var(--font-mono);
   }
 
-  .conv-item-preview {
-    font-size: 0.8rem;
+  :global(.conv-item-preview) {
+    font-size: 0.78rem;
     color: var(--fg-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .unread-dot {
+  :global(.unread-dot) {
     display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: #d44;
+    width: 7px;
+    height: 7px;
+    background: #e54;
     border-radius: 50%;
     flex-shrink: 0;
     margin-left: 0.25rem;
   }
 
   .empty-state {
-    padding: 2rem 1rem;
+    padding: 3rem 1rem;
     text-align: center;
     color: var(--fg-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .empty-state-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--code-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-muted);
+    opacity: 0.4;
   }
 
   .loading-state {
     padding: 2rem 1rem;
     text-align: center;
     color: var(--fg-muted);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   /* Message header */
   .msg-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    gap: 0.6rem;
+    padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--border);
   }
 
@@ -308,7 +392,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   .visitor-id {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 600;
   }
 
@@ -318,17 +402,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .fingerprint {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--fg-muted);
     font-family: var(--font-mono);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    opacity: 0.7;
   }
 
   .delete-btn:hover {
-    color: #d44;
-    border-color: #d44;
+    color: #e54;
+    border-color: #e54;
   }
 
   .back-btn {
@@ -342,97 +427,124 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.25rem;
+    background:
+      radial-gradient(ellipse at 20% 50%, color-mix(in srgb, var(--code-bg) 35%, transparent) 0%, transparent 65%),
+      radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--code-bg) 25%, transparent) 0%, transparent 55%);
   }
 
-  .bubble {
+  /* JS-rendered bubbles need :global */
+  :global(.bubble) {
     max-width: 75%;
-    padding: 0.6rem 0.85rem;
-    font-size: 0.85rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.84rem;
     line-height: 1.5;
     word-wrap: break-word;
+    white-space: pre-wrap;
   }
 
-  .bubble-visitor {
+  :global(.bubble-visitor) {
     align-self: flex-start;
-    background: var(--code-bg);
+    background: var(--bg);
     color: var(--fg);
     border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
   }
 
-  .bubble-admin {
+  :global(.bubble-admin) {
     align-self: flex-end;
     background: var(--fg);
     color: var(--bg);
+    border-radius: 16px 16px 4px 16px;
   }
 
-  .bubble-time {
-    font-size: 0.65rem;
+  :global(.bubble-time) {
+    font-size: 0.58rem;
     color: var(--fg-muted);
-    margin-top: 0.2rem;
+    margin-top: 0.1rem;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-mono);
+    opacity: 0.5;
+    padding: 0 0.2rem;
   }
 
-  .bubble-admin + .bubble-time {
+  :global(.bubble-admin + .bubble-time) {
     align-self: flex-end;
+    text-align: right;
   }
 
-  .bubble-visitor + .bubble-time {
+  :global(.bubble-visitor + .bubble-time) {
     align-self: flex-start;
   }
 
   /* Reply bar */
   .reply-bar {
     display: flex;
+    align-items: flex-end;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.85rem;
     border-top: 1px solid var(--border);
+    background: var(--bg);
   }
 
   #reply-input {
     flex: 1;
-    padding: 0.5rem 0.75rem;
+    padding: 0.55rem 1rem;
     border: 1px solid var(--border);
-    background: var(--bg);
+    border-radius: 20px;
+    background: var(--code-bg);
     color: var(--fg);
     font-family: var(--font-body);
-    font-size: 0.85rem;
-    resize: vertical;
+    font-size: 0.84rem;
+    resize: none;
     outline: none;
-    min-height: 2.5rem;
+    min-height: 2.4rem;
+    max-height: 8rem;
     line-height: 1.5;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
   #reply-input:focus {
     border-color: var(--fg-muted);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-muted) 10%, transparent);
   }
 
   .send-btn {
-    padding: 0.5rem 1.25rem;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
     background: var(--fg);
     color: var(--bg);
     border: none;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-weight: 600;
     cursor: pointer;
-    align-self: flex-end;
-    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s, transform 0.1s;
   }
 
-  .send-btn:hover {
+  .send-btn:hover:not(:disabled) {
     opacity: 0.85;
+    transform: scale(1.06);
+  }
+
+  .send-btn:active:not(:disabled) {
+    transform: scale(0.94);
   }
 
   .send-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+    opacity: 0.2;
+    cursor: default;
+    transform: none;
   }
 
   /* Modal */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -446,32 +558,42 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .modal-box {
     background: var(--bg);
     border: 1px solid var(--border);
-    padding: 1.5rem;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
     max-width: 340px;
     width: 90%;
     text-align: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
 
   .modal-box p {
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.25rem;
     font-weight: 600;
+  }
+
+  .modal-sub {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    font-weight: 400 !important;
+    margin-bottom: 1.25rem !important;
   }
 
   .modal-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     justify-content: center;
   }
 
   .modal-btn {
     padding: 0.5rem 1.25rem;
     border: 1px solid var(--border);
+    border-radius: 8px;
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-body);
-    font-size: 0.85rem;
+    font-size: 0.84rem;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.12s;
   }
 
   .modal-btn:hover {
@@ -479,13 +601,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   .modal-btn-danger {
-    background: #d44;
+    background: #e54;
     color: #fff;
-    border-color: #d44;
+    border-color: #e54;
   }
 
   .modal-btn-danger:hover {
-    background: #b33;
+    background: #d33;
   }
 
   /* Mobile */
@@ -498,6 +620,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     .conv-list-panel {
       width: 100%;
       max-height: none;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
     }
 
     .msg-panel {
@@ -508,7 +632,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       display: flex;
     }
 
-    /* In mobile, toggle panels */
     .conv-list-panel.hidden-mobile {
       display: none;
     }
@@ -790,6 +913,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       e.preventDefault();
       sendReply();
     }
+  });
+  replyInput.addEventListener('input', () => {
+    replyInput.style.height = 'auto';
+    replyInput.style.height = Math.min(replyInput.scrollHeight, 128) + 'px';
   });
 
   // Delete conversation

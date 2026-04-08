@@ -71,7 +71,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </div>
 
   <!-- Delete confirmation modal -->
-  <div id="delete-modal" class="modal-overlay" hidden>
+  <div id="delete-modal" class="modal-overlay modal-hidden">
     <div class="modal-box">
       <p>Delete this conversation?</p>
       <div class="modal-actions">
@@ -428,7 +428,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10000;
+  }
+
+  .modal-overlay.modal-hidden {
+    display: none;
   }
 
   .modal-box {
@@ -783,15 +787,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   // Delete conversation
   deleteBtn.addEventListener('click', () => {
     if (!activeConvId) return;
-    deleteModal.hidden = false;
+    deleteModal.classList.remove('modal-hidden');
   });
 
   deleteCancel.addEventListener('click', () => {
-    deleteModal.hidden = true;
+    deleteModal.classList.add('modal-hidden');
   });
 
   deleteConfirm.addEventListener('click', async () => {
-    deleteModal.hidden = true;
+    deleteModal.classList.add('modal-hidden');
     if (!activeConvId) return;
 
     try {
@@ -810,7 +814,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   // Close modal on overlay click
   deleteModal.addEventListener('click', (e) => {
-    if (e.target === deleteModal) deleteModal.hidden = true;
+    if (e.target === deleteModal) deleteModal.classList.add('modal-hidden');
   });
 
   // Refresh

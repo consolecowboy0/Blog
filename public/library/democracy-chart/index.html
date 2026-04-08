@@ -445,7 +445,7 @@ function DemocracyChart() {
                   activeDot={{
                     r: 5,
                     fill: "#92400e",
-                    stroke: "#fff",
+                    stroke: c.bg,
                     strokeWidth: 2,
                   }}
                   connectNulls={true}
@@ -462,7 +462,7 @@ function DemocracyChart() {
                   activeDot={{
                     r: 5,
                     fill: "#9ca3af",
-                    stroke: "#fff",
+                    stroke: c.bg,
                     strokeWidth: 2,
                   }}
                   connectNulls={true}
@@ -478,9 +478,9 @@ function DemocracyChart() {
               gap: "1.25rem",
               flexWrap: "wrap",
               paddingTop: "0.75rem",
-              borderTop: "1px solid #e8e8e3",
+              borderTop: "1px solid var(--grid-color)",
               fontSize: "0.7rem",
-              color: "#555",
+              color: "var(--text-sec)",
               letterSpacing: "0.03em",
               alignItems: "center",
             }}
@@ -490,7 +490,7 @@ function DemocracyChart() {
                 style={{
                   width: 16,
                   height: 2,
-                  background: "#1a1a1a",
+                  background: "var(--text)",
                   borderRadius: 1,
                 }}
               />
@@ -502,8 +502,8 @@ function DemocracyChart() {
                   width: 10,
                   height: 10,
                   borderRadius: "50%",
-                  border: "1.5px solid #1a1a1a",
-                  background: "#fff",
+                  border: "1.5px solid var(--text)",
+                  background: "var(--bg)",
                 }}
               />
               <span>Pending (Mar 20)</span>
@@ -529,7 +529,7 @@ function DemocracyChart() {
               />
               <span>Bright Line Watch</span>
             </div>
-            <div style={{ marginLeft: "auto", color: "#999" }}>
+            <div style={{ marginLeft: "auto", color: "var(--text-muted)" }}>
               Shaded bands = Trump presidencies
             </div>
           </div>
@@ -571,7 +571,7 @@ function DemocracyChart() {
         <hr
           style={{
             border: "none",
-            borderTop: "1px solid #d4d4d0",
+            borderTop: "1px solid var(--border)",
             margin: "2.5rem 0",
           }}
         />

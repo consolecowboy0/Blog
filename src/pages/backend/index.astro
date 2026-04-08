@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Backend - dustinlanders.com">
   <div id="gate">
     <div class="gate-box">
-      <p class="gate-label">This area is private.</p>
+      <p class="gate-label">This area is private. Move along.</p>
       <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
       <button id="gate-unlock">Unlock</button>
       <p id="gate-error" class="gate-error"></p>
@@ -393,7 +393,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (authToken) {
       headers['Authorization'] = `Bearer ${authToken}`;
     }
-    return fetch(`${API_BASE}${path}`, { ...options, headers });
+    return fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'omit' });
   }
 
   // Slug generation

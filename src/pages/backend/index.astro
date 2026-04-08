@@ -62,9 +62,47 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <input type="text" id="field-description" />
         </div>
 
-        <div class="field">
+        <div class="field field-editor">
           <label for="field-content">Content</label>
-          <textarea id="field-content"></textarea>
+          <div class="md-editor">
+            <div class="md-toolbar">
+              <div class="md-toolbar-group">
+                <button type="button" class="md-btn" data-action="h1" title="Heading 1">H1</button>
+                <button type="button" class="md-btn" data-action="h2" title="Heading 2">H2</button>
+                <button type="button" class="md-btn" data-action="h3" title="Heading 3">H3</button>
+              </div>
+              <div class="md-toolbar-sep"></div>
+              <div class="md-toolbar-group">
+                <button type="button" class="md-btn" data-action="bold" title="Bold (Ctrl+B)"><strong>B</strong></button>
+                <button type="button" class="md-btn" data-action="italic" title="Italic (Ctrl+I)"><em>I</em></button>
+                <button type="button" class="md-btn" data-action="strikethrough" title="Strikethrough"><s>S</s></button>
+              </div>
+              <div class="md-toolbar-sep"></div>
+              <div class="md-toolbar-group">
+                <button type="button" class="md-btn" data-action="link" title="Link (Ctrl+K)">Link</button>
+                <button type="button" class="md-btn" data-action="image" title="Image">Img</button>
+                <button type="button" class="md-btn" data-action="code" title="Inline Code">Code</button>
+                <button type="button" class="md-btn" data-action="codeblock" title="Code Block">{ }</button>
+              </div>
+              <div class="md-toolbar-sep"></div>
+              <div class="md-toolbar-group">
+                <button type="button" class="md-btn" data-action="quote" title="Blockquote">&gt;</button>
+                <button type="button" class="md-btn" data-action="ul" title="Unordered List">&#8226; List</button>
+                <button type="button" class="md-btn" data-action="ol" title="Ordered List">1. List</button>
+                <button type="button" class="md-btn" data-action="hr" title="Horizontal Rule">---</button>
+              </div>
+              <div class="md-toolbar-sep"></div>
+              <div class="md-toolbar-group md-view-toggle">
+                <button type="button" class="md-btn md-view-btn active" data-view="split" title="Split View">Split</button>
+                <button type="button" class="md-btn md-view-btn" data-view="editor" title="Editor Only">Edit</button>
+                <button type="button" class="md-btn md-view-btn" data-view="preview" title="Preview Only">Preview</button>
+              </div>
+            </div>
+            <div class="md-panes" data-view="split">
+              <textarea id="field-content" class="md-textarea" placeholder="Write markdown here..."></textarea>
+              <div id="md-preview" class="md-preview"></div>
+            </div>
+          </div>
         </div>
 
         <div class="editor-actions">
@@ -313,7 +351,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     border-color: var(--fg-muted);
   }
 
-  .field textarea {
+  .field textarea:not(.md-textarea) {
     padding: 0.75rem;
     font-family: var(--font-mono);
     font-size: 0.82rem;
@@ -331,6 +369,166 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     gap: 0.5rem;
     padding-top: 0.5rem;
   }
+
+  .field-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .md-editor {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    flex: 1;
+    min-height: 500px;
+  }
+
+  .md-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.5rem;
+    background: var(--code-bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .md-toolbar-group {
+    display: flex;
+    gap: 0.15rem;
+  }
+
+  .md-toolbar-sep {
+    width: 1px;
+    height: 1.2rem;
+    background: var(--border);
+    margin: 0 0.25rem;
+  }
+
+  .md-btn {
+    padding: 0.25rem 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid transparent;
+    cursor: pointer;
+    border-radius: 2px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .md-btn:hover {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+
+  .md-view-toggle {
+    margin-left: auto;
+  }
+
+  .md-view-btn.active {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+
+  .md-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .md-panes[data-view="editor"] {
+    grid-template-columns: 1fr;
+  }
+
+  .md-panes[data-view="editor"] .md-preview {
+    display: none;
+  }
+
+  .md-panes[data-view="preview"] {
+    grid-template-columns: 1fr;
+  }
+
+  .md-panes[data-view="preview"] .md-textarea {
+    display: none;
+  }
+
+  .md-textarea {
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    border: none;
+    border-right: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    resize: none;
+    box-sizing: border-box;
+    outline: none;
+    tab-size: 2;
+    overflow-y: auto;
+  }
+
+  .md-panes[data-view="preview"] .md-textarea,
+  .md-panes[data-view="editor"] .md-textarea {
+    border-right: none;
+  }
+
+  .md-preview {
+    padding: 0.75rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    overflow-y: auto;
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .md-preview h1 { font-size: 1.5rem; margin: 1rem 0 0.5rem; }
+  .md-preview h2 { font-size: 1.25rem; margin: 1rem 0 0.5rem; }
+  .md-preview h3 { font-size: 1.1rem; margin: 0.8rem 0 0.4rem; }
+  .md-preview p { margin: 0.5rem 0; }
+  .md-preview a { color: var(--fg); text-decoration: underline; }
+  .md-preview code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    background: var(--code-bg);
+    padding: 0.15rem 0.35rem;
+    border-radius: 2px;
+  }
+  .md-preview pre {
+    background: var(--code-bg);
+    padding: 0.75rem;
+    overflow-x: auto;
+    border-radius: 3px;
+    margin: 0.5rem 0;
+  }
+  .md-preview pre code {
+    background: none;
+    padding: 0;
+  }
+  .md-preview blockquote {
+    border-left: 3px solid var(--border);
+    margin: 0.5rem 0;
+    padding: 0.25rem 0.75rem;
+    color: var(--fg-muted);
+  }
+  .md-preview img { max-width: 100%; height: auto; }
+  .md-preview hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+  .md-preview ul, .md-preview ol { padding-left: 1.5rem; margin: 0.5rem 0; }
+  .md-preview li { margin: 0.2rem 0; }
+  .md-preview table { border-collapse: collapse; width: 100%; margin: 0.5rem 0; }
+  .md-preview th, .md-preview td {
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  .md-preview th { font-weight: 600; background: var(--code-bg); }
 
   @media (max-width: 720px) {
     .panel-grid {
@@ -353,9 +551,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     .field-small {
       flex: 1;
     }
+
+    .md-panes {
+      grid-template-columns: 1fr;
+    }
+
+    .md-panes .md-preview {
+      border-top: 1px solid var(--border);
+    }
+
+    .md-textarea {
+      border-right: none;
+      min-height: 250px;
+    }
+
+    .md-editor {
+      min-height: 400px;
+    }
   }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
   const API_BASE = '';
 
@@ -535,6 +751,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       showEditor();
       renderPostList();
+      updatePreview();
     } catch {}
   }
 
@@ -552,6 +769,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     deleteBtn!.style.display = 'none';
 
     showEditor();
+    updatePreview();
 
     // Remove active from list
     postListEl!.querySelectorAll('li').forEach(li => li.classList.remove('active'));
@@ -622,6 +840,151 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   newPostBtn!.addEventListener('click', startNewPost);
   saveBtn!.addEventListener('click', savePost);
   deleteBtn!.addEventListener('click', deletePost);
+
+  // --- Markdown Editor ---
+  const mdPreview = document.getElementById('md-preview');
+  const mdPanes = document.querySelector('.md-panes') as HTMLElement;
+  let previewTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function updatePreview() {
+    if (!mdPreview || !fieldContent) return;
+    const raw = fieldContent.value;
+    try {
+      // @ts-ignore - marked loaded via CDN
+      mdPreview.innerHTML = window.marked ? window.marked.parse(raw) : escapeHtml(raw);
+    } catch {
+      mdPreview.innerHTML = escapeHtml(raw);
+    }
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function schedulePreview() {
+    if (previewTimer) clearTimeout(previewTimer);
+    previewTimer = setTimeout(updatePreview, 150);
+  }
+
+  fieldContent!.addEventListener('input', schedulePreview);
+
+  // Wrap selected text or insert at cursor
+  function wrapSelection(before: string, after: string, placeholder = '') {
+    const ta = fieldContent!;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = ta.value.substring(start, end);
+    const text = selected || placeholder;
+    const replacement = before + text + after;
+    ta.focus();
+    // Use execCommand for undo support
+    document.execCommand('insertText', false, replacement);
+    // Select the inserted text (not the wrapper)
+    if (!selected && placeholder) {
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = start + before.length + placeholder.length;
+    }
+    schedulePreview();
+  }
+
+  // Insert text at line start
+  function prefixLine(prefix: string) {
+    const ta = fieldContent!;
+    const start = ta.selectionStart;
+    const val = ta.value;
+    // Find line start
+    const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+    ta.selectionStart = lineStart;
+    ta.selectionEnd = lineStart;
+    ta.focus();
+    document.execCommand('insertText', false, prefix);
+    schedulePreview();
+  }
+
+  // Insert block at cursor (ensures blank lines around it)
+  function insertBlock(block: string) {
+    const ta = fieldContent!;
+    const start = ta.selectionStart;
+    const val = ta.value;
+    let insert = '';
+    if (start > 0 && val[start - 1] !== '\n') insert += '\n';
+    if (start > 1 && val[start - 2] !== '\n') insert += '\n';
+    insert += block;
+    if (start < val.length && val[start] !== '\n') insert += '\n';
+    ta.focus();
+    document.execCommand('insertText', false, insert);
+    schedulePreview();
+  }
+
+  // Toolbar actions
+  const toolbarActions: Record<string, () => void> = {
+    h1: () => prefixLine('# '),
+    h2: () => prefixLine('## '),
+    h3: () => prefixLine('### '),
+    bold: () => wrapSelection('**', '**', 'bold text'),
+    italic: () => wrapSelection('*', '*', 'italic text'),
+    strikethrough: () => wrapSelection('~~', '~~', 'text'),
+    code: () => wrapSelection('`', '`', 'code'),
+    codeblock: () => wrapSelection('```\n', '\n```', 'code here'),
+    link: () => {
+      const ta = fieldContent!;
+      const selected = ta.value.substring(ta.selectionStart, ta.selectionEnd);
+      if (selected) {
+        wrapSelection('[', '](url)', '');
+      } else {
+        wrapSelection('[', '](url)', 'link text');
+      }
+    },
+    image: () => wrapSelection('![', '](url)', 'alt text'),
+    quote: () => prefixLine('> '),
+    ul: () => prefixLine('- '),
+    ol: () => prefixLine('1. '),
+    hr: () => insertBlock('---'),
+  };
+
+  // Bind toolbar buttons
+  document.querySelectorAll('.md-btn[data-action]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const action = (btn as HTMLElement).dataset.action!;
+      if (toolbarActions[action]) toolbarActions[action]();
+    });
+  });
+
+  // View toggle
+  document.querySelectorAll('.md-view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const view = (btn as HTMLElement).dataset.view!;
+      document.querySelectorAll('.md-view-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (mdPanes) mdPanes.dataset.view = view;
+      updatePreview();
+    });
+  });
+
+  // Keyboard shortcuts
+  fieldContent!.addEventListener('keydown', (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+
+    if (mod && e.key === 'b') {
+      e.preventDefault();
+      toolbarActions.bold();
+    } else if (mod && e.key === 'i') {
+      e.preventDefault();
+      toolbarActions.italic();
+    } else if (mod && e.key === 'k') {
+      e.preventDefault();
+      toolbarActions.link();
+    } else if (e.key === 'Tab') {
+      // Tab inserts two spaces instead of leaving textarea
+      e.preventDefault();
+      document.execCommand('insertText', false, '  ');
+      schedulePreview();
+    }
+  });
+
 
   // Init
   (async () => {

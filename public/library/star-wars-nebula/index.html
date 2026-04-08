@@ -135,45 +135,44 @@ const nodes = S.map((s, i) => ({
   color: REGION_COLORS[s[3]],
 }));
 
-// Galaxy layout: convert grid (A-U=1-21, rows 1-21) to polar galaxy disc
-// Galaxy center = Coruscant area ~ L-9 = col 12, row 9.5
+// Galaxy layout: map grid (1-21 x 1-21) to viewport, spreading within cells
 const GCX = 12, GCY = 9.5;
 const container = document.getElementById('graph');
 const W = container.clientWidth, H = container.clientHeight;
-const GALAXY_R = Math.min(W, H) * 0.44; // galaxy disc radius in pixels
 
-// Convert grid coords to angle + distance from center, then to pixel
-// Use golden-angle offset per cell to spread systems in same cell
-const cellIndex = {};
+// Map grid to screen: each grid cell gets a region of the viewport
+const CELL_W = W / 23; // padding on edges
+const CELL_H = H / 23;
+
 // Seeded random for reproducibility
 let _seed = 42;
 function srand() { _seed = (_seed * 16807 + 0) % 2147483647; return (_seed - 1) / 2147483646; }
 
+// Count systems per cell for spreading
+const cellCounts = {};
 nodes.forEach(n => {
-  const dx = n.col - GCX;
-  const dy = n.row - GCY;
-  const gridAngle = Math.atan2(dy, dx);
-  const gridDist = Math.sqrt(dx*dx + dy*dy);
+  const key = `${n.col},${n.row}`;
+  cellCounts[key] = (cellCounts[key] || 0) + 1;
+});
+const cellIndex = {};
 
-  // Normalize distance: max grid distance is ~14, map to 0-1
-  const normDist = Math.min(gridDist / 13, 1.0);
-
-  // Per-cell spread using golden angle
+nodes.forEach(n => {
   const key = `${n.col},${n.row}`;
   cellIndex[key] = (cellIndex[key] || 0);
   const idx = cellIndex[key]++;
+  const count = cellCounts[key];
 
-  // Golden angle spread within cell (2.399 radians)
-  const cellAngleOffset = idx * 2.399;
-  // Spiral outward within cell
-  const cellRadOffset = Math.sqrt(idx) * GALAXY_R * 0.018;
+  // Base position: center of grid cell
+  const baseX = (n.col + 0.5) * CELL_W;
+  const baseY = (n.row + 0.5) * CELL_H;
 
-  // Final polar position
-  const finalAngle = gridAngle + cellAngleOffset * 0.15;
-  const finalDist = normDist * GALAXY_R + cellRadOffset + (srand()-0.5) * GALAXY_R * 0.02;
+  // Spread within cell using golden angle spiral
+  const golden = 2.39996323;
+  const angle = idx * golden;
+  const radius = Math.sqrt(idx / Math.max(count, 1)) * Math.min(CELL_W, CELL_H) * 0.45;
 
-  n.x = W/2 + Math.cos(finalAngle) * finalDist;
-  n.y = H/2 + Math.sin(finalAngle) * finalDist;
+  n.x = baseX + Math.cos(angle) * radius + (srand() - 0.5) * CELL_W * 0.08;
+  n.y = baseY + Math.sin(angle) * radius + (srand() - 0.5) * CELL_H * 0.08;
 });
 
 // Size by degree -- tiny for 4500+ systems
@@ -243,8 +242,9 @@ function render() {
   ctx.fillRect(0, 0, W, H);
 
   // Galaxy center glow
-  const gc = toScreen(W/2, H/2);
-  const glowR = GALAXY_R * 0.5 * transform.k;
+  const gcx = GCX * CELL_W + CELL_W/2, gcy = GCY * CELL_H + CELL_H/2;
+  const gc = toScreen(gcx, gcy);
+  const glowR = Math.min(W, H) * 0.3 * transform.k;
   const grad = ctx.createRadialGradient(gc.x, gc.y, 0, gc.x, gc.y, glowR);
   grad.addColorStop(0, isDark() ? 'rgba(40,30,80,0.35)' : 'rgba(220,200,160,0.15)');
   grad.addColorStop(0.5, isDark() ? 'rgba(20,15,50,0.15)' : 'rgba(230,220,190,0.06)');
@@ -264,18 +264,20 @@ function render() {
     }
   }
 
-  // Region rings (subtle concentric circles like the galaxy image)
-  const regionRingRadii = [0.06, 0.14, 0.22, 0.30, 0.38, 0.46, 0.60, 0.78, 0.92];
-  const regionRingColors = REGION_COLORS;
-  ctx.lineWidth = 0.5 / transform.k;
-  ctx.setLineDash([3/transform.k, 6/transform.k]);
-  regionRingRadii.forEach((frac, i) => {
-    const sc = toScreen(W/2, H/2);
-    ctx.strokeStyle = (regionRingColors[i] || '#888') + (isDark() ? '15' : '18');
-    ctx.beginPath();
-    ctx.arc(sc.x, sc.y, frac * GALAXY_R * transform.k, 0, Math.PI*2);
-    ctx.stroke();
-  });
+  // Grid lines (subtle, matching the canonical grid)
+  ctx.lineWidth = 0.3 / transform.k;
+  ctx.strokeStyle = isDark() ? 'rgba(60,60,80,0.08)' : 'rgba(180,180,170,0.12)';
+  ctx.setLineDash([2/transform.k, 4/transform.k]);
+  for (let c = 1; c <= 21; c++) {
+    const sx = toScreen(c * CELL_W + CELL_W/2, 0);
+    const ex = toScreen(c * CELL_W + CELL_W/2, H);
+    ctx.beginPath(); ctx.moveTo(sx.x, sx.y); ctx.lineTo(ex.x, ex.y); ctx.stroke();
+  }
+  for (let r = 1; r <= 21; r++) {
+    const sy = toScreen(0, r * CELL_H + CELL_H/2);
+    const ey = toScreen(W, r * CELL_H + CELL_H/2);
+    ctx.beginPath(); ctx.moveTo(sy.x, sy.y); ctx.lineTo(ey.x, ey.y); ctx.stroke();
+  }
   ctx.setLineDash([]);
 
   // Determine highlight state
@@ -390,7 +392,7 @@ function render() {
 
   // ── Draw labels (only at sufficient zoom) ─────────────────
   if (transform.k > 0.8) {
-    const minDeg = transform.k > 4 ? 2 : transform.k > 2 ? 5 : transform.k > 1.2 ? 10 : 15;
+    const minDeg = transform.k > 4 ? 1 : transform.k > 2 ? 3 : transform.k > 1.2 ? 5 : 8;
     ctx.font = `${Math.max(5, 7/transform.k)}px Inter, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillStyle = t.label;

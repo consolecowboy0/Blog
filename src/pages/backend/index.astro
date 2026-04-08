@@ -1,0 +1,633 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Backend - dustinlanders.com">
+  <div id="gate">
+    <div class="gate-box">
+      <p class="gate-label">This area is private.</p>
+      <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
+      <button id="gate-unlock">Unlock</button>
+      <p id="gate-error" class="gate-error"></p>
+    </div>
+  </div>
+
+  <section id="panel" style="display: none;">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <h1>Posts</h1>
+        <div class="header-controls">
+          <button id="new-post-btn" class="primary-btn">New Post</button>
+          <button id="sign-out" class="secondary-btn">Sign Out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-grid">
+      <aside class="post-list-sidebar">
+        <ul id="post-list" class="post-list"></ul>
+      </aside>
+
+      <div class="editor-area" id="editor-area">
+        <p class="editor-placeholder">Select a post or create a new one.</p>
+      </div>
+
+      <div class="editor-form" id="editor-form" style="display: none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="field-title">Title</label>
+            <input type="text" id="field-title" />
+          </div>
+          <div class="field field-small">
+            <label for="field-date">Date</label>
+            <input type="date" id="field-date" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="field-slug">Slug</label>
+            <input type="text" id="field-slug" />
+          </div>
+          <div class="field field-small field-checkbox">
+            <label for="field-draft">
+              <input type="checkbox" id="field-draft" />
+              Draft
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="field-description">Description</label>
+          <input type="text" id="field-description" />
+        </div>
+
+        <div class="field">
+          <label for="field-content">Content</label>
+          <textarea id="field-content"></textarea>
+        </div>
+
+        <div class="editor-actions">
+          <button id="save-btn" class="primary-btn">Save</button>
+          <button id="delete-btn" class="secondary-btn danger-btn" style="display: none;">Delete</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .gate-box {
+    max-width: 320px;
+    margin: 4rem auto;
+    text-align: center;
+  }
+
+  .gate-label {
+    margin-bottom: 1rem;
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+
+  .gate-box input {
+    width: 100%;
+    padding: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    margin-bottom: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .gate-box button {
+    width: 100%;
+    padding: 0.6rem;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+  }
+
+  .gate-error {
+    color: #c44;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .panel-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .panel-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .panel-title-row h1 {
+    font-size: 1.4rem;
+    margin: 0;
+  }
+
+  .header-controls {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .primary-btn {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .primary-btn:hover {
+    opacity: 0.85;
+  }
+
+  .secondary-btn {
+    padding: 0.5rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .secondary-btn:hover {
+    background: var(--code-bg);
+  }
+
+  .danger-btn {
+    color: #c44;
+    border-color: #c44;
+  }
+
+  .danger-btn:hover {
+    background: rgba(204, 68, 68, 0.1);
+  }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+    min-height: 500px;
+  }
+
+  .post-list-sidebar {
+    border-right: 1px solid var(--border);
+    padding-right: 1.5rem;
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .post-list li {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .post-list li:hover {
+    background: var(--code-bg);
+  }
+
+  .post-list li.active {
+    background: var(--code-bg);
+    font-weight: 600;
+  }
+
+  .post-item-title {
+    font-size: 0.85rem;
+    color: var(--fg);
+    margin: 0;
+  }
+
+  .post-item-meta {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    margin-top: 0.2rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .draft-badge {
+    background: var(--fg-muted);
+    color: var(--bg);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .editor-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .editor-placeholder {
+    color: var(--fg-muted);
+    font-size: 0.9rem;
+  }
+
+  .editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .field-small {
+    flex: 0 0 160px;
+  }
+
+  .field-checkbox {
+    justify-content: flex-end;
+  }
+
+  .field-checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+  }
+
+  .field label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .field input[type="text"],
+  .field input[type="date"] {
+    padding: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    box-sizing: border-box;
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--fg-muted);
+  }
+
+  .field textarea {
+    padding: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 400px;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  @media (max-width: 720px) {
+    .panel-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .post-list-sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding-right: 0;
+      padding-bottom: 1rem;
+      max-height: 200px;
+    }
+
+    .field-row {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .field-small {
+      flex: 1;
+    }
+  }
+</style>
+
+<script>
+  const API_BASE = '';
+
+  let authToken = localStorage.getItem('backend_token') || null;
+  let posts = [];
+  let currentPostId = null;
+  let isNewPost = false;
+
+  // DOM refs
+  const gate = document.getElementById('gate');
+  const panel = document.getElementById('panel');
+  const gatePassword = document.getElementById('gate-password') as HTMLInputElement;
+  const gateError = document.getElementById('gate-error');
+  const gateUnlock = document.getElementById('gate-unlock');
+  const postListEl = document.getElementById('post-list');
+  const editorArea = document.getElementById('editor-area');
+  const editorForm = document.getElementById('editor-form');
+  const fieldTitle = document.getElementById('field-title') as HTMLInputElement;
+  const fieldDate = document.getElementById('field-date') as HTMLInputElement;
+  const fieldSlug = document.getElementById('field-slug') as HTMLInputElement;
+  const fieldDraft = document.getElementById('field-draft') as HTMLInputElement;
+  const fieldDescription = document.getElementById('field-description') as HTMLInputElement;
+  const fieldContent = document.getElementById('field-content') as HTMLTextAreaElement;
+  const saveBtn = document.getElementById('save-btn');
+  const deleteBtn = document.getElementById('delete-btn') as HTMLElement;
+  const newPostBtn = document.getElementById('new-post-btn');
+  const signOutBtn = document.getElementById('sign-out');
+
+  // API helper
+  async function api(path: string, options: RequestInit = {}) {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> || {}),
+    };
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    return fetch(`${API_BASE}${path}`, { ...options, headers });
+  }
+
+  // Slug generation
+  function toSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  // Gate logic
+  async function tryAutoAuth() {
+    if (!authToken) return false;
+    try {
+      const res = await api('/api/posts');
+      if (res.ok) return true;
+    } catch {}
+    localStorage.removeItem('backend_token');
+    authToken = null;
+    return false;
+  }
+
+  async function unlock() {
+    const pw = gatePassword!.value;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, scope: 'backend' }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        authToken = data.token;
+        localStorage.setItem('backend_token', authToken!);
+        showPanel();
+      } else {
+        gateError!.textContent = 'Nope.';
+        gatePassword!.value = '';
+      }
+    } catch {
+      gateError!.textContent = 'Auth failed.';
+      gatePassword!.value = '';
+    }
+  }
+
+  function showPanel() {
+    gate!.style.display = 'none';
+    panel!.style.display = 'block';
+    loadPosts();
+  }
+
+  function signOut() {
+    authToken = null;
+    localStorage.removeItem('backend_token');
+    panel!.style.display = 'none';
+    gate!.style.display = 'flex';
+    gatePassword!.value = '';
+    gateError!.textContent = '';
+    currentPostId = null;
+    isNewPost = false;
+    showPlaceholder();
+  }
+
+  // Post list
+  async function loadPosts() {
+    try {
+      const res = await api('/api/posts');
+      if (!res.ok) return;
+      const data = await res.json();
+      posts = data.posts || [];
+      renderPostList();
+    } catch {}
+  }
+
+  function renderPostList() {
+    if (!postListEl) return;
+    postListEl.innerHTML = '';
+    const sorted = [...posts].sort((a: any, b: any) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    for (const post of sorted) {
+      const li = document.createElement('li');
+      li.dataset.id = (post as any).id;
+      if ((post as any).id === currentPostId) li.classList.add('active');
+
+      const titleP = document.createElement('p');
+      titleP.className = 'post-item-title';
+      titleP.textContent = (post as any).title;
+      li.appendChild(titleP);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'post-item-meta';
+      const dateStr = new Date((post as any).date).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+      });
+      metaDiv.textContent = dateStr;
+
+      if ((post as any).draft) {
+        const badge = document.createElement('span');
+        badge.className = 'draft-badge';
+        badge.textContent = 'draft';
+        metaDiv.appendChild(badge);
+      }
+
+      li.appendChild(metaDiv);
+      li.addEventListener('click', () => selectPost((post as any).id));
+      postListEl.appendChild(li);
+    }
+  }
+
+  // Editor
+  function showPlaceholder() {
+    editorArea!.style.display = 'flex';
+    editorForm!.style.display = 'none';
+  }
+
+  function showEditor() {
+    editorArea!.style.display = 'none';
+    editorForm!.style.display = 'flex';
+  }
+
+  async function selectPost(id: string) {
+    currentPostId = id;
+    isNewPost = false;
+
+    try {
+      const res = await api(`/api/posts/${id}`);
+      if (!res.ok) return;
+      const post = await res.json();
+
+      fieldTitle!.value = post.title || '';
+      fieldDate!.value = post.date ? post.date.slice(0, 10) : '';
+      fieldSlug!.value = post.id || '';
+      fieldSlug!.disabled = true;
+      fieldDraft!.checked = !!post.draft;
+      fieldDescription!.value = post.description || '';
+      fieldContent!.value = post.content || '';
+      deleteBtn!.style.display = 'inline-block';
+
+      showEditor();
+      renderPostList();
+    } catch {}
+  }
+
+  function startNewPost() {
+    currentPostId = null;
+    isNewPost = true;
+
+    fieldTitle!.value = '';
+    fieldDate!.value = new Date().toISOString().slice(0, 10);
+    fieldSlug!.value = '';
+    fieldSlug!.disabled = false;
+    fieldDraft!.checked = true;
+    fieldDescription!.value = '';
+    fieldContent!.value = '';
+    deleteBtn!.style.display = 'none';
+
+    showEditor();
+
+    // Remove active from list
+    postListEl!.querySelectorAll('li').forEach(li => li.classList.remove('active'));
+  }
+
+  async function savePost() {
+    const payload: any = {
+      title: fieldTitle!.value,
+      date: fieldDate!.value,
+      description: fieldDescription!.value,
+      draft: fieldDraft!.checked,
+      content: fieldContent!.value,
+    };
+
+    let res;
+    if (isNewPost) {
+      payload.slug = fieldSlug!.value || toSlug(fieldTitle!.value);
+      res = await api('/api/posts', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    } else {
+      res = await api(`/api/posts/${currentPostId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    }
+
+    if (res.ok) {
+      const saved = await res.json();
+      if (isNewPost) {
+        currentPostId = saved.id;
+        isNewPost = false;
+        fieldSlug!.disabled = true;
+        deleteBtn!.style.display = 'inline-block';
+      }
+      await loadPosts();
+      renderPostList();
+    }
+  }
+
+  async function deletePost() {
+    if (!currentPostId) return;
+    if (!confirm('Delete this post permanently?')) return;
+
+    const res = await api(`/api/posts/${currentPostId}`, { method: 'DELETE' });
+    if (res.ok) {
+      currentPostId = null;
+      isNewPost = false;
+      showPlaceholder();
+      await loadPosts();
+    }
+  }
+
+  // Auto-slug from title (new posts only)
+  fieldTitle!.addEventListener('input', () => {
+    if (isNewPost && !fieldSlug!.disabled) {
+      fieldSlug!.value = toSlug(fieldTitle!.value);
+    }
+  });
+
+  // Event listeners
+  gateUnlock!.addEventListener('click', unlock);
+  gatePassword!.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') unlock();
+  });
+  signOutBtn!.addEventListener('click', signOut);
+  newPostBtn!.addEventListener('click', startNewPost);
+  saveBtn!.addEventListener('click', savePost);
+  deleteBtn!.addEventListener('click', deletePost);
+
+  // Init
+  (async () => {
+    const valid = await tryAutoAuth();
+    if (valid) {
+      showPanel();
+    }
+  })();
+</script>

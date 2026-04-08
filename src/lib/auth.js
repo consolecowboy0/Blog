@@ -7,6 +7,7 @@ const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRE
 
 const HASHES = {
   legion: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
+  backend: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days

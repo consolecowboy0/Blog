@@ -28,7 +28,7 @@ export async function POST({ request }) {
     });
   }
 
-  if (!['legion'].includes(scope)) {
+  if (!['legion', 'backend'].includes(scope)) {
     return new Response(JSON.stringify({ error: 'Invalid scope' }), {
       status: 400,
       headers: corsHeaders,

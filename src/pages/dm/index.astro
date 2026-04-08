@@ -259,8 +259,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       radial-gradient(ellipse at 80% 80%, color-mix(in srgb, var(--code-bg) 30%, transparent) 0%, transparent 60%);
   }
 
-  /* Empty state */
-  .empty-state {
+  /* Empty state - :global needed for JS-rendered elements */
+  :global(.empty-state) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -271,7 +271,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     flex: 1;
   }
 
-  .empty-icon {
+  :global(.empty-icon) {
     width: 56px;
     height: 56px;
     border-radius: 50%;
@@ -284,22 +284,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     opacity: 0.5;
   }
 
-  .empty-title {
+  :global(.empty-title) {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--fg-muted);
     margin: 0;
   }
 
-  .empty-sub {
+  :global(.empty-sub) {
     font-size: 0.75rem;
     color: var(--fg-muted);
     margin: 0;
     opacity: 0.6;
   }
 
-  /* Message bubbles */
-  .msg {
+  /* Message bubbles - :global needed for JS-rendered elements */
+  :global(.msg) {
     max-width: 78%;
     display: flex;
     flex-direction: column;
@@ -311,15 +311,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .msg-visitor {
+  :global(.msg-visitor) {
     align-self: flex-end;
   }
 
-  .msg-admin {
+  :global(.msg-admin) {
     align-self: flex-start;
   }
 
-  .msg-text {
+  :global(.msg-text) {
     padding: 0.55rem 0.85rem;
     font-size: 0.84rem;
     line-height: 1.5;
@@ -327,20 +327,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     white-space: pre-wrap;
   }
 
-  .msg-visitor .msg-text {
+  :global(.msg-visitor .msg-text) {
     background: var(--fg);
     color: var(--bg);
     border-radius: 16px 16px 4px 16px;
   }
 
-  .msg-admin .msg-text {
+  :global(.msg-admin .msg-text) {
     background: var(--bg);
     color: var(--fg);
     border-radius: 16px 16px 16px 4px;
     border: 1px solid var(--border);
   }
 
-  .msg-time {
+  :global(.msg-time) {
     font-size: 0.58rem;
     color: var(--fg-muted);
     font-family: var(--font-mono);
@@ -349,11 +349,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     padding: 0 0.2rem;
   }
 
-  .msg-visitor .msg-time {
+  :global(.msg-visitor .msg-time) {
     text-align: right;
   }
 
-  .msg-group-gap {
+  :global(.msg-group-gap) {
     height: 0.4rem;
   }
 

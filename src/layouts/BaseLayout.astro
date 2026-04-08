@@ -417,7 +417,7 @@ const { title, description = 'A blog.' } = Astro.props;
       radial-gradient(ellipse at 85% 80%, color-mix(in srgb, var(--code-bg) 25%, transparent) 0%, transparent 55%);
   }
 
-  .dm-empty-state {
+  :global(.dm-empty-state) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -428,7 +428,7 @@ const { title, description = 'A blog.' } = Astro.props;
     flex: 1;
   }
 
-  .dm-empty-icon {
+  :global(.dm-empty-icon) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -441,21 +441,21 @@ const { title, description = 'A blog.' } = Astro.props;
     opacity: 0.45;
   }
 
-  .dm-empty-title {
+  :global(.dm-empty-title) {
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--fg-muted);
     margin: 0;
   }
 
-  .dm-empty-sub {
+  :global(.dm-empty-sub) {
     font-size: 0.68rem;
     color: var(--fg-muted);
     margin: 0;
     opacity: 0.55;
   }
 
-  .dm-msg {
+  :global(.dm-msg) {
     max-width: 82%;
     animation: dmMsgIn 0.2s ease-out;
   }
@@ -465,17 +465,17 @@ const { title, description = 'A blog.' } = Astro.props;
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .dm-msg-visitor {
+  :global(.dm-msg-visitor) {
     margin-left: auto;
     text-align: right;
   }
 
-  .dm-msg-admin {
+  :global(.dm-msg-admin) {
     margin-right: auto;
     text-align: left;
   }
 
-  .dm-msg-text {
+  :global(.dm-msg-text) {
     display: inline-block;
     padding: 0.4rem 0.7rem;
     font-size: 0.78rem;
@@ -485,20 +485,20 @@ const { title, description = 'A blog.' } = Astro.props;
     white-space: pre-wrap;
   }
 
-  .dm-msg-visitor .dm-msg-text {
+  :global(.dm-msg-visitor .dm-msg-text) {
     background: var(--fg);
     color: var(--bg);
     border-radius: 14px 14px 4px 14px;
   }
 
-  .dm-msg-admin .dm-msg-text {
+  :global(.dm-msg-admin .dm-msg-text) {
     background: var(--bg);
     color: var(--fg);
     border: 1px solid var(--border);
     border-radius: 14px 14px 14px 4px;
   }
 
-  .dm-msg-time {
+  :global(.dm-msg-time) {
     display: block;
     font-size: 0.5rem;
     color: var(--fg-muted);

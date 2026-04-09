@@ -682,6 +682,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   let conversations = [];
   let activeConvId = null;
   let refreshInterval = null;
+  let lastActivityTime = 0;
 
   // Relative time
   function relTime(dateStr) {
@@ -901,6 +902,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (!text || !activeConvId) return;
 
     sendBtn.disabled = true;
+    lastActivityTime = Date.now();
     try {
       await dmApi({ action: 'reply', conversation_id: activeConvId, text });
       replyInput.value = '';
@@ -984,14 +986,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
   }
 
-  function startAutoRefresh() {
+  function scheduleRefresh() {
     stopAutoRefresh();
-    refreshInterval = setInterval(refreshAll, 30000);
+    const interval = (Date.now() - lastActivityTime) < 120000 ? 1000 : 5000;
+    refreshInterval = setTimeout(async () => {
+      await refreshAll();
+      scheduleRefresh();
+    }, interval);
+  }
+
+  function startAutoRefresh() {
+    lastActivityTime = Date.now();
+    scheduleRefresh();
   }
 
   function stopAutoRefresh() {
     if (refreshInterval) {
-      clearInterval(refreshInterval);
+      clearTimeout(refreshInterval);
       refreshInterval = null;
     }
   }

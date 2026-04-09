@@ -20,6 +20,7 @@ const libraryItems = (await getCollection('library'))
     <div class="hero-text">
       <h1>Dustin Landers</h1>
       <p class="tagline">Dad, data scientist, aspiring race driver, discoverer of truths, builder of things people use, and pretty good at making my wife blush.</p>
+      <p class="tagline-writer">Also one badass motherfucking writer.</p>
     </div>
     <div class="hero-portrait">
       <picture>
@@ -113,6 +114,14 @@ const libraryItems = (await getCollection('library'))
     color: var(--fg-muted);
     line-height: 1.6;
     margin: 0;
+  }
+
+  .tagline-writer {
+    margin: 0.6rem 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--fg);
   }
 
   .hero-portrait {

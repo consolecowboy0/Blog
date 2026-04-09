@@ -9,6 +9,7 @@ const items = (await getCollection('library'))
 
 <BaseLayout title="Library · dustinlanders.com" description="Reference documents, papers, and notes.">
   <section class="library">
+    <a href="/" class="site-home">Dustinlanders.com</a>
     <h1>Library</h1>
     <p class="library-intro">Reference documents, papers, interactive visualizations, and notes -- things worth keeping around.</p>
 
@@ -45,8 +46,22 @@ const items = (await getCollection('library'))
 </BaseLayout>
 
 <style>
+  .site-home {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .site-home:hover {
+    opacity: 0.6;
+  }
+
   .library h1 {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
   .library-intro {

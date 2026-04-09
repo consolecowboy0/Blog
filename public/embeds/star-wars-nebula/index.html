@@ -388,35 +388,29 @@ function render() {
     ctx.globalAlpha = 1;
   });
 
-  // ── Draw labels (sparse -- only very zoomed in) ────────────
-  if (transform.k > 0.8) {
-    const minDeg = transform.k > 4 ? 1 : transform.k > 2.5 ? 2 : transform.k > 1.5 ? 4 : 10;
-    ctx.font = `${Math.max(6, 8/transform.k)}px Inter, sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillStyle = t.label;
+  // ── Draw labels only for interactive targets ────────────
+  {
+    const labelSet = new Set();
+    if (hoveredNode !== null) labelSet.add(hoveredNode);
+    if (selectedA !== null) labelSet.add(selectedA);
+    if (selectedB !== null) labelSet.add(selectedB);
+    if (pathResult) pathResult.forEach(i => labelSet.add(i));
+    if (activeRoute && ROUTES[activeRoute]) ROUTES[activeRoute].p.forEach(i => labelSet.add(i));
+    if (searchMatches) searchMatches.forEach(i => labelSet.add(i));
 
-    nodes.forEach((n, i) => {
-      if (hiddenRegions.has(n.regionIdx)) return;
-      if (n.deg < minDeg && i !== hoveredNode && i !== selectedA) return;
-      if (dimAll && !highlightSet.has(i)) return;
+    if (labelSet.size) {
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = isDark() ? '#fff' : '#111';
 
-      const s = toScreen(n.x, n.y);
-      if (s.x < -50 || s.x > W+50 || s.y < -50 || s.y > H+50) return;
-
-      const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
-      ctx.fillText(n.name, s.x, s.y + r + 10);
-    });
-  }
-
-  // Hovered label always shown
-  if (hoveredNode !== null) {
-    const n = nodes[hoveredNode];
-    const s = toScreen(n.x, n.y);
-    ctx.font = 'bold 10px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = isDark() ? '#fff' : '#111';
-    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
-    ctx.fillText(n.name, s.x, s.y + r + 12);
+      labelSet.forEach(i => {
+        const n = nodes[i];
+        const s = toScreen(n.x, n.y);
+        if (s.x < -50 || s.x > W+50 || s.y < -50 || s.y > H+50) return;
+        const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
+        ctx.fillText(n.name, s.x, s.y + r + 12);
+      });
+    }
   }
 
   ctx.restore();

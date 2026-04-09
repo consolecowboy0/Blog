@@ -60,6 +60,25 @@ export async function POST({ request }) {
       });
     }
 
+    // Send email notification
+    const resendKey = process.env.RESEND_API_KEY;
+    const notifyEmail = process.env.NOTIFY_EMAIL || 'dustin.landers@gmail.com';
+    if (resendKey) {
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'DM Inbox <onboarding@resend.dev>',
+          to: notifyEmail,
+          subject: 'New DM on dustinlanders.com',
+          text: `New message:\n\n${text}\n\nhttps://dustinlanders.com/dm/inbox`,
+        }),
+      }).catch(() => {});
+    }
+
     return json({ ok: true });
   }
 

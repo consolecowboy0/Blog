@@ -953,11 +953,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   // Refresh
-  refreshBtn.addEventListener('click', () => loadConversations());
+  refreshBtn.addEventListener('click', () => refreshAll());
+
+  async function refreshAll() {
+    await loadConversations();
+    if (activeConvId) {
+      try {
+        const data = await dmApi({ action: 'read', conversation_id: activeConvId });
+        renderMessages(data);
+      } catch { /* conversation may have been deleted */ }
+    }
+  }
 
   function startAutoRefresh() {
     stopAutoRefresh();
-    refreshInterval = setInterval(loadConversations, 30000);
+    refreshInterval = setInterval(refreshAll, 30000);
   }
 
   function stopAutoRefresh() {

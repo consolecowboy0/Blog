@@ -21,7 +21,6 @@ const rendered = !isEmbed ? await render(item) : null;
 
 {isEmbed ? (
   <BaseLayout title={`${item.data.title} · Library`} description={item.data.description}>
-    <a href="/library" class="back-link-fixed">&larr; Library</a>
     <LibraryEmbed
       src={item.data.file!}
       title={item.data.title}
@@ -31,45 +30,7 @@ const rendered = !isEmbed ? await render(item) : null;
   </BaseLayout>
 ) : (
   <PostLayout frontmatter={item.data}>
-    <a href="/library" class="back-link">&larr; Library</a>
     {rendered && <rendered.Content />}
   </PostLayout>
 )}
 
-<style>
-  .back-link {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--fg-muted);
-    text-decoration: none;
-    border: none;
-    margin-bottom: 1rem;
-    transition: color 0.2s;
-  }
-
-  .back-link:hover {
-    color: var(--fg);
-  }
-
-  .back-link-fixed {
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
-    z-index: 100;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--bg);
-    background: var(--fg);
-    text-decoration: none;
-    border: none;
-    padding: 0.4rem 0.75rem;
-    border-radius: 6px;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-  }
-
-  .back-link-fixed:hover {
-    opacity: 1;
-  }
-</style>

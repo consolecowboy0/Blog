@@ -176,10 +176,10 @@ nodes.forEach(n => {
   n.y = H/2 + Math.sin(finalAngle) * finalDist;
 });
 
-// Size by degree -- very small for 4500+ systems
+// Size by degree
 const maxDeg = Math.max(...nodes.map(n => n.deg));
 function nodeRadius(deg) {
-  return 0.4 + Math.sqrt(deg / maxDeg) * 1.8;
+  return 0.8 + Math.sqrt(deg / maxDeg) * 2.8;
 }
 
 // Build adjacency
@@ -204,7 +204,7 @@ Object.entries(ROUTES).forEach(([name, r]) => {
 // ── Theme ───────────────────────────────────────────────────────
 const themeColors = {
   light: { bg: '#f8f8f5', edge: 'rgba(180,180,170,0.15)', edgeRoute: 'rgba(140,140,130,0.3)', label: '#555', glow: 'rgba(200,190,160,0.12)' },
-  dark: { bg: '#0a0a0f', edge: 'rgba(40,40,60,0.2)', edgeRoute: 'rgba(60,60,80,0.35)', label: '#888', glow: 'rgba(30,20,60,0.3)' }
+  dark: { bg: '#0a0a0f', edge: 'rgba(60,60,100,0.35)', edgeRoute: 'rgba(80,80,120,0.5)', label: '#aaa', glow: 'rgba(40,30,80,0.4)' }
 };
 function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
 function T() { return themeColors[isDark() ? 'dark' : 'light']; }
@@ -246,15 +246,15 @@ function render() {
   const gc = toScreen(W/2, H/2);
   const glowR = GALAXY_R * 0.5 * transform.k;
   const grad = ctx.createRadialGradient(gc.x, gc.y, 0, gc.x, gc.y, glowR);
-  grad.addColorStop(0, isDark() ? 'rgba(40,30,80,0.35)' : 'rgba(220,200,160,0.15)');
-  grad.addColorStop(0.5, isDark() ? 'rgba(20,15,50,0.15)' : 'rgba(230,220,190,0.06)');
+  grad.addColorStop(0, isDark() ? 'rgba(60,40,120,0.5)' : 'rgba(220,200,160,0.15)');
+  grad.addColorStop(0.5, isDark() ? 'rgba(30,20,70,0.25)' : 'rgba(230,220,190,0.06)');
   grad.addColorStop(1, 'transparent');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
   // Stars (dark mode only)
   if (isDark()) {
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
     for (let i = 0; i < 600; i++) {
       const sx = (Math.sin(i*127.1)*0.5+0.5) * W;
       const sy = (Math.cos(i*311.7)*0.5+0.5) * H;
@@ -271,7 +271,7 @@ function render() {
   ctx.setLineDash([3/transform.k, 6/transform.k]);
   regionRingRadii.forEach((frac, i) => {
     const sc = toScreen(W/2, H/2);
-    ctx.strokeStyle = (regionRingColors[i] || '#888') + (isDark() ? '15' : '18');
+    ctx.strokeStyle = (regionRingColors[i] || '#888') + (isDark() ? '30' : '18');
     ctx.beginPath();
     ctx.arc(sc.x, sc.y, frac * GALAXY_R * transform.k, 0, Math.PI*2);
     ctx.stroke();
@@ -313,8 +313,8 @@ function render() {
     if (sa.y > H+50 && sb.y > H+50) return;
 
     const edgeKey = ek(a, b);
-    let alpha = isRoute ? 0.15 : 0.04;
-    let width = isRoute ? 0.6 : 0.3;
+    let alpha = isRoute ? 0.3 : 0.1;
+    let width = isRoute ? 0.8 : 0.4;
     let color = isRoute ? t.edgeRoute : t.edge;
 
     if (dimAll) {
@@ -352,11 +352,11 @@ function render() {
     const s = toScreen(n.x, n.y);
     if (s.x < -20 || s.x > W+20 || s.y < -20 || s.y > H+20) return;
 
-    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
+    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
     let alpha = 1;
 
     if (dimAll && !highlightSet.has(i)) {
-      alpha = 0.04;
+      alpha = 0.08;
     }
 
     ctx.globalAlpha = alpha;
@@ -389,9 +389,9 @@ function render() {
   });
 
   // ── Draw labels (sparse -- only very zoomed in) ────────────
-  if (transform.k > 1.5) {
-    const minDeg = transform.k > 6 ? 1 : transform.k > 4 ? 3 : transform.k > 2.5 ? 6 : 12;
-    ctx.font = `${Math.max(5, 7/transform.k)}px Inter, sans-serif`;
+  if (transform.k > 0.8) {
+    const minDeg = transform.k > 4 ? 1 : transform.k > 2.5 ? 2 : transform.k > 1.5 ? 4 : 10;
+    ctx.font = `${Math.max(6, 8/transform.k)}px Inter, sans-serif`;
     ctx.textAlign = 'center';
     ctx.fillStyle = t.label;
 
@@ -403,7 +403,7 @@ function render() {
       const s = toScreen(n.x, n.y);
       if (s.x < -50 || s.x > W+50 || s.y < -50 || s.y > H+50) return;
 
-      const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
+      const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
       ctx.fillText(n.name, s.x, s.y + r + 10);
     });
   }
@@ -415,7 +415,7 @@ function render() {
     ctx.font = 'bold 10px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = isDark() ? '#fff' : '#111';
-    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.5), 2);
+    const r = nodeRadius(n.deg) * Math.min(Math.max(transform.k * 0.5, 0.6), 4);
     ctx.fillText(n.name, s.x, s.y + r + 12);
   }
 
@@ -525,8 +525,8 @@ canvas.addEventListener('wheel', (e) => {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
   const sx = e.clientX - rect.left, sy = e.clientY - rect.top;
-  const factor = e.deltaY < 0 ? 1.15 : 0.87;
-  const newK = Math.max(0.2, Math.min(10, transform.k * factor));
+  const factor = e.deltaY < 0 ? 1.25 : 0.8;
+  const newK = Math.max(0.2, Math.min(150, transform.k * factor));
   const ratio = newK / transform.k;
   transform.x = sx - ratio * (sx - transform.x);
   transform.y = sy - ratio * (sy - transform.y);

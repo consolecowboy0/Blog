@@ -24,8 +24,6 @@ const rendered = !isEmbed ? await render(item) : null;
     <LibraryEmbed
       src={item.data.file!}
       title={item.data.title}
-      description={item.data.description}
-      showHeader={true}
     />
   </BaseLayout>
 ) : (

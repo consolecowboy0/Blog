@@ -22,7 +22,7 @@ let db;
 export function getDb() {
   if (!db) {
     getApp();
-    db = getFirestore(getApps()[0], 'messaging_service_db');
+    db = getFirestore(getApps()[0], 'messaging-service-db');
   }
   return db;
 }

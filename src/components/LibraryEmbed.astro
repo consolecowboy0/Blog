@@ -10,12 +10,6 @@ const { src, title, description, showHeader = false } = Astro.props;
 ---
 
 <div class="library-embed">
-  {showHeader && (
-    <div class="library-embed-header">
-      <h1>{title}</h1>
-      {description && <p class="library-embed-desc">{description}</p>}
-    </div>
-  )}
   <div class="library-embed-container">
     <div class="library-loading" aria-live="polite">
       <div class="library-loading-inner">

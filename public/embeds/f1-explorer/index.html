@@ -21,25 +21,17 @@
     <link rel="stylesheet" crossorigin href="./assets/index-CZ39bz5B.css">
     <style>
       #theme-toggle-btn {
-        position: fixed;
-        bottom: 1rem;
-        right: 1rem;
-        z-index: 9999;
         background: none;
-        border: 1px solid var(--border, #d4d4d0);
-        border-radius: 8px;
-        padding: 6px;
+        border: none;
         cursor: pointer;
         color: var(--text-muted, #888);
+        padding: 4px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        transition: color 0.15s, border-color 0.15s;
-        background: var(--bg-card, #fff);
+        transition: color 0.15s;
       }
       #theme-toggle-btn:hover { color: var(--text-primary, #1a1a1a); }
       #theme-toggle-btn svg { width: 16px; height: 16px; }
-      [data-theme="dark"] #theme-toggle-btn { background: var(--bg-card, #0d0d14); }
       [data-theme="dark"] .icon-moon { display: none; }
       .icon-sun { display: none; }
       [data-theme="dark"] .icon-sun { display: block; }
@@ -72,6 +64,16 @@
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
       });
+      // Move toggle into React-rendered header once it mounts
+      var observer = new MutationObserver(function() {
+        var header = document.querySelector('.header');
+        var btn = document.getElementById('theme-toggle-btn');
+        if (header && btn) {
+          header.appendChild(btn);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
     </script>
   </body>
 </html>

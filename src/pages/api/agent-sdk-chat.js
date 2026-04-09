@@ -35,10 +35,12 @@ export async function POST({ request }) {
     });
   }
 
-  try {
-    // Ensure no stray API key overrides OAuth auth
-    delete process.env.ANTHROPIC_API_KEY;
+  // Temporarily remove the API key so the Agent SDK uses OAuth instead.
+  // Restore it afterward so other endpoints (agent-chat) still work.
+  const savedApiKey = process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
 
+  try {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[agent-sdk-chat] SDK imported, starting query via Claude Agent SDK');
 
@@ -108,6 +110,8 @@ export async function POST({ request }) {
       JSON.stringify({ error: message || "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
+  } finally {
+    if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;
   }
 }
 

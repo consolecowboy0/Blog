@@ -71,7 +71,7 @@ export async function POST({ request }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'DM Inbox <onboarding@resend.dev>',
+          from: 'DM Inbox <dm@dustinlanders.com>',
           to: notifyEmail,
           subject: 'New DM on dustinlanders.com',
           text: `New message:\n\n${text}\n\nhttps://dustinlanders.com/dm/inbox`,

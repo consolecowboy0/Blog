@@ -76,7 +76,7 @@ export async function POST({ request }) {
           subject: 'New DM on dustinlanders.com',
           text: `New message:\n\n${text}\n\nhttps://dustinlanders.com/dm/inbox`,
         }),
-      }).catch(() => {});
+      }).then(r => r.json()).then(d => console.log('[resend]', JSON.stringify(d))).catch(e => console.error('[resend error]', e));
     }
 
     return json({ ok: true });

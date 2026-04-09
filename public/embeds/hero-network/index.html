@@ -38,12 +38,12 @@
     }
 
     [data-theme="dark"] {
-      --bg: #111111;
-      --bg-card: #111111;
-      --bg-card-hover: #1a1a1a;
-      --bg-track: #1a1a1a;
-      --border: #2a2a2a;
-      --border-light: #333333;
+      --bg: #0a0a0f;
+      --bg-card: #0d0d14;
+      --bg-card-hover: #14141f;
+      --bg-track: #14141f;
+      --border: #1e1e2e;
+      --border-light: #2a2a3a;
       --text: #e5e5e5;
       --text-secondary: #999999;
       --text-muted: #666666;
@@ -520,7 +520,7 @@
         .join('circle')
         .attr('r', d => rScale(d.degree))
         .attr('fill', d => communityColors[d.community] || '#999')
-        .attr('stroke', document.documentElement.getAttribute('data-theme') === 'dark' ? '#111111' : '#ffffff')
+        .attr('stroke', document.documentElement.getAttribute('data-theme') === 'dark' ? '#0a0a0f' : '#ffffff')
         .attr('stroke-width', 1.2)
         .attr('cursor', 'pointer');
 
@@ -878,7 +878,7 @@
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('theme', next);
       // Update node strokes
-      d3.selectAll('.nodes circle').attr('stroke', next === 'dark' ? '#111111' : '#ffffff');
+      d3.selectAll('.nodes circle').attr('stroke', next === 'dark' ? '#0a0a0f' : '#ffffff');
     });
   </script>
 </body>

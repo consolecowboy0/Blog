@@ -10,6 +10,32 @@
       @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
       @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
     </style>
+    <script>
+      (function(){
+        var t = localStorage.getItem('theme');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      })();
+    </script>
+    <style>
+      [data-theme="dark"] {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #0d0d14;
+        --bg-card: #0d0d14;
+        --bg-card-hover: #14141f;
+        --border: #1e1e2e;
+        --border-light: #2a2a3a;
+        --text-primary: #e5e5e5;
+        --text-secondary: #999;
+        --text-muted: #666;
+        --accent-red: #e5e5e5;
+        --chart-grid: #1e1e2e;
+      }
+      [data-theme="dark"] body {
+        background: #0a0a0f;
+        color: #e5e5e5;
+      }
+    </style>
     <script type="module" crossorigin src="./assets/index-CM-t89xv.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-CZ39bz5B.css">
   </head>

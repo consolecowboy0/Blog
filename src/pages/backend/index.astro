@@ -5,10 +5,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="Backend - dustinlanders.com">
   <div id="gate">
     <div class="gate-box">
-      <p class="gate-label">This area is private.</p>
-      <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
-      <button id="gate-unlock">Unlock</button>
-      <p id="gate-error" class="gate-error"></p>
+      <div class="gate-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2>Private area</h2>
+      <p class="gate-sub">Enter password to continue.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
+        <button type="submit" id="gate-unlock">Unlock</button>
+      </form>
+      <p id="gate-error" class="gate-error gate-hidden">Wrong password</p>
     </div>
   </div>
 
@@ -115,46 +124,91 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style>
+  #gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+  }
+
   .gate-box {
-    max-width: 320px;
-    margin: 4rem auto;
     text-align: center;
-  }
-
-  .gate-label {
-    margin-bottom: 1rem;
-    color: var(--fg-muted);
-    font-size: 0.9rem;
-  }
-
-  .gate-box input {
+    max-width: 320px;
     width: 100%;
-    padding: 0.6rem;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
+  }
+
+  .gate-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--code-bg);
+    color: var(--fg-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+  }
+
+  .gate-box h2 {
+    margin-top: 0;
+    margin-bottom: 0.2rem;
+    font-size: 1.25rem;
+  }
+
+  .gate-sub {
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+  }
+
+  #gate-form {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  #gate-password {
+    flex: 1;
+    padding: 0.55rem 0.85rem;
     border: 1px solid var(--border);
+    border-radius: 10px;
     background: var(--bg);
     color: var(--fg);
-    margin-bottom: 0.75rem;
-    box-sizing: border-box;
+    font-family: var(--font-mono);
+    font-size: 0.84rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
   }
 
-  .gate-box button {
-    width: 100%;
-    padding: 0.6rem;
-    font-family: var(--font-body);
-    font-size: 0.85rem;
-    font-weight: 600;
+  #gate-password:focus {
+    border-color: var(--fg-muted);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-muted) 10%, transparent);
+  }
+
+  #gate-form button {
+    padding: 0.55rem 1.25rem;
     background: var(--fg);
     color: var(--bg);
     border: none;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 0.84rem;
+    font-weight: 600;
     cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  #gate-form button:hover {
+    opacity: 0.85;
   }
 
   .gate-error {
-    color: #c44;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
+    color: #e54;
+    font-size: 0.78rem;
+    margin-top: 0.75rem;
+  }
+
+  .gate-hidden {
+    display: none;
   }
 
   .panel-header {
@@ -652,11 +706,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         localStorage.setItem('backend_token', authToken!);
         showPanel();
       } else {
-        gateError!.textContent = 'Nope.';
+        gateError!.textContent = 'Wrong password';
+        gateError!.classList.remove('gate-hidden');
         gatePassword!.value = '';
       }
     } catch {
       gateError!.textContent = 'Auth failed.';
+      gateError!.classList.remove('gate-hidden');
       gatePassword!.value = '';
     }
   }
@@ -673,7 +729,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     panel!.style.display = 'none';
     gate!.style.display = 'flex';
     gatePassword!.value = '';
-    gateError!.textContent = '';
+    gateError!.classList.add('gate-hidden');
     currentPostId = null;
     isNewPost = false;
     showPlaceholder();
@@ -840,9 +896,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   // Event listeners
-  gateUnlock!.addEventListener('click', unlock);
-  gatePassword!.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') unlock();
+  document.getElementById('gate-form')!.addEventListener('submit', (e) => {
+    e.preventDefault();
+    unlock();
   });
   signOutBtn!.addEventListener('click', signOut);
   newPostBtn!.addEventListener('click', startNewPost);

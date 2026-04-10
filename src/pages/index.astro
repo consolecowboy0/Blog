@@ -18,7 +18,35 @@ const libraryItems = (await getCollection('library'))
   <!-- Hero -->
   <section class="hero">
     <div class="hero-text">
-      <p class="tagline">Dad, data scientist, aspiring race driver, discoverer of truths, builder of things people use, one badass motherfucking writer, and also -- I would say -- talented at making my wife blush.</p>
+      <div class="drengr">
+        <p class="drengr-head">drengr <span class="drengr-pos">(n., Old Norse)</span></p>
+        <div class="drengr-cols">
+          <p class="drengr-body">
+            Rock-standing, sea-ringed,<br/>
+            reckless-nerved, reliant on none.<br/>
+            No borrowed courage. Only his own.<br/>
+            <br/>
+            The níðingr is the other name-<br/>
+            coward-soft, craven in bearing.<br/>
+            Two faces of one failure.<br/>
+            <br/>
+            Death-easy they took for granted.<br/>
+            The harder ask: self-command.<br/>
+            Fair-minded, honor-bound,<br/>
+            doing right when only the gods watch.
+          </p>
+          <p class="drengr-body">
+            Danger does not break him.<br/>
+            Life and limb are the smaller stakes.<br/>
+            What breaks him is the deed<br/>
+            that cannot stand beside his name.<br/>
+            He does not flinch at death.<br/>
+            <br/>
+            <span class="drengr-pull">He flinches at shame.</span><br/>
+            <span class="drengr-sig">- Dustin Landers</span>
+          </p>
+        </div>
+      </div>
     </div>
     <div class="hero-portrait">
       <picture>
@@ -82,7 +110,7 @@ const libraryItems = (await getCollection('library'))
   <!-- About -->
   <section class="section about">
     <h2>About</h2>
-    <p>Background in data, tech, math, stats, politics, biology. I used to write stories as a kid. This site is about picking that back up with data journalism -- applying real statistical rigor to things I find interesting, then writing about them properly.</p>
+    <p>Dad, data scientist, aspiring race driver, discoverer of truths, builder of things people use, one badass motherfucking writer, and also- Iwould say- talented at making my wife blush. Background in data, tech, math, stats, politics, biology. I used to write stories as a kid. This is my corner of the internet- some of it is serious data journalism with real statistical rigor. Some of it is not serious at all. Editorials, essays, stories. No promises on merit.</p>
   </section>
 
 </BaseLayout>
@@ -105,6 +133,62 @@ const libraryItems = (await getCollection('library'))
     font-size: 3rem;
     letter-spacing: -0.03em;
     margin: 0 0 1rem;
+  }
+
+  .drengr {
+    margin-bottom: 1.5rem;
+  }
+
+  .drengr-pull {
+    display: block;
+    font-size: 1.9rem;
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+    margin-top: 0.5rem;
+    color: var(--fg);
+  }
+
+  .drengr-head {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.01em;
+  }
+
+  .drengr-pos {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--fg-muted);
+    letter-spacing: 0;
+  }
+
+  .drengr-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .drengr-sig {
+    display: block;
+    font-size: 0.78rem;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--fg-muted);
+    margin-top: 0.75rem;
+    letter-spacing: 0.03em;
+  }
+
+  .drengr-body {
+    font-size: 0.88rem;
+    color: var(--fg-muted);
+    line-height: 1.65;
+    margin: 0;
+    font-style: italic;
+    border-left: 2px solid var(--border);
+    padding-left: 0.85rem;
   }
 
   .tagline {
@@ -251,6 +335,11 @@ const libraryItems = (await getCollection('library'))
   }
 
   @media (max-width: 700px) {
+    .drengr-cols {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
     .hero {
       flex-direction: column-reverse;
       gap: 2rem;

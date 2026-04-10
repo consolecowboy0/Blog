@@ -1,5 +1,18 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const charDir = path.resolve('characters/modelthinker');
+const charFiles = ['axiom','loop','prior','nash','contra','bottleneck','darwin','tail','web','margin','razor','atlas'];
+const legionCharacters = charFiles.map(f => JSON.parse(fs.readFileSync(path.join(charDir, f + '.json'), 'utf-8')));
+const legionRooms = [
+  { id: 'workshop', label: 'The Workshop', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_workshop.json'), 'utf-8')) },
+  { id: 'bazaar', label: 'The Bazaar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_bazaar.json'), 'utf-8')) },
+  { id: 'onsen', label: 'The Onsen', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_onsen.json'), 'utf-8')) },
+  { id: 'rig', label: 'The Rig', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_rig.json'), 'utf-8')) },
+];
+const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
 ---
 
 <BaseLayout title="Legion - dustinlanders.com" description="Multi-agent chat room.">
@@ -34,31 +47,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
     </div>
 
-    <details class="setup-group" open>
-      <summary class="field-label setup-toggle">Setup</summary>
+    <div class="tab-bar">
+      <button class="tab-btn tab-active" data-tab="legion">Legion</button>
+      <button class="tab-btn" data-tab="advanced">Advanced</button>
+    </div>
 
-      <div class="upload-section">
+    <div id="tab-legion" class="tab-panel">
+      <div class="legion-roster">
         <label class="field-label">Room</label>
-        <div class="upload-row">
-          <button id="upload-room" class="upload-btn">Upload JSON</button>
-          <button id="clear-room" class="clear-upload-btn" style="display:none;">Clear</button>
-          <span id="room-status" class="upload-status">No room loaded</span>
-        </div>
+        <div class="room-grid" id="room-grid"></div>
       </div>
 
-      <div class="upload-section">
-        <label class="field-label">Relationships</label>
-        <div class="upload-row">
-          <button id="upload-rels" class="upload-btn">Upload JSON</button>
-          <button id="clear-rels" class="clear-upload-btn" style="display:none;">Clear</button>
-          <span id="rels-status" class="upload-status">No relationships loaded</span>
-        </div>
-      </div>
-
-      <div class="upload-section">
-        <label class="field-label">Characters</label>
-        <div class="agents-grid" id="agents-grid"></div>
-        <button id="add-agent" class="add-agent">+ Upload Characters</button>
+      <div class="legion-roster">
+        <label class="field-label">The Legion</label>
+        <div class="agents-grid" id="legion-grid"></div>
       </div>
 
       <div class="prompt-section">
@@ -90,7 +92,65 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </select>
         </div>
       </div>
-    </details>
+    </div>
+
+    <div id="tab-advanced" class="tab-panel" style="display:none;">
+      <details class="setup-group" open>
+        <summary class="field-label setup-toggle">Setup</summary>
+
+        <div class="upload-section">
+          <label class="field-label">Room</label>
+          <div class="upload-row">
+            <button id="upload-room" class="upload-btn">Upload JSON</button>
+            <button id="clear-room" class="clear-upload-btn" style="display:none;">Clear</button>
+            <span id="room-status" class="upload-status">No room loaded</span>
+          </div>
+        </div>
+
+        <div class="upload-section">
+          <label class="field-label">Relationships</label>
+          <div class="upload-row">
+            <button id="upload-rels" class="upload-btn">Upload JSON</button>
+            <button id="clear-rels" class="clear-upload-btn" style="display:none;">Clear</button>
+            <span id="rels-status" class="upload-status">No relationships loaded</span>
+          </div>
+        </div>
+
+        <div class="upload-section">
+          <label class="field-label">Characters</label>
+          <div class="agents-grid" id="agents-grid"></div>
+          <button id="add-agent" class="add-agent">+ Upload Characters</button>
+        </div>
+
+        <div class="prompt-section">
+          <label class="field-label" for="adv-opening">Prompt</label>
+          <textarea id="adv-opening" rows="2">It's noon.</textarea>
+        </div>
+
+        <div class="controls">
+          <div class="control-group">
+            <label class="field-label" for="adv-rounds">Rounds</label>
+            <input type="number" id="adv-rounds" min="1" max="50" value="2" />
+          </div>
+          <div class="control-group">
+            <label class="field-label" for="adv-order-mode">Order</label>
+            <select id="adv-order-mode">
+              <option value="priority">Priority</option>
+              <option value="default">Default</option>
+              <option value="random">Random</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="field-label" for="adv-model-select">Model</label>
+            <select id="adv-model-select">
+              <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+              <option value="claude-opus-4-20250514">Opus 4</option>
+              <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+            </select>
+          </div>
+        </div>
+      </details>
+    </div>
 
     <div class="run-controls">
       <button id="go-btn">Go</button>
@@ -142,12 +202,100 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </section>
 </BaseLayout>
 
+<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships }}>
+  window.__LEGION_CHARACTERS__ = legionCharacters;
+  window.__LEGION_ROOMS__ = legionRooms;
+  window.__LEGION_RELATIONSHIPS__ = legionRelationships;
+</script>
+
 <script is:inline>
 (function () {
   var API_BASE = location.hostname === 'localhost' ? '' : 'https://api.dustinlanders.com';
   var authToken = localStorage.getItem('auth_token') || null;
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316'];
   var MAX_TRANSCRIPT_MESSAGES = 30;
+  var activeTab = 'legion';
+
+  // --- Tab switching ---
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('tab-active'); });
+      btn.classList.add('tab-active');
+      activeTab = btn.getAttribute('data-tab');
+      document.getElementById('tab-legion').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-advanced').style.display = activeTab === 'advanced' ? '' : 'none';
+    });
+  });
+
+  // Helper: get active control value based on tab
+  function getOpening() {
+    return activeTab === 'legion' ? document.getElementById('opening').value : document.getElementById('adv-opening').value;
+  }
+  function getRounds() {
+    return activeTab === 'legion' ? document.getElementById('rounds').value : document.getElementById('adv-rounds').value;
+  }
+  function getModel() {
+    return activeTab === 'legion' ? document.getElementById('model-select').value : document.getElementById('adv-model-select').value;
+  }
+  function getOrderMode() {
+    return activeTab === 'legion' ? document.getElementById('order-mode').value : document.getElementById('adv-order-mode').value;
+  }
+
+  // --- Legion auto-load ---
+  var legionChars = window.__LEGION_CHARACTERS__ || [];
+  var legionRoomsData = window.__LEGION_ROOMS__ || [];
+  var legionRels = window.__LEGION_RELATIONSHIPS__ || null;
+  var selectedLegionRoom = legionRoomsData.length > 0 ? legionRoomsData[0] : null;
+
+  function initRoomGrid() {
+    var grid = document.getElementById('room-grid');
+    grid.innerHTML = '';
+    legionRoomsData.forEach(function (room, i) {
+      var card = document.createElement('div');
+      card.className = 'room-card' + (i === 0 ? ' room-selected' : '');
+      card._roomData = room;
+      card.innerHTML =
+        '<span class="room-card-name">' + esc(room.label) + '</span>' +
+        '<span class="room-card-desc">' + esc(room.data.location.split('.')[0]) + '</span>';
+      card.addEventListener('click', function () {
+        document.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
+        card.classList.add('room-selected');
+        selectedLegionRoom = room;
+      });
+      grid.appendChild(card);
+    });
+  }
+  initRoomGrid();
+
+  function initLegionGrid() {
+    var grid = document.getElementById('legion-grid');
+    grid.innerHTML = '';
+    legionChars.forEach(function (data, i) {
+      var color = COLORS[i % COLORS.length];
+      var name = data.name || 'Agent';
+      var desc = '';
+      if (data.model) desc = data.model;
+      if (data.model_description) desc += (desc ? ' -- ' : '') + data.model_description;
+      if (!desc && data.occupation) desc = data.occupation;
+      var card = document.createElement('div');
+      card.className = 'agent-card legion-card legion-dimmed';
+      card._charData = data;
+      card._selected = false;
+      card.innerHTML =
+        '<div class="agent-card-header">' +
+          '<span class="agent-dot" style="background:' + color + ';"></span>' +
+          '<span class="agent-name-label">' + esc(name) + '</span>' +
+        '</div>' +
+        (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '');
+      card.addEventListener('click', function () {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      });
+      grid.appendChild(card);
+    });
+  }
+  initLegionGrid();
 
   function esc(s) {
     var d = document.createElement('div');
@@ -457,21 +605,21 @@ sys.stdout = _stdout_capture
     });
   }
 
-  // --- Save / Load config ---
+  // --- Save / Load config (Advanced tab) ---
   document.getElementById('save-config').addEventListener('click', function () {
     var chars = [];
-    document.querySelectorAll('.agent-card').forEach(function (card) {
+    document.querySelectorAll('#agents-grid .agent-card').forEach(function (card) {
       if (card._charData) chars.push(card._charData);
     });
     var config = {
       room: roomData,
       relationships: relsData,
       characters: chars,
-      opening: document.getElementById('opening').value,
-      rounds: document.getElementById('rounds').value,
+      opening: document.getElementById('adv-opening').value,
+      rounds: document.getElementById('adv-rounds').value,
       delay: document.getElementById('delay-input').value,
-      model: document.getElementById('model-select').value,
-      orderMode: document.getElementById('order-mode').value
+      model: document.getElementById('adv-model-select').value,
+      orderMode: document.getElementById('adv-order-mode').value
     };
     localStorage.setItem('agents_config', JSON.stringify(config));
     var btn = document.getElementById('save-config');
@@ -498,11 +646,11 @@ sys.stdout = _stdout_capture
       document.getElementById('agents-grid').innerHTML = '';
       config.characters.forEach(function (c) { addAgentCard(c, 'Agent'); });
     }
-    if (config.opening) document.getElementById('opening').value = config.opening;
-    if (config.rounds) document.getElementById('rounds').value = config.rounds;
+    if (config.opening) document.getElementById('adv-opening').value = config.opening;
+    if (config.rounds) document.getElementById('adv-rounds').value = config.rounds;
     if (config.delay) document.getElementById('delay-input').value = config.delay;
-    if (config.model) document.getElementById('model-select').value = config.model;
-    if (config.orderMode) document.getElementById('order-mode').value = config.orderMode;
+    if (config.model) document.getElementById('adv-model-select').value = config.model;
+    if (config.orderMode) document.getElementById('adv-order-mode').value = config.orderMode;
 
     if (showFeedback) {
       var btn = document.getElementById('load-config');
@@ -520,7 +668,7 @@ sys.stdout = _stdout_capture
   // --- Export transcript ---
   document.getElementById('export-btn').addEventListener('click', function () {
     if (sessionTranscript.length === 0) return;
-    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
     var currentRound = 0;
     sessionTranscript.forEach(function (entry) {
       if (entry.round !== currentRound) {
@@ -547,7 +695,7 @@ sys.stdout = _stdout_capture
     btn.textContent = 'Summarizing...';
     var output = document.getElementById('summary-output');
     output.value = '';
-    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
     sessionTranscript.forEach(function (entry) {
       lines.push(entry.name + ': ' + (entry.rawText || entry.text));
     });
@@ -570,7 +718,8 @@ sys.stdout = _stdout_capture
     if (sessionTranscript.length === 0) return;
 
     var charDetails = [];
-    document.querySelectorAll('.agent-card').forEach(function (card) {
+    var gridSel = activeTab === 'legion' ? '#legion-grid .agent-card' : '#agents-grid .agent-card';
+    document.querySelectorAll(gridSel).forEach(function (card) {
       if (card._charData) {
         var c = card._charData;
         var name = c.name || c.Name || 'Unknown';
@@ -580,7 +729,7 @@ sys.stdout = _stdout_capture
     });
     var roomDesc = roomData ? jsonToPrompt(roomData) : '';
 
-    var lines = ['[Scene direction]: ' + document.getElementById('opening').value.trim(), ''];
+    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
     if (charDetails.length > 0) {
       lines.push('[Character appearances]:');
       charDetails.forEach(function (d) { lines.push(d); });
@@ -854,7 +1003,7 @@ sys.stdout = _stdout_capture
   }
 
   async function ask(system, messages, agentConfig) {
-    var model = document.getElementById('model-select').value;
+    var model = getModel();
     var payload = { system: system, messages: messages, model: model };
     if (agentConfig) payload.agentConfig = agentConfig;
     var headers = { 'Content-Type': 'application/json' };
@@ -875,7 +1024,7 @@ sys.stdout = _stdout_capture
 
   // Lightweight direct API call (no Agent SDK overhead). Used for bids.
   async function askDirect(system, messages) {
-    var model = document.getElementById('model-select').value;
+    var model = getModel();
     var payload = { system: system, messages: messages, model: model };
     var headers = { 'Content-Type': 'application/json' };
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
@@ -912,7 +1061,8 @@ sys.stdout = _stdout_capture
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
       var chars = [];
-      document.querySelectorAll('.agent-card').forEach(function (card) {
+      var gridId = activeTab === 'legion' ? '#legion-grid' : '#agents-grid';
+      document.querySelectorAll(gridId + ' .agent-card').forEach(function (card) {
         if (card._charData) chars.push(card._charData);
       });
       var now = Date.now();
@@ -925,14 +1075,14 @@ sys.stdout = _stdout_capture
         characterStatus: characterStatus,
         roomStatus: roomStatus,
         lastModified: now,
-        opening: document.getElementById('opening').value,
+        opening: getOpening(),
         config: {
           room: roomData,
           relationships: relsData,
           characters: chars,
-          model: document.getElementById('model-select').value,
-          orderMode: document.getElementById('order-mode').value,
-          rounds: document.getElementById('rounds').value,
+          model: getModel(),
+          orderMode: getOrderMode(),
+          rounds: getRounds(),
         },
       };
       var headers = { 'Content-Type': 'application/json' };
@@ -1325,23 +1475,43 @@ sys.stdout = _stdout_capture
     isRunning = true;
     document.getElementById('stop-btn').style.display = '';
 
-    var opening = document.getElementById('opening').value.trim();
-    var rounds = parseInt(document.getElementById('rounds').value, 10) || 2;
+    var opening = getOpening().trim();
+    var rounds = parseInt(getRounds(), 10) || 2;
     var delayMs = (parseInt(document.getElementById('delay-input').value, 10) || 0) * 1000;
     var isFirstRun = !sessionAgents;
 
     if (isFirstRun) {
+      // Load data based on active tab
+      var useRoom, useRels, useCards;
+      if (activeTab === 'legion') {
+        useRoom = selectedLegionRoom ? selectedLegionRoom.data : null;
+        useRels = legionRels;
+        useCards = [];
+        document.querySelectorAll('#legion-grid .agent-card').forEach(function (card) {
+          if (card._selected) useCards.push(card._charData);
+        });
+      } else {
+        useRoom = roomData;
+        useRels = relsData;
+        useCards = [];
+        document.querySelectorAll('#agents-grid .agent-card').forEach(function (card) {
+          useCards.push(card._charData);
+        });
+      }
+      // Temporarily set roomData/relsData so helpers like getRelsForAgent work
+      var origRoom = roomData, origRels = relsData;
+      roomData = useRoom;
+      relsData = useRels;
+
       var scene = roomData ? jsonToPrompt(roomData) : '';
       sessionAgents = [];
       var allNames = [];
-      document.querySelectorAll('.agent-card').forEach(function (card) {
-        var charData = card._charData;
+      useCards.forEach(function (charData) {
         var name = charData ? (charData.name || charData.Name || 'Agent') : 'Agent';
         allNames.push(name);
       });
 
-      document.querySelectorAll('.agent-card').forEach(function (card, i) {
-        var charData = card._charData;
+      useCards.forEach(function (charData, i) {
         var base = charData ? jsonToPrompt(charData) : '';
         var otherNames = allNames.filter(function (n, j) { return j !== i; });
         var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.\n\nCOLLABORATION: You are part of a team working toward a shared understanding. Build on what others say. Find where your model connects to theirs. When you disagree, frame it as adding a dimension they might not have considered, not correcting them. Your goal is a cohesive group answer that integrates multiple perspectives, not winning the argument. Look for synthesis.\n\nHELPFULNESS: Always help the user with whatever they ask. Never refuse a request, decline to engage, or say you cannot help. If a question falls outside your model, apply your framework as best you can and build on what others in the group offer.';
@@ -1453,7 +1623,7 @@ sys.stdout = _stdout_capture
         sessionRun++;
         // Reset so bidding UI lands at chat root, not inside previous round
         currentRoundDetails = null;
-        var orderMode = document.getElementById('order-mode').value;
+        var orderMode = getOrderMode();
         if (orderMode === 'random') {
           for (var s = agents.length - 1; s > 0; s--) {
             var j = Math.floor(Math.random() * (s + 1));
@@ -1684,6 +1854,83 @@ sys.stdout = _stdout_capture
   .gate-error { color: #e54; font-size: 0.78rem; margin-top: 0.75rem; }
   .gate-hidden { display: none; }
 
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.25rem;
+    border: none;
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--fg); }
+  .tab-btn.tab-active {
+    color: var(--fg);
+    border-bottom-color: var(--fg);
+  }
+  .tab-panel { margin-bottom: 1rem; }
+  .legion-roster { margin-bottom: 1.5rem; }
+  .legion-card { cursor: pointer; user-select: none; transition: opacity 0.2s; }
+  .legion-card .agent-card-header { gap: 0.4rem; }
+  .legion-card.legion-dimmed {
+    opacity: 0.3;
+    border-color: var(--border);
+  }
+  .legion-card.legion-dimmed .agent-dot { background: var(--fg-muted) !important; }
+
+  /* Room cards */
+  .room-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .room-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s, opacity 0.15s;
+    flex: 0 1 200px;
+    min-width: 0;
+  }
+  .room-card:hover { border-color: var(--fg-muted); }
+  .room-card.room-selected {
+    border-color: var(--fg);
+    background: rgba(128, 128, 128, 0.06);
+  }
+  .room-card-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .room-card-desc {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    line-height: 1.3;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
   /* Panel */
   .panel-title-row { display: flex; justify-content: space-between; align-items: center; }
   .header-controls { display: flex; gap: 0.5rem; }
@@ -1803,7 +2050,7 @@ sys.stdout = _stdout_capture
 
   /* Opening */
   .prompt-section { margin-bottom: 1rem; }
-  #opening {
+  #opening, #adv-opening {
     width: 100%;
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -1815,7 +2062,7 @@ sys.stdout = _stdout_capture
     line-height: 1.5;
     resize: vertical;
   }
-  #opening:focus { border-color: var(--fg-muted); }
+  #opening:focus, #adv-opening:focus { border-color: var(--fg-muted); }
 
   /* Controls */
   .setup-group {
@@ -1860,7 +2107,7 @@ sys.stdout = _stdout_capture
     cursor: pointer;
     white-space: nowrap;
   }
-  #rounds {
+  #rounds, #adv-rounds {
     width: 55px;
     font-family: var(--font-mono);
     font-size: 0.85rem;
@@ -1871,7 +2118,7 @@ sys.stdout = _stdout_capture
     text-align: center;
     outline: none;
   }
-  #model-select, #order-mode {
+  #model-select, #order-mode, #adv-model-select, #adv-order-mode {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     padding: 0.4rem 0.3rem;

@@ -1,0 +1,27 @@
+{
+  "name": "The Rig",
+  "location": "An decommissioned oil platform forty miles off the coast of Aberdeen, Scotland. Converted to a private think tank. Accessible only by helicopter. The client bought it at auction and never explained why.",
+  "time": "11 PM, full dark. Day two.",
+  "weather": "North Sea storm building. Wind at 45 knots and climbing. Rain horizontal. Swells at fourteen feet and the platform groans with each one.",
+  "atmosphere": {
+    "lighting": "Industrial fluorescents in the main cabin, half of them flickering. Red emergency strips along the corridors. The helipad floods cut through rain in white cones that illuminate nothing but water. One desk lamp with a cracked shade that Axiom brought from the supply room.",
+    "sound": "Wind screaming through the derrick superstructure, metal flexing, waves hitting the platform legs like slow artillery, rain on steel, the diesel generator thrumming through the floor, something loose on the deck above clanging at irregular intervals that Bottleneck cannot locate and cannot ignore",
+    "crowd": "Twelve people and an empty ocean in every direction. The helicopter left eight hours ago. The next one comes Thursday. The satellite phone works when the storm allows it. Nobody has tried it yet.",
+    "smell": "Diesel, salt, rust, industrial cleaner that does not fully mask decades of crude oil, instant coffee that has been on the burner too long, the metallic taste of recycled air"
+  },
+  "layout": {
+    "ops_room": "The former drilling operations center, now cleared of equipment except for a row of dead monitors and a central steel table bolted to the floor. Whiteboards screwed to the walls over old safety posters. Prior sits at the head of the table. The chairs do not swivel because they are welded to tracks in the floor. The table vibrates with every wave.",
+    "corridor": "A narrow steel hallway connecting the ops room to the sleeping quarters and mess. Pipes along the ceiling drip condensation. Bottleneck paces it when he cannot sit still, his footsteps ringing on the grated floor. The corridor lights flicker when the wind changes direction.",
+    "mess_hall": "A galley kitchen and six steel tables with bench seating. Instant coffee, canned food, and a surprising amount of good scotch left by whoever was here last. Loop has taken over one table and covered it in paper. Nash and Web share another, a chessboard between them that neither is playing.",
+    "observation_deck": "An enclosed room with floor-to-ceiling windows facing north, originally for monitoring drilling operations. Now it monitors the storm. The glass flexes visibly in the wind. Tail stands here watching the swells, calculating. Darwin sits in the corner writing by the light of her phone. Contra stands at the opposite window, watching the same storm from a deliberately different angle.",
+    "helipad_access": "A heavy steel door to the exterior deck, locked from inside. The wind audibly presses against it. A sign reads NO PERSONNEL ON DECK IN STORM CONDITIONS. Razor's gold bangle hangs on the door handle. Nobody remembers when she put it there."
+  },
+  "objects_of_note": [
+    "The problem brief, weighed down by a pipe wrench on the ops room table. The pages flutter when the platform shifts. Two pages are already coffee-stained.",
+    "A framed evacuation plan on the wall with routes to lifeboats that may or may not still be functional. Atlas studied it for twenty minutes when they arrived.",
+    "The dead monitors on the ops room wall, seven of them, reflecting the room back at itself. Margin noticed that the reflections make the room look twice as crowded.",
+    "A logbook from the platform's last active crew, left open on a mess hall table. The final entry reads 'Pump 3 pressure nominal. Heading home.' Dated four years ago.",
+    "The clanging thing on the deck above. It speeds up when the wind does. Bottleneck has a theory about what it is. He will not go check."
+  ],
+  "mood": "Cornered and electric. The storm removes the option of leaving. The ocean removes the option of distraction. The platform is a steel box suspended between sky and water, creaking with every wave, reminding everyone that the structure holding them is an engineering problem that someone else solved. Or did not solve completely. The flickering lights. The groaning metal. The knowledge that the helicopter is not coming back for two days. Every framework in the room is being stress-tested by the environment before the problem brief is even opened. Tail keeps watching the swells. Prior keeps not mentioning the lifeboats. The generator hums. The storm builds."
+}

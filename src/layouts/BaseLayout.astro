@@ -31,6 +31,7 @@ const { title, description = 'A blog.' } = Astro.props;
         }
       })();
     </script>
+    <slot name="head" />
   </head>
   <body>
     <header>

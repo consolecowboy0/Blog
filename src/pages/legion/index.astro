@@ -16,6 +16,10 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
 ---
 
 <BaseLayout title="Legion - dustinlanders.com" description="Multi-agent chat room.">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  </Fragment>
   <div id="gate">
     <div class="gate-box">
       <div class="gate-icon">
@@ -802,8 +806,38 @@ sys.stdout = _stdout_capture
     return m ? '\u201C' + m[1] + '\u2026\u201D' : '';
   }
 
+  function renderMath(tex, displayMode, container) {
+    if (typeof katex === 'undefined') {
+      var fb = document.createElement(displayMode ? 'div' : 'span');
+      fb.textContent = (displayMode ? '$$' : '$') + tex + (displayMode ? '$$' : '$');
+      container.appendChild(fb);
+      return;
+    }
+    var el = document.createElement(displayMode ? 'div' : 'span');
+    if (displayMode) el.style.margin = '0.5em 0';
+    try {
+      katex.render(tex, el, { displayMode: displayMode, throwOnError: false });
+    } catch(e) {
+      el.textContent = (displayMode ? '$$' : '$') + tex + (displayMode ? '$$' : '$');
+    }
+    container.appendChild(el);
+  }
+
+  function renderInlineSegment(text, container) {
+    // Handle inline math $...$  (not preceded/followed by $)
+    var parts = text.split(/(\$(?!\$)(?:[^$]|\\.)+?\$)/g);
+    parts.forEach(function(part) {
+      var m = part.match(/^\$(?!\$)((?:[^$]|\\.)+?)\$$/);
+      if (m) {
+        renderMath(m[1], false, container);
+      } else if (part) {
+        container.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
   function renderTextContent(text, container) {
-    // Split out [CODE]...[/CODE] blocks, then parse inner tags
+    // Split out [CODE]...[/CODE] blocks first, then $$...$$ display math, then inline
     var codeSplit = text.split(/(\[CODE\][\s\S]*?\[\/CODE\])/g);
     codeSplit.forEach(function (segment) {
       var codeMatch = segment.match(/^\[CODE\]([\s\S]*?)\[\/CODE\]$/);
@@ -829,30 +863,39 @@ sys.stdout = _stdout_capture
         })(codeMatch[1].trim(), outputDiv);
         return;
       }
-      var parts = segment.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
-      parts.forEach(function (part) {
-        var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
-        var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
-        if (actionMatch) {
-          var act = document.createElement('span');
-          act.className = 'msg-action';
-          act.textContent = '[ACTION: ' + actionMatch[1] + ']';
-          container.appendChild(act);
-        } else if (whisperMatch) {
-          var w = document.createElement('span');
-          w.className = 'msg-whisper';
-          w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
-          container.appendChild(w);
-        } else if (part) {
-          var dialogParts = part.split(/(?<=["\u201D])\s+(?=["\u201C])/g);
-          dialogParts.forEach(function (dp) {
-            if (!dp.trim()) return;
-            var p = document.createElement('p');
-            p.className = 'msg-dialogue';
-            p.textContent = dp;
-            container.appendChild(p);
-          });
+      // Split on $$...$$ display math blocks
+      var mathSplit = segment.split(/(\$\$[\s\S]*?\$\$)/g);
+      mathSplit.forEach(function(mathSeg) {
+        var dispMatch = mathSeg.match(/^\$\$([\s\S]*?)\$\$$/);
+        if (dispMatch) {
+          renderMath(dispMatch[1].trim(), true, container);
+          return;
         }
+        var parts = mathSeg.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
+        parts.forEach(function (part) {
+          var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+          var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
+          if (actionMatch) {
+            var act = document.createElement('span');
+            act.className = 'msg-action';
+            act.textContent = '[ACTION: ' + actionMatch[1] + ']';
+            container.appendChild(act);
+          } else if (whisperMatch) {
+            var w = document.createElement('span');
+            w.className = 'msg-whisper';
+            w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
+            container.appendChild(w);
+          } else if (part) {
+            var dialogParts = part.split(/(?<=["\u201D])\s+(?=["\u201C])/g);
+            dialogParts.forEach(function (dp) {
+              if (!dp.trim()) return;
+              var p = document.createElement('p');
+              p.className = 'msg-dialogue';
+              renderInlineSegment(dp, p);
+              container.appendChild(p);
+            });
+          }
+        });
       });
     });
   }

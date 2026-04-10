@@ -1695,11 +1695,13 @@ sys.stdout = _stdout_capture
                 }
               }
               var transcript = bidLines.join('\n');
-              var bidSystem = 'You are ' + a.name + '. You are in a group discussion. A new round is about to begin. Based on the conversation so far, how urgently do you need to speak next? Consider: Do you have a direct response to what was just said? Do you have new information? Is someone wrong and you need to correct them? Are you building on momentum? Or can you wait?\n\nRespond with ONLY a JSON object: {"priority": <number 1-10>, "reason": "<one sentence why>"}\n\n1 = I can wait, nothing urgent. 10 = I must speak now, this cannot wait.\n\nStay in character. Bid based on what your character would actually feel.';
+              var bidSystem = 'You are ' + a.name + '. A new round of discussion is about to begin. Decide how urgently you need to speak.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"priority": <integer 1-10>, "reason": "<one sentence>"}\n\n1 = can wait. 10 = must speak now. Stay in character.';
               var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
               return askDirect(bidSystem, bidMessages).then(function (response) {
                 try {
-                  var parsed = JSON.parse(response.replace(/```json?\n?/g, '').replace(/```/g, '').trim());
+                  var jsonMatch = response.match(/\{[\s\S]*?\}/);
+                  if (!jsonMatch) throw new Error('no JSON object found');
+                  var parsed = JSON.parse(jsonMatch[0]);
                   return { agent: a, priority: Math.min(10, Math.max(1, parseInt(parsed.priority, 10) || 5)), reason: parsed.reason || '' };
                 } catch (e) {
                   console.warn('[bid] parse error for ' + a.name + ':', e.message, 'raw:', response);

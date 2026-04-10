@@ -67,6 +67,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
 .info-stat { font-size: 0.65rem; color: var(--text-muted); margin-bottom: 3px; }
 .info-stat span { color: var(--text); font-weight: 600; }
 .info-hint { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
+.swapi-divider { height: 1px; background: var(--border); margin: 10px 0; }
 .info-path { margin-top: 8px; padding: 10px; background: var(--input-bg); border: 1px solid var(--border); font-family: var(--font-mono); font-size: 0.65rem; line-height: 1.8; color: var(--text-sec); }
 .info-path .path-planet { color: var(--text); font-weight: 600; }
 .info-path .path-arrow { color: var(--text-muted); margin: 0 2px; }
@@ -116,6 +117,23 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
   <div class="tooltip" id="tooltip"></div>
   <script>
 
+
+// ── SWAPI planet data ───────────────────────────────────────────
+let PLANET_DATA = {};
+fetch('./planets.json').then(r => r.json()).then(arr => {
+  arr.forEach(p => { PLANET_DATA[p.name.toLowerCase()] = p; });
+}).catch(() => {});
+
+const FILM_NAMES = {1:'A New Hope',2:'Empire Strikes Back',3:'Return of the Jedi',4:'The Phantom Menace',5:'Attack of the Clones',6:'Revenge of the Sith'};
+
+function fmtPop(n) {
+  if (n === null) return 'unknown';
+  if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';
+  if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return n.toLocaleString();
+}
 
 const REGIONS = ["Deep Core","Core","Colonies","Inner Rim","Expansion","Mid Rim","Outer Rim","Wild Space","Unknown Regions","Hutt Space"];
 const REGION_COLORS = ["#fbbf24","#22d3ee","#60a5fa","#4ade80","#2dd4bf","#c084fc","#fb923c","#94a3b8","#f87171","#a78bfa"];
@@ -569,6 +587,18 @@ function showPlanetInfo(n) {
   });
   const neighbors = (adjacency.get(n.idx) || []).slice(0, 10).map(i => nodes[i].name);
 
+  const pd = PLANET_DATA[n.name.toLowerCase()];
+  const swapiBlock = pd ? `
+    <div class="swapi-divider"></div>
+    ${pd.climate ? `<div class="info-stat">Climate: <span>${pd.climate}</span></div>` : ''}
+    ${pd.terrain ? `<div class="info-stat">Terrain: <span>${pd.terrain}</span></div>` : ''}
+    ${pd.population !== undefined ? `<div class="info-stat">Population: <span>${fmtPop(pd.population)}</span></div>` : ''}
+    ${pd.diameter ? `<div class="info-stat">Diameter: <span>${pd.diameter.toLocaleString()} km</span></div>` : ''}
+    ${pd.surface_water !== null ? `<div class="info-stat">Surface water: <span>${pd.surface_water}%</span></div>` : ''}
+    ${pd.gravity ? `<div class="info-stat">Gravity: <span>${pd.gravity}</span></div>` : ''}
+    ${pd.films && pd.films.length ? `<div class="info-stat">Films: <span>${pd.films.map(f => FILM_NAMES[f]).join(', ')}</span></div>` : ''}
+  ` : '';
+
   document.getElementById('info-content').innerHTML = `
     <div class="info-name">${n.name}</div>
     <div class="info-region" style="background:${n.color}22;color:${n.color}">${n.region}</div>
@@ -576,6 +606,7 @@ function showPlanetInfo(n) {
     <div class="info-stat">Connections: <span>${n.deg}</span></div>
     <div class="info-stat">Routes: <span>${routes.length ? routes.join(', ') : 'None'}</span></div>
     <div class="info-stat">Neighbors: <span>${neighbors.join(', ')}${neighbors.length >= 10 ? '...' : ''}</span></div>
+    ${swapiBlock}
     <div class="info-hint" style="margin-top:10px">Click another system to find route</div>
   `;
 }

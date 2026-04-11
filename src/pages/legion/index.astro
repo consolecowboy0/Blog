@@ -11,6 +11,10 @@ const legionRooms = [
   { id: 'bazaar', label: 'The Bazaar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_bazaar.json'), 'utf-8')) },
   { id: 'onsen', label: 'The Onsen', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_onsen.json'), 'utf-8')) },
   { id: 'rig', label: 'The Rig', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_rig.json'), 'utf-8')) },
+  { id: 'lighthouse', label: 'The Lighthouse', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_lighthouse.json'), 'utf-8')) },
+  { id: 'cellar', label: 'The Cellar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cellar.json'), 'utf-8')) },
+  { id: 'observatory', label: 'The Observatory', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_observatory.json'), 'utf-8')) },
+  { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
 ];
 const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
 ---

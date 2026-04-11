@@ -968,6 +968,14 @@ sys.stdout = _stdout_capture
     var t = document.createElement('div');
     t.className = 'msg-text';
     renderTextContent(text, t);
+    var collapseBtn = document.createElement('button');
+    collapseBtn.className = 'msg-collapse-btn';
+    collapseBtn.textContent = '▲ collapse';
+    collapseBtn.addEventListener('click', function () {
+      details.open = false;
+      details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    t.appendChild(collapseBtn);
     details.appendChild(t);
 
     var target = currentRoundDetails || chat;
@@ -2476,6 +2484,19 @@ sys.stdout = _stdout_capture
   }
   .msg-dialogue:first-child { margin-top: 0; }
   .msg-dialogue:last-child { margin-bottom: 0; }
+  .msg-collapse-btn {
+    display: block;
+    margin-top: 1rem;
+    background: none;
+    border: none;
+    color: var(--fg-muted);
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    padding: 0;
+    letter-spacing: 0.04em;
+  }
+  .msg-collapse-btn:hover { color: var(--fg); }
   .msg-action {
     display: block;
     font-style: italic;

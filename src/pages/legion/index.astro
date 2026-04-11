@@ -1677,42 +1677,48 @@ sys.stdout = _stdout_capture
           if (activeAgents.length > 1) {
             msg('','','--- Bidding for Round ' + sessionRun + ' ---', true);
             var bids = [];
-            var bidPromises = activeAgents.map(function (a) {
-              var bidLines = ['[Scene direction]: ' + opening];
-              var start = 0;
-              if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
-                start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
-                bidLines.push('... (' + start + ' earlier messages omitted) ...');
-              }
-              for (var t = start; t < sessionTranscript.length; t++) {
-                var entry = sessionTranscript[t];
-                var text = entry.text;
-                if (a.name && entry.hasWhisper) {
-                  text = stripWhispersFrom(entry.rawText || text, a.name, entry.name);
+            // Process bids in small batches to avoid API rate limits
+            var BID_BATCH = 2;
+            for (var batchIdx = 0; batchIdx < activeAgents.length; batchIdx += BID_BATCH) {
+              var batch = activeAgents.slice(batchIdx, batchIdx + BID_BATCH);
+              var batchResults = await Promise.all(batch.map(function (a) {
+                var bidLines = ['[Scene direction]: ' + opening];
+                var start = 0;
+                if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
+                  start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
+                  bidLines.push('... (' + start + ' earlier messages omitted) ...');
                 }
-                if (text) {
-                  bidLines.push(entry.name + ': ' + text);
+                for (var t = start; t < sessionTranscript.length; t++) {
+                  var entry = sessionTranscript[t];
+                  var text = entry.text;
+                  if (a.name && entry.hasWhisper) {
+                    text = stripWhispersFrom(entry.rawText || text, a.name, entry.name);
+                  }
+                  if (text) {
+                    bidLines.push(entry.name + ': ' + text);
+                  }
                 }
-              }
-              var transcript = bidLines.join('\n');
-              var bidSystem = 'You are ' + a.name + '. A new round of discussion is about to begin. Decide how urgently you need to speak.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"priority": <integer 1-10>, "reason": "<one sentence>"}\n\n1 = can wait. 10 = must speak now. Stay in character.';
-              var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
-              return askDirect(bidSystem, bidMessages).then(function (response) {
-                try {
+                var transcript = bidLines.join('\n');
+                var bidSystem = 'You are ' + a.name + '. A new round of discussion is about to begin. Decide how urgently you need to speak.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"priority": 5, "reason": "example reason"}\n\nReplace 5 with your urgency (1 = can wait, 10 = must speak now). Stay in character.';
+                var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
+                function parseBidResponse(response) {
                   var jsonMatch = response.match(/\{[\s\S]*?\}/);
                   if (!jsonMatch) throw new Error('no JSON object found');
                   var parsed = JSON.parse(jsonMatch[0]);
                   return { agent: a, priority: Math.min(10, Math.max(1, parseInt(parsed.priority, 10) || 5)), reason: parsed.reason || '' };
-                } catch (e) {
-                  console.warn('[bid] parse error for ' + a.name + ':', e.message, 'raw:', response);
-                  return { agent: a, priority: 5, reason: 'failed to parse bid' };
                 }
-              }).catch(function (err) {
-                console.error('[bid] error for ' + a.name + ':', err.message || err);
-                return { agent: a, priority: 5, reason: 'bid error' };
-              });
-            });
-            bids = await Promise.all(bidPromises);
+                return askDirect(bidSystem, bidMessages).then(parseBidResponse).catch(function (err) {
+                  console.warn('[bid] attempt 1 failed for ' + a.name + ':', err.message);
+                  return new Promise(function (r) { setTimeout(r, 1000); }).then(function () {
+                    return askDirect(bidSystem, bidMessages).then(parseBidResponse);
+                  }).catch(function (retryErr) {
+                    console.error('[bid] failed for ' + a.name + ' after retry:', retryErr.message || retryErr);
+                    return { agent: a, priority: 5, reason: 'bid error' };
+                  });
+                });
+              }));
+              bids = bids.concat(batchResults);
+            }
             // Sort by priority descending, randomize ties
             bids.sort(function (a, b) {
               if (b.priority !== a.priority) return b.priority - a.priority;

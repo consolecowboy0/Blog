@@ -1702,9 +1702,29 @@ sys.stdout = _stdout_capture
                 var bidSystem = 'You are ' + a.name + '. A new round of discussion is about to begin. Decide how urgently you need to speak.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"priority": 5, "reason": "example reason"}\n\nReplace 5 with your urgency (1 = can wait, 10 = must speak now). Stay in character.';
                 var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
                 function parseBidResponse(response) {
-                  var jsonMatch = response.match(/\{[\s\S]*?\}/);
-                  if (!jsonMatch) throw new Error('no JSON object found');
-                  var parsed = JSON.parse(jsonMatch[0]);
+                  // Balanced-brace extractor: handles braces inside string values
+                  var start = response.indexOf('{');
+                  var parsed = null;
+                  if (start !== -1) {
+                    var depth = 0, inStr = false, esc = false;
+                    for (var ci = start; ci < response.length; ci++) {
+                      var ch = response[ci];
+                      if (esc) { esc = false; continue; }
+                      if (ch === '\\' && inStr) { esc = true; continue; }
+                      if (ch === '"') { inStr = !inStr; continue; }
+                      if (!inStr) {
+                        if (ch === '{') depth++;
+                        else if (ch === '}') { depth--; if (depth === 0) { try { parsed = JSON.parse(response.slice(start, ci + 1)); } catch(e) {} break; } }
+                      }
+                    }
+                  }
+                  // Fallback: extract fields via regex
+                  if (!parsed) {
+                    var pm = response.match(/priority['":\s]+(\d+)/i);
+                    var rm = response.match(/"reason"\s*:\s*"([^"]*)"/i);
+                    if (!pm) throw new Error('no priority in response: ' + response.slice(0, 80));
+                    parsed = { priority: parseInt(pm[1], 10), reason: rm ? rm[1] : '' };
+                  }
                   return { agent: a, priority: Math.min(10, Math.max(1, parseInt(parsed.priority, 10) || 5)), reason: parsed.reason || '' };
                 }
                 return askDirect(bidSystem, bidMessages).then(parseBidResponse).catch(function (err) {

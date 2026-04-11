@@ -1073,24 +1073,9 @@ sys.stdout = _stdout_capture
     return data.text;
   }
 
-  // Lightweight direct API call (no Agent SDK overhead). Used for bids.
+  // Direct API call used for bids — uses same endpoint as regular messages.
   async function askDirect(system, messages) {
-    var model = getModel();
-    var payload = { system: system, messages: messages, model: model };
-    var headers = { 'Content-Type': 'application/json' };
-    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
-    var res = await fetch(API_BASE + '/api/agent-chat', {
-      method: 'POST',
-      headers: headers,
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      var err = '';
-      try { var b = await res.json(); err = b.error || JSON.stringify(b); } catch(e) { try { err = await res.text(); } catch(e2) {} }
-      throw new Error('API error (' + res.status + '): ' + (err || 'unknown'));
-    }
-    var data = await res.json();
-    return data.text;
+    return ask(system, messages);
   }
 
   // --- Session state ---

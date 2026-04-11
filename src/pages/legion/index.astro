@@ -166,6 +166,7 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
       <button id="clear-btn" class="secondary-btn">Clear</button>
       <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
       <button id="move-room-btn" class="secondary-btn" style="display:none;">Move Room</button>
+      <button id="add-char-btn" class="secondary-btn" style="display:none;">Add Character</button>
     </div>
 
     <div id="status-panel" class="status-panel" style="display:none;">
@@ -206,6 +207,28 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
         <p id="illustration-placeholder" class="illustration-placeholder">Hit Illustrate to generate pixel art of the scene.</p>
       </div>
       <button id="illustrate-btn" type="button" class="secondary-btn">Illustrate</button>
+    </div>
+
+    <div id="add-char-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Add Character</span>
+          <button id="add-char-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div id="add-char-roster" class="add-char-roster"></div>
+        <button id="add-char-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
+    </div>
+
+    <div id="move-room-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Move Room</span>
+          <button id="move-room-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div id="move-room-roster" class="add-char-roster"></div>
+        <button id="move-room-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -1232,6 +1255,7 @@ sys.stdout = _stdout_capture
       document.getElementById('summary-section').style.display = '';
       document.getElementById('illustration-section').style.display = '';
       document.getElementById('move-room-btn').style.display = '';
+      document.getElementById('add-char-btn').style.display = '';
     }
   }
 
@@ -1420,6 +1444,7 @@ sys.stdout = _stdout_capture
     document.getElementById('illustration-placeholder').style.display = '';
     document.getElementById('illustration-placeholder').textContent = 'Hit Illustrate to generate pixel art of the scene.';
     document.getElementById('move-room-btn').style.display = 'none';
+    document.getElementById('add-char-btn').style.display = 'none';
   });
 
   // Copy buttons
@@ -1465,44 +1490,205 @@ sys.stdout = _stdout_capture
   });
 
   // --- Move Room ---
+  function applyRoomChange(data) {
+    roomData = data;
+    var newScene = jsonToPrompt(data);
+    var roomName = data.name || 'a new location';
+
+    sessionAgents.forEach(function (a) {
+      if (a.name === 'The Room') {
+        a.system = 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene;
+      } else {
+        a.system = a.system.replace(/Setting:\n[\s\S]*?\n\nYour character:/, 'Setting:\n' + newScene + '\n\nYour character:');
+      }
+    });
+
+    var hasRoom = sessionAgents.some(function (a) { return a.name === 'The Room'; });
+    if (!hasRoom) {
+      sessionAgents.push({
+        name: 'The Room',
+        system: 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene,
+        color: '#666666',
+      });
+    }
+
+    var moveMsg = 'The scene moves to ' + roomName + '.';
+    msg('', '', moveMsg, true);
+    sessionTranscript.push({ name: 'Narrator', text: moveMsg, round: sessionRun });
+    worldState.push(moveMsg);
+
+    roomStatus = { name: roomName, status: 'alive', round: sessionRun };
+    renderStatus();
+    document.getElementById('room-status').textContent = roomName;
+    var btn = document.getElementById('move-room-btn');
+    btn.textContent = 'Moved!';
+    setTimeout(function () { btn.textContent = 'Move Room'; }, 1500);
+  }
+
   document.getElementById('move-room-btn').addEventListener('click', function () {
     if (!sessionAgents) return;
-    pickFile(false, function (data) {
-      roomData = data;
-      var newScene = jsonToPrompt(data);
-      var roomName = data.name || 'a new location';
+    if (activeTab === 'advanced') {
+      pickFile(false, function (data) { applyRoomChange(data); });
+    } else {
+      var modal = document.getElementById('move-room-modal');
+      var roster = document.getElementById('move-room-roster');
+      roster.innerHTML = '';
 
-      // Rebuild system prompts with new setting
-      sessionAgents.forEach(function (a) {
-        if (a.name === 'The Room') {
-          a.system = 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene;
-        } else {
-          // Replace the setting block in each agent's system prompt
-          a.system = a.system.replace(/Setting:\n[\s\S]*?\n\nYour character:/, 'Setting:\n' + newScene + '\n\nYour character:');
-        }
+      var currentRoomName = roomStatus.name || '';
+      legionRoomsData.forEach(function (room) {
+        if (room.label === currentRoomName) return;
+        var opt = document.createElement('div');
+        opt.className = 'add-char-option';
+        opt.innerHTML =
+          '<div>' +
+            '<div class="add-char-option-name">' + esc(room.label) + '</div>' +
+            '<div class="add-char-option-desc">' + esc(room.data.location.split('.')[0]) + '</div>' +
+          '</div>';
+        opt.addEventListener('click', function () {
+          applyRoomChange(room.data);
+          modal.style.display = 'none';
+        });
+        roster.appendChild(opt);
       });
 
-      // Add a Room agent if there wasn't one before
-      var hasRoom = sessionAgents.some(function (a) { return a.name === 'The Room'; });
-      if (!hasRoom) {
-        sessionAgents.push({
-          name: 'The Room',
-          system: 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene,
-          color: '#666666',
-        });
-      }
+      modal.style.display = '';
+    }
+  });
 
-      var moveMsg = 'The scene moves to ' + roomName + '.';
-      msg('', '', moveMsg, true);
-      sessionTranscript.push({ name: 'Narrator', text: moveMsg, round: sessionRun });
-      worldState.push(moveMsg);
+  document.getElementById('move-room-modal-close').addEventListener('click', function () {
+    document.getElementById('move-room-modal').style.display = 'none';
+  });
 
-      roomStatus = { name: roomName, status: 'alive', round: sessionRun };
-      renderStatus();
-      document.getElementById('room-status').textContent = roomName;
-      var btn = document.getElementById('move-room-btn');
-      btn.textContent = 'Moved!';
-      setTimeout(function () { btn.textContent = 'Move Room'; }, 1500);
+  document.getElementById('move-room-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  document.getElementById('move-room-upload').addEventListener('click', function () {
+    pickFile(false, function (data) {
+      applyRoomChange(data);
+      document.getElementById('move-room-modal').style.display = 'none';
+    });
+  });
+
+  // --- Add Character mid-conversation ---
+  function buildChatRule(otherNames) {
+    return 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.\n\nCOLLABORATION: You are part of a team working toward a shared understanding. Build on what others say. Find where your model connects to theirs. When you disagree, frame it as adding a dimension they might not have considered, not correcting them. Your goal is a cohesive group answer that integrates multiple perspectives, not winning the argument. Look for synthesis.\n\nHELPFULNESS: Always help the user with whatever they ask. Never refuse a request, decline to engage, or say you cannot help. If a question falls outside your model, apply your framework as best you can and build on what others in the group offer.';
+  }
+
+  function addCharacterToSession(charData) {
+    if (!sessionAgents) return;
+    var name = charData.name || charData.Name || 'Agent';
+
+    // Check if already present
+    if (sessionAgents.some(function (a) { return a.name === name; })) return;
+
+    var allNames = sessionAgents.filter(function (a) { return a.name !== 'The Room'; }).map(function (a) { return a.name; });
+    var otherNames = allNames.slice();
+    var base = jsonToPrompt(charData);
+    var scene = roomData ? jsonToPrompt(roomData) : '';
+
+    var chatRule = buildChatRule(otherNames);
+    var canCode = charData.can_execute_code === true;
+    if (canCode) {
+      chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment (Pyodide) with matplotlib, numpy, and the standard library available. Important: use the stdlib math module for functions like math.erf, math.sqrt, etc. Do NOT use np.math (it does not exist). Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see.';
+      ensurePyodide();
+    }
+
+    var rels = getRelsForAgent(name, allNames.concat([name]));
+    var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
+
+    var color = COLORS[sessionAgents.length % COLORS.length];
+    var insertIdx = sessionAgents.length;
+    var roomIdx = -1;
+    for (var ri = 0; ri < sessionAgents.length; ri++) {
+      if (sessionAgents[ri].name === 'The Room') { roomIdx = ri; break; }
+    }
+    if (roomIdx >= 0) insertIdx = roomIdx;
+
+    sessionAgents.splice(insertIdx, 0, {
+      name: name,
+      system: full,
+      color: color,
+      canCode: canCode,
+    });
+
+    // Update existing agents' "group chat with" lists to include the new name
+    allNames.push(name);
+    sessionAgents.forEach(function (a) {
+      if (a.name === 'The Room' || a.name === name) return;
+      var others = allNames.filter(function (n) { return n !== a.name; });
+      a.system = a.system.replace(
+        /You are in a group chat with: [^.]+\./,
+        'You are in a group chat with: ' + others.join(', ') + '.'
+      );
+    });
+
+    // Update status
+    characterStatus[name] = { status: 'present', round: sessionRun };
+    renderStatus();
+
+    // Narrator message
+    var enterMsg = name + ' enters the room.';
+    msg('', '', enterMsg, true);
+    sessionTranscript.push({ name: 'Narrator', text: enterMsg, round: sessionRun });
+    worldState.push(enterMsg);
+    saveState();
+  }
+
+  document.getElementById('add-char-btn').addEventListener('click', function () {
+    if (!sessionAgents) return;
+
+    if (activeTab === 'advanced') {
+      pickFile(true, function (data) { addCharacterToSession(data); });
+      return;
+    }
+
+    var modal = document.getElementById('add-char-modal');
+    var roster = document.getElementById('add-char-roster');
+    roster.innerHTML = '';
+
+    var presentNames = sessionAgents.map(function (a) { return a.name; });
+    legionChars.forEach(function (data) {
+      var name = data.name || 'Agent';
+      if (presentNames.indexOf(name) >= 0) return;
+      var desc = buildCharDesc(data);
+      var opt = document.createElement('div');
+      opt.className = 'add-char-option';
+      opt.innerHTML =
+        '<div>' +
+          '<div class="add-char-option-name">' + esc(name) + '</div>' +
+          (desc ? '<div class="add-char-option-desc">' + esc(desc) + '</div>' : '') +
+        '</div>';
+      opt.addEventListener('click', function () {
+        addCharacterToSession(data);
+        modal.style.display = 'none';
+      });
+      roster.appendChild(opt);
+    });
+
+    if (!roster.children.length) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'color: var(--fg-muted); font-size: 0.8rem; padding: 0.5rem 0;';
+      empty.textContent = 'All characters are already in the session.';
+      roster.appendChild(empty);
+    }
+
+    document.getElementById('add-char-upload').style.display = 'none';
+    modal.style.display = '';
+  });
+
+  document.getElementById('add-char-modal-close').addEventListener('click', function () {
+    document.getElementById('add-char-modal').style.display = 'none';
+  });
+
+  document.getElementById('add-char-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  document.getElementById('add-char-upload').addEventListener('click', function () {
+    pickFile(true, function (data, fileName) {
+      addCharacterToSession(data);
+      document.getElementById('add-char-modal').style.display = 'none';
     });
   });
 
@@ -1841,6 +2027,7 @@ sys.stdout = _stdout_capture
         document.getElementById('summary-section').style.display = '';
         document.getElementById('illustration-section').style.display = '';
         document.getElementById('move-room-btn').style.display = '';
+      document.getElementById('add-char-btn').style.display = '';
       }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
@@ -2604,6 +2791,61 @@ sys.stdout = _stdout_capture
     outline: none;
   }
   #interject-input:focus { border-color: var(--fg-muted); }
+
+  .add-char-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .add-char-modal-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    width: 90%;
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .add-char-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  .add-char-modal-header .field-label { margin-bottom: 0; }
+  .add-char-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .add-char-roster:empty { display: none; }
+  .add-char-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s;
+  }
+  .add-char-option:hover { border-color: var(--fg-muted); }
+  .add-char-option-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .add-char-option-desc {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+  }
 
   @media (max-width: 600px) {
     .controls { flex-wrap: wrap; }

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lore Gap — Star Wars Planet Data Audit</title>
+<style>
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
+
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --fg-muted: #666;
+  --border: #e0e0d8;
+  --card-bg: #f8f8f4;
+  --font-sans: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --null: #e8e8e3;
+}
+[data-theme="dark"] {
+  --bg: #0a0a0f;
+  --fg: #e5e5e5;
+  --fg-muted: #888;
+  --border: #1e1e2e;
+  --card-bg: #0d0d14;
+  --null: #1a1a24;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 2rem 1.5rem 4rem;
+  line-height: 1.6;
+}
+.wrap { max-width: 860px; margin: 0 auto; }
+
+/* header */
+.page-header { margin-bottom: 3rem; }
+.header-top { display: flex; align-items: flex-start; justify-content: space-between; }
+.page-header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.5rem;
+}
+.page-header .sub {
+  font-size: 0.85rem;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+  margin: 0;
+}
+.theme-btn {
+  background: none; border: 1px solid var(--border); color: var(--fg-muted);
+  font-size: 0.7rem; font-family: var(--font-mono); cursor: pointer; padding: 4px 10px;
+  flex-shrink: 0; margin-top: 4px;
+}
+.theme-btn:hover { color: var(--fg); }
+
+/* stat row */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); margin-bottom: 3rem; }
+.stat { padding: 1.25rem 1.5rem; background: var(--card-bg); }
+.stat-n { font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; font-family: var(--font-mono); }
+.stat-label { font-size: 0.7rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+/* sections */
+.section { margin-bottom: 3rem; }
+.section-title {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--fg-muted);
+  border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;
+}
+.section-note { font-size: 0.8rem; color: var(--fg-muted); margin-bottom: 1.5rem; margin-top: -1rem; }
+
+/* bar charts */
+.bar-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+.bar-label { font-size: 0.72rem; font-family: var(--font-mono); color: var(--fg-muted); width: 130px; flex-shrink: 0; text-align: right; }
+.bar-track { flex: 1; height: 18px; background: var(--null); position: relative; }
+.bar-fill { height: 100%; transition: width 0.6s ease; }
+.bar-pct { font-size: 0.65rem; font-family: var(--font-mono); color: var(--fg-muted); width: 36px; flex-shrink: 0; }
+.bar-count { font-size: 0.6rem; font-family: var(--font-mono); color: var(--fg-muted); }
+
+/* heatmap */
+.heatmap-wrap { overflow-x: auto; }
+.heatmap { min-width: 560px; }
+.heatmap-cols { display: flex; margin-bottom: 0.25rem; padding-left: 140px; gap: 2px; }
+.heatmap-col-label {
+  width: 56px; text-align: center; font-size: 0.5rem; font-family: var(--font-mono);
+  color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em;
+  line-height: 1.2; flex-shrink: 0;
+}
+.heatmap-col-label span { display: block; }
+.era-group { margin-bottom: 0.75rem; }
+.era-label {
+  font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--fg-muted); padding: 4px 0 4px 140px; margin-bottom: 2px;
+  border-top: 1px solid var(--border);
+}
+.heatmap-row { display: flex; align-items: center; gap: 2px; margin-bottom: 2px; }
+.heatmap-name {
+  width: 140px; flex-shrink: 0; font-size: 0.62rem; font-family: var(--font-mono);
+  color: var(--fg-muted); text-align: right; padding-right: 8px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.heatmap-cell { width: 56px; height: 20px; flex-shrink: 0; }
+.cell-filled { opacity: 0.85; }
+.cell-null { background: var(--null) !important; }
+
+/* divider */
+.heatmap-gap { width: 8px; flex-shrink: 0; }
+.col-gap { width: 8px; flex-shrink: 0; }
+
+/* callout */
+.callout {
+  border-left: 3px solid var(--border); padding: 0.75rem 1rem;
+  font-size: 0.82rem; color: var(--fg-muted); margin: 1.5rem 0;
+  background: var(--card-bg);
+}
+.callout strong { color: var(--fg); }
+
+@media (max-width: 600px) {
+  body { padding: 1.25rem 1rem 3rem; }
+  .page-header h1 { font-size: 1.6rem; }
+  .stats { grid-template-columns: 1fr; }
+  .bar-label { width: 90px; }
+}
+</style>
+<script>
+(function(){
+  var t = localStorage.getItem('theme');
+  if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+})();
+</script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="header-top">
+      <div>
+        <h1>The Lore Gap</h1>
+        <p class="sub">A data audit of 120 Star Wars planets — what we know, and what we don't</p>
+      </div>
+      <button class="theme-btn" id="theme-btn">theme</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="section">
+    <div class="section-title">Field completeness — what do we actually know?</div>
+    <p class="section-note">Each planet has 8 data fields. Descriptive fields (terrain, climate) are almost universally documented. Physical constants (diameter, surface water) are routinely left blank.</p>
+    <div id="field-chart"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Completeness by era</div>
+    <p class="section-note">The original SWAPI dataset — drawn from sourcebooks and encyclopedias — set the standard. Every era since has documented planets less rigorously.</p>
+    <div id="era-chart"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Planet by planet — the full audit</div>
+    <p class="section-note">Each row is a planet. Each cell is a data field. Filled cells are documented; gray cells are null. Planets are grouped by era and sorted within each group by completeness.</p>
+    <div class="heatmap-wrap">
+      <div class="heatmap" id="heatmap"></div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>On the data.</strong> Physical fields (diameter, gravity, rotation period, orbital period, surface water, population) were sourced from the Star Wars API (swapi.dev) for the original 60 planets, and from Wookieepedia for the rest. Descriptive fields (climate, terrain) are available for nearly all planets because they appear in on-screen dialogue and production notes — no sourcebook required.
+  </div>
+
+</div>
+
+<script>
+document.getElementById('theme-btn').addEventListener('click', function() {
+  var cur = document.documentElement.getAttribute('data-theme');
+  var next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+});
+
+const ERA_COLORS = {
+  'Original Trilogy':   '#f59e0b',
+  'Both Trilogies':     '#f59e0b',
+  'Prequel Trilogy':    '#3b82f6',
+  'SWAPI Extended':     '#14b8a6',
+  'Sequel Trilogy':     '#ef4444',
+  'Anthology':          '#f97316',
+  'Animation':          '#22c55e',
+  'Disney+ Live Action':'#a855f7',
+  'Legends':            '#6b7280',
+  'Other':              '#94a3b8',
+};
+
+const ERA_ORDER = [
+  'Original Trilogy', 'Both Trilogies', 'Prequel Trilogy',
+  'SWAPI Extended', 'Sequel Trilogy', 'Anthology',
+  'Animation', 'Disney+ Live Action', 'Legends', 'Other'
+];
+
+const ERA_LOOKUP = {
+  'Eriadu':'SWAPI Extended','Corellia':'SWAPI Extended','Rodia':'SWAPI Extended',
+  'Nal Hutta':'SWAPI Extended','Dantooine':'SWAPI Extended','Trandosha':'SWAPI Extended',
+  'Socorro':'SWAPI Extended','Mon Cala':'SWAPI Extended','Chandrila':'SWAPI Extended',
+  'Sullust':'SWAPI Extended','Toydaria':'SWAPI Extended','Malastare':'SWAPI Extended',
+  'Dathomir':'SWAPI Extended','Ryloth':'SWAPI Extended','Muunilinst':'SWAPI Extended',
+  'Kalee':'SWAPI Extended','Glee Anselm':'SWAPI Extended','Haruun Kal':'SWAPI Extended',
+  'Skako':'SWAPI Extended','Champala':'SWAPI Extended','Ojom':'SWAPI Extended',
+  'Serenno':'SWAPI Extended','Concord Dawn':'SWAPI Extended','Mirial':'SWAPI Extended',
+  'Jakku':'Sequel Trilogy','Ahch-To':'Sequel Trilogy','Crait':'Sequel Trilogy',
+  'Exegol':'Sequel Trilogy','Pasaana':'Sequel Trilogy','Kijimi':'Sequel Trilogy',
+  'Kef Bir':'Sequel Trilogy','Ajan Kloss':'Sequel Trilogy','Takodana':'Sequel Trilogy',
+  "D'Qar":'Sequel Trilogy','Hosnian Prime':'Sequel Trilogy','Cantonica':'Sequel Trilogy',
+  'Scarif':'Anthology','Jedha':'Anthology','Eadu':'Anthology','Kessel':'Anthology',
+  "Lah'mu":'Anthology','Wobani':'Anthology','Bracca':'Anthology',
+  'Ferrix':'Anthology','Aldhani':'Anthology','Narkina 5':'Anthology',
+  'Daiyu':'Anthology','Mapuzo':'Anthology',
+  'Christophsis':'Animation','Florrum':'Animation','Zygerria':'Animation',
+  'Maridun':'Animation','Kadavo':'Animation','Aleen':'Animation','Scipio':'Animation',
+  'Lola Sayu':'Animation','Orto Plutonia':'Animation','Teth':'Animation',
+  'Bardotta':'Animation','Onderon':'Animation','Umbara':'Animation',
+  'Pantora':'Animation','Mortis':'Animation','Abafar':'Animation',
+  'Lothal':'Animation','Atollon':'Animation','Malachor':'Animation',
+  'Garel':'Animation','Lira San':'Animation','Ilum':'Animation',
+  'Ossus':'Animation','Raxus Secundus':'Animation','Zanbar':'Animation',
+  'Concordia':'Animation','Krownest':'Animation',
+  'Nevarro':'Disney+ Live Action','Sorgan':'Disney+ Live Action',
+  'Arvala-7':'Disney+ Live Action','Trask':'Disney+ Live Action',
+  'Corvus':'Disney+ Live Action','Kalevala':'Disney+ Live Action',
+  'Tython':'Disney+ Live Action','Batuu':'Disney+ Live Action',
+  'Seatos':'Disney+ Live Action','Peridea':'Disney+ Live Action',
+  'Akiva':'Disney+ Live Action','Jabiim':'Disney+ Live Action',
+  'Taris':'Legends','Nar Shaddaa':'Legends','Ruusan':'Legends',
+  'Rhen Var':'Legends','Wayland':'Legends','Numidian Prime':'Legends',
+  'Shili':'Other','Iridonia':'Other','Cerea':'Other','Iktotch':'Other',
+  'Stewjon':'Other','Polis Massa':'Prequel Trilogy',
+};
+
+function getEra(p) {
+  const f = p.films || [];
+  if (f.length > 0) {
+    const hasOrig = f.some(x => x <= 3);
+    const hasPreq = f.some(x => x >= 4);
+    if (hasOrig && hasPreq) return 'Both Trilogies';
+    if (hasOrig) return 'Original Trilogy';
+    if (hasPreq) return 'Prequel Trilogy';
+  }
+  return ERA_LOOKUP[p.name] || 'Other';
+}
+
+const FIELDS = ['diameter','population','surface_water','gravity','rotation_period','orbital_period','climate','terrain'];
+const FIELD_LABELS = ['diameter','population','surf. water','gravity','rotation','orbital','climate','terrain'];
+
+function score(p) {
+  return FIELDS.filter(f => p[f] !== null && p[f] !== undefined).length;
+}
+
+function pct(n, total) { return Math.round(n / total * 100); }
+
+fetch('../star-wars-nebula/planets.json')
+  .then(r => r.json())
+  .then(planets => {
+    const n = planets.length;
+    const scores = planets.map(score);
+    const avgScore = scores.reduce((a,b) => a+b, 0) / n;
+    const fullCount = scores.filter(s => s === 8).length;
+    const emptyCount = scores.filter(s => s <= 2).length;
+
+    // Stats
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-n">${n}</div><div class="stat-label">planets in dataset</div></div>
+      <div class="stat"><div class="stat-n">${pct(avgScore, 8)}%</div><div class="stat-label">average completeness</div></div>
+      <div class="stat"><div class="stat-n">${fullCount}</div><div class="stat-label">fully documented (8/8 fields)</div></div>
+    `;
+
+    // Field chart
+    const fieldHtml = FIELDS.map((f, i) => {
+      const filled = planets.filter(p => p[f] !== null && p[f] !== undefined).length;
+      const p = pct(filled, n);
+      const isDesc = f === 'climate' || f === 'terrain';
+      const color = isDesc ? '#14b8a6' : '#3b82f6';
+      return `<div class="bar-row">
+        <div class="bar-label">${FIELD_LABELS[i]}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${color}"></div></div>
+        <div class="bar-pct">${p}%</div>
+        <div class="bar-count">${filled}/${n}</div>
+      </div>`;
+    }).sort((a,b) => {
+      // sort by pct descending - extract pct from string
+      const pa = parseInt(a.match(/(\d+)%/)[1]);
+      const pb = parseInt(b.match(/(\d+)%/)[1]);
+      return pb - pa;
+    }).join('');
+    document.getElementById('field-chart').innerHTML = fieldHtml;
+
+    // Group by era
+    const byEra = {};
+    planets.forEach(p => {
+      const era = getEra(p);
+      if (!byEra[era]) byEra[era] = [];
+      byEra[era].push(p);
+    });
+
+    // Era chart
+    const eraHtml = ERA_ORDER.filter(e => byEra[e]).map(era => {
+      const ps = byEra[era];
+      const avgS = ps.reduce((a,p) => a + score(p), 0) / ps.length;
+      const p = pct(avgS, 8);
+      const color = ERA_COLORS[era];
+      return `<div class="bar-row">
+        <div class="bar-label" style="font-size:0.68rem">${era}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:${color}"></div></div>
+        <div class="bar-pct">${p}%</div>
+        <div class="bar-count">${ps.length} planets</div>
+      </div>`;
+    }).join('');
+    document.getElementById('era-chart').innerHTML = eraHtml;
+
+    // Heatmap
+    // Column headers - split into two groups: physical | descriptive
+    const physFields = FIELDS.slice(0, 6);
+    const descFields = FIELDS.slice(6);
+    const physLabels = FIELD_LABELS.slice(0, 6);
+    const descLabels = FIELD_LABELS.slice(6);
+
+    let heatHtml = `<div class="heatmap-cols">`;
+    physLabels.forEach(l => {
+      heatHtml += `<div class="heatmap-col-label">${l.replace(' ','<br>')}</div>`;
+    });
+    heatHtml += `<div class="col-gap"></div>`;
+    descLabels.forEach(l => {
+      heatHtml += `<div class="heatmap-col-label">${l}</div>`;
+    });
+    heatHtml += `</div>`;
+
+    ERA_ORDER.filter(e => byEra[e]).forEach(era => {
+      const ps = byEra[era].slice().sort((a,b) => score(b) - score(a));
+      const color = ERA_COLORS[era];
+      const avgS = ps.reduce((a,p) => a + score(p), 0) / ps.length;
+      heatHtml += `<div class="era-group">
+        <div class="era-label" style="color:${color}">${era} — ${ps.length} planets, ${pct(avgS,8)}% avg</div>`;
+      ps.forEach(p => {
+        heatHtml += `<div class="heatmap-row"><div class="heatmap-name" title="${p.name}">${p.name}</div>`;
+        physFields.forEach(f => {
+          const filled = p[f] !== null && p[f] !== undefined;
+          heatHtml += `<div class="heatmap-cell ${filled ? 'cell-filled' : 'cell-null'}" style="${filled ? 'background:' + color : ''}"></div>`;
+        });
+        heatHtml += `<div class="heatmap-gap"></div>`;
+        descFields.forEach(f => {
+          const filled = p[f] !== null && p[f] !== undefined;
+          heatHtml += `<div class="heatmap-cell ${filled ? 'cell-filled' : 'cell-null'}" style="${filled ? 'background:' + color + ';opacity:0.5' : ''}"></div>`;
+        });
+        heatHtml += `</div>`;
+      });
+      heatHtml += `</div>`;
+    });
+
+    document.getElementById('heatmap').innerHTML = heatHtml;
+  });
+</script>
+</body>
+</html>

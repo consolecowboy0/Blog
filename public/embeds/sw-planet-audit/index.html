@@ -56,11 +56,15 @@ body {
   margin: 0;
 }
 .theme-btn {
-  background: none; border: 1px solid var(--border); color: var(--fg-muted);
-  font-size: 0.7rem; font-family: var(--font-mono); cursor: pointer; padding: 4px 10px;
-  flex-shrink: 0; margin-top: 4px;
+  background: none; border: none; color: var(--fg-muted);
+  cursor: pointer; padding: 4px; display: flex; align-items: center;
+  transition: color 0.15s; flex-shrink: 0; margin-top: 4px;
 }
 .theme-btn:hover { color: var(--fg); }
+.theme-btn svg { width: 16px; height: 16px; }
+.icon-sun { display: none; }
+[data-theme="dark"] .icon-moon { display: none; }
+[data-theme="dark"] .icon-sun { display: block; }
 
 /* stat row */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); margin-bottom: 3rem; }
@@ -147,7 +151,10 @@ body {
         <h1>The Lore Gap</h1>
         <p class="sub">A data audit of 120 Star Wars planets — what we know, and what we don't</p>
       </div>
-      <button class="theme-btn" id="theme-btn">theme</button>
+      <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
     </div>
   </div>
 

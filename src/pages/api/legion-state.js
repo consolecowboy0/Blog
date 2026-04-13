@@ -54,6 +54,16 @@ export async function DELETE({ request }) {
   if (!requireAuth(request)) return unauthorized();
 
   const store = getStore('legion');
+  // Archive current session to history before deleting, if it has content
+  try {
+    const current = await store.get('session', { type: 'json' });
+    if (current && current.sessionTranscript && current.sessionTranscript.length > 0) {
+      const id = String(Date.now());
+      await store.setJSON('history/' + id, current);
+    }
+  } catch (e) {
+    console.warn('[legion-state] archive on delete failed:', e);
+  }
   await store.delete('session');
 
   return new Response(JSON.stringify({ ok: true }), {

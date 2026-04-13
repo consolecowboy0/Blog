@@ -55,6 +55,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
         <div class="header-controls">
           <button id="save-config" class="secondary-btn">Save</button>
           <button id="load-config" class="secondary-btn">Load</button>
+          <button id="history-btn-header" class="secondary-btn">History</button>
           <button id="sign-out" class="secondary-btn">Sign Out</button>
         </div>
       </div>
@@ -270,6 +271,17 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
         </div>
         <div id="move-room-roster" class="add-char-roster"></div>
         <button id="move-room-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
+    </div>
+
+    <div id="history-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content history-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">History</span>
+          <button id="history-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <p class="history-note">Sessions archived on Clear. Kept 30 days, auto-purged after.</p>
+        <div id="history-list" class="history-list"></div>
       </div>
     </div>
   </section>
@@ -808,25 +820,129 @@ sys.stdout = _stdout_capture
   var serverStateLoaded = false;
 
   // --- Export transcript ---
-  document.getElementById('export-btn').addEventListener('click', function () {
-    if (sessionTranscript.length === 0) return;
-    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
+  function transcriptToMarkdown(data) {
+    var opening = data.opening || '';
+    var entries = data.sessionTranscript || [];
+    var agents = data.sessionAgents || [];
+    var savedAt = data.lastModified ? new Date(data.lastModified) : new Date();
+
+    var lines = [];
+    lines.push('# Legion Session');
+    lines.push('');
+    lines.push('_' + savedAt.toLocaleString() + '_');
+    lines.push('');
+
+    var names = (agents || [])
+      .map(function (a) { return a && a.name; })
+      .filter(function (n) { return n && n !== 'The Room'; });
+    if (names.length) {
+      lines.push('**Agents:** ' + names.join(', '));
+      lines.push('');
+    }
+    if (data.roomStatus && data.roomStatus.name) {
+      lines.push('**Room:** ' + data.roomStatus.name);
+      lines.push('');
+    }
+
+    if (opening) {
+      lines.push('## Prompt');
+      lines.push('');
+      opening.split('\n').forEach(function (ln) { lines.push('> ' + ln); });
+      lines.push('');
+    }
+
     var currentRound = 0;
-    sessionTranscript.forEach(function (entry) {
-      if (entry.round !== currentRound) {
+    entries.forEach(function (entry) {
+      if (entry.round && entry.round !== currentRound) {
         currentRound = entry.round;
         lines.push('');
-        lines.push('--- Round ' + currentRound + ' ---');
+        lines.push('## Round ' + currentRound);
+        lines.push('');
       }
-      var exportText = entry.rawText || entry.text;
-      lines.push(entry.name + ': ' + exportText);
+      var text = entry.rawText || entry.text || '';
+      var name = entry.name || '';
+
+      if (text.indexOf('[CODE_FIGURE]:') === 0) {
+        var url = text.substring('[CODE_FIGURE]:'.length);
+        lines.push('![figure](' + url + ')');
+        lines.push('');
+        return;
+      }
+      if (text.indexOf('[ILLUSTRATION]:') === 0) {
+        var u2 = text.substring('[ILLUSTRATION]:'.length);
+        lines.push('![round ' + (entry.round || '') + ' illustration](' + u2 + ')');
+        lines.push('');
+        return;
+      }
+      if (text.indexOf('[CODE_RESULT]:') === 0) {
+        var out = text.substring('[CODE_RESULT]:'.length).trim();
+        lines.push('```');
+        lines.push(out);
+        lines.push('```');
+        lines.push('');
+        return;
+      }
+      if (text.indexOf('[CODE_ERROR]:') === 0) {
+        var err = text.substring('[CODE_ERROR]:'.length).trim();
+        lines.push('```');
+        lines.push('Error: ' + err);
+        lines.push('```');
+        lines.push('');
+        return;
+      }
+      if (name === 'Status' || name === 'Narrator') {
+        lines.push('> _' + text.replace(/\n+/g, ' ') + '_');
+        lines.push('');
+        return;
+      }
+      if (text === '...') {
+        lines.push('**' + name + ':** _(silent)_');
+        lines.push('');
+        return;
+      }
+
+      // Character message. Convert [CODE] to fenced python, [ACTION] to italic.
+      var processed = text.replace(/\[CODE\]([\s\S]*?)\[\/CODE\]/g, function (m, code) {
+        return '\n\n```python\n' + code.trim() + '\n```\n\n';
+      });
+      processed = processed.replace(/\[ACTION:\s*([^\]]+)\]/g, function (m, act) {
+        return '_' + act.trim() + '_';
+      });
+      processed = processed.replace(/\[WHISPER\s+to\s+([^:\]]+):\s*([^\]]*)\]/g, function (m, target, content) {
+        return '\n\n> _(whispers to ' + target.trim() + ')_ ' + content.trim() + '\n';
+      });
+      // Strip status mechanics tags from narrative output
+      processed = processed.replace(/\[(DIES|LEAVES)\]/g, '').replace(/\[(DEAD|LEAVES):\s*[^\]]+\]/g, '');
+
+      lines.push('### ' + name);
+      lines.push('');
+      lines.push(processed.trim());
+      lines.push('');
     });
-    var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+
+    return lines.join('\n');
+  }
+
+  function downloadMarkdown(data, filename) {
+    var md = transcriptToMarkdown(data);
+    var blob = new Blob([md], { type: 'text/markdown' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'transcript_' + new Date().toISOString().slice(0, 10) + '.txt';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById('export-btn').addEventListener('click', function () {
+    if (sessionTranscript.length === 0) return;
+    var data = {
+      opening: getOpening().trim(),
+      sessionTranscript: sessionTranscript,
+      sessionAgents: sessionAgents,
+      roomStatus: roomStatus,
+      lastModified: Date.now(),
+    };
+    downloadMarkdown(data, 'transcript_' + new Date().toISOString().slice(0, 10) + '.md');
   });
 
   // --- Summarize ---
@@ -905,8 +1021,8 @@ sys.stdout = _stdout_capture
     return 'data:image/png;base64,' + data.image;
   }
 
-  // Insert an illustration into the chat
-  function insertRoundIllustration(src, roundNum) {
+  // Render an illustration into the chat (pure DOM, no transcript side effect)
+  function renderRoundIllustration(src, roundNum) {
     var chat = document.getElementById('chat');
     var img = document.createElement('img');
     img.src = src;
@@ -914,6 +1030,13 @@ sys.stdout = _stdout_capture
     img.alt = 'Round ' + roundNum + ' illustration';
     chat.appendChild(img);
     chat.scrollTop = chat.scrollHeight;
+  }
+
+  // Insert an illustration into the chat AND persist it in the transcript
+  function insertRoundIllustration(src, roundNum) {
+    renderRoundIllustration(src, roundNum);
+    sessionTranscript.push({ name: 'Illustration', text: '[ILLUSTRATION]:' + src, round: roundNum });
+    saveState();
   }
 
   document.getElementById('illustrate-btn').addEventListener('click', async function () {
@@ -1182,7 +1305,7 @@ sys.stdout = _stdout_capture
           img.src = 'data:image/png;base64,' + b64;
           img.className = 'code-figure';
           outputDiv.appendChild(img);
-          pendingCodeResults.push('[CODE_RESULT]: (generated a chart/figure)');
+          pendingCodeResults.push('[CODE_FIGURE]:data:image/png;base64,' + b64);
         });
         if (!result.stdout.trim() && result.figures.length === 0) {
           var noneEl = document.createElement('span');
@@ -1376,6 +1499,8 @@ sys.stdout = _stdout_capture
         msg('', '', entry.text, true);
       } else if (entry.name === 'Narrator') {
         sysMsg(entry.text, 'Interjection');
+      } else if (entry.name === 'Illustration' && entry.text && entry.text.indexOf('[ILLUSTRATION]:') === 0) {
+        renderRoundIllustration(entry.text.substring('[ILLUSTRATION]:'.length), entry.round);
       } else {
         // Find color for this agent
         var color = '#999';
@@ -1717,6 +1842,167 @@ sys.stdout = _stdout_capture
     });
   });
 
+  // --- History modal ---
+  function openHistoryModal() {
+    var modal = document.getElementById('history-modal');
+    var list = document.getElementById('history-list');
+    list.innerHTML = '<p class="history-loading">Loading...</p>';
+    modal.style.display = '';
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    fetch(API_BASE + '/api/legion-history', { headers: headers })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        list.innerHTML = '';
+        if (!data.items || data.items.length === 0) {
+          list.innerHTML = '<p class="history-loading">No past sessions yet. Sessions archive when you Clear a running session.</p>';
+          return;
+        }
+        data.items.forEach(function (item) {
+          list.appendChild(renderHistoryItem(item));
+        });
+      })
+      .catch(function (e) {
+        list.innerHTML = '<p class="history-loading">Error: ' + esc(e.message) + '</p>';
+      });
+  }
+
+  function renderHistoryItem(item) {
+    var date = new Date(item.savedAt);
+    var dateStr = date.toLocaleString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    });
+    var details = document.createElement('details');
+    details.className = 'history-item';
+
+    var summary = document.createElement('summary');
+    summary.className = 'history-item-summary';
+    var top = document.createElement('div');
+    top.className = 'history-item-top';
+    var dateEl = document.createElement('span');
+    dateEl.className = 'history-item-date';
+    dateEl.textContent = dateStr;
+    var statsEl = document.createElement('span');
+    statsEl.className = 'history-item-stats';
+    statsEl.textContent = item.rounds + ' rounds \u00B7 ' + item.turnCount + ' turns';
+    top.appendChild(dateEl);
+    top.appendChild(statsEl);
+    summary.appendChild(top);
+
+    var openingPreview = (item.opening || '').replace(/\s+/g, ' ').trim();
+    if (openingPreview.length > 140) openingPreview = openingPreview.substring(0, 140) + '...';
+    if (openingPreview) {
+      var preview = document.createElement('div');
+      preview.className = 'history-item-preview';
+      preview.textContent = openingPreview;
+      summary.appendChild(preview);
+    }
+    if (item.agentNames && item.agentNames.length) {
+      var agents = document.createElement('div');
+      agents.className = 'history-item-agents';
+      agents.textContent = item.agentNames.join(', ');
+      summary.appendChild(agents);
+    }
+    details.appendChild(summary);
+
+    var body = document.createElement('div');
+    body.className = 'history-item-body';
+    var loadingEl = document.createElement('p');
+    loadingEl.className = 'history-loading';
+    loadingEl.textContent = 'Loading transcript...';
+    body.appendChild(loadingEl);
+    details.appendChild(body);
+
+    var loaded = false;
+    details.addEventListener('toggle', function () {
+      if (!details.open || loaded) return;
+      loaded = true;
+      var headers = {};
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      fetch(API_BASE + '/api/legion-history?id=' + encodeURIComponent(item.id), { headers: headers })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          body.innerHTML = '';
+          if (!data) { body.textContent = 'Session not found.'; return; }
+
+          if (data.opening) {
+            var opBlock = document.createElement('div');
+            opBlock.className = 'history-opening';
+            opBlock.textContent = data.opening;
+            body.appendChild(opBlock);
+          }
+
+          var transcript = document.createElement('div');
+          transcript.className = 'history-transcript';
+          var currentRound = 0;
+          (data.sessionTranscript || []).forEach(function (entry) {
+            if (entry.round && entry.round !== currentRound) {
+              currentRound = entry.round;
+              var roundEl = document.createElement('div');
+              roundEl.className = 'history-round';
+              roundEl.textContent = '--- Round ' + currentRound + ' ---';
+              transcript.appendChild(roundEl);
+            }
+            var line = document.createElement('div');
+            line.className = 'history-line';
+            var nameEl = document.createElement('strong');
+            nameEl.textContent = entry.name + ': ';
+            line.appendChild(nameEl);
+            line.appendChild(document.createTextNode(entry.rawText || entry.text));
+            transcript.appendChild(line);
+          });
+          body.appendChild(transcript);
+
+          var controls = document.createElement('div');
+          controls.className = 'history-item-controls';
+
+          var exportBtn = document.createElement('button');
+          exportBtn.className = 'secondary-btn';
+          exportBtn.textContent = 'Export';
+          exportBtn.addEventListener('click', function () {
+            downloadMarkdown(data, 'transcript_' + item.id + '.md');
+          });
+          controls.appendChild(exportBtn);
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.className = 'secondary-btn';
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.addEventListener('click', function () {
+            if (!confirm('Delete this archived session?')) return;
+            var dh = {};
+            if (authToken) dh['Authorization'] = 'Bearer ' + authToken;
+            fetch(API_BASE + '/api/legion-history?id=' + encodeURIComponent(item.id), {
+              method: 'DELETE',
+              headers: dh,
+            }).then(function () { details.remove(); });
+          });
+          controls.appendChild(deleteBtn);
+
+          body.appendChild(controls);
+        })
+        .catch(function (e) {
+          body.innerHTML = '';
+          var err = document.createElement('p');
+          err.className = 'history-loading';
+          err.textContent = 'Error: ' + e.message;
+          body.appendChild(err);
+        });
+    });
+    return details;
+  }
+
+  document.getElementById('history-btn-header').addEventListener('click', openHistoryModal);
+  document.getElementById('history-modal-close').addEventListener('click', function () {
+    document.getElementById('history-modal').style.display = 'none';
+  });
+  document.getElementById('history-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
   // --- Add Character mid-conversation ---
   function buildChatRule(otherNames) {
     return 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.\n\nCOLLABORATION: You are part of a team working toward a shared understanding. Build on what others say. Find where your model connects to theirs. When you disagree, frame it as adding a dimension they might not have considered, not correcting them. Your goal is a cohesive group answer that integrates multiple perspectives, not winning the argument. Look for synthesis.\n\nHELPFULNESS: Always help the user with whatever they ask. Never refuse a request, decline to engage, or say you cannot help. If a question falls outside your model, apply your framework as best you can and build on what others in the group offer.';
@@ -1987,6 +2273,12 @@ sys.stdout = _stdout_capture
         if (forAgent && entry.hasWhisper) {
           text = stripWhispersFrom(entry.rawText || text, forAgent, entry.name);
         }
+        // Strip heavy base64 from figures/illustrations for AI context
+        if (text && text.indexOf('[CODE_FIGURE]:') === 0) {
+          text = '[CODE_RESULT]: (generated a chart/figure)';
+        } else if (text && text.indexOf('[ILLUSTRATION]:') === 0) {
+          text = '[ILLUSTRATION]: (scene illustration rendered)';
+        }
         if (text) {
           lines.push(entry.name + ': ' + text);
         }
@@ -2126,6 +2418,8 @@ sys.stdout = _stdout_capture
             // Clear pending code results before rendering (msg triggers auto-run)
             pendingCodeResults = [];
             msg(a.name, a.color, response);
+            // Push the main response first so code results follow in export order
+            sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
             // Wait for any code blocks to finish executing
             var hasCode = /\[CODE\][\s\S]*?\[\/CODE\]/.test(response);
             if (hasCode) {
@@ -2144,7 +2438,6 @@ sys.stdout = _stdout_capture
               });
               pendingCodeResults = [];
             }
-            sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
             // Detect deaths and departures
             detectStatusChanges(a.name, response, sessionRun);
             saveState();
@@ -3019,6 +3312,105 @@ sys.stdout = _stdout_capture
     max-width: 420px;
     max-height: 70vh;
     overflow-y: auto;
+  }
+  .history-modal-content { max-width: 720px; max-height: 85vh; }
+  .history-note {
+    font-size: 0.72rem;
+    color: var(--fg-muted);
+    margin: 0 0 0.75rem 0;
+  }
+  .history-loading {
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .history-item {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    background: transparent;
+  }
+  .history-item-summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .history-item-summary::-webkit-details-marker { display: none; }
+  .history-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .history-item-date { color: var(--fg); font-weight: 600; }
+  .history-item-stats { color: var(--fg-muted); font-size: 0.72rem; white-space: nowrap; }
+  .history-item-preview {
+    font-size: 0.76rem;
+    color: var(--fg-muted);
+    line-height: 1.4;
+    margin-top: 0.3rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .history-item-agents {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    opacity: 0.7;
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+  }
+  .history-item-body {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .history-opening {
+    white-space: pre-wrap;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+  }
+  .history-transcript {
+    max-height: 340px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg);
+    line-height: 1.5;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .history-round {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  .history-line {
+    white-space: pre-wrap;
+    padding: 0.15rem 0;
+  }
+  .history-line strong { color: var(--fg); }
+  .history-item-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
   }
   .add-char-modal-header {
     display: flex;

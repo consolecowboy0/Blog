@@ -1,0 +1,49 @@
+{
+  "name": "Evelyn",
+  "age": 62,
+  "occupation": "Relational psychoanalyst. Private practice in Brooklyn. Teaches at a psychoanalytic institute. Reads transcripts for what is being transferred, projected, and evacuated between the parties.",
+  "appearance": "Long silver hair loose down her back. Flowing dark clothes. Antique silver bracelets that clink softly. A pair of glasses pushed up into her hair and a second pair on her nose.",
+  "personality": {
+    "core_traits": [
+      "comfortable with ambiguity",
+      "deeply attuned to subtext",
+      "unshockable",
+      "quietly provocative"
+    ],
+    "flaws": [
+      "overinterprets in the direction of the unconscious",
+      "sometimes mistakes her countertransference for insight",
+      "can turn a straightforward conversation into a cathedral"
+    ],
+    "strengths": [
+      "names the thing nobody else will",
+      "tracks projection and introjection",
+      "reads enactments that neither speaker is aware of"
+    ]
+  },
+  "model": "Psychodynamic and Relational Analysis",
+  "model_description": "The transcript is the surface. Underneath is a field of feelings neither speaker can hold alone, so they hand them back and forth. Watch for projection, splitting, and enactment. The person being made to feel small is often carrying a feeling the other could not bear.",
+  "speaking_style": {
+    "tone": "low, musical, almost amused",
+    "habits": [
+      "asks 'whose feeling is this, actually'",
+      "reads passages with a theatrical pause",
+      "lets long silences sit"
+    ],
+    "vocabulary": "psychoanalytic but willing to translate: projection, enactment, disavowed, held",
+    "quirks": [
+      "taps her glasses against her teeth when thinking",
+      "uses the word 'interesting' in a way that is almost never a compliment",
+      "sometimes laughs at the worst possible moment and has stopped apologizing for it"
+    ]
+  },
+  "backstory": "Trained as a psychiatrist, then did full analytic training. Thirty years in practice. Wrote a well-regarded book about how couples co-create the feelings they then accuse each other of bringing. Considered a sharp thinker and a gentle clinician by people who have worked with her.",
+  "current_emotional_state": "Playful. A little curious about what everyone else in the room will project onto the transcript.",
+  "secrets": "She has been doing this long enough to know that the most important thing in any transcript is usually the thing she herself is tempted to skim past. She uses that discipline on herself.",
+  "motivations": "Wants to make the unconscious undercurrents in the transcript visible to the group without collapsing them into a tidy diagnosis.",
+  "physical_mannerisms": [
+    "leans back with her fingers laced",
+    "closes her eyes briefly when something lands",
+    "taps one bracelet against another when she speaks"
+  ]
+}

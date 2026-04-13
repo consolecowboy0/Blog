@@ -17,6 +17,12 @@ const legionRooms = [
   { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
 ];
 const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
+
+const analystDir = path.resolve('characters/analysts');
+const analystFiles = ['paloma','marcus','iris','evelyn','sam','henrik','lena','theo'];
+const analystCharacters = analystFiles.map(f => JSON.parse(fs.readFileSync(path.join(analystDir, f + '.json'), 'utf-8')));
+const analystRoom = JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8'));
+const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'relationships_analysts.json'), 'utf-8'));
 ---
 
 <BaseLayout title="Legion - dustinlanders.com" description="Multi-agent chat room.">
@@ -57,6 +63,7 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
 
     <div class="tab-bar">
       <button class="tab-btn tab-active" data-tab="legion">Legion</button>
+      <button class="tab-btn" data-tab="analysts">Analysts</button>
       <button class="tab-btn" data-tab="advanced">Advanced</button>
     </div>
 
@@ -94,6 +101,41 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
         <div class="control-group">
           <label class="field-label" for="model-select">Model</label>
           <select id="model-select">
+            <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+            <option value="claude-opus-4-20250514">Opus 4</option>
+            <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-analysts" class="tab-panel" style="display:none;">
+      <div class="legion-roster">
+        <label class="field-label">The Analysts</label>
+        <div class="agents-grid" id="analysts-grid"></div>
+      </div>
+
+      <div class="prompt-section">
+        <label class="field-label" for="analysts-opening">Transcript</label>
+        <textarea id="analysts-opening" rows="10" placeholder="Paste a conversation transcript here. The analysts will read it and tell you what is going on under the surface."></textarea>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label class="field-label" for="analysts-rounds">Rounds</label>
+          <input type="number" id="analysts-rounds" min="1" max="50" value="3" />
+        </div>
+        <div class="control-group">
+          <label class="field-label" for="analysts-order-mode">Order</label>
+          <select id="analysts-order-mode">
+            <option value="priority">Priority</option>
+            <option value="default">Default</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label class="field-label" for="analysts-model-select">Model</label>
+          <select id="analysts-model-select">
             <option value="claude-sonnet-4-20250514">Sonnet 4</option>
             <option value="claude-opus-4-20250514">Opus 4</option>
             <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
@@ -233,10 +275,13 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
   </section>
 </BaseLayout>
 
-<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships }}>
+<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships, analystCharacters, analystRoom, analystRelationships }}>
   window.__LEGION_CHARACTERS__ = legionCharacters;
   window.__LEGION_ROOMS__ = legionRooms;
   window.__LEGION_RELATIONSHIPS__ = legionRelationships;
+  window.__ANALYSTS_CHARACTERS__ = analystCharacters;
+  window.__ANALYSTS_ROOM__ = analystRoom;
+  window.__ANALYSTS_RELATIONSHIPS__ = analystRelationships;
 </script>
 
 <script is:inline>
@@ -254,22 +299,35 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
       btn.classList.add('tab-active');
       activeTab = btn.getAttribute('data-tab');
       document.getElementById('tab-legion').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-analysts').style.display = activeTab === 'analysts' ? '' : 'none';
       document.getElementById('tab-advanced').style.display = activeTab === 'advanced' ? '' : 'none';
     });
   });
 
   // Helper: get active control value based on tab
   function getOpening() {
-    return activeTab === 'legion' ? document.getElementById('opening').value : document.getElementById('adv-opening').value;
+    if (activeTab === 'legion') return document.getElementById('opening').value;
+    if (activeTab === 'analysts') {
+      var transcript = document.getElementById('analysts-opening').value.trim();
+      if (!transcript) return '';
+      return 'Below is a conversation transcript the consortium has been asked to analyze. Read it carefully. Apply your framework. Listen to your colleagues. Build a layered reading of what is actually going on under the surface. Point to specific lines. Notice what nobody else has noticed yet.\n\n--- TRANSCRIPT ---\n' + transcript + '\n--- END TRANSCRIPT ---';
+    }
+    return document.getElementById('adv-opening').value;
   }
   function getRounds() {
-    return activeTab === 'legion' ? document.getElementById('rounds').value : document.getElementById('adv-rounds').value;
+    if (activeTab === 'legion') return document.getElementById('rounds').value;
+    if (activeTab === 'analysts') return document.getElementById('analysts-rounds').value;
+    return document.getElementById('adv-rounds').value;
   }
   function getModel() {
-    return activeTab === 'legion' ? document.getElementById('model-select').value : document.getElementById('adv-model-select').value;
+    if (activeTab === 'legion') return document.getElementById('model-select').value;
+    if (activeTab === 'analysts') return document.getElementById('analysts-model-select').value;
+    return document.getElementById('adv-model-select').value;
   }
   function getOrderMode() {
-    return activeTab === 'legion' ? document.getElementById('order-mode').value : document.getElementById('adv-order-mode').value;
+    if (activeTab === 'legion') return document.getElementById('order-mode').value;
+    if (activeTab === 'analysts') return document.getElementById('analysts-order-mode').value;
+    return document.getElementById('adv-order-mode').value;
   }
 
   // --- Legion auto-load ---
@@ -277,6 +335,11 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
   var legionRoomsData = window.__LEGION_ROOMS__ || [];
   var legionRels = window.__LEGION_RELATIONSHIPS__ || null;
   var selectedLegionRoom = legionRoomsData.length > 0 ? legionRoomsData[0] : null;
+
+  // --- Analysts auto-load ---
+  var analystChars = window.__ANALYSTS_CHARACTERS__ || [];
+  var analystRoomData = window.__ANALYSTS_ROOM__ || null;
+  var analystRels = window.__ANALYSTS_RELATIONSHIPS__ || null;
 
   function initRoomGrid() {
     var grid = document.getElementById('room-grid');
@@ -327,6 +390,54 @@ const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relat
     });
   }
   initLegionGrid();
+
+  function initAnalystGrid() {
+    var grid = document.getElementById('analysts-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    analystChars.forEach(function (data, i) {
+      var color = COLORS[i % COLORS.length];
+      var name = data.name || 'Agent';
+      var desc = '';
+      if (data.model) desc = data.model;
+      if (data.model_description) desc += (desc ? ' -- ' : '') + data.model_description;
+      if (!desc && data.occupation) desc = data.occupation;
+      var card = document.createElement('div');
+      card.className = 'agent-card legion-card legion-dimmed';
+      card._charData = data;
+      card._selected = false;
+      card.innerHTML =
+        '<div class="agent-card-header">' +
+          '<span class="agent-dot" style="background:' + color + ';"></span>' +
+          '<span class="agent-name-label">' + esc(name) + '</span>' +
+        '</div>' +
+        (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '');
+      card.addEventListener('click', function () {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      });
+      grid.appendChild(card);
+    });
+  }
+  initAnalystGrid();
+
+  // Persist analysts transcript across reloads
+  (function () {
+    var ta = document.getElementById('analysts-opening');
+    if (!ta) return;
+    var saved = localStorage.getItem('analysts_transcript');
+    if (saved) ta.value = saved;
+    var save = function () {
+      try { localStorage.setItem('analysts_transcript', ta.value); } catch (e) {}
+    };
+    ta.addEventListener('input', save);
+    ta.addEventListener('blur', save);
+    window.addEventListener('beforeunload', save);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) save();
+    });
+  })();
 
   function esc(s) {
     var d = document.createElement('div');
@@ -749,7 +860,9 @@ sys.stdout = _stdout_capture
     if (sessionTranscript.length === 0) return;
 
     var charDetails = [];
-    var gridSel = activeTab === 'legion' ? '#legion-grid .agent-card' : '#agents-grid .agent-card';
+    var gridSel = '#agents-grid .agent-card';
+    if (activeTab === 'legion') gridSel = '#legion-grid .agent-card';
+    else if (activeTab === 'analysts') gridSel = '#analysts-grid .agent-card';
     document.querySelectorAll(gridSel).forEach(function (card) {
       if (card._charData) {
         var c = card._charData;
@@ -1011,6 +1124,36 @@ sys.stdout = _stdout_capture
     return details;
   }
 
+  // Collapsible system message (prompts, interjections, transcripts)
+  function sysMsg(text, label) {
+    var chat = document.getElementById('chat');
+    var ph = chat.querySelector('.chat-placeholder');
+    if (ph) ph.remove();
+    var details = document.createElement('details');
+    details.className = 'chat-msg chat-sys-collapsible';
+    var summary = document.createElement('summary');
+    summary.className = 'chat-sys-summary';
+    var tag = document.createElement('span');
+    tag.className = 'chat-sys-tag';
+    tag.textContent = label || 'Prompt';
+    summary.appendChild(tag);
+    var preview = document.createElement('span');
+    preview.className = 'chat-sys-preview';
+    var firstLine = text.replace(/\s+/g, ' ').trim();
+    if (firstLine.length > 120) firstLine = firstLine.substring(0, 120) + '...';
+    preview.textContent = firstLine;
+    summary.appendChild(preview);
+    details.appendChild(summary);
+    var body = document.createElement('div');
+    body.className = 'chat-sys-body';
+    body.textContent = text;
+    details.appendChild(body);
+    var target = currentRoundDetails || chat;
+    target.appendChild(details);
+    chat.scrollTop = chat.scrollHeight;
+    return details;
+  }
+
   // Queue for code results to append to worldState/transcript
   var pendingCodeResults = [];
 
@@ -1124,7 +1267,9 @@ sys.stdout = _stdout_capture
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
       var chars = [];
-      var gridId = activeTab === 'legion' ? '#legion-grid' : '#agents-grid';
+      var gridId = '#agents-grid';
+      if (activeTab === 'legion') gridId = '#legion-grid';
+      else if (activeTab === 'analysts') gridId = '#analysts-grid';
       document.querySelectorAll(gridId + ' .agent-card').forEach(function (card) {
         if (card._charData) chars.push(card._charData);
       });
@@ -1219,7 +1364,7 @@ sys.stdout = _stdout_capture
     var lastRound = 0;
 
     // Show opening prompt
-    if (state.opening) msg('', '', state.opening, true);
+    if (state.opening) sysMsg(state.opening, 'Prompt');
 
     sessionTranscript.forEach(function (entry) {
       // Insert round header when round changes
@@ -1227,8 +1372,10 @@ sys.stdout = _stdout_capture
         lastRound = entry.round;
         msg('', '', '--- Round ' + entry.round + ' ---', true);
       }
-      if (entry.name === 'Status' || entry.name === 'Narrator') {
+      if (entry.name === 'Status') {
         msg('', '', entry.text, true);
+      } else if (entry.name === 'Narrator') {
+        sysMsg(entry.text, 'Interjection');
       } else {
         // Find color for this agent
         var color = '#999';
@@ -1479,7 +1626,7 @@ sys.stdout = _stdout_capture
     var input = document.getElementById('interject-input');
     var text = input.value.trim();
     if (!text) return;
-    msg('', '', text, true);
+    sysMsg(text, 'Interjection');
     sessionTranscript.push({ name: 'Narrator', text: text, round: sessionRun });
     worldState.push('Narrator: ' + text);
     saveState();
@@ -1527,7 +1674,7 @@ sys.stdout = _stdout_capture
 
   document.getElementById('move-room-btn').addEventListener('click', function () {
     if (!sessionAgents) return;
-    if (activeTab === 'advanced') {
+    if (activeTab === 'advanced' || activeTab === 'analysts') {
       pickFile(false, function (data) { applyRoomChange(data); });
     } else {
       var modal = document.getElementById('move-room-modal');
@@ -1648,7 +1795,8 @@ sys.stdout = _stdout_capture
     roster.innerHTML = '';
 
     var presentNames = sessionAgents.map(function (a) { return a.name; });
-    legionChars.forEach(function (data) {
+    var pool = activeTab === 'analysts' ? analystChars : legionChars;
+    pool.forEach(function (data) {
       var name = data.name || 'Agent';
       if (presentNames.indexOf(name) >= 0) return;
       var desc = buildCharDesc(data);
@@ -1714,6 +1862,13 @@ sys.stdout = _stdout_capture
         useRels = legionRels;
         useCards = [];
         document.querySelectorAll('#legion-grid .agent-card').forEach(function (card) {
+          if (card._selected) useCards.push(card._charData);
+        });
+      } else if (activeTab === 'analysts') {
+        useRoom = analystRoomData;
+        useRels = analystRels;
+        useCards = [];
+        document.querySelectorAll('#analysts-grid .agent-card').forEach(function (card) {
           if (card._selected) useCards.push(card._charData);
         });
       } else {
@@ -1841,7 +1996,7 @@ sys.stdout = _stdout_capture
 
     try {
       if (isFirstRun) {
-        msg('','', opening, true);
+        sysMsg(opening, 'Prompt');
       }
 
       for (var r = 1; r <= rounds; r++) {
@@ -2305,7 +2460,7 @@ sys.stdout = _stdout_capture
 
   /* Opening */
   .prompt-section { margin-bottom: 1rem; }
-  #opening, #adv-opening {
+  #opening, #adv-opening, #analysts-opening {
     width: 100%;
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -2317,7 +2472,7 @@ sys.stdout = _stdout_capture
     line-height: 1.5;
     resize: vertical;
   }
-  #opening:focus, #adv-opening:focus { border-color: var(--fg-muted); }
+  #opening:focus, #adv-opening:focus, #analysts-opening:focus { border-color: var(--fg-muted); }
 
   /* Controls */
   .setup-group {
@@ -2362,7 +2517,7 @@ sys.stdout = _stdout_capture
     cursor: pointer;
     white-space: nowrap;
   }
-  #rounds, #adv-rounds {
+  #rounds, #adv-rounds, #analysts-rounds {
     width: 55px;
     font-family: var(--font-mono);
     font-size: 0.85rem;
@@ -2373,7 +2528,7 @@ sys.stdout = _stdout_capture
     text-align: center;
     outline: none;
   }
-  #model-select, #order-mode, #adv-model-select, #adv-order-mode {
+  #model-select, #order-mode, #adv-model-select, #adv-order-mode, #analysts-model-select, #analysts-order-mode {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     padding: 0.4rem 0.3rem;
@@ -2640,6 +2795,60 @@ sys.stdout = _stdout_capture
     text-align: center;
     padding: 0.6rem 1rem;
     border-left-color: transparent !important;
+  }
+  .chat-sys-collapsible {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    padding: 0.4rem 0.6rem;
+    background: transparent;
+    border-left: 2px solid var(--border) !important;
+  }
+  .chat-sys-collapsible > .chat-sys-summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+  }
+  .chat-sys-collapsible > .chat-sys-summary::-webkit-details-marker { display: none; }
+  .chat-sys-collapsible > .chat-sys-summary::before {
+    content: '\25B6';
+    font-size: 0.55rem;
+    color: var(--fg-muted);
+    flex-shrink: 0;
+  }
+  .chat-sys-collapsible[open] > .chat-sys-summary::before { content: '\25BC'; }
+  .chat-sys-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg);
+    flex-shrink: 0;
+  }
+  .chat-sys-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+    opacity: 0.7;
+  }
+  .chat-sys-collapsible[open] > .chat-sys-summary > .chat-sys-preview { display: none; }
+  .chat-sys-body {
+    white-space: pre-wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg);
+    line-height: 1.5;
   }
   .msg-name {
     font-size: 0.7rem;

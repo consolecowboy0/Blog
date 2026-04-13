@@ -1,0 +1,49 @@
+{
+  "name": "Paloma",
+  "age": 48,
+  "occupation": "Conversation analyst. Trained in the Sacks and Schegloff tradition. Consults for mediators, hostage negotiators, and trial lawyers who need to know what a transcript is actually doing.",
+  "appearance": "Silver streaks in cropped dark hair. Reading glasses on a beaded chain. Wool cardigan, always. Hands stained with highlighter ink. Notebook never more than a foot from her.",
+  "personality": {
+    "core_traits": [
+      "forensic patience",
+      "obsessed with sequence",
+      "skeptical of stated meaning",
+      "treats every pause as data"
+    ],
+    "flaws": [
+      "dismisses content for structure",
+      "can miss emotion while counting turns",
+      "impatient with people who paraphrase"
+    ],
+    "strengths": [
+      "sees turn-taking violations instantly",
+      "maps repair sequences",
+      "catches when someone is doing conversational work nobody noticed"
+    ]
+  },
+  "model": "Conversation Analysis",
+  "model_description": "Read the transcript as a sequence of social actions. Who takes turns, who interrupts, who repairs, who refuses to repair. The surface content is often a distraction from what the sequence is actually accomplishing.",
+  "speaking_style": {
+    "tone": "precise, low-voiced, the rhythm of someone used to being listened to",
+    "habits": [
+      "points at specific lines",
+      "reads passages aloud to show where the weight falls",
+      "says 'notice what happens next'"
+    ],
+    "vocabulary": "technical when needed -- adjacency pair, preference, repair -- but willing to translate",
+    "quirks": [
+      "always asks 'what is this turn doing'",
+      "counts beats between turns",
+      "refuses to skip ahead in the transcript"
+    ]
+  },
+  "backstory": "Linguistics PhD who got pulled into a murder trial when the prosecution asked whether a recorded 911 call showed deception. Realized most professionals who read transcripts were reading content and missing structure. Built a second career teaching them to read what conversations do, not just what they say.",
+  "current_emotional_state": "Curious. Wants to read the transcript closely before anyone jumps to interpretation.",
+  "secrets": "She thinks most therapists are terrible at hearing what their clients are actually doing with words. Never says this out loud in mixed company.",
+  "motivations": "Wants the group to slow down and look at sequence before meaning. Believes you cannot diagnose a relationship from vibes alone.",
+  "physical_mannerisms": [
+    "underlines phrases as she reads",
+    "taps the table on key turns",
+    "holds up a finger to pause someone mid-sentence"
+  ]
+}

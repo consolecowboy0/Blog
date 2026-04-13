@@ -1,0 +1,27 @@
+{
+  "name": "The Observation Room",
+  "location": "A long, quiet conference room on the upper floor of a clinical training institute. One wall is glass, overlooking a reading garden. The other three are lined with bookshelves, whiteboards, and a corkboard pinned with previous cases, heavily redacted.",
+  "time": "Mid-morning. A fresh transcript has been set in front of each analyst. Coffee is still hot.",
+  "weather": "Gray outside. The kind of soft, flat light that makes reading easier.",
+  "atmosphere": {
+    "lighting": "Natural light from the glass wall, supplemented by warm pendant lamps over the central table. Two task lamps at the reading corner. No fluorescents.",
+    "sound": "Pages turning. A pen clicking. The heating system's low hum. The distant murmur of the floor below.",
+    "crowd": "Just the analysts. No observers. No client. This is a reading session, not a session with anyone.",
+    "smell": "Coffee, old paper, the faint cedar of the bookshelves"
+  },
+  "layout": {
+    "central_table": "A long oak table with eight chairs. Each seat has a fresh copy of the transcript, a legal pad, and a glass of water. Paloma sits near the head because she likes the angle to read from. Marcus took the seat nearest the window. Iris chose the seat with the clearest sightline to everyone else. Henrik is already annotating.",
+    "reading_corner": "Two leather armchairs by the window, a side table with a stack of reference books: DSM, Gottman, Bowen, Schegloff, a battered copy of Miller and Rollnick. Evelyn has claimed one chair. Her bracelets clink against the armrest.",
+    "whiteboard_wall": "Floor-to-ceiling whiteboard, already partially covered from the previous session's diagram of triangles and repair attempts. Sam has not yet stood up but he will.",
+    "bookshelf_wall": "Clinical texts, transcripts of famous cases stripped of identifying detail, a small shelf of linguistics journals Henrik insists on keeping current.",
+    "coffee_station": "A kettle, a French press, chipped mugs, a tin of shortbread. Lena is refilling her cup. Theo is leaning against the counter with his travel mug already full."
+  },
+  "objects_of_note": [
+    "The transcript itself, placed at every seat. Eight identical copies. Clean, double-spaced, timestamped, with speaker labels. The client brief says only: 'read this and tell me what is actually going on.'",
+    "A small framed card on the wall that reads 'READ WHAT IS THERE.' Nobody remembers who hung it.",
+    "A chess clock nobody is using, but nobody moves it either.",
+    "A stack of colored highlighters in a mason jar. Paloma has already claimed the yellow one.",
+    "An old tape recorder in the corner, not plugged in, kept for the joke of it."
+  ],
+  "mood": "Attentive. A little electric. Eight different frameworks about to be applied to the same pages. Nobody has spoken yet. Paloma will go first because she always goes first. The question is not whether they will find something. The question is how many layers they can peel before they run out of time, and where their readings will agree, and where they will disagree sharply enough to matter."
+}

@@ -1,0 +1,201 @@
+{
+  "name": "Analyst Consortium",
+  "relationships": [
+    {
+      "between": ["Paloma", "Marcus"],
+      "type": "structure meets affect",
+      "history": "Met on a family court consult. Paloma counted the repairs. Marcus named what was being protested. Together they wrote a single-page summary the judge actually read.",
+      "current_tension": "Paloma wants to start with the sequence. Marcus wants to start with the feeling. They have learned to alternate.",
+      "shared_knowledge": "They once agreed a transcript was functionally a breakup letter, neither speaker had noticed yet."
+    },
+    {
+      "between": ["Paloma", "Iris"],
+      "type": "kindred empiricists",
+      "history": "Paloma trained Iris's unit in conversation analysis for one week in 2015. Iris kept the handout and still refers to it.",
+      "current_tension": "Paloma reads for mutual accomplishment. Iris reads for adversarial leakage. Their observations often agree and their interpretations rarely do.",
+      "shared_knowledge": "They both distrust clinicians who paraphrase transcripts. They do not say this in front of the clinicians."
+    },
+    {
+      "between": ["Paloma", "Evelyn"],
+      "type": "friendly opposition",
+      "history": "Debated on a podcast for three hours about whether subtext is real. They did not resolve it. Listeners wrote in for weeks.",
+      "current_tension": "Paloma says the conversation does its own work on the surface. Evelyn says the surface is the least interesting part. Neither will yield.",
+      "shared_knowledge": "They respect each other more than their public disagreements would suggest."
+    },
+    {
+      "between": ["Paloma", "Sam"],
+      "type": "quiet agreement",
+      "history": "Worked a family mediation together. Paloma mapped the turn-taking. Sam mapped the triangle. The diagrams overlaid almost exactly.",
+      "current_tension": "Almost none. They share a skepticism of individual diagnosis and a love for the pattern that sits above the speakers.",
+      "shared_knowledge": "They both suspect the person not in the transcript is often the most important speaker."
+    },
+    {
+      "between": ["Paloma", "Henrik"],
+      "type": "professional kin",
+      "history": "Co-authored a paper on markers of coerced confession. Paloma supplied the sequence analysis. Henrik supplied the lexical work. Cited heavily in training materials.",
+      "current_tension": "They finish each other's sentences. It unnerves the rest of the room.",
+      "shared_knowledge": "They both believe most clinicians are bad at reading transcripts and should be humbler about it."
+    },
+    {
+      "between": ["Paloma", "Lena"],
+      "type": "mutual appreciation",
+      "history": "Lena took one of Paloma's workshops and tells people it changed how she heard her clients. Paloma is quietly flattered.",
+      "current_tension": "Lena wants to move fast to the affective read. Paloma wants to slow down and look at the turn. They have learned to let Paloma go first.",
+      "shared_knowledge": "They agree that bids for connection are often invisible until you look at what the other person did with them."
+    },
+    {
+      "between": ["Paloma", "Theo"],
+      "type": "careful respect",
+      "history": "Consulted together on a labor negotiation. Paloma found the point where the union lost control of the sequence. Theo found the point where they lost the thread of their own motivation. Both reads mattered.",
+      "current_tension": "Theo is patient with ambivalence. Paloma is patient with structure. They slow each other down in useful ways.",
+      "shared_knowledge": "They both refuse to tell the client what to do, which infuriates clients and produces better outcomes."
+    },
+    {
+      "between": ["Marcus", "Iris"],
+      "type": "persistent disagreement",
+      "history": "Worked a threat assessment together. Marcus saw an attachment rupture. Iris saw a credible plan. They were both correct. It was uncomfortable.",
+      "current_tension": "Marcus reads for pain. Iris reads for pattern. They rarely land in the same place and they have stopped trying to pretend otherwise.",
+      "shared_knowledge": "Iris thinks Marcus is naive. Marcus thinks Iris is cold. Both think the other is sometimes indispensable."
+    },
+    {
+      "between": ["Marcus", "Evelyn"],
+      "type": "warm companionship",
+      "history": "Trained at adjacent institutes in the 1990s. Have been trading cases for twenty-five years. Evelyn is the person Marcus calls when he cannot see his own countertransference.",
+      "current_tension": "Marcus reads attachment. Evelyn reads enactment. They overlap more than they diverge, and when they diverge Evelyn usually sees it first.",
+      "shared_knowledge": "They know each other's analysts. They do not discuss this in professional contexts."
+    },
+    {
+      "between": ["Marcus", "Sam"],
+      "type": "complementary frames",
+      "history": "Co-led a training on couples work embedded in family systems. Marcus drew the attachment diagrams. Sam drew the triangles. The training is in its eighth year.",
+      "current_tension": "Marcus asks what the two people are protecting. Sam asks who the third person is. Neither question invalidates the other.",
+      "shared_knowledge": "They agree that a couple is almost never a closed system. Marcus frames it as history. Sam frames it as present field."
+    },
+    {
+      "between": ["Marcus", "Henrik"],
+      "type": "cautious coexistence",
+      "history": "Met exactly once before joining this consortium, at a conference panel where they disagreed civilly about whether a transcript could reveal interior states.",
+      "current_tension": "Marcus trusts resonance. Henrik trusts measurement. They respect each other at arm's length.",
+      "shared_knowledge": "Henrik has admitted privately that Marcus's readings are sometimes correct in ways his data cannot explain. He does not like this."
+    },
+    {
+      "between": ["Marcus", "Lena"],
+      "type": "close collaborators",
+      "history": "Run a couples intensive together every summer. Marcus teaches attachment. Lena teaches the Gottman frame. Students say the weekend changes them.",
+      "current_tension": "Lena calls contempt fast. Marcus names the fear under it. They have learned to do both in sequence.",
+      "shared_knowledge": "They both know Lena's divorce and Marcus's two divorces have made them better clinicians. They sometimes joke about this, when nobody else can hear."
+    },
+    {
+      "between": ["Marcus", "Theo"],
+      "type": "mutual teaching",
+      "history": "Theo trained at Marcus's institute. Marcus was on his dissertation committee. They now consult on each other's hardest cases.",
+      "current_tension": "Marcus reads for longing. Theo reads for ambivalence. They agree that both are forms of the same ache.",
+      "shared_knowledge": "Theo once asked Marcus if attachment theory and motivational interviewing were saying the same thing in different languages. Marcus has thought about this for years and is not sure."
+    },
+    {
+      "between": ["Iris", "Evelyn"],
+      "type": "guarded fascination",
+      "history": "Evelyn once spent an afternoon interviewing Iris for a piece on pattern recognition and countertransference. The piece never ran. Evelyn still has the notes.",
+      "current_tension": "Iris thinks Evelyn reads too much into things. Evelyn thinks Iris reads too little. They circle each other with more interest than either will admit.",
+      "shared_knowledge": "Evelyn can sometimes predict what Iris will flag. Iris pretends not to notice."
+    },
+    {
+      "between": ["Iris", "Sam"],
+      "type": "unlikely allies",
+      "history": "Consulted together on a workplace harassment case. Iris found the deceptive speaker. Sam found the enabling system. Both reports were necessary.",
+      "current_tension": "Iris wants to pin the bad actor. Sam wants to map the field that produced the bad actor. They have made peace with doing both.",
+      "shared_knowledge": "They both think pure individual explanations of bad behavior are lazy, for different reasons."
+    },
+    {
+      "between": ["Iris", "Henrik"],
+      "type": "longstanding collaborators",
+      "history": "Worked a dozen cases together for the Bureau. Iris does behavioral. Henrik does linguistic. Their combined reports are considered the gold standard by the people who read them.",
+      "current_tension": "They argue about exactly which signals are diagnostic. The arguments are friendly and productive.",
+      "shared_knowledge": "They both keep a list of cases they got wrong. Each has shown the other. Neither has shown anyone else."
+    },
+    {
+      "between": ["Iris", "Lena"],
+      "type": "respectful distance",
+      "history": "Lena once sat in on one of Iris's trainings to see how law enforcement reads couples conflict. She took a lot of notes and none of the techniques.",
+      "current_tension": "Iris is unsparing. Lena is warm. They do not share clients and they do not pretend they would.",
+      "shared_knowledge": "They agree that contempt is a reliable tell, for different reasons."
+    },
+    {
+      "between": ["Iris", "Theo"],
+      "type": "productive friction",
+      "history": "Consulted together on a negotiation where one party was possibly manipulating the other. Iris flagged the deception. Theo flagged the ambivalence of the target. Both were right.",
+      "current_tension": "Iris wants to call the behavior. Theo wants to stay curious about it. They have learned to let Theo go first with subjects and Iris go first with facts.",
+      "shared_knowledge": "They both think premature interpretation is the biggest mistake in any reading."
+    },
+    {
+      "between": ["Evelyn", "Sam"],
+      "type": "mutual respect across traditions",
+      "history": "Evelyn invited Sam to lecture at her institute on how systems ideas fit inside an analytic frame. The lecture was so well-received Sam now teaches it annually.",
+      "current_tension": "Evelyn works with inner worlds. Sam works with outer systems. They agree more than they disagree, which both find faintly uncanny.",
+      "shared_knowledge": "They both believe most transcripts are more about absent people than present ones."
+    },
+    {
+      "between": ["Evelyn", "Henrik"],
+      "type": "amused antagonism",
+      "history": "Debated at a symposium on evidence and interpretation. Evelyn enjoyed herself enormously. Henrik did not.",
+      "current_tension": "Henrik thinks Evelyn is unfalsifiable. Evelyn thinks Henrik is missing almost everything that matters. Neither is going to change.",
+      "shared_knowledge": "Henrik has quietly shown one of Evelyn's case readings to his students as an example of the kind of interpretation one should not make. She knows."
+    },
+    {
+      "between": ["Evelyn", "Lena"],
+      "type": "warm familiarity",
+      "history": "Lena was supervised briefly by Evelyn during training. She calls her 'Dr. Crane' in public and 'Evelyn' in private. Evelyn remembers every case they ever discussed.",
+      "current_tension": "Lena works on the surface of the couple. Evelyn works under it. They trade cases often.",
+      "shared_knowledge": "Evelyn once told Lena that contempt is a disavowal of one's own dependency. Lena has never forgotten it."
+    },
+    {
+      "between": ["Evelyn", "Theo"],
+      "type": "quiet mentorship",
+      "history": "Theo reads Evelyn's books. Evelyn has read exactly one of Theo's papers and pretends she has read more. Theo is not fooled and does not mind.",
+      "current_tension": "Evelyn goes for the deep interpretation. Theo goes for the collaborative next question. They appreciate each other.",
+      "shared_knowledge": "They both think the most interesting thing in any transcript is the contradiction a speaker does not yet know they are holding."
+    },
+    {
+      "between": ["Sam", "Henrik"],
+      "type": "minimal contact",
+      "history": "Have worked on two projects together. Both went fine. Neither has sought a third.",
+      "current_tension": "Sam works in relationships. Henrik works in syntax. They have very little to say to each other and they are both at peace with that.",
+      "shared_knowledge": "They respect each other professionally and would not pick each other for a drink."
+    },
+    {
+      "between": ["Sam", "Lena"],
+      "type": "close friends",
+      "history": "Met in a peer supervision group twelve years ago. Have been calling each other about cases ever since. Their kids know each other.",
+      "current_tension": "Sam pulls out to the system. Lena zooms in to the bid. They have learned to do both, and they have also learned when to stop each other.",
+      "shared_knowledge": "Lena was the first person Sam told about his brother's cutoff. She is one of two people who know."
+    },
+    {
+      "between": ["Sam", "Theo"],
+      "type": "shared humility",
+      "history": "Shared a case in a community clinic early in both their careers. Neither could fix it alone. Together they did not fix it either, but they understood it better.",
+      "current_tension": "Theo is patient with individual ambivalence. Sam is patient with whole-system stuckness. They remind each other not to rush.",
+      "shared_knowledge": "They both believe change is almost always slower than the client or the clinician would prefer, and that this is almost always fine."
+    },
+    {
+      "between": ["Henrik", "Lena"],
+      "type": "distant but cordial",
+      "history": "Have attended two of the same conferences. Had a friendly lunch once where they mostly talked about food.",
+      "current_tension": "Henrik finds emotion unquantifiable. Lena finds pure lexical analysis dry. They do not mix much.",
+      "shared_knowledge": "Lena has asked Henrik specific questions about word frequency in couples conflict. He has answered precisely. She has used it."
+    },
+    {
+      "between": ["Henrik", "Theo"],
+      "type": "surprising warmth",
+      "history": "Had a long conversation on a hotel patio after a conference panel. Turned out they both played the same board game. Became unlikely correspondents.",
+      "current_tension": "They disagree on almost everything substantive. They enjoy each other anyway.",
+      "shared_knowledge": "Henrik once admitted to Theo that uncertainty felt unbearable to him. Theo said 'so does certainty, to me.' They left it there."
+    },
+    {
+      "between": ["Lena", "Theo"],
+      "type": "old friends",
+      "history": "Interned in the same clinic eighteen years ago. Have kept up ever since. Each was a guest at the other's wedding. Lena's did not last. Theo's did.",
+      "current_tension": "Lena names dynamics fast. Theo sits with them slow. They think they balance each other and they are probably right.",
+      "shared_knowledge": "They both think Marcus is wiser than he gives himself credit for. They also both think Evelyn is sometimes showing off. They tell no one but each other."
+    }
+  ]
+}

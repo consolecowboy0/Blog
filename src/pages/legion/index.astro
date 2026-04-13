@@ -63,8 +63,8 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     </div>
 
     <div class="tab-bar">
-      <button class="tab-btn tab-active" data-tab="legion">Legion</button>
-      <button class="tab-btn" data-tab="analysts">Analysts</button>
+      <button class="tab-btn tab-active" data-tab="legion">Science</button>
+      <button class="tab-btn" data-tab="analysts">Psych</button>
       <button class="tab-btn" data-tab="advanced">Advanced</button>
     </div>
 
@@ -107,6 +107,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
             <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
           </select>
         </div>
+        <label class="defense-label"><input type="checkbox" id="defense-mode" /> Defense</label>
       </div>
     </div>
 
@@ -142,6 +143,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
             <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
           </select>
         </div>
+        <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Defense</label>
       </div>
     </div>
 
@@ -199,6 +201,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
               <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
             </select>
           </div>
+          <label class="defense-label"><input type="checkbox" id="adv-defense-mode" /> Defense</label>
         </div>
       </details>
     </div>
@@ -217,9 +220,12 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       <div id="status-list" class="status-list"></div>
     </div>
 
-    <div class="chat-wrapper">
+    <div class="chat-wrapper" id="chat-wrapper">
       <div id="chat" class="chat">
-        <button id="copy-chat" class="copy-btn chat-copy-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        <div class="chat-toolbar">
+          <button id="fullscreen-chat" class="copy-btn chat-toolbar-btn" title="Fullscreen"><svg class="icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg class="icon-collapse" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
+          <button id="copy-chat" class="copy-btn chat-toolbar-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        </div>
         <p class="chat-placeholder">Hit Go to start.</p>
       </div>
     </div>
@@ -340,6 +346,11 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     if (activeTab === 'legion') return document.getElementById('order-mode').value;
     if (activeTab === 'analysts') return document.getElementById('analysts-order-mode').value;
     return document.getElementById('adv-order-mode').value;
+  }
+  function getDefense() {
+    if (activeTab === 'legion') return document.getElementById('defense-mode').checked;
+    if (activeTab === 'analysts') return document.getElementById('analysts-defense-mode').checked;
+    return document.getElementById('adv-defense-mode').checked;
   }
 
   // --- Legion auto-load ---
@@ -1746,6 +1757,26 @@ sys.stdout = _stdout_capture
     if (lines.length) { navigator.clipboard.writeText(lines.join('\n\n')); flashCopyBtn(this); }
   });
 
+  document.getElementById('fullscreen-chat').addEventListener('click', function () {
+    var wrap = document.getElementById('chat-wrapper');
+    var on = wrap.classList.toggle('fullscreen');
+    document.body.classList.toggle('chat-fullscreen-lock', on);
+    var expand = this.querySelector('.icon-expand');
+    var collapse = this.querySelector('.icon-collapse');
+    if (expand) expand.style.display = on ? 'none' : '';
+    if (collapse) collapse.style.display = on ? '' : 'none';
+    this.title = on ? 'Exit fullscreen' : 'Fullscreen';
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var wrap = document.getElementById('chat-wrapper');
+      if (wrap && wrap.classList.contains('fullscreen')) {
+        document.getElementById('fullscreen-chat').click();
+      }
+    }
+  });
+
   // Interject
   document.getElementById('interject-btn').addEventListener('click', function () {
     var input = document.getElementById('interject-input');
@@ -2291,6 +2322,29 @@ sys.stdout = _stdout_capture
         sysMsg(opening, 'Prompt');
       }
 
+      if (isFirstRun && getDefense()) {
+        msg('','','--- Dissertations ---', true);
+        var dissertRule = 'DISSERTATION MODE: Before the group conversation begins, deliver a full, structured dissertation on the prompt. Speak directly to the user and your colleagues. Ignore any prior word limits -- be as thorough as the material demands. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover: how you frame the problem, what your model or perspective reveals, the key variables and assumptions, the risks and failure modes, and your tentative position. Stay in character but prioritize substance over banter.';
+        for (var di = 0; di < agents.length; di++) {
+          if (stopRequested) break;
+          var da = agents[di];
+          if (!isActive(da.name)) continue;
+          if (da.name === 'The Room') continue;
+          if (delayMs > 0) {
+            await cancellableDelay(delayMs);
+            if (stopRequested) break;
+          }
+          var dSystem = da.system + '\n\n' + dissertRule;
+          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full dissertation, ' + da.name + '.' }];
+          var dTyp = typing(da.name, da.color);
+          var dResponse = await ask(dSystem, dMessages);
+          dTyp.remove();
+          msg(da.name, da.color, dResponse);
+          sessionTranscript.push({ name: da.name, text: dResponse, round: 0 });
+          saveState();
+        }
+      }
+
       for (var r = 1; r <= rounds; r++) {
         if (stopRequested) break;
         sessionRun++;
@@ -2810,6 +2864,16 @@ sys.stdout = _stdout_capture
     cursor: pointer;
     white-space: nowrap;
   }
+  .defense-label {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding-bottom: 0.4rem;
+  }
   #rounds, #adv-rounds, #analysts-rounds {
     width: 55px;
     font-family: var(--font-mono);
@@ -2935,7 +2999,35 @@ sys.stdout = _stdout_capture
     z-index: 10;
     margin: 0.5rem 0.5rem 0 0;
   }
+  .chat-toolbar {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .chat-toolbar-btn { background: var(--bg); }
   .chat-wrapper { margin-bottom: 2rem; }
+  body.chat-fullscreen-lock { overflow: hidden; }
+  .chat-wrapper.fullscreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    margin: 0;
+    background: var(--bg);
+    padding: 0;
+  }
+  .chat-wrapper.fullscreen .chat {
+    min-height: 100vh;
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: none;
+  }
 
   /* Summary */
   .summary-section { margin-bottom: 1rem; }

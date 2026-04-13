@@ -221,11 +221,11 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     </div>
 
     <div class="chat-wrapper" id="chat-wrapper">
+      <div class="chat-toolbar">
+        <button id="fullscreen-chat" class="copy-btn chat-toolbar-btn" title="Fullscreen"><svg class="icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg class="icon-collapse" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
+        <button id="copy-chat" class="copy-btn chat-toolbar-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
       <div id="chat" class="chat">
-        <div class="chat-toolbar">
-          <button id="fullscreen-chat" class="copy-btn chat-toolbar-btn" title="Fullscreen"><svg class="icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg class="icon-collapse" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
-          <button id="copy-chat" class="copy-btn chat-toolbar-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-        </div>
         <p class="chat-placeholder">Hit Go to start.</p>
       </div>
     </div>
@@ -2324,7 +2324,7 @@ sys.stdout = _stdout_capture
 
       if (isFirstRun && getDefense()) {
         msg('','','--- Dissertations ---', true);
-        var dissertRule = 'DISSERTATION MODE: Before the group conversation begins, deliver a full, structured dissertation on the prompt. Speak directly to the user and your colleagues. Ignore any prior word limits -- be as thorough as the material demands. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover: how you frame the problem, what your model or perspective reveals, the key variables and assumptions, the risks and failure modes, and your tentative position. Stay in character but prioritize substance over banter.';
+        var dissertRule = 'DISSERTATION MODE: Before the group conversation begins, deliver a tight, structured dissertation on the prompt. Speak directly to the user and your colleagues. Hard cap: 80 words. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover the essentials only: how you frame the problem, what your model reveals, and your tentative position. Stay in character but prioritize substance over banter.';
         for (var di = 0; di < agents.length; di++) {
           if (stopRequested) break;
           var da = agents[di];
@@ -3000,13 +3000,10 @@ sys.stdout = _stdout_capture
     margin: 0.5rem 0.5rem 0 0;
   }
   .chat-toolbar {
-    position: sticky;
-    top: 0.5rem;
-    float: right;
-    z-index: 10;
     display: flex;
+    justify-content: flex-end;
     gap: 0.25rem;
-    margin: 0.5rem 0.5rem 0 0;
+    margin-bottom: 0.25rem;
   }
   .chat-toolbar-btn { background: var(--bg); }
   .chat-wrapper { margin-bottom: 2rem; }
@@ -3017,17 +3014,16 @@ sys.stdout = _stdout_capture
     z-index: 9999;
     margin: 0;
     background: var(--bg);
-    padding: 0;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
   }
   .chat-wrapper.fullscreen .chat {
-    min-height: 100vh;
-    max-height: 100vh;
-    height: 100vh;
+    flex: 1;
+    min-height: 0;
+    max-height: none;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-bottom: none;
+    border: none;
   }
 
   /* Summary */

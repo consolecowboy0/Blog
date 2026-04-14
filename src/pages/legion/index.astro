@@ -183,7 +183,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
                 <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
               </select>
             </div>
-            <label class="defense-label"><input type="checkbox" id="defense-mode" /> Defense</label>
+            <label class="defense-label"><input type="checkbox" id="defense-mode" /> Thesis</label>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
                 <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
               </select>
             </div>
-            <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Defense</label>
+            <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Thesis</label>
           </div>
         </div>
 
@@ -393,14 +393,25 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       card.innerHTML =
         (room.image ? '<img class="room-card-image" src="' + esc(room.image) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
         '<span class="room-card-name">' + esc(room.label) + '</span>' +
-        '<span class="room-card-desc">' + esc(room.data.location.split('.')[0]) + '</span>';
-      card.addEventListener('click', function () {
-        openRoomModal(room, function () {
-          grid.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
-          card.classList.add('room-selected');
-          onSelect(room);
-        });
+        '<span class="room-card-desc">' + esc(room.data.location.split('.')[0]) + '</span>' +
+        '<div class="card-actions">' +
+          '<button class="card-action-btn card-action-add" type="button" title="Use this room">Add</button>' +
+          '<button class="card-action-btn card-action-info" type="button" title="Details">Info</button>' +
+        '</div>';
+      function commit() {
+        grid.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
+        card.classList.add('room-selected');
+        onSelect(room);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        commit();
       });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openRoomModal(room, commit);
+      });
+      card.addEventListener('click', function () { openRoomModal(room, commit); });
       grid.appendChild(card);
     });
   }
@@ -564,13 +575,26 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
             '<span class="agent-name-label">' + esc(name) + '</span>' +
           '</div>' +
           (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-action-add" type="button">Add</button>' +
+            '<button class="card-action-btn card-action-info" type="button">Info</button>' +
+          '</div>' +
         '</div>';
+      function toggleSelection() {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleSelection();
+      });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openCharModal(data, card._selected, toggleSelection);
+      });
       card.addEventListener('click', function () {
-        openCharModal(data, card._selected, function () {
-          card._selected = !card._selected;
-          card.classList.toggle('legion-selected', card._selected);
-          card.classList.toggle('legion-dimmed', !card._selected);
-        });
+        openCharModal(data, card._selected, toggleSelection);
       });
       grid.appendChild(card);
     });
@@ -601,13 +625,26 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
             '<span class="agent-name-label">' + esc(name) + '</span>' +
           '</div>' +
           (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-action-add" type="button">Add</button>' +
+            '<button class="card-action-btn card-action-info" type="button">Info</button>' +
+          '</div>' +
         '</div>';
+      function toggleSelection() {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleSelection();
+      });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openCharModal(data, card._selected, toggleSelection);
+      });
       card.addEventListener('click', function () {
-        openCharModal(data, card._selected, function () {
-          card._selected = !card._selected;
-          card.classList.toggle('legion-selected', card._selected);
-          card.classList.toggle('legion-dimmed', !card._selected);
-        });
+        openCharModal(data, card._selected, toggleSelection);
       });
       grid.appendChild(card);
     });
@@ -1089,6 +1126,46 @@ sys.stdout = _stdout_capture
     });
   }
 
+  // --- Chat progress bar ---
+  var progressTotal = 0;
+  var progressDone = 0;
+  function progressStart(total, label) {
+    progressTotal = Math.max(1, total);
+    progressDone = 0;
+    var el = document.getElementById('chat-progress');
+    var fill = document.getElementById('chat-progress-fill');
+    var lbl = document.getElementById('chat-progress-label');
+    el.hidden = false;
+    el.classList.remove('indeterminate');
+    fill.style.width = '0%';
+    lbl.textContent = label || 'Starting...';
+  }
+  function progressTick(label) {
+    progressDone = Math.min(progressTotal, progressDone + 1);
+    var pct = Math.min(100, Math.round((progressDone / progressTotal) * 100));
+    var fill = document.getElementById('chat-progress-fill');
+    var lbl = document.getElementById('chat-progress-label');
+    fill.style.width = pct + '%';
+    if (label) lbl.textContent = label;
+  }
+  function progressLabel(label) {
+    var lbl = document.getElementById('chat-progress-label');
+    lbl.textContent = label;
+  }
+  function progressIndeterminate(label) {
+    var el = document.getElementById('chat-progress');
+    var fill = document.getElementById('chat-progress-fill');
+    el.hidden = false;
+    el.classList.add('indeterminate');
+    fill.style.width = '';
+    progressLabel(label || 'Working...');
+  }
+  function progressDone_() {
+    var el = document.getElementById('chat-progress');
+    el.classList.remove('indeterminate');
+    el.hidden = true;
+  }
+
   // Collapse all previously unfurled chat-msg details so only the newest stays open
   function closePriorMessages() {
     var chat = document.getElementById('chat');
@@ -1115,15 +1192,15 @@ sys.stdout = _stdout_capture
       return details;
     }
 
-    // Dissertations header becomes a collapsible group like rounds
-    var dissertMatch = system && text === '--- Dissertations ---';
-    if (dissertMatch) {
+    // Theses header becomes a collapsible group like rounds
+    var thesisMatch = system && text === '--- Theses ---';
+    if (thesisMatch) {
       var dDetails = document.createElement('details');
       dDetails.className = 'round-group';
       dDetails.open = true;
       var dSummary = document.createElement('summary');
       dSummary.className = 'round-header';
-      dSummary.textContent = 'Dissertations';
+      dSummary.textContent = 'Theses';
       dDetails.appendChild(dSummary);
       chat.appendChild(dDetails);
       currentRoundDetails = dDetails;
@@ -1448,8 +1525,16 @@ sys.stdout = _stdout_capture
     // Show opening prompt
     if (state.opening) sysMsg(state.opening, 'Prompt');
 
+    var thesesHeaderInserted = false;
     sessionTranscript.forEach(function (entry) {
-      // Insert round header when round changes
+      // Round 0 = thesis phase. Insert the collapsible Theses
+      // header once before the first round-0 entry so reload matches the
+      // live-run layout.
+      if (entry.round === 0 && !thesesHeaderInserted) {
+        thesesHeaderInserted = true;
+        msg('', '', '--- Theses ---', true);
+      }
+      // Insert round header when round changes (skip 0 which we already handled)
       if (entry.round && entry.round !== lastRound) {
         lastRound = entry.round;
         msg('', '', '--- Round ' + entry.round + ' ---', true);
@@ -1577,54 +1662,9 @@ sys.stdout = _stdout_capture
     if (/\[DIES\]/i.test(text)) add(speakerName, 'dead');
     if (/\[LEAVES\](?!\s*:)/i.test(text)) add(speakerName, 'left');
 
-    // Natural language fallbacks: match known character names
-    var lower = text.toLowerCase();
-    var presentNames = Object.keys(characterStatus).filter(function (n) {
-      return characterStatus[n].status === 'present';
-    });
-
-    presentNames.forEach(function (name) {
-      var n = name.toLowerCase();
-      // "kills Name", "shoots Name dead", "stabs Name", "Name is dead", "Name dies", "Name collapses dead"
-      var deathPatterns = [
-        new RegExp('\\bkills\\s+' + n + '\\b', 'i'),
-        new RegExp('\\bkill\\s+' + n + '\\b', 'i'),
-        new RegExp('\\bstabs\\s+' + n + '\\b', 'i'),
-        new RegExp('\\bshoots\\s+' + n + '\\b', 'i'),
-        new RegExp('\\bmurders\\s+' + n + '\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+(is\\s+)?dead\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+dies\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+collapses\\s+dead\\b', 'i'),
-        new RegExp('\\[ACTION:[^\\]]*kills\\s+' + n + '[^\\]]*\\]', 'i'),
-        new RegExp('\\[ACTION:[^\\]]*stabs\\s+' + n + '[^\\]]*\\]', 'i'),
-        new RegExp('\\[ACTION:[^\\]]*shoots\\s+' + n + '[^\\]]*\\]', 'i'),
-      ];
-      for (var i = 0; i < deathPatterns.length; i++) {
-        if (deathPatterns[i].test(text)) { add(name, 'dead'); break; }
-      }
-
-      // "Name leaves", "Name walks out", "Name exits"
-      var leavePatterns = [
-        new RegExp('\\b' + n + '\\s+leaves\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+exits\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+walks\\s+out\\b', 'i'),
-        new RegExp('\\b' + n + '\\s+storms\\s+out\\b', 'i'),
-        new RegExp('\\[ACTION:[^\\]]*' + n + '[^\\]]*leaves[^\\]]*\\]', 'i'),
-        new RegExp('\\[ACTION:[^\\]]*' + n + '[^\\]]*exits[^\\]]*\\]', 'i'),
-      ];
-      if (name !== speakerName) {
-        for (var i = 0; i < leavePatterns.length; i++) {
-          if (leavePatterns[i].test(text)) { add(name, 'left'); break; }
-        }
-      }
-    });
-
-    // Self-death/leave via natural language
-    var selfDeathWords = /\b(i\s+die|i'm\s+dying|i\s+am\s+dead)\b/i;
-    if (selfDeathWords.test(text)) add(speakerName, 'dead');
-
-    var selfLeaveWords = /\[ACTION:[^\]]*leaves\s+(the\s+)?room[^\]]*\]/i;
-    if (selfLeaveWords.test(text)) add(speakerName, 'left');
+    // Natural-language fallbacks were removed: they fired on narrative phrases
+    // like "the subject walks out" in analyst discussions and killed the run
+    // after round 1. Only explicit [DIES]/[LEAVES]/[DEAD:]/[LEAVES:] tags count.
 
     changes.forEach(function (c) {
       markStatus(c.name, c.status, round);
@@ -2136,6 +2176,7 @@ sys.stdout = _stdout_capture
     if (e.target === this) closeModalById('chars-modal');
   });
 
+
   // Card search: hide any card whose textContent does not include the query.
   // Works for both room-card and agent-card markup since both embed the
   // searchable name/label as text inside the card element.
@@ -2166,6 +2207,7 @@ sys.stdout = _stdout_capture
     stopRequested = false;
     isRunning = true;
     document.getElementById('stop-btn').style.display = '';
+    progressIndeterminate('Warming up...');
 
     var opening = getOpening().trim();
     var rounds = parseInt(getRounds(), 10) || 2;
@@ -2243,6 +2285,12 @@ sys.stdout = _stdout_capture
 
     var agents = sessionAgents;
 
+    // Rough turn estimate for the progress bar
+    var activeForProgress = agents.filter(function (a) { return isActive(a.name) && a.name !== 'The Room'; });
+    var thesisCount = (isFirstRun && getDefense()) ? activeForProgress.length : 0;
+    var totalTurns = Math.max(1, thesisCount + rounds * activeForProgress.length);
+    progressStart(totalTurns, 'Preparing...');
+
     function extractActions(name, text) {
       var actions = [];
       text.replace(/\[ACTION:\s*([^\]]*)\]/g, function (m, desc) {
@@ -2315,8 +2363,8 @@ sys.stdout = _stdout_capture
       }
 
       if (isFirstRun && getDefense()) {
-        msg('','','--- Dissertations ---', true);
-        var dissertRule = 'DISSERTATION MODE: Before the group conversation begins, deliver a tight, structured dissertation on the prompt. Speak directly to the user and your colleagues. Hard cap: 80 words. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover the essentials only: how you frame the problem, what your model reveals, and your tentative position. Stay in character but prioritize substance over banter.';
+        msg('','','--- Theses ---', true);
+        var thesisRule = 'THESIS MODE: Before the group conversation begins, deliver a tight, structured thesis on the prompt. Speak directly to the user and your colleagues. Hard cap: 80 words. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover the essentials only: how you frame the problem, what your model reveals, and your tentative position. Stay in character but prioritize substance over banter.';
         for (var di = 0; di < agents.length; di++) {
           if (stopRequested) break;
           var da = agents[di];
@@ -2326,20 +2374,26 @@ sys.stdout = _stdout_capture
             await cancellableDelay(delayMs);
             if (stopRequested) break;
           }
-          var dSystem = da.system + '\n\n' + dissertRule;
-          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full dissertation, ' + da.name + '.' }];
+          var dSystem = da.system + '\n\n' + thesisRule;
+          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full thesis, ' + da.name + '.' }];
+          progressLabel('Thesis: ' + da.name + ' thinking...');
           var dTyp = typing(da.name, da.color);
           var dResponse = await ask(dSystem, dMessages);
           dTyp.remove();
           msg(da.name, da.color, dResponse);
           sessionTranscript.push({ name: da.name, text: dResponse, round: 0 });
           saveState();
+          progressTick('Thesis: ' + da.name + ' done');
         }
       }
 
       for (var r = 1; r <= rounds; r++) {
         if (stopRequested) break;
         sessionRun++;
+        // Label uses r/rounds so resumed sessions read "Round 1 of 3" not
+        // "Round 4 of 3". sessionRun is still used for transcript bookkeeping
+        // and the in-chat round header so cumulative rounds stay accurate.
+        progressLabel('Round ' + r + ' of ' + rounds + '...');
         // Reset so bidding UI lands at chat root, not inside previous round
         currentRoundDetails = null;
         var orderMode = getOrderMode();
@@ -2449,10 +2503,12 @@ sys.stdout = _stdout_capture
           }
           var transcript = buildTranscript(a.name);
           var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
+          progressLabel('Round ' + r + ': ' + a.name + ' thinking...');
           var typ = typing(a.name, a.color);
           // Build SDK tools list based on agent capabilities
           var response = await ask(a.system, messages);
           typ.remove();
+          progressTick('Round ' + r + ': ' + a.name + ' done');
           if (response.trim() === '[silence]') {
             msg(a.name, a.color, '...', false);
             sessionTranscript.push({ name: a.name, text: '...', round: sessionRun });
@@ -2520,6 +2576,7 @@ sys.stdout = _stdout_capture
     btn.disabled = false;
     btn.textContent = 'Go';
     document.getElementById('stop-btn').style.display = 'none';
+    progressDone_();
   });
 
   // --- Cross-device polling ---
@@ -2668,6 +2725,30 @@ sys.stdout = _stdout_capture
     border-radius: 4px;
   }
   .modal-search:focus { border-color: var(--fg-muted); }
+  .card-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .card-action-btn {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .card-action-btn:hover { border-color: var(--fg-muted); background: rgba(128, 128, 128, 0.08); }
+  .card-action-add { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .card-action-add:hover { opacity: 0.85; background: var(--fg); }
+  /* Room cards place their actions flush with the body padding */
+  .room-card .card-actions { padding: 0 0.6rem 0.5rem; }
   #panel {
     display: flex;
     flex-direction: column;
@@ -2763,10 +2844,16 @@ sys.stdout = _stdout_capture
 
   /* Agent cards */
   .agents-grid {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
     margin-bottom: 0.75rem;
+  }
+  @media (max-width: 720px) {
+    .agents-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .agents-grid { grid-template-columns: 1fr; }
   }
   .agent-card {
     display: grid;
@@ -2777,8 +2864,6 @@ sys.stdout = _stdout_capture
     border-radius: 8px;
     padding: 1rem;
     min-width: 0;
-    max-width: 360px;
-    flex: 0 1 360px;
   }
   .agent-card-body {
     display: flex;
@@ -3042,6 +3127,42 @@ sys.stdout = _stdout_capture
   }
   .chat-toolbar-btn { background: var(--bg); }
   .chat-wrapper { margin-bottom: 2rem; }
+  .chat-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+  .chat-progress[hidden] { display: none; }
+  .chat-progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .chat-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--fg);
+    transition: width 0.25s ease-out;
+  }
+  .chat-progress.indeterminate .chat-progress-fill {
+    width: 40%;
+    animation: chat-progress-slide 1.3s ease-in-out infinite;
+  }
+  @keyframes chat-progress-slide {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(260%); }
+  }
+  .chat-progress-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
   body.chat-fullscreen-lock { overflow: hidden; }
   .chat-wrapper.fullscreen {
     position: fixed;
@@ -3588,6 +3709,12 @@ sys.stdout = _stdout_capture
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.75rem;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    padding: 0.25rem 0 0.5rem;
+    z-index: 2;
+    border-bottom: 1px solid var(--border);
   }
   .add-char-modal-header .field-label { margin-bottom: 0; }
   .add-char-roster {

@@ -110,7 +110,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
 
     <div class="interject-section" id="interject-section" style="display:none;">
       <div class="interject-row">
-        <input type="text" id="interject-input" placeholder="Interject..." />
+        <textarea id="interject-input" rows="4" placeholder="Interject... (Shift+Enter for newline, Enter to send)"></textarea>
         <button id="interject-btn" class="secondary-btn">Send</button>
       </div>
     </div>
@@ -1172,21 +1172,46 @@ sys.stdout = _stdout_capture
     chat.querySelectorAll('details.chat-msg[open]').forEach(function (d) { d.open = false; });
   }
 
+  // Attach a "▲ collapse" footer to a round-group or bid-group details element.
+  // A MutationObserver keeps the button as the last child so new content
+  // streamed into the group appears above it rather than below.
+  function addGroupCollapseFooter(detailsEl) {
+    var btn = document.createElement('button');
+    btn.className = 'msg-collapse-btn group-collapse-btn';
+    btn.textContent = '\u25B2 collapse';
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      detailsEl.open = false;
+      detailsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    detailsEl.appendChild(btn);
+    var observer = new MutationObserver(function () {
+      if (detailsEl.lastElementChild !== btn) detailsEl.appendChild(btn);
+    });
+    observer.observe(detailsEl, { childList: true });
+  }
+
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
     var ph = chat.querySelector('.chat-placeholder');
     if (ph) ph.remove();
 
-    // Round headers become collapsible groups
+    // Round headers become collapsible groups. Auto-collapse any previously
+    // open round or thesis group when a new round starts so the chat stays
+    // focused on the active round.
     var roundMatch = system && text.match(/^--- Round (\d+) ---$/);
     if (roundMatch) {
+      chat.querySelectorAll('.round-group[open]').forEach(function (g) { g.open = false; });
       var details = document.createElement('details');
       details.className = 'round-group';
+      details.open = true;
       var summary = document.createElement('summary');
       summary.className = 'round-header';
       summary.textContent = 'Round ' + roundMatch[1];
       details.appendChild(summary);
       chat.appendChild(details);
+      addGroupCollapseFooter(details);
       currentRoundDetails = details;
       chat.scrollTop = chat.scrollHeight;
       return details;
@@ -1203,6 +1228,7 @@ sys.stdout = _stdout_capture
       dSummary.textContent = 'Theses';
       dDetails.appendChild(dSummary);
       chat.appendChild(dDetails);
+      addGroupCollapseFooter(dDetails);
       currentRoundDetails = dDetails;
       chat.scrollTop = chat.scrollHeight;
       return dDetails;
@@ -1219,6 +1245,7 @@ sys.stdout = _stdout_capture
       bidDetails.appendChild(bidSummary);
       var target = currentRoundDetails || chat;
       target.appendChild(bidDetails);
+      addGroupCollapseFooter(bidDetails);
       chat.scrollTop = chat.scrollHeight;
       return bidDetails;
     }
@@ -1783,7 +1810,10 @@ sys.stdout = _stdout_capture
     input.value = '';
   });
   document.getElementById('interject-input').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') document.getElementById('interject-btn').click();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('interject-btn').click();
+    }
   });
 
   // --- Move Room ---
@@ -1794,7 +1824,7 @@ sys.stdout = _stdout_capture
 
     sessionAgents.forEach(function (a) {
       if (a.name === 'The Room') {
-        a.system = 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene;
+        a.system = 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + newScene;
       } else {
         a.system = a.system.replace(/Setting:\n[\s\S]*?\n\nYour character:/, 'Setting:\n' + newScene + '\n\nYour character:');
       }
@@ -1804,7 +1834,7 @@ sys.stdout = _stdout_capture
     if (!hasRoom) {
       sessionAgents.push({
         name: 'The Room',
-        system: 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + newScene,
+        system: 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + newScene,
         color: '#666666',
       });
     }
@@ -2269,7 +2299,7 @@ sys.stdout = _stdout_capture
 
       // Add Room as a passive character
       if (scene) {
-        var roomSystem = 'You are The Room -- the environment itself. You are not a person. You provide brief atmospheric color: a sound, a shift in light, the weather changing, a song ending, a glass breaking somewhere. One sentence max. Mostly respond with [silence]. Only speak when something in the environment would naturally change or react to what is happening. Never speak for the characters. Never narrate their actions or emotions.\n\nSetting:\n' + scene;
+        var roomSystem = 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + scene;
         sessionAgents.push({
           name: 'The Room',
           system: roomSystem,
@@ -3209,6 +3239,9 @@ sys.stdout = _stdout_capture
     border-bottom: 1px solid var(--border);
   }
   .round-group:last-child { border-bottom: none; }
+  .group-collapse-btn {
+    margin: 0.75rem 1rem 1rem;
+  }
   .round-header {
     font-size: 0.7rem;
     font-weight: 700;
@@ -3513,13 +3546,15 @@ sys.stdout = _stdout_capture
     flex: 1;
     font-family: var(--font-mono);
     font-size: 1rem;
-    padding: 1rem 1.25rem;
-    min-height: 4rem;
+    padding: 0.75rem 1rem;
+    min-height: 6rem;
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--fg);
     outline: none;
     border-radius: 6px;
+    resize: vertical;
+    line-height: 1.5;
   }
   .interject-row #interject-btn { padding: 0 1.5rem; font-size: 0.9rem; }
   #interject-input:focus { border-color: var(--fg-muted); }

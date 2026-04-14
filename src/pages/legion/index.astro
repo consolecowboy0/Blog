@@ -5,8 +5,12 @@ import path from 'node:path';
 
 const charDir = path.resolve('characters/modelthinker');
 const charFiles = ['axiom','loop','prior','nash','contra','bottleneck','darwin','tail','web','margin','razor','atlas'];
-const legionCharacters = charFiles.map(f => JSON.parse(fs.readFileSync(path.join(charDir, f + '.json'), 'utf-8')));
-const legionRooms = [
+const legionCharacters = charFiles.map(f => ({
+  ...JSON.parse(fs.readFileSync(path.join(charDir, f + '.json'), 'utf-8')),
+  __headshot: '/characters/headshots/modelthinker/' + f + '.png',
+}));
+const analystDir = path.resolve('characters/analysts');
+const allRooms = [
   { id: 'workshop', label: 'The Workshop', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_workshop.json'), 'utf-8')) },
   { id: 'bazaar', label: 'The Bazaar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_bazaar.json'), 'utf-8')) },
   { id: 'onsen', label: 'The Onsen', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_onsen.json'), 'utf-8')) },
@@ -15,13 +19,17 @@ const legionRooms = [
   { id: 'cellar', label: 'The Cellar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cellar.json'), 'utf-8')) },
   { id: 'observatory', label: 'The Observatory', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_observatory.json'), 'utf-8')) },
   { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
+  { id: 'observation', label: 'The Observation Room', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8')) },
 ];
+const legionRooms = allRooms;
 const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
 
-const analystDir = path.resolve('characters/analysts');
 const analystFiles = ['paloma','marcus','iris','evelyn','sam','henrik','lena','theo'];
-const analystCharacters = analystFiles.map(f => JSON.parse(fs.readFileSync(path.join(analystDir, f + '.json'), 'utf-8')));
-const analystRoom = JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8'));
+const analystCharacters = analystFiles.map(f => ({
+  ...JSON.parse(fs.readFileSync(path.join(analystDir, f + '.json'), 'utf-8')),
+  __headshot: '/characters/headshots/analysts/' + f + '.png',
+}));
+const analystRooms = allRooms;
 const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'relationships_analysts.json'), 'utf-8'));
 ---
 
@@ -112,6 +120,11 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     </div>
 
     <div id="tab-analysts" class="tab-panel" style="display:none;">
+      <div class="legion-roster">
+        <label class="field-label">Room</label>
+        <div class="room-grid" id="analysts-room-grid"></div>
+      </div>
+
       <div class="legion-roster">
         <label class="field-label">The Analysts</label>
         <div class="agents-grid" id="analysts-grid"></div>
@@ -293,12 +306,12 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
   </section>
 </BaseLayout>
 
-<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships, analystCharacters, analystRoom, analystRelationships }}>
+<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships, analystCharacters, analystRooms, analystRelationships }}>
   window.__LEGION_CHARACTERS__ = legionCharacters;
   window.__LEGION_ROOMS__ = legionRooms;
   window.__LEGION_RELATIONSHIPS__ = legionRelationships;
   window.__ANALYSTS_CHARACTERS__ = analystCharacters;
-  window.__ANALYSTS_ROOM__ = analystRoom;
+  window.__ANALYSTS_ROOMS__ = analystRooms;
   window.__ANALYSTS_RELATIONSHIPS__ = analystRelationships;
 </script>
 
@@ -361,28 +374,52 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
 
   // --- Analysts auto-load ---
   var analystChars = window.__ANALYSTS_CHARACTERS__ || [];
-  var analystRoomData = window.__ANALYSTS_ROOM__ || null;
+  var analystRoomsData = window.__ANALYSTS_ROOMS__ || [];
   var analystRels = window.__ANALYSTS_RELATIONSHIPS__ || null;
 
-  function initRoomGrid() {
-    var grid = document.getElementById('room-grid');
+  // Name -> headshot URL map. Populated from the preloaded character sets and
+  // from user-uploaded characters in the Advanced tab. msg() / typing() look
+  // up here so we do not have to plumb headshots through every call site.
+  var headshotMap = {};
+  function registerHeadshot(data) {
+    if (!data) return;
+    var n = data.name || data.Name;
+    if (n && data.__headshot) headshotMap[n.toLowerCase()] = data.__headshot;
+  }
+  legionChars.forEach(registerHeadshot);
+  analystChars.forEach(registerHeadshot);
+  function getHeadshot(name) {
+    if (!name) return null;
+    return headshotMap[name.toLowerCase()] || null;
+  }
+  // Default the Psych tab to the Observation Room to preserve prior behavior.
+  var selectedAnalystRoom = (function () {
+    var match = analystRoomsData.filter(function (r) { return r.id === 'observation'; })[0];
+    return match || (analystRoomsData.length > 0 ? analystRoomsData[0] : null);
+  })();
+
+  function buildRoomGrid(gridId, rooms, initiallySelected, onSelect) {
+    var grid = document.getElementById(gridId);
+    if (!grid) return;
     grid.innerHTML = '';
-    legionRoomsData.forEach(function (room, i) {
+    rooms.forEach(function (room) {
       var card = document.createElement('div');
-      card.className = 'room-card' + (i === 0 ? ' room-selected' : '');
+      var isSelected = initiallySelected && initiallySelected.id === room.id;
+      card.className = 'room-card' + (isSelected ? ' room-selected' : '');
       card._roomData = room;
       card.innerHTML =
         '<span class="room-card-name">' + esc(room.label) + '</span>' +
         '<span class="room-card-desc">' + esc(room.data.location.split('.')[0]) + '</span>';
       card.addEventListener('click', function () {
-        document.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
+        grid.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
         card.classList.add('room-selected');
-        selectedLegionRoom = room;
+        onSelect(room);
       });
       grid.appendChild(card);
     });
   }
-  initRoomGrid();
+  buildRoomGrid('room-grid', legionRoomsData, selectedLegionRoom, function (r) { selectedLegionRoom = r; });
+  buildRoomGrid('analysts-room-grid', analystRoomsData, selectedAnalystRoom, function (r) { selectedAnalystRoom = r; });
 
   function initLegionGrid() {
     var grid = document.getElementById('legion-grid');
@@ -398,8 +435,10 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       card.className = 'agent-card legion-card legion-dimmed';
       card._charData = data;
       card._selected = false;
+      var headshot = data && data.__headshot;
       card.innerHTML =
         '<div class="agent-card-header">' +
+          (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
           '<span class="agent-dot" style="background:' + color + ';"></span>' +
           '<span class="agent-name-label">' + esc(name) + '</span>' +
         '</div>' +
@@ -429,8 +468,10 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       card.className = 'agent-card legion-card legion-dimmed';
       card._charData = data;
       card._selected = false;
+      var headshot = data && data.__headshot;
       card.innerHTML =
         '<div class="agent-card-header">' +
+          (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
           '<span class="agent-dot" style="background:' + color + ';"></span>' +
           '<span class="agent-name-label">' + esc(name) + '</span>' +
         '</div>' +
@@ -727,8 +768,10 @@ sys.stdout = _stdout_capture
     card.className = 'agent-card';
     card.setAttribute('data-agent', n);
     card._charData = data;
+    var headshot = data && data.__headshot;
     card.innerHTML =
       '<div class="agent-card-header">' +
+        (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
         '<span class="agent-dot" style="background:' + color + ';"></span>' +
         '<span class="agent-name-label">' + esc(name) + '</span>' +
         '<div class="card-controls">' +
@@ -1226,6 +1269,15 @@ sys.stdout = _stdout_capture
     details.style.borderLeftColor = color;
     var summary = document.createElement('summary');
     summary.className = 'msg-summary';
+    var headshotUrl = getHeadshot(name);
+    if (headshotUrl) {
+      var img = document.createElement('img');
+      img.className = 'msg-headshot';
+      img.src = headshotUrl;
+      img.alt = '';
+      img.onerror = function () { img.style.display = 'none'; };
+      summary.appendChild(img);
+    }
     var nameSpan = document.createElement('span');
     nameSpan.className = 'msg-name';
     nameSpan.style.color = color;
@@ -1343,6 +1395,15 @@ sys.stdout = _stdout_capture
     if (ph) ph.remove();
     var el = document.createElement('div');
     el.className = 'chat-msg chat-typing';
+    var headshotUrl = getHeadshot(name);
+    if (headshotUrl) {
+      var img = document.createElement('img');
+      img.className = 'msg-headshot';
+      img.src = headshotUrl;
+      img.alt = '';
+      img.onerror = function () { img.style.display = 'none'; };
+      el.appendChild(img);
+    }
     var n = document.createElement('span');
     n.className = 'msg-name';
     n.style.color = color;
@@ -2182,7 +2243,7 @@ sys.stdout = _stdout_capture
           if (card._selected) useCards.push(card._charData);
         });
       } else if (activeTab === 'analysts') {
-        useRoom = analystRoomData;
+        useRoom = selectedAnalystRoom ? selectedAnalystRoom.data : null;
         useRels = analystRels;
         useCards = [];
         document.querySelectorAll('#analysts-grid .agent-card').forEach(function (card) {
@@ -2742,6 +2803,26 @@ sys.stdout = _stdout_capture
     height: 10px;
     border-radius: 50%;
     flex-shrink: 0;
+  }
+  .agent-headshot {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    flex-shrink: 0;
+    object-fit: cover;
+  }
+  .msg-headshot {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+    object-fit: cover;
   }
   .agent-name-label {
     font-family: var(--font-body);

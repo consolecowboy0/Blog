@@ -12,18 +12,18 @@ const legionCharacters = charFiles.map(f => ({
 const analystDir = path.resolve('characters/analysts');
 const allRooms = [
   { id: 'workshop', label: 'The Workshop', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_workshop.json'), 'utf-8')) },
-  { id: 'bazaar', label: 'The Bazaar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_bazaar.json'), 'utf-8')) },
+  { id: 'metro_holografix', label: 'Metro Holografix', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_metro_holografix.json'), 'utf-8')) },
   { id: 'onsen', label: 'The Onsen', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_onsen.json'), 'utf-8')) },
   { id: 'rig', label: 'The Rig', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_rig.json'), 'utf-8')) },
   { id: 'lighthouse', label: 'The Lighthouse', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_lighthouse.json'), 'utf-8')) },
   { id: 'cellar', label: 'The Cellar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cellar.json'), 'utf-8')) },
   { id: 'observatory', label: 'The Observatory', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_observatory.json'), 'utf-8')) },
   { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
-  { id: 'observation', label: 'The Chatsubo', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8')) },
+  { id: 'chatsubo', label: 'The Chatsubo', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_chatsubo.json'), 'utf-8')) },
   { id: 'forking_paths', label: 'The Library of Forking Paths', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_forking_paths.json'), 'utf-8')) },
-  { id: 'glass_forest', label: 'The Visitor Center', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_glass_forest.json'), 'utf-8')) },
-  { id: 'cloudbank', label: 'The Cloudbank', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cloudbank.json'), 'utf-8')) },
-  { id: 'tessellation', label: 'The Falcon Lounge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_tessellation.json'), 'utf-8')) },
+  { id: 'visitor_center', label: 'The Visitor Center', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_visitor_center.json'), 'utf-8')) },
+  { id: 'head_in_the_clouds', label: 'Head in the Clouds', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_head_in_the_clouds.json'), 'utf-8')) },
+  { id: 'falcon_lounge', label: 'The Falcon Lounge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_falcon_lounge.json'), 'utf-8')) },
   { id: 'mycelium_bridge', label: 'The Mycelium Bridge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_mycelium_bridge.json'), 'utf-8')) },
   { id: 'suntouch', label: 'The Suntouch Veranda', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_suntouch.json'), 'utf-8')) },
   { id: 'hendrix', label: 'The Hendrix Lobby', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_hendrix.json'), 'utf-8')) },
@@ -78,99 +78,15 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     <div class="tab-bar">
       <button class="tab-btn tab-active" data-tab="legion">Science</button>
       <button class="tab-btn" data-tab="analysts">Psych</button>
-    </div>
-
-    <div id="tab-legion" class="tab-panel">
-      <div class="legion-roster">
-        <label class="field-label">The Rooms</label>
-        <div class="room-grid" id="room-grid"></div>
+      <div class="tab-actions">
+        <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
+        <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
+        <button id="move-room-btn" class="secondary-btn" style="display:none;">Move Room</button>
+        <button id="add-char-btn" class="secondary-btn" style="display:none;">Add Character</button>
+        <button id="open-rooms-modal" class="secondary-btn" type="button">Rooms</button>
+        <button id="open-chars-modal" class="secondary-btn" type="button">Scientists</button>
+        <button id="open-run-modal" class="run-button" type="button">Run</button>
       </div>
-
-      <div class="legion-roster">
-        <label class="field-label">The Legion</label>
-        <div class="agents-grid" id="legion-grid"></div>
-      </div>
-
-      <details class="prompt-section prompt-foldable" open>
-        <summary class="field-label prompt-toggle">Prompt</summary>
-        <textarea id="opening" rows="2" placeholder="Prompt..."></textarea>
-      </details>
-
-      <div class="controls">
-        <div class="control-group">
-          <label class="field-label" for="rounds">Rounds</label>
-          <input type="number" id="rounds" min="1" max="50" value="2" />
-        </div>
-        <input type="hidden" id="delay-input" value="0" />
-        <input type="hidden" id="mode-select" value="agent-sdk" />
-        <div class="control-group">
-          <label class="field-label" for="order-mode">Order</label>
-          <select id="order-mode">
-            <option value="priority">Priority</option>
-            <option value="default">Default</option>
-            <option value="random">Random</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label class="field-label" for="model-select">Model</label>
-          <select id="model-select">
-            <option value="claude-sonnet-4-20250514">Sonnet 4</option>
-            <option value="claude-opus-4-20250514">Opus 4</option>
-            <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
-          </select>
-        </div>
-        <label class="defense-label"><input type="checkbox" id="defense-mode" /> Defense</label>
-      </div>
-    </div>
-
-    <div id="tab-analysts" class="tab-panel" style="display:none;">
-      <div class="legion-roster">
-        <label class="field-label">The Rooms</label>
-        <div class="room-grid" id="analysts-room-grid"></div>
-      </div>
-
-      <div class="legion-roster">
-        <label class="field-label">The Analysts</label>
-        <div class="agents-grid" id="analysts-grid"></div>
-      </div>
-
-      <details class="prompt-section prompt-foldable" open>
-        <summary class="field-label prompt-toggle">Transcript</summary>
-        <textarea id="analysts-opening" rows="10" placeholder="Paste a conversation transcript here. The analysts will read it and tell you what is going on under the surface."></textarea>
-      </details>
-
-      <div class="controls">
-        <div class="control-group">
-          <label class="field-label" for="analysts-rounds">Rounds</label>
-          <input type="number" id="analysts-rounds" min="1" max="50" value="3" />
-        </div>
-        <div class="control-group">
-          <label class="field-label" for="analysts-order-mode">Order</label>
-          <select id="analysts-order-mode">
-            <option value="priority">Priority</option>
-            <option value="default">Default</option>
-            <option value="random">Random</option>
-          </select>
-        </div>
-        <div class="control-group">
-          <label class="field-label" for="analysts-model-select">Model</label>
-          <select id="analysts-model-select">
-            <option value="claude-sonnet-4-20250514">Sonnet 4</option>
-            <option value="claude-opus-4-20250514">Opus 4</option>
-            <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
-          </select>
-        </div>
-        <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Defense</label>
-      </div>
-    </div>
-
-    <div class="run-controls">
-      <button id="go-btn">Go</button>
-      <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
-      <button id="clear-btn" class="secondary-btn">Clear</button>
-      <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
-      <button id="move-room-btn" class="secondary-btn" style="display:none;">Move Room</button>
-      <button id="add-char-btn" class="secondary-btn" style="display:none;">Add Character</button>
     </div>
 
     <div id="status-panel" class="status-panel" style="display:none;">
@@ -179,6 +95,10 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     </div>
 
     <div class="chat-wrapper" id="chat-wrapper">
+      <div class="chat-progress" id="chat-progress" hidden>
+        <div class="chat-progress-track"><div class="chat-progress-fill" id="chat-progress-fill"></div></div>
+        <span class="chat-progress-label" id="chat-progress-label"></span>
+      </div>
       <div class="chat-toolbar">
         <button id="fullscreen-chat" class="copy-btn chat-toolbar-btn" title="Fullscreen"><svg class="icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg class="icon-collapse" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
         <button id="copy-chat" class="copy-btn chat-toolbar-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
@@ -195,6 +115,115 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       </div>
     </div>
 
+    <div id="rooms-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content rooms-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Rooms</span>
+          <button id="rooms-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <input type="text" id="rooms-modal-search" class="modal-search" placeholder="Search rooms..." autocomplete="off" />
+        <div id="tab-legion-rooms" class="tab-panel">
+          <div class="room-grid" id="room-grid"></div>
+        </div>
+        <div id="tab-analysts-rooms" class="tab-panel" style="display:none;">
+          <div class="room-grid" id="analysts-room-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="chars-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content rooms-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label" id="chars-modal-title">Scientists</span>
+          <button id="chars-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <input type="text" id="chars-modal-search" class="modal-search" placeholder="Search characters..." autocomplete="off" />
+        <div id="tab-legion-chars" class="tab-panel">
+          <div class="agents-grid" id="legion-grid"></div>
+        </div>
+        <div id="tab-analysts-chars" class="tab-panel" style="display:none;">
+          <div class="agents-grid" id="analysts-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="run-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content run-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Run</span>
+          <button id="run-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+
+        <div id="tab-legion-top" class="tab-panel">
+          <details class="prompt-section prompt-foldable" open>
+            <summary class="field-label prompt-toggle">Prompt</summary>
+            <textarea id="opening" rows="3" placeholder="Prompt..."></textarea>
+          </details>
+
+          <div class="controls">
+            <div class="control-group">
+              <label class="field-label" for="rounds">Rounds</label>
+              <input type="number" id="rounds" min="1" max="50" value="2" />
+            </div>
+            <input type="hidden" id="delay-input" value="0" />
+            <input type="hidden" id="mode-select" value="agent-sdk" />
+            <div class="control-group">
+              <label class="field-label" for="order-mode">Order</label>
+              <select id="order-mode">
+                <option value="priority">Priority</option>
+                <option value="default">Default</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="model-select">Model</label>
+              <select id="model-select">
+                <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+                <option value="claude-opus-4-20250514">Opus 4</option>
+                <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+              </select>
+            </div>
+            <label class="defense-label"><input type="checkbox" id="defense-mode" /> Defense</label>
+          </div>
+        </div>
+
+        <div id="tab-analysts-top" class="tab-panel" style="display:none;">
+          <details class="prompt-section prompt-foldable" open>
+            <summary class="field-label prompt-toggle">Transcript</summary>
+            <textarea id="analysts-opening" rows="10" placeholder="Paste a conversation transcript here. The analysts will read it and tell you what is going on under the surface."></textarea>
+          </details>
+
+          <div class="controls">
+            <div class="control-group">
+              <label class="field-label" for="analysts-rounds">Rounds</label>
+              <input type="number" id="analysts-rounds" min="1" max="50" value="3" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-order-mode">Order</label>
+              <select id="analysts-order-mode">
+                <option value="priority">Priority</option>
+                <option value="default">Default</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-model-select">Model</label>
+              <select id="analysts-model-select">
+                <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+                <option value="claude-opus-4-20250514">Opus 4</option>
+                <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+              </select>
+            </div>
+            <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Defense</label>
+          </div>
+        </div>
+
+        <div class="run-controls run-modal-controls">
+          <button id="go-btn">Go</button>
+          <button id="clear-btn" class="secondary-btn">Clear</button>
+        </div>
+      </div>
+    </div>
 
     <div id="add-char-modal" class="add-char-modal" style="display:none;">
       <div class="add-char-modal-content">
@@ -281,8 +310,16 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('tab-active'); });
       btn.classList.add('tab-active');
       activeTab = btn.getAttribute('data-tab');
-      document.getElementById('tab-legion').style.display = activeTab === 'legion' ? '' : 'none';
-      document.getElementById('tab-analysts').style.display = activeTab === 'analysts' ? '' : 'none';
+      document.getElementById('tab-legion-top').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-legion-rooms').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-legion-chars').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-analysts-top').style.display = activeTab === 'analysts' ? '' : 'none';
+      document.getElementById('tab-analysts-rooms').style.display = activeTab === 'analysts' ? '' : 'none';
+      document.getElementById('tab-analysts-chars').style.display = activeTab === 'analysts' ? '' : 'none';
+      var charsBtn = document.getElementById('open-chars-modal');
+      if (charsBtn) charsBtn.textContent = activeTab === 'analysts' ? 'Analysts' : 'Scientists';
+      var charsTitle = document.getElementById('chars-modal-title');
+      if (charsTitle) charsTitle.textContent = activeTab === 'analysts' ? 'Analysts' : 'Scientists';
     });
   });
 
@@ -340,7 +377,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
   }
   // Default the Psych tab to the Observation Room to preserve prior behavior.
   var selectedAnalystRoom = (function () {
-    var match = analystRoomsData.filter(function (r) { return r.id === 'observation'; })[0];
+    var match = analystRoomsData.filter(function (r) { return r.id === 'chatsubo'; })[0];
     return match || (analystRoomsData.length > 0 ? analystRoomsData[0] : null);
   })();
 
@@ -1052,6 +1089,12 @@ sys.stdout = _stdout_capture
     });
   }
 
+  // Collapse all previously unfurled chat-msg details so only the newest stays open
+  function closePriorMessages() {
+    var chat = document.getElementById('chat');
+    chat.querySelectorAll('details.chat-msg[open]').forEach(function (d) { d.open = false; });
+  }
+
   function msg(name, color, text, system) {
     var chat = document.getElementById('chat');
     var ph = chat.querySelector('.chat-placeholder');
@@ -1070,6 +1113,22 @@ sys.stdout = _stdout_capture
       currentRoundDetails = details;
       chat.scrollTop = chat.scrollHeight;
       return details;
+    }
+
+    // Dissertations header becomes a collapsible group like rounds
+    var dissertMatch = system && text === '--- Dissertations ---';
+    if (dissertMatch) {
+      var dDetails = document.createElement('details');
+      dDetails.className = 'round-group';
+      dDetails.open = true;
+      var dSummary = document.createElement('summary');
+      dSummary.className = 'round-header';
+      dSummary.textContent = 'Dissertations';
+      dDetails.appendChild(dSummary);
+      chat.appendChild(dDetails);
+      currentRoundDetails = dDetails;
+      chat.scrollTop = chat.scrollHeight;
+      return dDetails;
     }
 
     // Bidding headers
@@ -1098,9 +1157,14 @@ sys.stdout = _stdout_capture
       return el;
     }
 
-    // Character messages - collapsible with preview
+    // Character messages - collapsible with preview. The headshot lives inside
+    // <summary> so browsers keep it visible when the details is closed, but is
+    // absolutely positioned so the name/preview/text render to its right.
+    closePriorMessages();
     var details = document.createElement('details');
     details.className = 'chat-msg';
+    details.open = true;
+    if (getHeadshot(name)) details.classList.add('chat-msg-has-avatar');
     details.style.borderLeftColor = color;
     var summary = document.createElement('summary');
     summary.className = 'msg-summary';
@@ -1150,8 +1214,10 @@ sys.stdout = _stdout_capture
     var chat = document.getElementById('chat');
     var ph = chat.querySelector('.chat-placeholder');
     if (ph) ph.remove();
+    closePriorMessages();
     var details = document.createElement('details');
     details.className = 'chat-msg chat-sys-collapsible';
+    details.open = true;
     var summary = document.createElement('summary');
     summary.className = 'chat-sys-summary';
     var tag = document.createElement('span');
@@ -2037,6 +2103,62 @@ sys.stdout = _stdout_capture
   });
 
   // --- Go ---
+  // Run modal open/close wiring -- defined early so the close listener is
+  // attached before go-btn runs its heavy async work.
+  function openRunModal() { document.getElementById('run-modal').style.display = 'flex'; }
+  function closeRunModal() { document.getElementById('run-modal').style.display = 'none'; }
+  document.getElementById('open-run-modal').addEventListener('click', openRunModal);
+  document.getElementById('run-modal-close').addEventListener('click', closeRunModal);
+  document.getElementById('run-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeRunModal();
+  });
+
+  // Rooms and characters moved out of the left column into modals so chat
+  // can span the full page. Same open/close pattern.
+  function openModalById(id) { document.getElementById(id).style.display = 'flex'; }
+  function closeModalById(id) { document.getElementById(id).style.display = 'none'; }
+  document.getElementById('open-rooms-modal').addEventListener('click', function () {
+    openModalById('rooms-modal');
+    var s = document.getElementById('rooms-modal-search');
+    s.value = ''; filterModalCards('rooms-modal', ''); setTimeout(function () { s.focus(); }, 0);
+  });
+  document.getElementById('rooms-modal-close').addEventListener('click', function () { closeModalById('rooms-modal'); });
+  document.getElementById('rooms-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModalById('rooms-modal');
+  });
+  document.getElementById('open-chars-modal').addEventListener('click', function () {
+    openModalById('chars-modal');
+    var s = document.getElementById('chars-modal-search');
+    s.value = ''; filterModalCards('chars-modal', ''); setTimeout(function () { s.focus(); }, 0);
+  });
+  document.getElementById('chars-modal-close').addEventListener('click', function () { closeModalById('chars-modal'); });
+  document.getElementById('chars-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModalById('chars-modal');
+  });
+
+  // Card search: hide any card whose textContent does not include the query.
+  // Works for both room-card and agent-card markup since both embed the
+  // searchable name/label as text inside the card element.
+  function filterModalCards(modalId, query) {
+    var q = (query || '').trim().toLowerCase();
+    var modal = document.getElementById(modalId);
+    var cards = modal.querySelectorAll('.room-card, .agent-card');
+    cards.forEach(function (card) {
+      if (!q) { card.style.display = ''; return; }
+      var txt = (card.textContent || '').toLowerCase();
+      card.style.display = txt.indexOf(q) === -1 ? 'none' : '';
+    });
+  }
+  document.getElementById('rooms-modal-search').addEventListener('input', function () {
+    filterModalCards('rooms-modal', this.value);
+  });
+  document.getElementById('chars-modal-search').addEventListener('input', function () {
+    filterModalCards('chars-modal', this.value);
+  });
+  // Close the run modal as soon as Go is clicked so the chat fills the screen
+  // while the rounds run. Has to fire before the async handler's long await.
+  document.getElementById('go-btn').addEventListener('click', function () { closeRunModal(); }, true);
+
   document.getElementById('go-btn').addEventListener('click', async function () {
     var btn = this;
     btn.disabled = true;
@@ -2476,7 +2598,37 @@ sys.stdout = _stdout_capture
     gap: 0;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
+    align-items: center;
   }
+  .tab-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding-bottom: 0.35rem;
+    padding-right: 0.25rem;
+  }
+  .run-button {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 1rem;
+    background: var(--fg);
+    color: var(--bg);
+    border: 1px solid var(--fg);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .run-button:hover { opacity: 0.85; }
+  .add-char-modal-content.run-modal-content {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 85vh;
+  }
+  .run-modal-controls { margin-top: 0.75rem; margin-bottom: 0; }
   .tab-btn {
     font-family: var(--font-body);
     font-size: 0.8rem;
@@ -2498,6 +2650,30 @@ sys.stdout = _stdout_capture
     border-bottom-color: var(--fg);
   }
   .tab-panel { margin-bottom: 1rem; }
+  .add-char-modal-content.rooms-modal-content {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 85vh;
+  }
+  .modal-search {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+    border-radius: 4px;
+  }
+  .modal-search:focus { border-color: var(--fg-muted); }
+  #panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #panel > .chat-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .legion-roster { margin-bottom: 1.5rem; }
   .legion-card { cursor: pointer; user-select: none; transition: opacity 0.2s; }
   .legion-card .agent-card-header { gap: 0.4rem; }
@@ -2684,6 +2860,15 @@ sys.stdout = _stdout_capture
   .prompt-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
   .prompt-foldable[open] > .prompt-toggle::before { content: '\25BC  '; }
   .prompt-foldable:not([open]) { margin-bottom: 0.75rem; }
+  .roster-foldable > summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .roster-foldable > summary::-webkit-details-marker { display: none; }
+  .roster-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
+  .roster-foldable[open] > .roster-toggle::before { content: '\25BC  '; }
+  .roster-foldable:not([open]) { margin-bottom: 0.75rem; }
   #opening, #analysts-opening {
     width: 100%;
     font-family: var(--font-mono);
@@ -2879,14 +3064,17 @@ sys.stdout = _stdout_capture
   /* Chat - screenplay format */
   .chat {
     position: relative;
-    min-height: 300px;
-    max-height: 75vh;
+    flex: 1;
+    min-height: 400px;
     overflow-y: auto;
     padding: 1rem;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 6px;
   }
+  .dashboard-right .controls { margin-bottom: 0.5rem; }
+  .dashboard-right .run-controls { margin-bottom: 0.75rem; }
+  .dashboard-right .prompt-foldable { margin-bottom: 0.5rem; }
   .chat-placeholder {
     color: var(--fg-muted);
     font-size: 0.85rem;
@@ -2916,25 +3104,23 @@ sys.stdout = _stdout_capture
   .round-group:not([open]) > .round-header::before { content: '\25B6  '; }
   /* Bid groups */
   .bid-group {
-    margin: 0 1rem 0.5rem;
-    border: 1px solid var(--border);
+    margin: 0;
   }
   .bid-header {
-    font-size: 0.65rem;
-    font-weight: 600;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     color: var(--fg-muted);
-    padding: 0.3rem 0.5rem;
+    padding: 1rem 1rem 0.5rem;
     cursor: pointer;
     user-select: none;
     list-style: none;
-    background: var(--code-bg);
   }
   .bid-header::-webkit-details-marker { display: none; }
-  .bid-header::before { content: '\25B6  '; font-size: 0.5rem; vertical-align: middle; }
+  .bid-header::before { content: '\25B6  '; font-size: 0.55rem; vertical-align: middle; }
   .bid-group[open] > .bid-header::before { content: '\25BC  '; }
-  .bid-results { padding: 0.4rem 0.5rem; }
+  .bid-results { padding: 0.4rem 1rem 0.5rem; }
   .bid-line {
     font-size: 0.75rem;
     font-family: var(--font-mono);
@@ -2951,6 +3137,28 @@ sys.stdout = _stdout_capture
     border-left: 3px solid transparent;
     animation: msg-in 0.3s ease-out;
   }
+  .chat-msg.chat-msg-has-avatar {
+    padding: 0.75rem 1rem;
+    min-height: calc(192px + 1.5rem);
+  }
+  .chat-msg.chat-msg-has-avatar::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+  .chat-msg.chat-msg-has-avatar .msg-headshot {
+    float: left;
+    width: 192px;
+    height: 192px;
+    margin: 0 1rem 0.75rem 0;
+  }
+  /* Summary's flex layout fights the float; reset to inline/block so name+preview wrap beside the floated image */
+  .chat-msg.chat-msg-has-avatar > .msg-summary {
+    display: block;
+    padding: 0;
+  }
+  .chat-msg.chat-msg-has-avatar > .msg-summary .msg-name { margin-right: 0.5rem; }
+  .chat-msg.chat-msg-has-avatar > .msg-text { padding: 0; }
   @keyframes msg-in {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
@@ -3179,17 +3387,20 @@ sys.stdout = _stdout_capture
   }
   /* Interject */
   .interject-section { margin-bottom: 2rem; }
-  .interject-row { display: flex; gap: 0.5rem; }
+  .interject-row { display: flex; gap: 0.75rem; align-items: stretch; }
   #interject-input {
     flex: 1;
     font-family: var(--font-mono);
-    font-size: 0.85rem;
-    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+    min-height: 4rem;
     border: 1px solid var(--border);
     background: var(--bg);
     color: var(--fg);
     outline: none;
+    border-radius: 6px;
   }
+  .interject-row #interject-btn { padding: 0 1.5rem; font-size: 0.9rem; }
   #interject-input:focus { border-color: var(--fg-muted); }
 
   .add-char-modal {

@@ -155,7 +155,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
         </div>
 
         <div id="tab-legion-top" class="tab-panel">
-          <details class="prompt-section prompt-foldable" open>
+          <details class="prompt-section prompt-foldable">
             <summary class="field-label prompt-toggle">Prompt</summary>
             <textarea id="opening" rows="3" placeholder="Prompt..."></textarea>
           </details>
@@ -188,7 +188,7 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
         </div>
 
         <div id="tab-analysts-top" class="tab-panel" style="display:none;">
-          <details class="prompt-section prompt-foldable" open>
+          <details class="prompt-section prompt-foldable">
             <summary class="field-label prompt-toggle">Transcript</summary>
             <textarea id="analysts-opening" rows="10" placeholder="Paste a conversation transcript here. The analysts will read it and tell you what is going on under the surface."></textarea>
           </details>
@@ -1186,10 +1186,15 @@ sys.stdout = _stdout_capture
       detailsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
     detailsEl.appendChild(btn);
-    var observer = new MutationObserver(function () {
-      if (detailsEl.lastElementChild !== btn) detailsEl.appendChild(btn);
-    });
-    observer.observe(detailsEl, { childList: true });
+    // Stash the button so msg() can push it to the end every time a new
+    // child is appended. MutationObserver worked in theory but the async
+    // callback left the button stranded mid-group on fast successive inserts.
+    detailsEl._collapseFooter = btn;
+  }
+  function reseatGroupFooter(parentEl) {
+    if (parentEl && parentEl._collapseFooter) {
+      parentEl.appendChild(parentEl._collapseFooter);
+    }
   }
 
   function msg(name, color, text, system) {
@@ -1257,6 +1262,7 @@ sys.stdout = _stdout_capture
       el.textContent = text;
       var target = currentRoundDetails || chat;
       target.appendChild(el);
+      reseatGroupFooter(target);
       chat.scrollTop = chat.scrollHeight;
       return el;
     }
@@ -1309,6 +1315,7 @@ sys.stdout = _stdout_capture
 
     var target = currentRoundDetails || chat;
     target.appendChild(details);
+    reseatGroupFooter(target);
     chat.scrollTop = chat.scrollHeight;
     return details;
   }
@@ -1341,6 +1348,7 @@ sys.stdout = _stdout_capture
     details.appendChild(body);
     var target = currentRoundDetails || chat;
     target.appendChild(details);
+    reseatGroupFooter(target);
     chat.scrollTop = chat.scrollHeight;
     return details;
   }
@@ -2711,8 +2719,8 @@ sys.stdout = _stdout_capture
   }
   .run-button:hover { opacity: 0.85; }
   .add-char-modal-content.run-modal-content {
-    width: 70vw;
-    max-width: 70vw;
+    width: 90vw;
+    max-width: 720px;
     max-height: 85vh;
   }
   .run-modal-controls { margin-top: 0.75rem; margin-bottom: 0; }
@@ -3572,7 +3580,7 @@ sys.stdout = _stdout_capture
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0 1rem 1rem;
     width: 90%;
     max-width: 420px;
     max-height: 70vh;
@@ -3743,12 +3751,12 @@ sys.stdout = _stdout_capture
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
     position: sticky;
     top: 0;
     background: var(--bg);
-    padding: 0.25rem 0 0.5rem;
-    z-index: 2;
+    margin: 0 -1rem 0.75rem;
+    padding: 0.75rem 1rem;
+    z-index: 10;
     border-bottom: 1px solid var(--border);
   }
   .add-char-modal-header .field-label { margin-bottom: 0; }

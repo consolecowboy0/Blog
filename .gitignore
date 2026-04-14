@@ -3,3 +3,5 @@ dist/
 .astro/
 .env
 .netlify/
+.DS_Store
+**/.DS_Store

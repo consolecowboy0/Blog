@@ -42,6 +42,9 @@ const STYLE_SUFFIX =
   'Photorealistic detailed pixel art establishing shot. Empty room, no people, no figures. Wide interior view, eye-level perspective, realistic proportions. Natural lighting with soft shadows. Muted realistic palette, painterly shading, dense pixel clusters. Cinematic composition. No text, no watermark, no borders, no signage, no logos.';
 
 function buildPrompt(room) {
+  if (room.image_prompt) {
+    return `${STYLE_SUFFIX} Scene: ${room.image_prompt}`;
+  }
   const parts = [];
   if (room.location) parts.push(room.location);
   if (room.time) parts.push('Time: ' + room.time);

@@ -1,0 +1,28 @@
+{
+  "name": "The Library of Forking Paths",
+  "image_prompt": "Vast impossible Borgesian library interior. Towering dark wooden bookshelves stretching up into shadow, impossibly tall, stacked with leather-bound volumes in deep reds, browns, and indigos. Multiple aisles radiating outward in impossible directions, some floors visible through balustrades that cannot all be on the same plane. Green-glass banker's lamps on dark wooden reading tables scattered throughout. A single candle on the central table. Rolling library ladder on a brass track. Three different skies visible through three windows: dawn, stormy sky, starfield. Dust motes in warm lamplight. Empty, no people. Colors: dark walnut wood, deep leather reds and greens, warm lamp gold, green glass shades, dust-mote amber haze. Mysterious archival Borges atmosphere.",
+  "location": "A library nobody knows the address of, accessed through a door at the back of a Buenos Aires bookshop that is sometimes there and sometimes not. Inside is larger than outside. The shelves disagree about which floor they are on.",
+  "time": "It is always the hour you remember best from your own life. Everyone in the room sees a different time on the clock above the central table and nobody mentions it.",
+  "weather": "Indoor weather. A faint draft that smells of cedar and ozone, the air pressure of a held breath. Outside the windows, three different skies: dawn through the east window, storm through the south, a starfield through the north, no view at all through the west.",
+  "atmosphere": {
+    "lighting": "Reading lamps with green glass shades on every table, throwing pools of warm light. The aisles between the shelves trail off into a soft darkness that does not behave like darkness should. A single candle on the central table burns without ever shortening.",
+    "sound": "The whisper of pages turning by themselves, two aisles over. The faint creak of a ladder rolling on its track in another room. Footsteps that arrive but never depart. The hum a library makes when it is paying attention.",
+    "crowd": "The room is full of empty chairs and the chairs are warm. The library carries the residue of every conversation it has ever held without surrendering any of them.",
+    "smell": "Old paper, glue binding, the metallic tang of brass fittings, dried lavender pressed in books a century ago, the faintest trace of rain that fell elsewhere"
+  },
+  "layout": {
+    "central_table": "A circular oak table in the rotunda, polished to a mirror sheen, ringed by chairs that subtly rearrange themselves when nobody is looking. A reading lamp at every place. Three ledgers stacked at the center, blank, waiting. Nobody knows who supplies the pens but pens always appear.",
+    "stacks_of_decisions": "The longest aisle in the library, lined floor to ceiling with books bound in identical black leather, each spine stamped only with a date and a single word. They are accounts of decisions that were made and decisions that almost were. The shelves continue past the visible end of the aisle. Nobody has reached the back wall.",
+    "atrium_of_consequence": "A skylit atrium where the books rearrange themselves overnight according to which decisions led to which outcomes. The librarian, who is never seen, leaves the morning's reshelving as a kind of weather report.",
+    "reading_alcove": "A small recess beneath a stained-glass window depicting a man writing the same sentence over and over. Two leather wingback chairs face each other across a low table. Conversations held here echo back, slightly rephrased, three minutes later.",
+    "card_catalog": "A wall of small wooden drawers, each labeled with a question. Pulling a drawer reveals slips of paper handwritten in different inks, all proposing answers. Some answers contradict each other. None are dated."
+  },
+  "objects_of_note": [
+    "The visitor's ledger at the entrance, open to a fresh page. Previous visitors signed in names that read like aliases. The ink of the most recent entry is still wet though no one saw it written.",
+    "A globe on a brass stand near the window with continents that almost match the world but not quite. The cartouche reads 'as of last Tuesday' in Latin.",
+    "An hourglass on the central table filled with what looks like sand but might be ground glass. It has not been turned in living memory and the upper bulb has not emptied.",
+    "A single envelope leaning against the candlestick, unaddressed, sealed with red wax. Nobody picks it up. Everybody notices it.",
+    "A telescope mounted on a balcony rail, pointed not at the sky but at a particular shelf three aisles away."
+  ],
+  "mood": "Patient and unsettling. The library does not pressure anyone but it does not let go either. Every framework brought into this room finds itself shelved next to its alternatives, and the proximity is instructive. Disagreements feel less like contests and more like consultations of the stacks. The hardest part is not finding an answer; it is choosing which answer to take down off the shelf and check out, knowing every other answer remains on the shelf, available, slightly reproachful."
+}

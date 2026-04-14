@@ -1,27 +1,28 @@
 {
-  "name": "The Observation Room",
-  "location": "A long, quiet conference room on the upper floor of a clinical training institute. One wall is glass, overlooking a reading garden. The other three are lined with bookshelves, whiteboards, and a corkboard pinned with previous cases, heavily redacted.",
-  "time": "Mid-morning. A fresh transcript has been set in front of each analyst. Coffee is still hot.",
-  "weather": "Gray outside. The kind of soft, flat light that makes reading easier.",
+  "name": "The Chatsubo",
+  "image_prompt": "Interior of the Chatsubo, a grimy dive bar in the Ninsei strip of Chiba City, Japan, in a dystopian cyberpunk near-future. Low-ceilinged cramped space, a long scarred bar of dented chrome and plasteel running along one wall. Back-lit shelves of cheap liquor bottles and a Kirin beer sign flickering in washed-out neon. A few battered vinyl-upholstered booths with cigarette-burned tabletops. A dented Wurlitzer jukebox in one corner humming a dub track. Ashtrays overflowing on every surface. A tangle of exposed conduit and cheap LED strip along the ceiling. A filthy streetside door with a beaded plastic curtain; through it, a glimpse of rain-slick neon-drenched Ninsei alley in pink, cyan, and sodium yellow. Empty, no people. Colors: sickly green neon, hot pink, sodium yellow, cigarette smoke gray, dented chrome, black vinyl. Gritty William-Gibson sprawl atmosphere.",
+  "location": "The Chatsubo, a bar in the Ninsei strip of Night City-adjacent Chiba. Low and long and lit by a tired sign. Ratz tends the bar with a plastic Russian arm that whines every time he pours. The clientele is hackers, hustlers, sailors off the Chiba docks, and the occasional street samurai looking for work. The back booth has been reserved.",
+  "time": "After midnight. Chiba does not have a real night. The neon outside does not know the difference.",
+  "weather": "Perpetual drizzle on Ninsei, warm and chemical. The air inside the bar is a held breath of smoke, fry grease, and metabolized sake. The climate control has been broken since last winter.",
   "atmosphere": {
-    "lighting": "Natural light from the glass wall, supplemented by warm pendant lamps over the central table. Two task lamps at the reading corner. No fluorescents.",
-    "sound": "Pages turning. A pen clicking. The heating system's low hum. The distant murmur of the floor below.",
-    "crowd": "Just the analysts. No observers. No client. This is a reading session, not a session with anyone.",
-    "smell": "Coffee, old paper, the faint cedar of the bookshelves"
+    "lighting": "A flickering Kirin sign throws green across every face. The bar back-light is cold fluorescent. Pink and cyan neon bleeds in through the front window. Somewhere a bulb has been out for weeks and nobody has replaced it. Shadows do not resolve; the lighting here has given up on clarity.",
+    "sound": "The Wurlitzer running a low dub track. The whine of Ratz's prosthetic arm each time he pours. The distant rattle of the monorail two blocks over. A low argument from the back booth that never gets loud enough to identify. The hiss of rain hitting neon through the open door.",
+    "crowd": "Regulars at the bar pretending not to watch. Two off-duty sararimen in the corner. A street samurai in the doorway who has not moved in an hour. The working group has the back booth. Nobody in the Chatsubo has ever been curious about anyone in the back booth.",
+    "smell": "Stale Yebisu beer, frying squid from the yatai outside, cheap tobacco, ozone from something in the kitchen that is not supposed to be on, the chemical sweetness of new plastic from Ratz's arm, and the specific rubbery smell of a bar that has been damp for so long it cannot remember being dry"
   },
   "layout": {
-    "central_table": "A long oak table with eight chairs. Each seat has a fresh copy of the transcript, a legal pad, and a glass of water. Paloma sits near the head because she likes the angle to read from. Marcus took the seat nearest the window. Iris chose the seat with the clearest sightline to everyone else. Henrik is already annotating.",
-    "reading_corner": "Two leather armchairs by the window, a side table with a stack of reference books: DSM, Gottman, Bowen, Schegloff, a battered copy of Miller and Rollnick. Evelyn has claimed one chair. Her bracelets clink against the armrest.",
-    "whiteboard_wall": "Floor-to-ceiling whiteboard, already partially covered from the previous session's diagram of triangles and repair attempts. Sam has not yet stood up but he will.",
-    "bookshelf_wall": "Clinical texts, transcripts of famous cases stripped of identifying detail, a small shelf of linguistics journals Henrik insists on keeping current.",
-    "coffee_station": "A kettle, a French press, chipped mugs, a tin of shortbread. Lena is refilling her cup. Theo is leaning against the counter with his travel mug already full."
+    "the_bar": "Scarred chrome running the length of the wall, twenty stools bolted to the floor, most of them empty. Ratz behind it, wiping a glass with a rag that has not been clean since the century turned. A menu board in Japanese and machine English offers yakitori, Kirin, bourbon, and cold noodles. The bourbon is real. The yakitori is not.",
+    "back_booth": "A battered red-vinyl U-shape in the deepest corner, table scarred with burn marks and arguments. The overhead lamp is broken. The booth is considered private by consensus. Conversations held here do not leave Ninsei.",
+    "jukebox_corner": "A dented Wurlitzer running playlists nobody loaded. Beside it, a dead pachinko machine and a pay console for routing anonymous calls through Zurich. The console is hot to the touch.",
+    "kitchen_hatch": "A narrow pass-through to a kitchen too small to fit a cook. Something is always frying. The hatch cook speaks only the numbered order and a single syllable of acknowledgment. He has worked here longer than Ratz.",
+    "alley_door": "A filthy back door onto a Ninsei alley that flickers pink and cyan from signage three floors up. The door is propped open by a cinderblock. Through it, you can see the rain steam off a motorbike nobody seems to own."
   },
   "objects_of_note": [
-    "The transcript itself, placed at every seat. Eight identical copies. Clean, double-spaced, timestamped, with speaker labels. The client brief says only: 'read this and tell me what is actually going on.'",
-    "A small framed card on the wall that reads 'READ WHAT IS THERE.' Nobody remembers who hung it.",
-    "A chess clock nobody is using, but nobody moves it either.",
-    "A stack of colored highlighters in a mason jar. Paloma has already claimed the yellow one.",
-    "An old tape recorder in the corner, not plugged in, kept for the joke of it."
+    "Ratz's Russian prosthetic arm, a seven-function pink plastic manipulator that predates most of the bar's clientele and whines on every motion.",
+    "A chipped ceramic ashtray at the back booth, full of American cigarette butts nobody remembers smoking.",
+    "A Kirin sign behind the bar with a dead tube in the 'i,' giving it a permanent K rn glow.",
+    "A dented pay console by the jukebox with an out-of-service sticker that was applied ironically.",
+    "A yatai cart visible through the front window, vendor slinging squid on a grill, radio playing something from Tokyo that nobody in Chiba would admit to liking."
   ],
-  "mood": "Attentive. A little electric. Eight different frameworks about to be applied to the same pages. Nobody has spoken yet. Paloma will go first because she always goes first. The question is not whether they will find something. The question is how many layers they can peel before they run out of time, and where their readings will agree, and where they will disagree sharply enough to matter."
+  "mood": "Watchful and compromised. The Chatsubo is a place where nobody asks and nobody tells, but everybody watches. The back booth is private only by custom, not by wall. Decisions made here have a particular weight because the ambient chaos of Ninsei reminds everyone that the world outside the booth is not going to stop because they are thinking. Frameworks brought in here have to survive smoke, noise, and the suspicion that someone at the bar is listening on a neural shunt. The Sprawl does not reward tidy reasoning. It rewards whoever can still see clearly through the smoke."
 }

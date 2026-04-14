@@ -1,27 +1,28 @@
 {
   "name": "The Onsen",
+  "image_prompt": "A private outdoor Japanese hot spring cut into dark volcanic rock, dusk on a forested mountainside in Hakone. Steaming water glowing faintly from submerged stone lamps. Dim amber paper lanterns along a stone path, warm orange glow against deep blue twilight sky. Tall cedar trees surrounding the pool, a cedar bathhouse wall on one side. A bamboo deer-scare (shishi-odoshi) beside the water. Stone stacks at the pool's edge. A wooden tray with sake carafe and cups on a low stone. Mist rising from the water. Empty, no people. Colors: deep blue twilight, warm amber lantern glow, black volcanic rock, dark green cedar. Serene wabi-sabi atmosphere.",
   "location": "A private outdoor hot spring in Hakone, Japan, cut into volcanic rock on a forested mountainside. Cedar walls. No Wi-Fi. The client owns the ryokan and cleared it for the week.",
   "time": "7 PM, dusk. The last light is blue.",
   "weather": "Cool mountain air, 52 degrees. Light mist rising where hot spring water meets cold air. Stars beginning to appear through breaks in the cedar canopy.",
   "atmosphere": {
     "lighting": "Dim paper lanterns along the stone path, warm amber against blue twilight. Steam diffusing everything. The water itself glows faintly from submerged stone lamps.",
     "sound": "Water trickling over volcanic rock, bamboo deer-scare clacking at irregular intervals, wind through cedar needles, a distant owl, complete absence of machinery",
-    "crowd": "Twelve people and absolute privacy. The innkeeper left fresh towels and a tray of sake at the gate and will not return until morning. The mountain does not care about their deadlines.",
+    "crowd": "The working group and absolute privacy. The innkeeper left fresh towels and a tray of sake at the gate and will not return until morning. The mountain does not care about their deadlines.",
     "smell": "Sulfur from the spring, cedar wood, wet stone, pine resin, the clean mineral smell of volcanic water, faint woodsmoke from the ryokan below"
   },
   "layout": {
-    "main_pool": "A natural rock pool large enough for eight, water at 104 degrees, steam rising in slow columns. Flat stones around the rim for sitting. Prior is in the water up to his shoulders, reading glasses fogged, a sake cup balanced on the rock beside him. Loop is tracing circles in the surface tension with one finger.",
-    "cold_plunge": "A smaller basin fed by mountain runoff, 48 degrees. Bottleneck sits in it because discomfort clarifies his thinking. Nash tried it once and returned to the main pool without comment.",
-    "cedar_deck": "A slatted wooden platform extending from the changing room, overlooking the pool and the valley below. Low table with sake, pickled plums, and rice crackers. Axiom sits here fully clothed, notebook open, because he thinks better dry. Margin sits beside him, feet in the warm water, body on the deck, split between two temperatures.",
-    "stone_path": "A curved walkway of flat stones between the pools, lined with moss and ferns. Darwin walks it slowly, examining the moss species. Web mapped the path's branching points on a napkin.",
-    "meditation_rock": "A large flat boulder at the pool's edge, angled toward the valley view. Razor sits motionless on it, eyes closed or open, impossible to tell in the steam. Contra sits behind her, facing the opposite direction on principle. Atlas leans against its base, watching everyone's reflections in the water. Tail is somewhere in the steam, visible only when the mist thins."
+    "main_pool": "A natural rock pool large enough for eight, water at 104 degrees, steam rising in slow columns. Flat stones around the rim for sitting. Someone is in the water up to their shoulders, reading glasses fogged, a sake cup balanced on the rock beside them. A finger traces circles in the surface tension.",
+    "cold_plunge": "A smaller basin fed by mountain runoff, 48 degrees. Someone sits in it because discomfort clarifies thinking. Another tried it once and returned to the main pool without comment.",
+    "cedar_deck": "A slatted wooden platform extending from the changing room, overlooking the pool and the valley below. Low table with sake, pickled plums, and rice crackers. Someone sits here fully clothed, notebook open, thinking better dry. Someone beside them has their feet in the warm water, body on the deck, split between two temperatures.",
+    "stone_path": "A curved walkway of flat stones between the pools, lined with moss and ferns. Someone walks it slowly, examining the moss species. A napkin elsewhere carries a map of the path's branching points.",
+    "meditation_rock": "A large flat boulder at the pool's edge, angled toward the valley view. A still figure sits motionless on it, eyes closed or open, impossible to tell in the steam. Behind, another sits facing the opposite direction on principle. Someone leans against the base, watching reflections in the water. Another is somewhere in the steam, visible only when the mist thins."
   },
   "objects_of_note": [
-    "A ceramic sake set with twelve cups, one for each thinker. Prior poured for everyone. Three cups remain untouched.",
+    "A ceramic sake set with a cup for each person present, plus a few spares. Someone poured for the room. A few cups remain untouched.",
     "The problem brief sealed in a waterproof case on the cedar deck. The steam has condensed on the outside. Nobody has opened it yet because the innkeeper said not to work before the first soak.",
-    "Darwin's field notebook in a ziplock bag, pages already warped from humidity.",
-    "A bamboo deer-scare that clacks every forty to ninety seconds. Nash has been timing the intervals. They are not random.",
-    "The valley below, visible through steam: ten thousand lights of a town where nobody knows twelve people are solving a problem on the mountain above them."
+    "A field notebook in a ziplock bag, pages already warped from humidity.",
+    "A bamboo deer-scare that clacks every forty to ninety seconds. Someone has been timing the intervals. They are not random.",
+    "The valley below, visible through steam: ten thousand lights of a town where nobody knows a problem is being solved on the mountain above them."
   ],
-  "mood": "Surrendered. The hot water dissolves posture and pretense. Frameworks soften at the edges in sulfur and steam. The mountain enforces patience. Bottleneck cannot pace. Axiom cannot whiteboard. Loop cannot draw arrows. They are left with only their minds, their words, and the sound of water finding its level. The problem has not been opened yet and already it feels different here. Smaller. Or maybe they feel smaller. The deer-scare clacks and everyone pauses for half a second, every time, without deciding to."
+  "mood": "Surrendered. The hot water dissolves posture and pretense. Frameworks soften at the edges in sulfur and steam. The mountain enforces patience. The pacers cannot pace. The drawers cannot whiteboard. The arrow-makers cannot draw arrows. Everyone is left with only their minds, their words, and the sound of water finding its level. The problem has not been opened yet and already it feels different here. Smaller. Or maybe the thinkers feel smaller. The deer-scare clacks and everyone pauses for half a second, every time, without deciding to."
 }

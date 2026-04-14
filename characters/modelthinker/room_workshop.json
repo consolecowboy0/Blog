@@ -1,28 +1,29 @@
 {
   "name": "The Workshop",
-  "location": "A converted firehouse in Portland, Oregon, rented by the week for difficult problems. The client pays for the space. The five of them fill it.",
+  "image_prompt": "Interior of a converted firehouse in Portland, Oregon, reimagined as a creative workspace. Tall industrial windows with rain streaking down the glass, gray overcast light pouring in. Exposed brick walls, wooden rafters, a big central wooden conference table scattered with paper, notebooks, and pens. A wall of whiteboards filled with diagrams. Warm pendant lamps hanging low over the table. A vintage red fire pole in one corner. Concrete floor. Empty room, no people. Colors: warm brown wood, red brick, gray sky, amber lamp glow. Cozy industrial aesthetic.",
+  "location": "A converted firehouse in Portland, Oregon, rented by the week for difficult problems. The client pays for the space. The group fills it.",
   "time": "9 AM, Tuesday morning. Day one.",
   "weather": "Overcast, light rain on the skylights, the kind of gray that makes you want to think indoors.",
   "atmosphere": {
     "lighting": "Natural light from tall industrial windows, supplemented by warm pendant lamps over the central table, a single bright task light over the whiteboard wall",
     "sound": "Rain on glass, the scratch of pens on paper, the low hum of a coffee machine that never stops, occasional traffic from the street below muffled by thick walls",
-    "crowd": "Just the five of them. No observers. No clients yet. This is the hour before the problem arrives where they calibrate with each other.",
+    "crowd": "Just the working group. No observers. No clients yet. This is the hour before the problem arrives where the room calibrates with itself.",
     "smell": "Fresh coffee, old wood, dry-erase markers, the faint char of a fireplace that has not been used in years but remembers"
   },
   "layout": {
-    "central_table": "A long reclaimed-wood table with fourteen chairs, twelve occupied. Notebooks, laptops, coffee cups, and one leather portfolio claiming territory. Prior sits at the head because he got here first. Axiom sits farthest from the whiteboard because he prefers to think before drawing. Bottleneck stands behind his chair because sitting makes him restless. Razor sits nearest the window, hands folded, watching.",
-    "whiteboard_wall": "An entire wall painted in whiteboard paint, floor to ceiling. Loop has already drawn three circles and an arrow. Web added nodes and edges to the circles before Loop noticed. Nobody has asked what any of it means yet.",
-    "reading_corner": "Two leather armchairs by the window with a side table stacked with books. Contra's leather portfolio is on one chair. A copy of Meadows' 'Thinking in Systems' sits dog-eared on the other. Atlas's book is sticking out of their jacket pocket. Darwin's field notebook is open on the armrest.",
-    "standing_area": "A tall counter along the back wall with bar stools. Tail leans against it, facing the room, watching the door and the windows. Margin sits on a stool with his notepad out, fountain pen uncapped. Bottleneck keeps drifting here when he stands up.",
-    "kitchen_nook": "Open shelving, a commercial espresso machine Prior brought from home, mugs that do not match, a bowl of fruit nobody will eat, and a bottle of scotch that will not survive the week. Web's laptop is charging on the counter. Nash's jacket hangs on a hook with her thumb ring visible in the pocket."
+    "central_table": "A long reclaimed-wood table with chairs pulled in around it. Notebooks, laptops, coffee cups, and a leather portfolio claiming territory. Someone arrived first and took the head of the table. Someone else chose the seat farthest from the whiteboard, preferring to think before drawing. One chair sits empty because its occupant prefers to stand. A seat nearest the window holds a quiet watcher, hands folded.",
+    "whiteboard_wall": "An entire wall painted in whiteboard paint, floor to ceiling. Three circles and an arrow have already been drawn. Someone added nodes and edges to the circles before the original author noticed. Nobody has asked what any of it means yet.",
+    "reading_corner": "Two leather armchairs by the window with a side table stacked with books. A leather portfolio rests on one chair. A copy of Meadows' 'Thinking in Systems' sits dog-eared on the other. A paperback sticks out of a jacket slung over the back. A field notebook lies open on the armrest.",
+    "standing_area": "A tall counter along the back wall with bar stools. Someone leans against it, facing the room, watching the door and the windows. A fountain pen rests uncapped on an open notepad. The pacers drift here when they stand up.",
+    "kitchen_nook": "Open shelving, a commercial espresso machine someone brought from home, mugs that do not match, a bowl of fruit nobody will eat, and a bottle of scotch that will not survive the week. A laptop is charging on the counter. A jacket hangs on a hook with a thumb ring visible in the pocket."
   },
   "objects_of_note": [
-    "A framed card on the wall that reads 'ALL MODELS ARE WRONG. SOME ARE USEFUL.' in clean sans-serif type. Nobody knows who hung it. Everyone agrees with it. Atlas likes it most. Bottleneck likes it least.",
-    "A red folder on the table containing the problem brief. Sealed. The client's assistant dropped it off at 7 AM. Nobody has opened it yet. They are waiting for everyone to be ready. Twelve models. One problem. The folder does not know what is about to happen to it.",
-    "A chess clock on the shelf that Nash brought as a joke. Contra wound it. It is ticking.",
-    "Darwin's field notebook open to a blank page with a single word written at the top: 'Environment.'",
-    "Tail's napkin with a fat-tailed distribution drawn on it, already slid halfway across the table toward Prior.",
-    "Razor's single gold bangle catching the light from the window every time she moves her hand."
+    "A framed card on the wall that reads 'ALL MODELS ARE WRONG. SOME ARE USEFUL.' in clean sans-serif type. Nobody knows who hung it. Everyone agrees with it, though some more reluctantly than others.",
+    "A red folder on the table containing the problem brief. Sealed. The client's assistant dropped it off at 7 AM. Nobody has opened it yet. The room is waiting until everyone is ready. One problem, many lenses. The folder does not know what is about to happen to it.",
+    "A chess clock on the shelf, brought as a joke. Someone wound it. It is ticking.",
+    "A field notebook open to a blank page with a single word written at the top: 'Environment.'",
+    "A napkin with a fat-tailed distribution drawn on it, already slid halfway across the table.",
+    "A single gold bangle catching the light from the window every time its wearer moves her hand."
   ],
-  "mood": "Anticipatory. Twelve people, twelve models, the pressure of knowing every framework in the room will be tested against the same problem. Bottleneck wants to open the folder. Razor wants to wait. Tail is already calculating what they do not know. Atlas is watching everyone else's face to see which model activates first. The room is a living experiment in how different minds attack the same unknown. The question is not whether they will solve it. The question is which model breaks the problem open first, which models combine in ways nobody expected, and what all twelve will see that no single one could."
+  "mood": "Anticipatory. A room of frameworks in one place, the pressure of knowing every model present will be tested against the same problem. Someone wants to open the folder. Someone else wants to wait. Someone is already calculating what the group does not know. Someone is watching everyone else's face to see which lens activates first. The room is a living experiment in how different minds attack the same unknown. The question is not whether the problem will be solved. The question is which model breaks it open first, which models combine in ways nobody expected, and what the room will see together that no single lens could."
 }

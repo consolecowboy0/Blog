@@ -19,7 +19,14 @@ const allRooms = [
   { id: 'cellar', label: 'The Cellar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cellar.json'), 'utf-8')) },
   { id: 'observatory', label: 'The Observatory', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_observatory.json'), 'utf-8')) },
   { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
-  { id: 'observation', label: 'The Observation Room', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8')) },
+  { id: 'observation', label: 'The Chatsubo', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_observation.json'), 'utf-8')) },
+  { id: 'forking_paths', label: 'The Library of Forking Paths', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_forking_paths.json'), 'utf-8')) },
+  { id: 'glass_forest', label: 'The Visitor Center', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_glass_forest.json'), 'utf-8')) },
+  { id: 'cloudbank', label: 'The Cloudbank', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cloudbank.json'), 'utf-8')) },
+  { id: 'tessellation', label: 'The Falcon Lounge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_tessellation.json'), 'utf-8')) },
+  { id: 'mycelium_bridge', label: 'The Mycelium Bridge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_mycelium_bridge.json'), 'utf-8')) },
+  { id: 'suntouch', label: 'The Suntouch Veranda', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_suntouch.json'), 'utf-8')) },
+  { id: 'hendrix', label: 'The Hendrix Lobby', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_hendrix.json'), 'utf-8')) },
 ].map(r => ({ ...r, image: '/characters/rooms/' + r.id + '.png' }));
 const legionRooms = allRooms;
 const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
@@ -61,8 +68,6 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       <div class="panel-title-row">
         <h1>Legion</h1>
         <div class="header-controls">
-          <button id="save-config" class="secondary-btn">Save</button>
-          <button id="load-config" class="secondary-btn">Load</button>
           <button id="history-btn-header" class="secondary-btn">History</button>
           <button id="sign-out" class="secondary-btn">Sign Out</button>
         </div>
@@ -73,7 +78,6 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     <div class="tab-bar">
       <button class="tab-btn tab-active" data-tab="legion">Science</button>
       <button class="tab-btn" data-tab="analysts">Psych</button>
-      <button class="tab-btn" data-tab="advanced">Advanced</button>
     </div>
 
     <div id="tab-legion" class="tab-panel">
@@ -160,65 +164,6 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       </div>
     </div>
 
-    <div id="tab-advanced" class="tab-panel" style="display:none;">
-      <details class="setup-group" open>
-        <summary class="field-label setup-toggle">Setup</summary>
-
-        <div class="upload-section">
-          <label class="field-label">Room</label>
-          <div class="upload-row">
-            <button id="upload-room" class="upload-btn">Upload JSON</button>
-            <button id="clear-room" class="clear-upload-btn" style="display:none;">Clear</button>
-            <span id="room-status" class="upload-status">No room loaded</span>
-          </div>
-        </div>
-
-        <div class="upload-section">
-          <label class="field-label">Relationships</label>
-          <div class="upload-row">
-            <button id="upload-rels" class="upload-btn">Upload JSON</button>
-            <button id="clear-rels" class="clear-upload-btn" style="display:none;">Clear</button>
-            <span id="rels-status" class="upload-status">No relationships loaded</span>
-          </div>
-        </div>
-
-        <div class="upload-section">
-          <label class="field-label">Characters</label>
-          <div class="agents-grid" id="agents-grid"></div>
-          <button id="add-agent" class="add-agent">+ Upload Characters</button>
-        </div>
-
-        <details class="prompt-section prompt-foldable" open>
-          <summary class="field-label prompt-toggle">Prompt</summary>
-          <textarea id="adv-opening" rows="2" placeholder="Prompt..."></textarea>
-        </details>
-
-        <div class="controls">
-          <div class="control-group">
-            <label class="field-label" for="adv-rounds">Rounds</label>
-            <input type="number" id="adv-rounds" min="1" max="50" value="2" />
-          </div>
-          <div class="control-group">
-            <label class="field-label" for="adv-order-mode">Order</label>
-            <select id="adv-order-mode">
-              <option value="priority">Priority</option>
-              <option value="default">Default</option>
-              <option value="random">Random</option>
-            </select>
-          </div>
-          <div class="control-group">
-            <label class="field-label" for="adv-model-select">Model</label>
-            <select id="adv-model-select">
-              <option value="claude-sonnet-4-20250514">Sonnet 4</option>
-              <option value="claude-opus-4-20250514">Opus 4</option>
-              <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
-            </select>
-          </div>
-          <label class="defense-label"><input type="checkbox" id="adv-defense-mode" /> Defense</label>
-        </div>
-      </details>
-    </div>
-
     <div class="run-controls">
       <button id="go-btn">Go</button>
       <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
@@ -250,26 +195,6 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       </div>
     </div>
 
-    <div id="summary-section" class="summary-section" style="display:none;">
-      <div class="section-header">
-        <label class="field-label">Summary</label>
-        <button id="copy-summary" class="copy-btn" title="Copy summary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-      </div>
-      <textarea id="summary-output" class="summary-output" rows="4" readonly placeholder="Hit Summarize to recap the conversation."></textarea>
-      <button id="summarize-btn" class="secondary-btn">Summarize</button>
-    </div>
-
-    <div id="illustration-section" class="illustration-section" style="display:none;">
-      <div class="illustration-controls">
-        <label class="field-label">Illustration</label>
-        <label class="auto-illustrate-label"><input type="checkbox" id="auto-illustrate" /> Auto-illustrate</label>
-      </div>
-      <div class="illustration-box">
-        <img id="illustration-img" class="illustration-img" style="display:none;" alt="Scene illustration" />
-        <p id="illustration-placeholder" class="illustration-placeholder">Hit Illustrate to generate pixel art of the scene.</p>
-      </div>
-      <button id="illustrate-btn" type="button" class="secondary-btn">Illustrate</button>
-    </div>
 
     <div id="add-char-modal" class="add-char-modal" style="display:none;">
       <div class="add-char-modal-content">
@@ -290,6 +215,21 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
         </div>
         <div id="move-room-roster" class="add-char-roster"></div>
         <button id="move-room-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
+    </div>
+
+    <div id="char-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label" id="char-modal-title">Character</span>
+          <button id="char-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div class="char-modal-top">
+          <img id="char-modal-image" class="char-modal-image" alt="" onerror="this.style.display='none'">
+          <div id="char-modal-summary" class="char-modal-summary"></div>
+        </div>
+        <div id="char-modal-body" class="char-modal-body"></div>
+        <button id="char-modal-toggle" class="secondary-btn char-modal-toggle">Add to Roster</button>
       </div>
     </div>
 
@@ -343,39 +283,33 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
       activeTab = btn.getAttribute('data-tab');
       document.getElementById('tab-legion').style.display = activeTab === 'legion' ? '' : 'none';
       document.getElementById('tab-analysts').style.display = activeTab === 'analysts' ? '' : 'none';
-      document.getElementById('tab-advanced').style.display = activeTab === 'advanced' ? '' : 'none';
     });
   });
 
   // Helper: get active control value based on tab
   function getOpening() {
-    if (activeTab === 'legion') return document.getElementById('opening').value;
     if (activeTab === 'analysts') {
       var transcript = document.getElementById('analysts-opening').value.trim();
       if (!transcript) return '';
       return 'Below is a conversation transcript the consortium has been asked to analyze. Read it carefully. Apply your framework. Listen to your colleagues. Build a layered reading of what is actually going on under the surface. Point to specific lines. Notice what nobody else has noticed yet.\n\n--- TRANSCRIPT ---\n' + transcript + '\n--- END TRANSCRIPT ---';
     }
-    return document.getElementById('adv-opening').value;
+    return document.getElementById('opening').value;
   }
   function getRounds() {
-    if (activeTab === 'legion') return document.getElementById('rounds').value;
     if (activeTab === 'analysts') return document.getElementById('analysts-rounds').value;
-    return document.getElementById('adv-rounds').value;
+    return document.getElementById('rounds').value;
   }
   function getModel() {
-    if (activeTab === 'legion') return document.getElementById('model-select').value;
     if (activeTab === 'analysts') return document.getElementById('analysts-model-select').value;
-    return document.getElementById('adv-model-select').value;
+    return document.getElementById('model-select').value;
   }
   function getOrderMode() {
-    if (activeTab === 'legion') return document.getElementById('order-mode').value;
     if (activeTab === 'analysts') return document.getElementById('analysts-order-mode').value;
-    return document.getElementById('adv-order-mode').value;
+    return document.getElementById('order-mode').value;
   }
   function getDefense() {
-    if (activeTab === 'legion') return document.getElementById('defense-mode').checked;
     if (activeTab === 'analysts') return document.getElementById('analysts-defense-mode').checked;
-    return document.getElementById('adv-defense-mode').checked;
+    return document.getElementById('defense-mode').checked;
   }
 
   // --- Legion auto-load ---
@@ -491,6 +425,85 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
     closeRoomModal();
   });
 
+  // Character detail modal: clicking a roster card opens this so the user can
+  // read the full character sheet and toggle inclusion via the confirm button.
+  var pendingCharToggle = null;
+  function openCharModal(char, isCurrentlySelected, onToggle) {
+    pendingCharToggle = onToggle;
+    var name = char.name || char.Name || 'Character';
+    document.getElementById('char-modal-title').textContent = name;
+    var img = document.getElementById('char-modal-image');
+    if (char.__headshot) {
+      img.src = char.__headshot;
+      img.style.display = '';
+    } else {
+      img.style.display = 'none';
+    }
+    var summary = document.getElementById('char-modal-summary');
+    summary.innerHTML = '';
+    function summaryRow(value) {
+      if (!value) return;
+      var line = document.createElement('div');
+      line.textContent = value;
+      summary.appendChild(line);
+    }
+    if (char.model) summaryRow(char.model);
+    if (char.occupation) summaryRow(char.occupation);
+    if (char.age) summaryRow('Age ' + char.age);
+    var body = document.getElementById('char-modal-body');
+    body.innerHTML = '';
+    function row(label, value) {
+      if (!value) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'room-modal-row';
+      var l = document.createElement('div');
+      l.className = 'room-modal-row-label';
+      l.textContent = label;
+      var v = document.createElement('div');
+      v.className = 'room-modal-row-value';
+      if (Array.isArray(value)) {
+        v.textContent = value.join(', ');
+      } else if (typeof value === 'object') {
+        var lines = [];
+        for (var k in value) {
+          if (value[k] == null || value[k] === '') continue;
+          var val = Array.isArray(value[k]) ? value[k].join(', ') : value[k];
+          lines.push(k + ': ' + val);
+        }
+        v.textContent = lines.join('\n');
+        v.style.whiteSpace = 'pre-wrap';
+      } else {
+        v.textContent = value;
+      }
+      wrap.appendChild(l);
+      wrap.appendChild(v);
+      body.appendChild(wrap);
+    }
+    if (char.model_description) row('Model', char.model_description);
+    row('Appearance', char.appearance);
+    if (char.personality) row('Personality', char.personality);
+    if (char.speaking_style) row('Speaking Style', char.speaking_style);
+    row('Backstory', char.backstory);
+    row('Motivations', char.motivations);
+    row('Current State', char.current_emotional_state);
+    row('Mannerisms', char.physical_mannerisms);
+    var toggle = document.getElementById('char-modal-toggle');
+    toggle.textContent = isCurrentlySelected ? 'Remove from Roster' : 'Add to Roster';
+    document.getElementById('char-modal').style.display = 'flex';
+  }
+  function closeCharModal() {
+    document.getElementById('char-modal').style.display = 'none';
+    pendingCharToggle = null;
+  }
+  document.getElementById('char-modal-close').addEventListener('click', closeCharModal);
+  document.getElementById('char-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeCharModal();
+  });
+  document.getElementById('char-modal-toggle').addEventListener('click', function () {
+    if (pendingCharToggle) pendingCharToggle();
+    closeCharModal();
+  });
+
   function initLegionGrid() {
     var grid = document.getElementById('legion-grid');
     grid.innerHTML = '';
@@ -516,9 +529,11 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
           (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
         '</div>';
       card.addEventListener('click', function () {
-        card._selected = !card._selected;
-        card.classList.toggle('legion-selected', card._selected);
-        card.classList.toggle('legion-dimmed', !card._selected);
+        openCharModal(data, card._selected, function () {
+          card._selected = !card._selected;
+          card.classList.toggle('legion-selected', card._selected);
+          card.classList.toggle('legion-dimmed', !card._selected);
+        });
       });
       grid.appendChild(card);
     });
@@ -551,9 +566,11 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
           (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
         '</div>';
       card.addEventListener('click', function () {
-        card._selected = !card._selected;
-        card.classList.toggle('legion-selected', card._selected);
-        card.classList.toggle('legion-dimmed', !card._selected);
+        openCharModal(data, card._selected, function () {
+          card._selected = !card._selected;
+          card.classList.toggle('legion-selected', card._selected);
+          card.classList.toggle('legion-dimmed', !card._selected);
+        });
       });
       grid.appendChild(card);
     });
@@ -687,18 +704,15 @@ sys.stdout = _stdout_capture
   function show() {
     document.getElementById('gate').style.display = 'none';
     document.getElementById('panel').style.display = 'block';
-    // Load server state after auth, fall back to localStorage
+    // Load server state after auth
     loadServerState().then(function (state) {
       if (state && state.sessionTranscript && state.sessionTranscript.length > 0) {
         localLastModified = state.lastModified || 0;
         restoreState(state);
         serverStateLoaded = true;
-      } else {
-        loadConfig(false);
       }
       startPolling();
     }).catch(function () {
-      loadConfig(false);
       startPolling();
     });
   }
@@ -737,40 +751,6 @@ sys.stdout = _stdout_capture
     });
     input.click();
   }
-
-  // Room upload
-  document.getElementById('upload-room').addEventListener('click', function () {
-    pickFile(false, function (data) {
-      roomData = data;
-      document.getElementById('room-status').textContent = data.name || 'Loaded';
-      document.getElementById('clear-room').style.display = '';
-    }, function () {
-      document.getElementById('room-status').textContent = 'Invalid JSON';
-      roomData = null;
-    });
-  });
-  document.getElementById('clear-room').addEventListener('click', function () {
-    roomData = null;
-    document.getElementById('room-status').textContent = 'No room loaded';
-    document.getElementById('clear-room').style.display = 'none';
-  });
-
-  // Relationships upload
-  document.getElementById('upload-rels').addEventListener('click', function () {
-    pickFile(false, function (data) {
-      relsData = data;
-      document.getElementById('rels-status').textContent = data.name || 'Loaded';
-      document.getElementById('clear-rels').style.display = '';
-    }, function () {
-      document.getElementById('rels-status').textContent = 'Invalid JSON';
-      relsData = null;
-    });
-  });
-  document.getElementById('clear-rels').addEventListener('click', function () {
-    relsData = null;
-    document.getElementById('rels-status').textContent = 'No relationships loaded';
-    document.getElementById('clear-rels').style.display = 'none';
-  });
 
   function getRelsForAgent(name, presentNames) {
     if (!relsData || !relsData.relationships) return '';
@@ -832,48 +812,6 @@ sys.stdout = _stdout_capture
     return desc;
   }
 
-  function addAgentCard(data, fallbackName) {
-    var grid = document.getElementById('agents-grid');
-    var n = grid.children.length;
-    var color = COLORS[n % COLORS.length];
-    var name = data.name || data.Name || fallbackName.replace('.json', '');
-    var desc = buildCharDesc(data);
-    var card = document.createElement('div');
-    card.className = 'agent-card';
-    card.setAttribute('data-agent', n);
-    card._charData = data;
-    var headshot = data && data.__headshot;
-    card.innerHTML =
-      (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
-      '<div class="agent-card-body">' +
-        '<div class="agent-card-header">' +
-          '<span class="agent-dot" style="background:' + color + ';"></span>' +
-          '<span class="agent-name-label">' + esc(name) + '</span>' +
-          '<div class="card-controls">' +
-            '<button class="order-btn move-up" title="Move up">^</button>' +
-            '<button class="order-btn move-down" title="Move down">v</button>' +
-            '<button class="remove-btn" title="Remove">x</button>' +
-          '</div>' +
-        '</div>' +
-        (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
-      '</div>';
-    grid.appendChild(card);
-    card.querySelector('.remove-btn').addEventListener('click', function () { grid.removeChild(card); });
-    card.querySelector('.move-up').addEventListener('click', function () {
-      var prev = card.previousElementSibling;
-      if (prev) grid.insertBefore(card, prev);
-    });
-    card.querySelector('.move-down').addEventListener('click', function () {
-      var next = card.nextElementSibling;
-      if (next) grid.insertBefore(next, card);
-    });
-  }
-
-  document.getElementById('add-agent').addEventListener('click', function () {
-    pickFile(true, function (data, fileName) {
-      addAgentCard(data, fileName);
-    });
-  });
 
   // --- Cancellable delay ---
   var delayCancelFn = null;
@@ -889,64 +827,6 @@ sys.stdout = _stdout_capture
     });
   }
 
-  // --- Save / Load config (Advanced tab) ---
-  document.getElementById('save-config').addEventListener('click', function () {
-    var chars = [];
-    document.querySelectorAll('#agents-grid .agent-card').forEach(function (card) {
-      if (card._charData) chars.push(card._charData);
-    });
-    var config = {
-      room: roomData,
-      relationships: relsData,
-      characters: chars,
-      opening: document.getElementById('adv-opening').value,
-      rounds: document.getElementById('adv-rounds').value,
-      delay: document.getElementById('delay-input').value,
-      model: document.getElementById('adv-model-select').value,
-      orderMode: document.getElementById('adv-order-mode').value
-    };
-    localStorage.setItem('agents_config', JSON.stringify(config));
-    var btn = document.getElementById('save-config');
-    btn.textContent = 'Saved';
-    setTimeout(function () { btn.textContent = 'Save'; }, 1500);
-  });
-
-  function loadConfig(showFeedback) {
-    var raw = localStorage.getItem('agents_config');
-    if (!raw) return;
-    try { var config = JSON.parse(raw); } catch (e) { return; }
-
-    if (config.room) {
-      roomData = config.room;
-      document.getElementById('room-status').textContent = config.room.name || 'Loaded';
-      document.getElementById('clear-room').style.display = '';
-    }
-    if (config.relationships) {
-      relsData = config.relationships;
-      document.getElementById('rels-status').textContent = config.relationships.name || 'Loaded';
-      document.getElementById('clear-rels').style.display = '';
-    }
-    if (config.characters) {
-      document.getElementById('agents-grid').innerHTML = '';
-      config.characters.forEach(function (c) { addAgentCard(c, 'Agent'); });
-    }
-    if (config.opening) document.getElementById('adv-opening').value = config.opening;
-    if (config.rounds) document.getElementById('adv-rounds').value = config.rounds;
-    if (config.delay) document.getElementById('delay-input').value = config.delay;
-    if (config.model) document.getElementById('adv-model-select').value = config.model;
-    if (config.orderMode) document.getElementById('adv-order-mode').value = config.orderMode;
-
-    if (showFeedback) {
-      var btn = document.getElementById('load-config');
-      btn.textContent = 'Loaded';
-      setTimeout(function () { btn.textContent = 'Load'; }, 1500);
-    }
-  }
-
-  document.getElementById('load-config').addEventListener('click', function () { loadConfig(true); });
-
-  // Auto-load saved config on page load (skip if server state will override)
-  if (!authToken) loadConfig(false);
   var serverStateLoaded = false;
 
   // --- Export transcript ---
@@ -995,12 +875,6 @@ sys.stdout = _stdout_capture
       if (text.indexOf('[CODE_FIGURE]:') === 0) {
         var url = text.substring('[CODE_FIGURE]:'.length);
         lines.push('![figure](' + url + ')');
-        lines.push('');
-        return;
-      }
-      if (text.indexOf('[ILLUSTRATION]:') === 0) {
-        var u2 = text.substring('[ILLUSTRATION]:'.length);
-        lines.push('![round ' + (entry.round || '') + ' illustration](' + u2 + ')');
         lines.push('');
         return;
       }
@@ -1073,121 +947,6 @@ sys.stdout = _stdout_capture
       lastModified: Date.now(),
     };
     downloadMarkdown(data, 'transcript_' + new Date().toISOString().slice(0, 10) + '.md');
-  });
-
-  // --- Summarize ---
-  document.getElementById('summarize-btn').addEventListener('click', async function () {
-    if (sessionTranscript.length === 0) return;
-    var btn = this;
-    btn.disabled = true;
-    btn.textContent = 'Summarizing...';
-    var output = document.getElementById('summary-output');
-    output.value = '';
-    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
-    sessionTranscript.forEach(function (entry) {
-      lines.push(entry.name + ': ' + (entry.rawText || entry.text));
-    });
-    var transcript = lines.join('\n');
-    try {
-      var text = await ask(
-        'You summarize conversations. Write a short, vivid recap of what happened. Focus on key events, conflicts, and character dynamics. Keep it under 200 words.',
-        [{ role: 'user', content: 'Summarize this conversation:\n\n' + transcript }]
-      );
-      output.value = text;
-    } catch (err) {
-      output.value = 'Error: ' + err.message;
-    }
-    btn.disabled = false;
-    btn.textContent = 'Summarize';
-  });
-
-  // --- Illustrate (shared logic) ---
-  async function generateIllustration() {
-    if (sessionTranscript.length === 0) return;
-
-    var charDetails = [];
-    var gridSel = '#agents-grid .agent-card';
-    if (activeTab === 'legion') gridSel = '#legion-grid .agent-card';
-    else if (activeTab === 'analysts') gridSel = '#analysts-grid .agent-card';
-    document.querySelectorAll(gridSel).forEach(function (card) {
-      if (card._charData) {
-        var c = card._charData;
-        var name = c.name || c.Name || 'Unknown';
-        var appearance = c.appearance || '';
-        if (appearance) charDetails.push(name + ': ' + appearance);
-      }
-    });
-    var roomDesc = roomData ? jsonToPrompt(roomData) : '';
-
-    var lines = ['[Scene direction]: ' + getOpening().trim(), ''];
-    if (charDetails.length > 0) {
-      lines.push('[Character appearances]:');
-      charDetails.forEach(function (d) { lines.push(d); });
-      lines.push('');
-    }
-    if (roomDesc) {
-      lines.push('[Setting]: ' + roomDesc);
-      lines.push('');
-    }
-    sessionTranscript.forEach(function (entry) {
-      lines.push(entry.name + ': ' + (entry.rawText || entry.text));
-    });
-    var fullTranscript = lines.join('\n');
-
-    var pixelPrompt = await ask(
-      'You write detailed image generation prompts. Read the full conversation, character appearances, and setting. Identify the most dramatic or important recent moment. Write a richly detailed visual description of that single moment as a scene. Include each character present by their physical appearance (hair, clothing, build, distinguishing features) -- do not use names, only describe what they look like. Describe their poses, expressions, body language, and positions relative to each other. Describe the environment: lighting, objects, atmosphere. Write it as one dense paragraph, 60-100 words. Aim for cinematic realism. No dialogue. No names.',
-      [{ role: 'user', content: fullTranscript }]
-    );
-
-    var pixelHeaders = { 'Content-Type': 'application/json' };
-    if (authToken) pixelHeaders['Authorization'] = 'Bearer ' + authToken;
-    var res = await fetch(API_BASE + '/api/pixellab', {
-      method: 'POST',
-      headers: pixelHeaders,
-      body: JSON.stringify({ description: pixelPrompt, width: 400, height: 400 }),
-    });
-    var data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Illustration failed');
-    return 'data:image/png;base64,' + data.image;
-  }
-
-  // Render an illustration into the chat (pure DOM, no transcript side effect)
-  function renderRoundIllustration(src, roundNum) {
-    var chat = document.getElementById('chat');
-    var img = document.createElement('img');
-    img.src = src;
-    img.className = 'round-illustration';
-    img.alt = 'Round ' + roundNum + ' illustration';
-    chat.appendChild(img);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  // Insert an illustration into the chat AND persist it in the transcript
-  function insertRoundIllustration(src, roundNum) {
-    renderRoundIllustration(src, roundNum);
-    sessionTranscript.push({ name: 'Illustration', text: '[ILLUSTRATION]:' + src, round: roundNum });
-    saveState();
-  }
-
-  document.getElementById('illustrate-btn').addEventListener('click', async function () {
-    if (sessionTranscript.length === 0) return;
-    var btn = this;
-    btn.disabled = true;
-    btn.textContent = 'Generating...';
-    var img = document.getElementById('illustration-img');
-    var ph = document.getElementById('illustration-placeholder');
-    try {
-      var src = await generateIllustration();
-      img.src = src;
-      img.style.display = '';
-      ph.style.display = 'none';
-    } catch (err) {
-      ph.textContent = 'Error: ' + err.message;
-      ph.style.display = '';
-      img.style.display = 'none';
-    }
-    btn.disabled = false;
-    btn.textContent = 'Illustrate';
   });
 
   // --- Chat helpers ---
@@ -1538,9 +1297,7 @@ sys.stdout = _stdout_capture
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(function () {
       var chars = [];
-      var gridId = '#agents-grid';
-      if (activeTab === 'legion') gridId = '#legion-grid';
-      else if (activeTab === 'analysts') gridId = '#analysts-grid';
+      var gridId = activeTab === 'analysts' ? '#analysts-grid' : '#legion-grid';
       document.querySelectorAll(gridId + ' .agent-card').forEach(function (card) {
         if (card._charData) chars.push(card._charData);
       });
@@ -1600,20 +1357,8 @@ sys.stdout = _stdout_capture
 
     // Restore config first
     if (state.config) {
-      if (state.config.room) {
-        roomData = state.config.room;
-        document.getElementById('room-status').textContent = roomData.name || 'Loaded';
-        document.getElementById('clear-room').style.display = '';
-      }
-      if (state.config.relationships) {
-        relsData = state.config.relationships;
-        document.getElementById('rels-status').textContent = relsData.name || 'Loaded';
-        document.getElementById('clear-rels').style.display = '';
-      }
-      if (state.config.characters) {
-        document.getElementById('agents-grid').innerHTML = '';
-        state.config.characters.forEach(function (c) { addAgentCard(c, 'Agent'); });
-      }
+      if (state.config.room) roomData = state.config.room;
+      if (state.config.relationships) relsData = state.config.relationships;
       if (state.config.model) document.getElementById('model-select').value = state.config.model;
       if (state.config.orderMode) document.getElementById('order-mode').value = state.config.orderMode;
       if (state.config.rounds) document.getElementById('rounds').value = state.config.rounds;
@@ -1647,8 +1392,6 @@ sys.stdout = _stdout_capture
         msg('', '', entry.text, true);
       } else if (entry.name === 'Narrator') {
         sysMsg(entry.text, 'Interjection');
-      } else if (entry.name === 'Illustration' && entry.text && entry.text.indexOf('[ILLUSTRATION]:') === 0) {
-        renderRoundIllustration(entry.text.substring('[ILLUSTRATION]:'.length), entry.round);
       } else {
         // Find color for this agent
         var color = '#999';
@@ -1672,8 +1415,6 @@ sys.stdout = _stdout_capture
     if (sessionTranscript.length > 0) {
       document.getElementById('export-btn').style.display = '';
       document.getElementById('interject-section').style.display = '';
-      document.getElementById('summary-section').style.display = '';
-      document.getElementById('illustration-section').style.display = '';
       document.getElementById('move-room-btn').style.display = '';
       document.getElementById('add-char-btn').style.display = '';
     }
@@ -1840,9 +1581,31 @@ sys.stdout = _stdout_capture
     if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
   });
 
+  function archiveCurrentSession() {
+    if (!sessionTranscript || sessionTranscript.length === 0) return Promise.resolve();
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var body = {
+      sessionTranscript: sessionTranscript,
+      sessionAgents: sessionAgents,
+      sessionRun: sessionRun,
+      worldState: worldState,
+      characterStatus: characterStatus,
+      roomStatus: roomStatus,
+      opening: getOpening(),
+      lastModified: Date.now(),
+    };
+    return fetch(API_BASE + '/api/legion-history', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    }).catch(function (e) { console.warn('[legion] archive failed:', e); });
+  }
+
   document.getElementById('clear-btn').addEventListener('click', function () {
     stopRequested = true;
     if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
+    archiveCurrentSession();
     clearServerState();
     document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
     document.getElementById('export-btn').style.display = 'none';
@@ -1856,13 +1619,6 @@ sys.stdout = _stdout_capture
     roomStatus = { name: '', status: 'alive', round: 0 };
     document.getElementById('status-panel').style.display = 'none';
     document.getElementById('status-list').innerHTML = '';
-    document.getElementById('summary-section').style.display = 'none';
-    document.getElementById('summary-output').value = '';
-    document.getElementById('illustration-section').style.display = 'none';
-    document.getElementById('illustration-img').style.display = 'none';
-    document.getElementById('illustration-img').src = '';
-    document.getElementById('illustration-placeholder').style.display = '';
-    document.getElementById('illustration-placeholder').textContent = 'Hit Illustrate to generate pixel art of the scene.';
     document.getElementById('move-room-btn').style.display = 'none';
     document.getElementById('add-char-btn').style.display = 'none';
   });
@@ -1875,11 +1631,6 @@ sys.stdout = _stdout_capture
     btn.classList.add('copied');
     setTimeout(function () { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
   }
-
-  document.getElementById('copy-summary').addEventListener('click', function () {
-    var text = document.getElementById('summary-output').value;
-    if (text) { navigator.clipboard.writeText(text); flashCopyBtn(this); }
-  });
 
   document.getElementById('copy-chat').addEventListener('click', function () {
     var chat = document.getElementById('chat');
@@ -1959,7 +1710,6 @@ sys.stdout = _stdout_capture
 
     roomStatus = { name: roomName, status: 'alive', round: sessionRun };
     renderStatus();
-    document.getElementById('room-status').textContent = roomName;
     var btn = document.getElementById('move-room-btn');
     btn.textContent = 'Moved!';
     setTimeout(function () { btn.textContent = 'Move Room'; }, 1500);
@@ -1967,32 +1717,29 @@ sys.stdout = _stdout_capture
 
   document.getElementById('move-room-btn').addEventListener('click', function () {
     if (!sessionAgents) return;
-    if (activeTab === 'advanced' || activeTab === 'analysts') {
-      pickFile(false, function (data) { applyRoomChange(data); });
-    } else {
-      var modal = document.getElementById('move-room-modal');
-      var roster = document.getElementById('move-room-roster');
-      roster.innerHTML = '';
+    var modal = document.getElementById('move-room-modal');
+    var roster = document.getElementById('move-room-roster');
+    roster.innerHTML = '';
 
-      var currentRoomName = roomStatus.name || '';
-      legionRoomsData.forEach(function (room) {
-        if (room.label === currentRoomName) return;
-        var opt = document.createElement('div');
-        opt.className = 'add-char-option';
-        opt.innerHTML =
-          '<div>' +
-            '<div class="add-char-option-name">' + esc(room.label) + '</div>' +
-            '<div class="add-char-option-desc">' + esc(room.data.location.split('.')[0]) + '</div>' +
-          '</div>';
-        opt.addEventListener('click', function () {
-          applyRoomChange(room.data);
-          modal.style.display = 'none';
-        });
-        roster.appendChild(opt);
+    var currentRoomName = roomStatus.name || '';
+    var rooms = activeTab === 'analysts' ? analystRoomsData : legionRoomsData;
+    rooms.forEach(function (room) {
+      if (room.label === currentRoomName) return;
+      var opt = document.createElement('div');
+      opt.className = 'add-char-option';
+      opt.innerHTML =
+        '<div>' +
+          '<div class="add-char-option-name">' + esc(room.label) + '</div>' +
+          '<div class="add-char-option-desc">' + esc(room.data.location.split('.')[0]) + '</div>' +
+        '</div>';
+      opt.addEventListener('click', function () {
+        applyRoomChange(room.data);
+        modal.style.display = 'none';
       });
+      roster.appendChild(opt);
+    });
 
-      modal.style.display = '';
-    }
+    modal.style.display = '';
   });
 
   document.getElementById('move-room-modal-close').addEventListener('click', function () {
@@ -2239,11 +1986,6 @@ sys.stdout = _stdout_capture
   document.getElementById('add-char-btn').addEventListener('click', function () {
     if (!sessionAgents) return;
 
-    if (activeTab === 'advanced') {
-      pickFile(true, function (data) { addCharacterToSession(data); });
-      return;
-    }
-
     var modal = document.getElementById('add-char-modal');
     var roster = document.getElementById('add-char-roster');
     roster.innerHTML = '';
@@ -2311,14 +2053,7 @@ sys.stdout = _stdout_capture
     if (isFirstRun) {
       // Load data based on active tab
       var useRoom, useRels, useCards;
-      if (activeTab === 'legion') {
-        useRoom = selectedLegionRoom ? selectedLegionRoom.data : null;
-        useRels = legionRels;
-        useCards = [];
-        document.querySelectorAll('#legion-grid .agent-card').forEach(function (card) {
-          if (card._selected) useCards.push(card._charData);
-        });
-      } else if (activeTab === 'analysts') {
+      if (activeTab === 'analysts') {
         useRoom = selectedAnalystRoom ? selectedAnalystRoom.data : null;
         useRels = analystRels;
         useCards = [];
@@ -2326,11 +2061,11 @@ sys.stdout = _stdout_capture
           if (card._selected) useCards.push(card._charData);
         });
       } else {
-        useRoom = roomData;
-        useRels = relsData;
+        useRoom = selectedLegionRoom ? selectedLegionRoom.data : null;
+        useRels = legionRels;
         useCards = [];
-        document.querySelectorAll('#agents-grid .agent-card').forEach(function (card) {
-          useCards.push(card._charData);
+        document.querySelectorAll('#legion-grid .agent-card').forEach(function (card) {
+          if (card._selected) useCards.push(card._charData);
         });
       }
       // Temporarily set roomData/relsData so helpers like getRelsForAgent work
@@ -2441,11 +2176,9 @@ sys.stdout = _stdout_capture
         if (forAgent && entry.hasWhisper) {
           text = stripWhispersFrom(entry.rawText || text, forAgent, entry.name);
         }
-        // Strip heavy base64 from figures/illustrations for AI context
+        // Strip heavy base64 from figures for AI context
         if (text && text.indexOf('[CODE_FIGURE]:') === 0) {
           text = '[CODE_RESULT]: (generated a chart/figure)';
-        } else if (text && text.indexOf('[ILLUSTRATION]:') === 0) {
-          text = '[ILLUSTRATION]: (scene illustration rendered)';
         }
         if (text) {
           lines.push(entry.name + ': ' + text);
@@ -2644,15 +2377,6 @@ sys.stdout = _stdout_capture
             break;
           }
         }
-        // Auto-illustrate after each round
-        if (!stopRequested && document.getElementById('auto-illustrate').checked) {
-          try {
-            var src = await generateIllustration();
-            insertRoundIllustration(src, sessionRun);
-          } catch (e) {
-            msg('', '', 'Illustration error: ' + e.message, true);
-          }
-        }
       }
       if (stopRequested) {
         msg('','','--- Stopped ---', true);
@@ -2663,10 +2387,8 @@ sys.stdout = _stdout_capture
       if (sessionTranscript.length > 0) {
         document.getElementById('export-btn').style.display = '';
         document.getElementById('interject-section').style.display = '';
-        document.getElementById('summary-section').style.display = '';
-        document.getElementById('illustration-section').style.display = '';
         document.getElementById('move-room-btn').style.display = '';
-      document.getElementById('add-char-btn').style.display = '';
+        document.getElementById('add-char-btn').style.display = '';
       }
     } catch (err) {
       msg('','','Error: ' + err.message, true);
@@ -2921,9 +2643,9 @@ sys.stdout = _stdout_capture
     align-self: start;
   }
   .msg-headshot {
-    width: 128px;
-    height: 128px;
-    border-radius: 8px;
+    width: 192px;
+    height: 192px;
+    border-radius: 10px;
     image-rendering: pixelated;
     background: var(--code-bg);
     flex-shrink: 0;
@@ -2950,49 +2672,6 @@ sys.stdout = _stdout_capture
   }
   .order-btn:hover { color: var(--fg); }
   .remove-btn:hover { color: #e05252; }
-  .add-agent {
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.4rem 0.75rem;
-    border: 1px dashed var(--border);
-    background: transparent;
-    color: var(--fg-muted);
-    cursor: pointer;
-    margin-bottom: 1rem;
-  }
-  .add-agent:hover { color: var(--fg); border-color: var(--fg); }
-
-  /* Upload */
-  .upload-section { margin-bottom: 1.5rem; }
-  .upload-row { display: flex; align-items: center; gap: 0.75rem; }
-  .upload-btn {
-    font-family: var(--font-body);
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--fg-muted);
-    cursor: pointer;
-  }
-  .upload-btn:hover { color: var(--fg); border-color: var(--fg); }
-  .clear-upload-btn {
-    font-family: var(--font-body);
-    font-size: 0.7rem;
-    padding: 0.35rem 0.5rem;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--fg-muted);
-    cursor: pointer;
-  }
-  .clear-upload-btn:hover { color: #e05252; border-color: #e05252; }
-  .upload-status {
-    font-family: var(--font-mono);
-    font-size: 0.78rem;
-    color: var(--fg-muted);
-  }
-
   /* Opening */
   .prompt-section { margin-bottom: 1rem; }
   .prompt-foldable > summary {
@@ -3005,7 +2684,7 @@ sys.stdout = _stdout_capture
   .prompt-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
   .prompt-foldable[open] > .prompt-toggle::before { content: '\25BC  '; }
   .prompt-foldable:not([open]) { margin-bottom: 0.75rem; }
-  #opening, #adv-opening, #analysts-opening {
+  #opening, #analysts-opening {
     width: 100%;
     font-family: var(--font-mono);
     font-size: 0.8rem;
@@ -3017,24 +2696,9 @@ sys.stdout = _stdout_capture
     line-height: 1.5;
     resize: vertical;
   }
-  #opening:focus, #adv-opening:focus, #analysts-opening:focus { border-color: var(--fg-muted); }
+  #opening:focus, #analysts-opening:focus { border-color: var(--fg-muted); }
 
   /* Controls */
-  .setup-group {
-    border: 1px solid var(--border);
-    padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
-  .setup-group[open] { padding-bottom: 0.25rem; }
-  .setup-toggle {
-    cursor: pointer;
-    user-select: none;
-    font-size: 0.85rem;
-    list-style: none;
-  }
-  .setup-toggle::-webkit-details-marker { display: none; }
-  .setup-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
-  .setup-group[open] > .setup-toggle::before { content: '\25BC  '; }
   .run-controls {
     display: flex;
     align-items: center;
@@ -3050,18 +2714,6 @@ sys.stdout = _stdout_capture
     flex-wrap: wrap;
   }
   .control-group { display: flex; flex-direction: column; }
-  .illustration-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-  }
-  .auto-illustrate-label {
-    font-size: 0.8rem;
-    color: var(--fg-muted);
-    cursor: pointer;
-    white-space: nowrap;
-  }
   .defense-label {
     font-size: 0.8rem;
     color: var(--fg-muted);
@@ -3072,7 +2724,7 @@ sys.stdout = _stdout_capture
     gap: 0.3rem;
     padding-bottom: 0.4rem;
   }
-  #rounds, #adv-rounds, #analysts-rounds {
+  #rounds, #analysts-rounds {
     width: 55px;
     font-family: var(--font-mono);
     font-size: 0.85rem;
@@ -3083,7 +2735,7 @@ sys.stdout = _stdout_capture
     text-align: center;
     outline: none;
   }
-  #model-select, #order-mode, #adv-model-select, #adv-order-mode, #analysts-model-select, #analysts-order-mode {
+  #model-select, #order-mode, #analysts-model-select, #analysts-order-mode {
     font-family: var(--font-mono);
     font-size: 0.78rem;
     padding: 0.4rem 0.3rem;
@@ -3223,47 +2875,6 @@ sys.stdout = _stdout_capture
     border-radius: 0;
     border: none;
   }
-
-  /* Summary */
-  .summary-section { margin-bottom: 1rem; }
-  .summary-output {
-    width: 100%;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    padding: 0.5rem 0.75rem;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--fg);
-    outline: none;
-    line-height: 1.5;
-    resize: vertical;
-    margin-bottom: 0.5rem;
-  }
-  #summarize-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* Illustration */
-  .illustration-section { margin-bottom: 1rem; }
-  .illustration-box {
-    border: 1px solid var(--border);
-    background: var(--code-bg);
-    padding: 1rem;
-    text-align: center;
-    margin-bottom: 0.5rem;
-    min-height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .illustration-img {
-    max-width: 100%;
-    width: 400px;
-  }
-  .illustration-placeholder {
-    color: var(--fg-muted);
-    font-size: 0.85rem;
-    font-style: italic;
-  }
-  #illustrate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
   /* Chat - screenplay format */
   .chat {
@@ -3602,6 +3213,40 @@ sys.stdout = _stdout_capture
   }
   .history-modal-content { max-width: 720px; max-height: 85vh; }
   .room-modal-content { max-width: 560px; max-height: 85vh; }
+  .char-modal-content { max-width: 560px; max-height: 85vh; }
+  .char-modal-top {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .char-modal-image {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    object-fit: cover;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    display: block;
+  }
+  .char-modal-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.4;
+    padding-top: 0.25rem;
+  }
+  .char-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .char-modal-toggle { width: 100%; }
   .room-modal-image {
     width: 100%;
     height: 280px;

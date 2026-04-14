@@ -43,15 +43,16 @@ const SETS = [
 const OUT_BASE = path.join(ROOT, 'public/characters/headshots');
 fs.mkdirSync(OUT_BASE, { recursive: true });
 
-// Shared style string so every portrait has a consistent aesthetic. Kept short so
-// the per-character appearance dominates.
+// Shared style string so every portrait has a consistent aesthetic. Tuned toward
+// realism: detailed shading, natural proportions, muted palette, matching lighting
+// and framing across every subject so the roster reads as one set.
 const STYLE_SUFFIX =
-  'Shoulders-up portrait. Facing forward. Neutral dark background. 16-bit RPG character portrait, clean pixel edges, limited palette, soft directional lighting, no text, no watermark.';
+  'Photorealistic detailed pixel art portrait. One human subject, shoulders and head only, centered, facing camera directly, eye-level. Soft key light from upper left, gentle rim light, subtle shadows under jaw. Muted realistic skin tones, natural hair texture, realistic proportions, no cartoon features, no anime, no exaggerated eyes. Neutral dark gray background, slight vignette. High detail, painterly shading, dense pixel clusters, restrained palette. Same framing and lighting as every other portrait in the series. No text, no watermark, no borders.';
 
 function buildPrompt(character) {
   const appearance = character.appearance || '';
   const name = character.name || 'Character';
-  return `Pixel art headshot of ${name}: ${appearance} ${STYLE_SUFFIX}`;
+  return `${STYLE_SUFFIX} Subject: ${appearance}`;
 }
 
 async function generate(description) {
@@ -63,8 +64,8 @@ async function generate(description) {
     },
     body: JSON.stringify({
       description,
-      image_size: { width: 128, height: 128 },
-      negative_description: 'blurry, low quality, text, watermark, full body, multiple characters, cropped head',
+      image_size: { width: 200, height: 200 },
+      negative_description: 'blurry, low quality, text, watermark, full body, multiple characters, cropped head, cartoon, anime, oversized eyes, chibi, logo, letters, signature, frame, border, two people, three quarter view, side profile, dramatic pose',
     }),
   });
   if (!res.ok) {

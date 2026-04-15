@@ -2,14 +2,9 @@ export const prerender = false;
 
 import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-function unauthorized() {
+function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
     status: 401,
     headers: corsHeaders,
@@ -17,7 +12,8 @@ function unauthorized() {
 }
 
 export async function GET({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
   const store = getStore('legion');
   const data = await store.get('session', { type: 'json' });
@@ -29,7 +25,8 @@ export async function GET({ request }) {
 }
 
 export async function PUT({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
   let body;
   try {
@@ -51,7 +48,8 @@ export async function PUT({ request }) {
 }
 
 export async function DELETE({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
   const store = getStore('legion');
   // Archive current session to history before deleting, if it has content
@@ -72,6 +70,6 @@ export async function DELETE({ request }) {
   });
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return preflight(request, 'GET, PUT, DELETE, OPTIONS');
 }

@@ -1,20 +1,21 @@
 export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
+
+// Serialize Agent SDK calls so concurrent requests don't step on the shared
+// ANTHROPIC_API_KEY env-var toggle.
+let sdkLock = Promise.resolve();
 
 export async function POST({ request }) {
-  if (!requireAuth(request)) {
+  const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  };
 
   let body;
   try {
@@ -35,8 +36,18 @@ export async function POST({ request }) {
     });
   }
 
+  // Acquire the serialization lock before mutating process.env.
+  const release = (() => {
+    let resolve;
+    const next = new Promise(r => { resolve = r; });
+    const prev = sdkLock;
+    sdkLock = next;
+    return { wait: prev, done: resolve };
+  })();
+
+  await release.wait;
+
   // Temporarily remove the API key so the Agent SDK uses OAuth instead.
-  // Restore it afterward so other endpoints (agent-chat) still work.
   const savedApiKey = process.env.ANTHROPIC_API_KEY;
   delete process.env.ANTHROPIC_API_KEY;
 
@@ -44,10 +55,8 @@ export async function POST({ request }) {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[agent-sdk-chat] SDK imported, starting query via Claude Agent SDK');
 
-    // Build the user prompt from the last message
     const userPrompt = messages[messages.length - 1]?.content || '';
 
-    // Map full model IDs to SDK aliases
     const sdkModel = model?.includes('opus') ? 'opus'
       : model?.includes('haiku') ? 'haiku'
       : 'sonnet';
@@ -59,8 +68,6 @@ export async function POST({ request }) {
       permissionMode: 'auto',
     };
 
-    // If subagent configs are provided, wire them up
-    // AgentDefinition: { description, prompt, tools?, model? }
     if (agentConfig && Object.keys(agentConfig).length > 0) {
       options.agents = agentConfig;
     }
@@ -68,12 +75,10 @@ export async function POST({ request }) {
     console.log('[agent-sdk-chat] Calling query() with model=%s, prompt length=%d', sdkModel, userPrompt.length);
     let result = '';
     for await (const message of query({ prompt: userPrompt, options })) {
-      // SDKResultMessage — final result with the text output
       if (message.type === 'result' && message.subtype === 'success') {
         result = message.result;
         break;
       }
-      // SDKAssistantMessage — contains content blocks from Anthropic API
       if (message.type === 'assistant' && message.message?.content) {
         for (const block of message.message.content) {
           if (block.type === 'text') {
@@ -85,7 +90,6 @@ export async function POST({ request }) {
 
     console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
 
-    // Detect auth errors returned as "successful" results
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
       return new Response(
         JSON.stringify({ error: "Agent SDK auth error: " + result }),
@@ -98,7 +102,6 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
-    // Provide a helpful error if the SDK isn't available
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
@@ -112,16 +115,10 @@ export async function POST({ request }) {
     );
   } finally {
     if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;
+    release.done();
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
+export async function OPTIONS({ request }) {
+  return preflight(request, 'POST, OPTIONS');
 }

@@ -1,13 +1,13 @@
-import { createHash, createHmac, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
-if (!process.env.AUTH_SECRET) {
-  console.warn('[auth] AUTH_SECRET env var not set. Tokens will not persist across deploys.');
+const SECRET = process.env.AUTH_SECRET;
+if (!SECRET) {
+  throw new Error('[auth] AUTH_SECRET env var is required');
 }
-const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRET-in-env';
 
 const HASHES = {
-  legion: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
-  backend: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
+  legion: process.env.AUTH_HASH_LEGION,
+  backend: process.env.AUTH_HASH_BACKEND,
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
@@ -16,16 +16,26 @@ function sign(payload) {
   return createHmac('sha256', SECRET).update(payload).digest('hex');
 }
 
+function safeEqualHex(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(a, 'hex'), Buffer.from(b, 'hex'));
+  } catch {
+    return false;
+  }
+}
+
 export function verifyPassword(password, scope) {
   const hash = HASHES[scope];
   if (!hash) return false;
   const attempt = createHash('sha256').update(password).digest('hex');
-  return attempt === hash;
+  return safeEqualHex(attempt, hash);
 }
 
 export function createToken(scope) {
   const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL;
-  const payload = Buffer.from(JSON.stringify({ scope, exp })).toString('base64url');
+  const nonce = randomBytes(8).toString('hex');
+  const payload = Buffer.from(JSON.stringify({ scope, exp, nonce })).toString('base64url');
   const sig = sign(payload);
   return `${payload}.${sig}`;
 }
@@ -35,7 +45,13 @@ export function verifyToken(token) {
   const parts = token.split('.');
   if (parts.length !== 2) return null;
   const [payload, sig] = parts;
-  if (sign(payload) !== sig) return null;
+  const expected = sign(payload);
+  if (sig.length !== expected.length) return null;
+  try {
+    if (!timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+  } catch {
+    return null;
+  }
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
     if (data.exp < Math.floor(Date.now() / 1000)) return null;
@@ -53,7 +69,10 @@ export function getTokenFromRequest(request) {
   return match ? match[1] : null;
 }
 
-export function requireAuth(request) {
+export function requireAuth(request, scope) {
   const token = getTokenFromRequest(request);
-  return verifyToken(token);
+  const data = verifyToken(token);
+  if (!data) return null;
+  if (scope && data.scope !== scope) return null;
+  return data;
 }

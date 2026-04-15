@@ -2,21 +2,20 @@ export const prerender = false;
 
 import { requireAuth } from '../../../lib/auth.js';
 import { getPost, savePost, deletePost } from '../../../lib/github-posts.js';
+import { corsHeadersFor, preflight } from '../../../lib/cors.js';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+const METHODS = 'GET, PUT, DELETE, OPTIONS';
+
+function unauthorized(corsHeaders) {
+  return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    status: 401,
+    headers: corsHeaders,
+  });
+}
 
 export async function GET({ params, request }) {
-  const auth = requireAuth(request);
-  if (!auth) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: corsHeaders,
-    });
-  }
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
 
   try {
     const post = await getPost(params.id);
@@ -40,13 +39,8 @@ export async function GET({ params, request }) {
 }
 
 export async function PUT({ params, request }) {
-  const auth = requireAuth(request);
-  if (!auth) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: corsHeaders,
-    });
-  }
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
 
   let body;
   try {
@@ -68,11 +62,30 @@ export async function PUT({ params, request }) {
     }
 
     const { title, date, description, draft, content } = body;
+    if (typeof title !== 'string' || typeof date !== 'string') {
+      return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+    if (title.length > 300 || date.length > 40) {
+      return new Response(JSON.stringify({ error: 'title or date too long' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+    if (description && (typeof description !== 'string' || description.length > 1000)) {
+      return new Response(JSON.stringify({ error: 'invalid description' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
 
-    let fm = `---\ntitle: "${title}"\ndate: "${date}"`;
-    if (description) fm += `\ndescription: "${description}"`;
+    // JSON strings are valid YAML double-quoted scalars.
+    let fm = `---\ntitle: ${JSON.stringify(title)}\ndate: ${JSON.stringify(date)}`;
+    if (description) fm += `\ndescription: ${JSON.stringify(description)}`;
     if (draft) fm += `\ndraft: true`;
-    fm += `\n---\n\n${content || ''}`;
+    fm += `\n---\n\n${typeof content === 'string' ? content : ''}`;
 
     await savePost(found.file, fm, found.sha, `Update post: ${title}`);
 
@@ -89,13 +102,8 @@ export async function PUT({ params, request }) {
 }
 
 export async function DELETE({ params, request }) {
-  const auth = requireAuth(request);
-  if (!auth) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: corsHeaders,
-    });
-  }
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
 
   try {
     const found = await getPost(params.id);
@@ -120,6 +128,6 @@ export async function DELETE({ params, request }) {
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return preflight(request, METHODS);
 }

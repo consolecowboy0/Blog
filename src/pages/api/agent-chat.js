@@ -1,11 +1,9 @@
 export const prerender = false;
 
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
+
 export async function POST({ request }) {
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  };
+  const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   let body;
   try {
@@ -17,13 +15,6 @@ export async function POST({ request }) {
     });
   }
 
-  // const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
-  // if (!apiKey) {
-  //   return new Response(JSON.stringify({ error: "No API key provided" }), {
-  //     status: 400,
-  //     headers: corsHeaders,
-  //   });
-  // }
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "API mode disabled" }), {
@@ -79,13 +70,6 @@ export async function POST({ request }) {
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
-  });
+export async function OPTIONS({ request }) {
+  return preflight(request, 'POST, OPTIONS');
 }

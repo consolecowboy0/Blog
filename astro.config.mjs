@@ -4,7 +4,7 @@ import netlify from '@astrojs/netlify';
 
 export default defineConfig({
   integrations: [mdx()],
-  site: 'https://example.com',
+  site: process.env.SITE_URL || 'https://dustinlanders.com',
   adapter: netlify(),
   prefetch: {
     prefetchAll: true,

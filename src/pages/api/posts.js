@@ -2,15 +2,11 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { listPosts, savePost } from '../../lib/github-posts.js';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
 export async function GET({ request }) {
-  const auth = requireAuth(request);
+  const corsHeaders = corsHeadersFor(request, 'GET, POST, OPTIONS');
+  const auth = requireAuth(request, 'backend');
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -33,7 +29,8 @@ export async function GET({ request }) {
 }
 
 export async function POST({ request }) {
-  const auth = requireAuth(request);
+  const corsHeaders = corsHeadersFor(request, 'GET, POST, OPTIONS');
+  const auth = requireAuth(request, 'backend');
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -59,13 +56,34 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof title !== 'string' || typeof date !== 'string') {
+    return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+  if (title.length > 300 || date.length > 40) {
+    return new Response(JSON.stringify({ error: 'title or date too long' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+  if (description && (typeof description !== 'string' || description.length > 1000)) {
+    return new Response(JSON.stringify({ error: 'invalid description' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   const safe = slug.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
   const filename = `${safe}.md`;
 
-  let fm = `---\ntitle: "${title}"\ndate: "${date}"`;
-  if (description) fm += `\ndescription: "${description}"`;
+  // JSON strings are valid YAML double-quoted scalars, so JSON.stringify
+  // safely escapes quotes, newlines, and control chars in frontmatter values.
+  let fm = `---\ntitle: ${JSON.stringify(title)}\ndate: ${JSON.stringify(date)}`;
+  if (description) fm += `\ndescription: ${JSON.stringify(description)}`;
   if (draft) fm += `\ndraft: true`;
-  fm += `\n---\n\n${content || ''}`;
+  fm += `\n---\n\n${typeof content === 'string' ? content : ''}`;
 
   try {
     await savePost(filename, fm, null, `Add post: ${title}`);
@@ -81,6 +99,6 @@ export async function POST({ request }) {
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return preflight(request, 'GET, POST, OPTIONS');
 }

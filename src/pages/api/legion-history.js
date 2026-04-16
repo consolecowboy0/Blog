@@ -2,16 +2,12 @@ export const prerender = false;
 
 import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
+const METHODS = 'GET, POST, DELETE, OPTIONS';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
-function unauthorized() {
+function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
     status: 401,
     headers: corsHeaders,
@@ -36,7 +32,8 @@ async function purgeOld(store) {
 }
 
 export async function GET({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
@@ -79,7 +76,8 @@ export async function GET({ request }) {
 }
 
 export async function POST({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   let body;
   try {
     body = await request.json();
@@ -106,7 +104,8 @@ export async function POST({ request }) {
 }
 
 export async function DELETE({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const corsHeaders = corsHeadersFor(request, METHODS);
+  if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
   if (!id) {
@@ -123,6 +122,6 @@ export async function DELETE({ request }) {
   });
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return preflight(request, METHODS);
 }

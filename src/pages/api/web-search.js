@@ -1,24 +1,17 @@
-import { loadEnv } from "vite";
-
 export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
-
-const env = loadEnv("", process.cwd(), "");
+import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
 export async function POST({ request }) {
-  if (!requireAuth(request)) {
+  const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
 
   let body;
   try {
@@ -30,7 +23,7 @@ export async function POST({ request }) {
     });
   }
 
-  const apiKey = env.BRAVE_SEARCH_API_KEY || process.env.BRAVE_SEARCH_API_KEY;
+  const apiKey = process.env.BRAVE_SEARCH_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "No Brave Search API key configured" }), {
       status: 500,
@@ -84,13 +77,6 @@ export async function POST({ request }) {
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
+export async function OPTIONS({ request }) {
+  return preflight(request, 'POST, OPTIONS');
 }

@@ -184,6 +184,14 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
               </select>
             </div>
             <label class="defense-label"><input type="checkbox" id="defense-mode" /> Thesis</label>
+            <div class="control-group">
+              <label class="field-label" for="budget-input">Budget</label>
+              <input type="number" id="budget-input" min="0" max="10000" value="100" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="max-cost-input">Max Cost</label>
+              <input type="number" id="max-cost-input" min="1" max="100" value="20" />
+            </div>
           </div>
         </div>
 
@@ -215,6 +223,14 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
               </select>
             </div>
             <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Thesis</label>
+            <div class="control-group">
+              <label class="field-label" for="analysts-budget-input">Budget</label>
+              <input type="number" id="analysts-budget-input" min="0" max="10000" value="100" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-max-cost-input">Max Cost</label>
+              <input type="number" id="analysts-max-cost-input" min="1" max="100" value="20" />
+            </div>
           </div>
         </div>
 
@@ -347,6 +363,16 @@ const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'r
   function getDefense() {
     if (activeTab === 'analysts') return document.getElementById('analysts-defense-mode').checked;
     return document.getElementById('defense-mode').checked;
+  }
+  function getBudget() {
+    var el = activeTab === 'analysts' ? document.getElementById('analysts-budget-input') : document.getElementById('budget-input');
+    var n = parseInt(el.value, 10);
+    return isNaN(n) || n < 0 ? 100 : n;
+  }
+  function getMaxCost() {
+    var el = activeTab === 'analysts' ? document.getElementById('analysts-max-cost-input') : document.getElementById('max-cost-input');
+    var n = parseInt(el.value, 10);
+    return isNaN(n) || n < 1 ? 20 : n;
   }
 
   // --- Legion auto-load ---
@@ -1456,6 +1482,50 @@ sys.stdout = _stdout_capture
     return ask(system, messages);
   }
 
+  // Ask an agent to price their upcoming opinion. Returns {cost, reason}. Used
+  // by the money system: agents must pay the cost out of their balance before
+  // they may speak. If they cannot afford the minimum (1), they must stay silent.
+  async function priceOpinion(agent, transcript, maxCost, balance) {
+    var pricingSystem = 'You are ' + agent.name + '. Before you speak, you must set a price for your upcoming opinion. You will pay this price out of your balance of $' + balance + '. You cannot speak if you cannot afford it.\n\nSet the price based on how much you value saying what you are about to say. A throwaway remark is cheap (1-3). A routine contribution is moderate (4-8). A strong stance you need to make heard is expensive (' + Math.max(9, Math.floor(maxCost * 0.6)) + '-' + maxCost + '). Stay in character when you decide.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"cost": 5, "reason": "example reason"}\n\nReplace 5 with an integer between 1 and ' + maxCost + '.';
+    var pricingMessages = [{ role: 'user', content: transcript + '\n\nHow much is it worth to speak next? Your balance is $' + balance + '. Respond with ONLY a JSON object.' }];
+    function parsePriceResponse(response) {
+      var start = response.indexOf('{');
+      var parsed = null;
+      if (start !== -1) {
+        var depth = 0, inStr = false, esc = false;
+        for (var ci = start; ci < response.length; ci++) {
+          var ch = response[ci];
+          if (esc) { esc = false; continue; }
+          if (ch === '\\' && inStr) { esc = true; continue; }
+          if (ch === '"') { inStr = !inStr; continue; }
+          if (!inStr) {
+            if (ch === '{') depth++;
+            else if (ch === '}') { depth--; if (depth === 0) { try { parsed = JSON.parse(response.slice(start, ci + 1)); } catch(e) {} break; } }
+          }
+        }
+      }
+      if (!parsed) {
+        var cm = response.match(/cost['":\s]+(\d+)/i);
+        var rm = response.match(/"reason"\s*:\s*"([^"]*)"/i);
+        if (!cm) throw new Error('no cost in response: ' + response.slice(0, 80));
+        parsed = { cost: parseInt(cm[1], 10), reason: rm ? rm[1] : '' };
+      }
+      return { cost: Math.min(maxCost, Math.max(1, parseInt(parsed.cost, 10) || 1)), reason: parsed.reason || '' };
+    }
+    try {
+      return await askDirect(pricingSystem, pricingMessages).then(parsePriceResponse);
+    } catch (err) {
+      console.warn('[price] attempt 1 failed for ' + agent.name + ':', err.message);
+      await new Promise(function (r) { setTimeout(r, 1000); });
+      try {
+        return await askDirect(pricingSystem, pricingMessages).then(parsePriceResponse);
+      } catch (retryErr) {
+        console.error('[price] failed for ' + agent.name + ' after retry:', retryErr.message || retryErr);
+        return { cost: 1, reason: 'price error' };
+      }
+    }
+  }
+
   // --- Session state ---
   var sessionTranscript = [];
   var sessionAgents = null;
@@ -1464,6 +1534,9 @@ sys.stdout = _stdout_capture
   var worldState = [];
   var characterStatus = {}; // name -> { status: 'present'|'dead'|'left', round: number }
   var roomStatus = { name: '', status: 'alive', round: 0 };
+  var agentBalances = {}; // name -> remaining credits
+  var startingBudget = 100;
+  var maxOpinionCost = 20;
 
   // --- Server state persistence ---
   var saveTimer = null;
@@ -1488,6 +1561,9 @@ sys.stdout = _stdout_capture
         worldState: worldState,
         characterStatus: characterStatus,
         roomStatus: roomStatus,
+        agentBalances: agentBalances,
+        startingBudget: startingBudget,
+        maxOpinionCost: maxOpinionCost,
         lastModified: now,
         opening: getOpening(),
         config: {
@@ -1497,6 +1573,8 @@ sys.stdout = _stdout_capture
           model: getModel(),
           orderMode: getOrderMode(),
           rounds: getRounds(),
+          budget: getBudget(),
+          maxCost: getMaxCost(),
         },
       };
       var headers = { 'Content-Type': 'application/json' };
@@ -1540,6 +1618,8 @@ sys.stdout = _stdout_capture
       if (state.config.model) document.getElementById('model-select').value = state.config.model;
       if (state.config.orderMode) document.getElementById('order-mode').value = state.config.orderMode;
       if (state.config.rounds) document.getElementById('rounds').value = state.config.rounds;
+      if (state.config.budget != null) document.getElementById('budget-input').value = state.config.budget;
+      if (state.config.maxCost != null) document.getElementById('max-cost-input').value = state.config.maxCost;
     }
     if (state.opening) document.getElementById('opening').value = state.opening;
 
@@ -1550,6 +1630,9 @@ sys.stdout = _stdout_capture
     worldState = state.worldState || [];
     characterStatus = state.characterStatus || {};
     roomStatus = state.roomStatus || { name: '', status: 'alive', round: 0 };
+    agentBalances = state.agentBalances || {};
+    startingBudget = state.startingBudget != null ? state.startingBudget : 100;
+    maxOpinionCost = state.maxOpinionCost != null ? state.maxOpinionCost : 20;
 
     // Re-render chat
     var chat = document.getElementById('chat');
@@ -1608,9 +1691,11 @@ sys.stdout = _stdout_capture
 
   function initStatus(agents) {
     characterStatus = {};
+    agentBalances = {};
     agents.forEach(function (a) {
       if (a.name !== 'The Room') {
         characterStatus[a.name] = { status: 'present', round: 0 };
+        agentBalances[a.name] = startingBudget;
       }
     });
     roomStatus = { name: roomData ? (roomData.name || 'The Room') : 'The Room', status: 'alive', round: 0 };
@@ -1658,6 +1743,12 @@ sys.stdout = _stdout_capture
         sub.className = 'status-detail';
         sub.textContent = entry.status === 'dead' ? ' (dead, r' + entry.round + ')' : ' (left, r' + entry.round + ')';
         el.appendChild(sub);
+      } else if (agentBalances.hasOwnProperty(name)) {
+        var bal = document.createElement('span');
+        bal.className = 'status-detail status-balance';
+        bal.textContent = ' $' + agentBalances[name];
+        if (agentBalances[name] <= 0) bal.className += ' status-broke';
+        el.appendChild(bal);
       }
       list.appendChild(el);
     });
@@ -1758,6 +1849,7 @@ sys.stdout = _stdout_capture
     worldState = [];
     characterStatus = {};
     roomStatus = { name: '', status: 'alive', round: 0 };
+    agentBalances = {};
     document.getElementById('status-panel').style.display = 'none';
     document.getElementById('status-list').innerHTML = '';
     document.getElementById('move-room-btn').style.display = 'none';
@@ -2117,6 +2209,7 @@ sys.stdout = _stdout_capture
 
     // Update status
     characterStatus[name] = { status: 'present', round: sessionRun };
+    agentBalances[name] = startingBudget;
     renderStatus();
 
     // Narrator message
@@ -2251,6 +2344,14 @@ sys.stdout = _stdout_capture
     var rounds = parseInt(getRounds(), 10) || 2;
     var delayMs = (parseInt(document.getElementById('delay-input').value, 10) || 0) * 1000;
     var isFirstRun = !sessionAgents;
+
+    if (isFirstRun) {
+      startingBudget = getBudget();
+      maxOpinionCost = getMaxCost();
+    } else {
+      // Allow the user to raise/lower max cost mid-session without resetting balances.
+      maxOpinionCost = getMaxCost();
+    }
 
     if (isFirstRun) {
       // Load data based on active tab
@@ -2412,14 +2513,36 @@ sys.stdout = _stdout_capture
             await cancellableDelay(delayMs);
             if (stopRequested) break;
           }
+          // Money system: agent must buy the right to speak their thesis.
+          var dBal = agentBalances.hasOwnProperty(da.name) ? agentBalances[da.name] : startingBudget;
+          if (dBal < 1) {
+            msg(da.name, da.color, '[broke: balance $' + dBal + ', cannot afford to speak]', false);
+            sessionTranscript.push({ name: da.name, text: '[broke: cannot afford to speak]', round: 0 });
+            saveState();
+            progressTick('Thesis: ' + da.name + ' broke');
+            continue;
+          }
+          var dTranscript = '[Scene direction]: ' + opening;
+          progressLabel('Thesis: ' + da.name + ' pricing...');
+          var dPrice = await priceOpinion(da, dTranscript, maxOpinionCost, dBal);
+          if (dPrice.cost > dBal) {
+            msg('', '', da.name + ' priced $' + dPrice.cost + ' but only has $' + dBal + ' -- must pass.', true);
+            sessionTranscript.push({ name: da.name, text: '[priced $' + dPrice.cost + ', short $' + (dPrice.cost - dBal) + ']', round: 0 });
+            saveState();
+            progressTick('Thesis: ' + da.name + ' short');
+            continue;
+          }
+          agentBalances[da.name] = dBal - dPrice.cost;
+          renderStatus();
           var dSystem = da.system + '\n\n' + thesisRule;
-          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full thesis, ' + da.name + '.' }];
+          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full thesis, ' + da.name + '. You have paid $' + dPrice.cost + ' to speak -- make it count.' }];
           progressLabel('Thesis: ' + da.name + ' thinking...');
           var dTyp = typing(da.name, da.color);
           var dResponse = await ask(dSystem, dMessages);
           dTyp.remove();
-          msg(da.name, da.color, dResponse);
-          sessionTranscript.push({ name: da.name, text: dResponse, round: 0 });
+          var dPaidTag = ' [paid $' + dPrice.cost + ', balance $' + agentBalances[da.name] + ']';
+          msg(da.name, da.color, dResponse + '\n' + dPaidTag);
+          sessionTranscript.push({ name: da.name, text: dResponse + '\n' + dPaidTag, rawText: dResponse, cost: dPrice.cost, costReason: dPrice.reason, round: 0 });
           saveState();
           progressTick('Thesis: ' + da.name + ' done');
         }
@@ -2540,16 +2663,46 @@ sys.stdout = _stdout_capture
             if (stopRequested) break;
           }
           var transcript = buildTranscript(a.name);
-          var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' }];
+          // Money system: The Room speaks for free. Every other agent must price
+          // their opinion and pay from their balance before they are allowed to
+          // speak. Broke or priced-too-high means they pass on this turn.
+          var paidTag = '';
+          var paidCost = 0;
+          if (a.name !== 'The Room') {
+            var bal = agentBalances.hasOwnProperty(a.name) ? agentBalances[a.name] : startingBudget;
+            if (bal < 1) {
+              msg('', '', a.name + ' is broke ($' + bal + ') and cannot speak.', true);
+              sessionTranscript.push({ name: a.name, text: '[broke: cannot afford to speak]', round: sessionRun });
+              saveState();
+              progressTick('Round ' + r + ': ' + a.name + ' broke');
+              continue;
+            }
+            progressLabel('Round ' + r + ': ' + a.name + ' pricing...');
+            var price = await priceOpinion(a, transcript, maxOpinionCost, bal);
+            if (price.cost > bal) {
+              msg('', '', a.name + ' priced $' + price.cost + ' but only has $' + bal + ' -- must pass.', true);
+              sessionTranscript.push({ name: a.name, text: '[priced $' + price.cost + ', short $' + (price.cost - bal) + ']', round: sessionRun });
+              saveState();
+              progressTick('Round ' + r + ': ' + a.name + ' short');
+              continue;
+            }
+            agentBalances[a.name] = bal - price.cost;
+            paidCost = price.cost;
+            renderStatus();
+          }
+          var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' + (paidCost > 0 ? ' You paid $' + paidCost + ' for this turn. Your remaining balance is $' + agentBalances[a.name] + '. Make the opinion worth what you paid.' : '') }];
           progressLabel('Round ' + r + ': ' + a.name + ' thinking...');
           var typ = typing(a.name, a.color);
           // Build SDK tools list based on agent capabilities
           var response = await ask(a.system, messages);
+          if (paidCost > 0) {
+            paidTag = '\n[paid $' + paidCost + ', balance $' + agentBalances[a.name] + ']';
+          }
           typ.remove();
           progressTick('Round ' + r + ': ' + a.name + ' done');
           if (response.trim() === '[silence]') {
-            msg(a.name, a.color, '...', false);
-            sessionTranscript.push({ name: a.name, text: '...', round: sessionRun });
+            msg(a.name, a.color, '...' + paidTag, false);
+            sessionTranscript.push({ name: a.name, text: '...' + paidTag, round: sessionRun });
             saveState();
           } else {
             var actions = extractActions(a.name, response);
@@ -2557,9 +2710,9 @@ sys.stdout = _stdout_capture
             var whisperTargets = extractWhisperTargets(response);
             // Clear pending code results before rendering (msg triggers auto-run)
             pendingCodeResults = [];
-            msg(a.name, a.color, response);
+            msg(a.name, a.color, response + paidTag);
             // Push the main response first so code results follow in export order
-            sessionTranscript.push({ name: a.name, text: response, rawText: response, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
+            sessionTranscript.push({ name: a.name, text: response + paidTag, rawText: response, cost: paidCost, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
             // Wait for any code blocks to finish executing
             var hasCode = /\[CODE\][\s\S]*?\[\/CODE\]/.test(response);
             if (hasCode) {
@@ -3125,6 +3278,14 @@ sys.stdout = _stdout_capture
   .status-detail {
     font-size: 0.68rem;
     opacity: 0.7;
+  }
+  .status-balance {
+    color: #22c55e;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+  .status-balance.status-broke {
+    color: #e05252;
   }
 
   /* Section headers & copy buttons */

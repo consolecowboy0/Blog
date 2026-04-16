@@ -2,19 +2,15 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { listPosts, savePost } from '../../lib/github-posts.js';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { getCorsHeaders } from '../../lib/cors.js';
 
 export async function GET({ request }) {
+  const cors = getCorsHeaders(request, 'GET, POST, OPTIONS');
   const auth = requireAuth(request);
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -22,22 +18,24 @@ export async function GET({ request }) {
     const posts = await listPosts();
     return new Response(JSON.stringify({ posts }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] list error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 }
 
 export async function POST({ request }) {
+  const cors = getCorsHeaders(request, 'GET, POST, OPTIONS');
   const auth = requireAuth(request);
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -47,7 +45,7 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -55,7 +53,7 @@ export async function POST({ request }) {
   if (!slug || !title || !date) {
     return new Response(JSON.stringify({ error: 'Missing slug, title, or date' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -71,16 +69,17 @@ export async function POST({ request }) {
     await savePost(filename, fm, null, `Add post: ${title}`);
     return new Response(JSON.stringify({ ok: true, id: safe, file: filename }), {
       status: 201,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] save error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request, 'GET, POST, OPTIONS') });
 }

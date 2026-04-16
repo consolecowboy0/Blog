@@ -2,34 +2,34 @@ export const prerender = false;
 
 import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
-
-function unauthorized() {
-  return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-    status: 401,
-    headers: corsHeaders,
-  });
-}
+import { getCorsHeaders } from '../../lib/cors.js';
 
 export async function GET({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: cors,
+    });
+  }
 
   const store = getStore('legion');
   const data = await store.get('session', { type: 'json' });
 
   return new Response(JSON.stringify(data || null), {
     status: 200,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
 export async function PUT({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: cors,
+    });
+  }
 
   let body;
   try {
@@ -37,7 +37,7 @@ export async function PUT({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -46,12 +46,18 @@ export async function PUT({ request }) {
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
 export async function DELETE({ request }) {
-  if (!requireAuth(request)) return unauthorized();
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: cors,
+    });
+  }
 
   const store = getStore('legion');
   // Archive current session to history before deleting, if it has content
@@ -68,10 +74,10 @@ export async function DELETE({ request }) {
 
   return new Response(JSON.stringify({ ok: true }), {
     status: 200,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...cors, 'Content-Type': 'application/json' },
   });
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS') });
 }

@@ -3,22 +3,19 @@ import { loadEnv } from "vite";
 export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
+import { getCorsHeaders } from '../../lib/cors.js';
 
 const env = loadEnv("", process.cwd(), "");
 
 export async function POST({ request }) {
+  const cors = getCorsHeaders(request);
+
   if (!requireAuth(request)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: cors,
     });
   }
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
 
   let body;
   try {
@@ -26,7 +23,7 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -34,7 +31,7 @@ export async function POST({ request }) {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "No Brave Search API key configured" }), {
       status: 500,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -43,7 +40,7 @@ export async function POST({ request }) {
   if (!query) {
     return new Response(JSON.stringify({ error: "Missing query" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -58,10 +55,10 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API error:', res.status);
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "Search service error" }),
+        { status: res.status, headers: cors }
       );
     }
 
@@ -74,23 +71,20 @@ export async function POST({ request }) {
 
     return new Response(JSON.stringify({ results }), {
       status: 200,
-      headers: corsHeaders,
+      headers: cors,
     });
   } catch (err) {
+    console.error('[web-search] request failed:', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call search service" }),
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS({ request }) {
   return new Response(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
+    headers: getCorsHeaders(request),
   });
 }

@@ -2,19 +2,15 @@ export const prerender = false;
 
 import { requireAuth } from '../../../lib/auth.js';
 import { getPost, savePost, deletePost } from '../../../lib/github-posts.js';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+import { getCorsHeaders } from '../../../lib/cors.js';
 
 export async function GET({ params, request }) {
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
   const auth = requireAuth(request);
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -23,28 +19,30 @@ export async function GET({ params, request }) {
     if (!post) {
       return new Response(JSON.stringify({ error: 'Post not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...cors, 'Content-Type': 'application/json' },
       });
     }
 
     return new Response(JSON.stringify(post), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id] get error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 }
 
 export async function PUT({ params, request }) {
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
   const auth = requireAuth(request);
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -54,7 +52,7 @@ export async function PUT({ params, request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -63,7 +61,7 @@ export async function PUT({ params, request }) {
     if (!found) {
       return new Response(JSON.stringify({ error: 'Post not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...cors, 'Content-Type': 'application/json' },
       });
     }
 
@@ -78,22 +76,24 @@ export async function PUT({ params, request }) {
 
     return new Response(JSON.stringify({ ok: true, file: found.file }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id] update error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 }
 
 export async function DELETE({ params, request }) {
+  const cors = getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS');
   const auth = requireAuth(request);
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -102,7 +102,7 @@ export async function DELETE({ params, request }) {
     if (!found) {
       return new Response(JSON.stringify({ error: 'Post not found' }), {
         status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...cors, 'Content-Type': 'application/json' },
       });
     }
 
@@ -110,16 +110,17 @@ export async function DELETE({ params, request }) {
 
     return new Response(JSON.stringify({ ok: true, deleted: found.file }), {
       status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id] delete error:', err);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...cors, 'Content-Type': 'application/json' },
     });
   }
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request, 'GET, PUT, DELETE, OPTIONS') });
 }

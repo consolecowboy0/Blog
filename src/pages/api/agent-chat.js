@@ -1,11 +1,17 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
+import { getCorsHeaders } from '../../lib/cors.js';
+
 export async function POST({ request }) {
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  };
+  const cors = getCorsHeaders(request);
+
+  if (!requireAuth(request)) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: cors,
+    });
+  }
 
   let body;
   try {
@@ -13,22 +19,15 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
-  // const apiKey = body.apiKey || process.env.ANTHROPIC_API_KEY;
-  // if (!apiKey) {
-  //   return new Response(JSON.stringify({ error: "No API key provided" }), {
-  //     status: 400,
-  //     headers: corsHeaders,
-  //   });
-  // }
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "API mode disabled" }), {
       status: 403,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -37,7 +36,7 @@ export async function POST({ request }) {
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: cors,
     });
   }
 
@@ -60,32 +59,30 @@ export async function POST({ request }) {
     const data = await res.json();
 
     if (!res.ok) {
+      console.error('[agent-chat] Anthropic API error:', data.error?.message);
       return new Response(
-        JSON.stringify({ error: data.error?.message || "API error" }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "Upstream API error" }),
+        { status: res.status, headers: cors }
       );
     }
 
     const text = data.content?.[0]?.text || "";
     return new Response(JSON.stringify({ text }), {
       status: 200,
-      headers: corsHeaders,
+      headers: cors,
     });
   } catch (err) {
+    console.error('[agent-chat] request failed:', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call API" }),
+      { status: 500, headers: cors }
     );
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS({ request }) {
   return new Response(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: getCorsHeaders(request),
   });
 }

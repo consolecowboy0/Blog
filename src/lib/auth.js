@@ -1,13 +1,16 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 
 if (!process.env.AUTH_SECRET) {
-  console.warn('[auth] AUTH_SECRET env var not set. Tokens will not persist across deploys.');
+  console.error('[auth] AUTH_SECRET not set -- tokens use ephemeral key and will not persist.');
 }
-const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRET-in-env';
+const SECRET = process.env.AUTH_SECRET || randomBytes(32).toString('hex');
 
+if (!process.env.AUTH_HASH_LEGION) {
+  console.error('[auth] AUTH_HASH_LEGION not set -- legion auth disabled.');
+}
 const HASHES = {
-  legion: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
-  backend: process.env.AUTH_HASH_LEGION || '48d5e01666b2a0cf736186d47e5e0e56e588fc2fbc24e598b0e849086bbcb846',
+  legion: process.env.AUTH_HASH_LEGION || '',
+  backend: process.env.AUTH_HASH_BACKEND || '',
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days

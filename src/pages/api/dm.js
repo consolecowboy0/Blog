@@ -2,22 +2,23 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { requireAuth } from '../../lib/auth.js';
+import { getCorsHeaders } from '../../lib/cors.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+let _corsHeaders;
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ..._corsHeaders, 'Content-Type': 'application/json' },
   });
 }
 
+const ID_RE = /^[a-zA-Z0-9_-]+$/;
+
 export async function POST({ request }) {
+  _corsHeaders = getCorsHeaders(request);
+
   let body;
   try {
     body = await request.json();
@@ -33,8 +34,11 @@ export async function POST({ request }) {
 
   if (action === 'send') {
     const { visitor_id, text, fingerprint } = body;
-    if (!visitor_id || !text) return json({ error: 'Missing fields' }, 400);
+    if (!visitor_id || typeof visitor_id !== 'string') return json({ error: 'Missing fields' }, 400);
+    if (visitor_id.length > 128 || !ID_RE.test(visitor_id)) return json({ error: 'Invalid visitor_id' }, 400);
+    if (!text || typeof text !== 'string') return json({ error: 'Missing fields' }, 400);
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
+    if (fingerprint && (typeof fingerprint !== 'string' || fingerprint.length > 256)) return json({ error: 'Invalid fingerprint' }, 400);
 
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
@@ -84,7 +88,8 @@ export async function POST({ request }) {
 
   if (action === 'poll') {
     const { visitor_id } = body;
-    if (!visitor_id) return json({ error: 'Missing visitor_id' }, 400);
+    if (!visitor_id || typeof visitor_id !== 'string') return json({ error: 'Missing visitor_id' }, 400);
+    if (visitor_id.length > 128 || !ID_RE.test(visitor_id)) return json({ error: 'Invalid visitor_id' }, 400);
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
@@ -113,7 +118,8 @@ export async function POST({ request }) {
 
   if (action === 'read') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string') return json({ error: 'Missing conversation_id' }, 400);
+    if (conversation_id.length > 128 || !ID_RE.test(conversation_id)) return json({ error: 'Invalid conversation_id' }, 400);
 
     const docRef = convCol.doc(conversation_id);
     const doc = await docRef.get();
@@ -132,7 +138,8 @@ export async function POST({ request }) {
 
   if (action === 'reply') {
     const { conversation_id, text } = body;
-    if (!conversation_id || !text) return json({ error: 'Missing fields' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string' || !text) return json({ error: 'Missing fields' }, 400);
+    if (conversation_id.length > 128 || !ID_RE.test(conversation_id)) return json({ error: 'Invalid conversation_id' }, 400);
 
     const docRef = convCol.doc(conversation_id);
     const doc = await docRef.get();
@@ -150,7 +157,8 @@ export async function POST({ request }) {
 
   if (action === 'delete') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string') return json({ error: 'Missing conversation_id' }, 400);
+    if (conversation_id.length > 128 || !ID_RE.test(conversation_id)) return json({ error: 'Invalid conversation_id' }, 400);
 
     await convCol.doc(conversation_id).delete();
     return json({ ok: true });
@@ -159,6 +167,6 @@ export async function POST({ request }) {
   return json({ error: 'Unknown action' }, 400);
 }
 
-export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+export async function OPTIONS({ request }) {
+  return new Response(null, { status: 204, headers: getCorsHeaders(request) });
 }

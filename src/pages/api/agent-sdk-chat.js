@@ -1,20 +1,17 @@
 export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
+import { getCorsHeaders } from '../../lib/cors.js';
 
 export async function POST({ request }) {
+  const corsHeaders = getCorsHeaders(request);
+
   if (!requireAuth(request)) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: { 'Content-Type': 'application/json' },
+      headers: corsHeaders,
     });
   }
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  };
 
   let body;
   try {
@@ -98,16 +95,16 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
-    // Provide a helpful error if the SDK isn't available
     const message = err.message || '';
+    console.error('[agent-sdk-chat] error:', message);
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
+        JSON.stringify({ error: "Agent SDK not available on this server." }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {
@@ -115,13 +112,9 @@ export async function POST({ request }) {
   }
 }
 
-export async function OPTIONS() {
+export async function OPTIONS({ request }) {
   return new Response(null, {
     status: 204,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    },
+    headers: getCorsHeaders(request),
   });
 }

@@ -31,7 +31,8 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts]', err);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -80,6 +81,12 @@ export async function PUT({ params, request }) {
         headers: corsHeaders,
       });
     }
+    if (content && (typeof content !== 'string' || content.length > 500_000)) {
+      return new Response(JSON.stringify({ error: 'Content too large' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
 
     // JSON strings are valid YAML double-quoted scalars.
     let fm = `---\ntitle: ${JSON.stringify(title)}\ndate: ${JSON.stringify(date)}`;
@@ -94,7 +101,8 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts]', err);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -121,7 +129,8 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts]', err);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

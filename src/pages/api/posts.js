@@ -21,7 +21,8 @@ export async function GET({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts]', err);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -74,6 +75,12 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   }
+  if (content && (typeof content !== 'string' || content.length > 500_000)) {
+    return new Response(JSON.stringify({ error: 'Content too large' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
 
   const safe = slug.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
   const filename = `${safe}.md`;
@@ -92,7 +99,8 @@ export async function POST({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts]', err);
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

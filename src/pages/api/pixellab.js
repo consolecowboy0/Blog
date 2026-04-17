@@ -55,9 +55,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[pixellab] API status', res.status);
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
+        JSON.stringify({ error: "Image generation error" }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -68,8 +68,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Internal error" }),
       { status: 500, headers: corsHeaders }
     );
   }

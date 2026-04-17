@@ -42,6 +42,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!/^\d{1,20}$/.test(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -78,6 +84,14 @@ export async function GET({ request }) {
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > 5_000_000) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -108,8 +122,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !/^\d{1,20}$/.test(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

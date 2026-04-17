@@ -34,7 +34,7 @@ export function verifyPassword(password, scope) {
 
 export function createToken(scope) {
   const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL;
-  const nonce = randomBytes(8).toString('hex');
+  const nonce = randomBytes(16).toString('hex');
   const payload = Buffer.from(JSON.stringify({ scope, exp, nonce })).toString('base64url');
   const sig = sign(payload);
   return `${payload}.${sig}`;

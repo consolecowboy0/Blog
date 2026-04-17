@@ -91,8 +91,9 @@ export async function POST({ request }) {
     console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
+      console.error('[agent-sdk-chat] auth error in SDK result');
       return new Response(
-        JSON.stringify({ error: "Agent SDK auth error: " + result }),
+        JSON.stringify({ error: "Agent SDK authentication failed" }),
         { status: 401, headers: corsHeaders }
       );
     }
@@ -109,8 +110,9 @@ export async function POST({ request }) {
         { status: 501, headers: corsHeaders }
       );
     }
+    console.error('[agent-sdk-chat]', message);
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Internal error" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

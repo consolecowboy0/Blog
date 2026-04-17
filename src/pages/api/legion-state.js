@@ -28,6 +28,14 @@ export async function PUT({ request }) {
   const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > 5_000_000) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
+
   let body;
   try {
     body = await request.json();

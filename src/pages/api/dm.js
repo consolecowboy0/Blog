@@ -86,7 +86,7 @@ export async function POST({ request, clientAddress }) {
           subject: 'New DM on dustinlanders.com',
           text: `New message:\n\n${text}\n\nhttps://dustinlanders.com/dm/inbox`,
         }),
-      }).then(r => r.json()).then(d => console.log('[resend]', JSON.stringify(d))).catch(e => console.error('[resend error]', e));
+      }).then(r => r.json()).catch(e => console.error('[resend] send failed'));
     } else if (!notifyEmail) {
       console.warn('[dm] NOTIFY_EMAIL not set; skipping email notification');
     }
@@ -131,7 +131,10 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'read') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string') return json({ error: 'Missing conversation_id' }, 400);
+    if (conversation_id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(conversation_id)) {
+      return json({ error: 'Invalid conversation_id' }, 400);
+    }
 
     const docRef = convCol.doc(conversation_id);
     const doc = await docRef.get();
@@ -151,6 +154,9 @@ export async function POST({ request, clientAddress }) {
   if (action === 'reply') {
     const { conversation_id, text } = body;
     if (!conversation_id || !text) return json({ error: 'Missing fields' }, 400);
+    if (typeof conversation_id !== 'string' || conversation_id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(conversation_id)) {
+      return json({ error: 'Invalid conversation_id' }, 400);
+    }
     if (typeof text !== 'string' || text.length > 2000) {
       return json({ error: 'Invalid text' }, 400);
     }
@@ -171,7 +177,10 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'delete') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string') return json({ error: 'Missing conversation_id' }, 400);
+    if (conversation_id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(conversation_id)) {
+      return json({ error: 'Invalid conversation_id' }, 400);
+    }
 
     await convCol.doc(conversation_id).delete();
     return json({ ok: true });

@@ -632,6 +632,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <script>
   const API_BASE = '';
 
@@ -914,8 +915,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (!mdPreview || !fieldContent) return;
     const raw = fieldContent.value;
     try {
-      // @ts-ignore - marked loaded via CDN
-      mdPreview.innerHTML = window.marked ? window.marked.parse(raw) : escapeHtml(raw);
+      // @ts-ignore - marked and DOMPurify loaded via CDN
+      const html = window.marked ? window.marked.parse(raw) : escapeHtml(raw);
+      mdPreview.innerHTML = window.DOMPurify ? window.DOMPurify.sanitize(html) : escapeHtml(raw);
     } catch {
       mdPreview.innerHTML = escapeHtml(raw);
     }

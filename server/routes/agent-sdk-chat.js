@@ -3,6 +3,8 @@ import { requireAuth } from '../lib/auth.js';
 
 const router = Router();
 
+let sdkLock = Promise.resolve();
+
 router.post('/api/agent-sdk-chat', async (req, res) => {
   if (!requireAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -14,6 +16,17 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     return res.status(400).json({ error: 'Missing system or messages' });
   }
 
+  const release = (() => {
+    let resolve;
+    const next = new Promise(r => { resolve = r; });
+    const prev = sdkLock;
+    sdkLock = next;
+    return { wait: prev, done: resolve };
+  })();
+
+  await release.wait;
+
+  const savedApiKey = process.env.ANTHROPIC_API_KEY;
   try {
     delete process.env.ANTHROPIC_API_KEY;
 
@@ -66,6 +79,9 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     }
     console.error('[agent-sdk-chat] Error:', message);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;
+    release.done();
   }
 });
 

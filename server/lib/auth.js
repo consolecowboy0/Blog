@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 if (!process.env.AUTH_SECRET) {
   console.error('[auth] AUTH_SECRET env var is required. Exiting.');
@@ -25,7 +25,12 @@ export function verifyPassword(password, scope) {
   const hash = HASHES[scope];
   if (!hash) return false;
   const attempt = createHash('sha256').update(password).digest('hex');
-  return attempt === hash;
+  if (attempt.length !== hash.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(attempt, 'hex'), Buffer.from(hash, 'hex'));
+  } catch {
+    return false;
+  }
 }
 
 export function createToken(scope) {
@@ -40,7 +45,13 @@ export function verifyToken(token) {
   const parts = token.split('.');
   if (parts.length !== 2) return null;
   const [payload, sig] = parts;
-  if (sign(payload) !== sig) return null;
+  const expected = sign(payload);
+  if (sig.length !== expected.length) return null;
+  try {
+    if (!timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+  } catch {
+    return null;
+  }
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
     if (data.exp < Math.floor(Date.now() / 1000)) return null;

@@ -98,6 +98,7 @@ export async function listPosts() {
 }
 
 export async function getPost(id) {
+  if (typeof id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(id)) return null;
   for (const ext of ['.md', '.mdx']) {
     const filename = `${id}${ext}`;
     try {

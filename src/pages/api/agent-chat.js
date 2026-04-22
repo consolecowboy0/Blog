@@ -1,9 +1,22 @@
 export const prerender = false;
 
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-5-20251001',
+]);
 
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: corsHeaders,
+    });
+  }
 
   let body;
   try {
@@ -23,7 +36,8 @@ export async function POST({ request }) {
     });
   }
 
-  const { system, messages, model = "claude-sonnet-4-20250514" } = body;
+  const { system, messages, model: rawModel } = body;
+  const model = ALLOWED_MODELS.has(rawModel) ? rawModel : 'claude-sonnet-4-20250514';
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {

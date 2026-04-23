@@ -14,6 +14,10 @@ function unauthorized(corsHeaders) {
   });
 }
 
+function isValidId(id) {
+  return typeof id === 'string' && /^[A-Za-z0-9_-]+$/.test(id) && id.length <= 64;
+}
+
 async function purgeOld(store) {
   try {
     const { blobs } = await store.list({ prefix: 'history/' });
@@ -42,6 +46,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!isValidId(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -108,8 +118,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !isValidId(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

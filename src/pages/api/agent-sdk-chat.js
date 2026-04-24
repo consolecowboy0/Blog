@@ -2,18 +2,29 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-// Serialize Agent SDK calls so concurrent requests don't step on the shared
-// ANTHROPIC_API_KEY env-var toggle.
 let sdkLock = Promise.resolve();
 
-export async function POST({ request }) {
+const MAX_SYSTEM_LENGTH = 50_000;
+const MAX_BODY_SIZE = 500_000;
+
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-sdk:${ip}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -36,7 +47,20 @@ export async function POST({ request }) {
     });
   }
 
-  // Acquire the serialization lock before mutating process.env.
+  if (typeof system !== 'string' || system.length > MAX_SYSTEM_LENGTH) {
+    return new Response(JSON.stringify({ error: "Invalid or oversized system prompt" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || JSON.stringify(messages).length > MAX_BODY_SIZE) {
+    return new Response(JSON.stringify({ error: "Invalid or oversized messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   const release = (() => {
     let resolve;
     const next = new Promise(r => { resolve = r; });
@@ -47,13 +71,11 @@ export async function POST({ request }) {
 
   await release.wait;
 
-  // Temporarily remove the API key so the Agent SDK uses OAuth instead.
   const savedApiKey = process.env.ANTHROPIC_API_KEY;
   delete process.env.ANTHROPIC_API_KEY;
 
   try {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
-    console.log('[agent-sdk-chat] SDK imported, starting query via Claude Agent SDK');
 
     const userPrompt = messages[messages.length - 1]?.content || '';
 
@@ -68,11 +90,10 @@ export async function POST({ request }) {
       permissionMode: 'auto',
     };
 
-    if (agentConfig && Object.keys(agentConfig).length > 0) {
+    if (agentConfig && typeof agentConfig === 'object' && Object.keys(agentConfig).length > 0) {
       options.agents = agentConfig;
     }
 
-    console.log('[agent-sdk-chat] Calling query() with model=%s, prompt length=%d', sdkModel, userPrompt.length);
     let result = '';
     for await (const message of query({ prompt: userPrompt, options })) {
       if (message.type === 'result' && message.subtype === 'success') {
@@ -88,11 +109,9 @@ export async function POST({ request }) {
       }
     }
 
-    console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
-
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK auth error: " + result }),
+        JSON.stringify({ error: "Agent SDK auth error" }),
         { status: 401, headers: corsHeaders }
       );
     }
@@ -105,12 +124,12 @@ export async function POST({ request }) {
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
+        JSON.stringify({ error: "Agent SDK not available" }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

@@ -4,6 +4,8 @@ import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
+const MAX_BODY_SIZE = 2_000_000;
+
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
     status: 401,
@@ -34,6 +36,14 @@ export async function PUT({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  const rawSize = JSON.stringify(body).length;
+  if (rawSize > MAX_BODY_SIZE) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
       headers: corsHeaders,
     });
   }

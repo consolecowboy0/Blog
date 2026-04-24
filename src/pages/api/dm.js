@@ -100,7 +100,10 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
 
-    // Rate-limit polling to reduce harvesting risk
+    // Global per-IP rate limit to prevent visitor_id brute-force
+    const rlGlobal = checkRate(`dm-poll-global:${ip}`, 60, 60 * 1000);
+    if (!rlGlobal.ok) return json({ error: 'Rate limited' }, 429);
+    // Per-conversation rate limit
     const rl = checkRate(`dm-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
     if (!rl.ok) return json({ error: 'Rate limited' }, 429);
 
@@ -131,7 +134,9 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'read') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string' || conversation_id.length > 128) {
+      return json({ error: 'Missing or invalid conversation_id' }, 400);
+    }
 
     const docRef = convCol.doc(conversation_id);
     const doc = await docRef.get();
@@ -150,7 +155,10 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'reply') {
     const { conversation_id, text } = body;
-    if (!conversation_id || !text) return json({ error: 'Missing fields' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string' || conversation_id.length > 128) {
+      return json({ error: 'Missing or invalid conversation_id' }, 400);
+    }
+    if (!text) return json({ error: 'Missing fields' }, 400);
     if (typeof text !== 'string' || text.length > 2000) {
       return json({ error: 'Invalid text' }, 400);
     }
@@ -171,7 +179,9 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'delete') {
     const { conversation_id } = body;
-    if (!conversation_id) return json({ error: 'Missing conversation_id' }, 400);
+    if (!conversation_id || typeof conversation_id !== 'string' || conversation_id.length > 128) {
+      return json({ error: 'Missing or invalid conversation_id' }, 400);
+    }
 
     await convCol.doc(conversation_id).delete();
     return json({ ok: true });

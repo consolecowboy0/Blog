@@ -31,7 +31,7 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    return new Response(JSON.stringify({ error: 'GitHub API error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -94,7 +94,7 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    return new Response(JSON.stringify({ error: 'GitHub API error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -121,7 +121,7 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    return new Response(JSON.stringify({ error: 'GitHub API error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

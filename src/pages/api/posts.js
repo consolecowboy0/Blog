@@ -20,8 +20,8 @@ export async function GET({ request }) {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to list posts' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -91,8 +91,8 @@ export async function POST({ request }) {
       status: 201,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to save post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -36,6 +36,27 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof system !== 'string' || system.length > 10000) {
+    return new Response(JSON.stringify({ error: "System prompt too large" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length > 50) {
+    return new Response(JSON.stringify({ error: "Too many messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (JSON.stringify(messages).length > 100000) {
+    return new Response(JSON.stringify({ error: "Messages payload too large" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   // Acquire the serialization lock before mutating process.env.
   const release = (() => {
     let resolve;

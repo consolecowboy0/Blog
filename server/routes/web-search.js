@@ -14,8 +14,11 @@ router.post('/api/web-search', async (req, res) => {
   }
 
   const { query } = req.body || {};
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return res.status(400).json({ error: 'Missing query' });
+  }
+  if (query.length > 400) {
+    return res.status(400).json({ error: 'Query too long' });
   }
 
   try {

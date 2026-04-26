@@ -33,8 +33,15 @@ export async function POST({ request }) {
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return new Response(JSON.stringify({ error: "Missing query" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (query.length > 400) {
+    return new Response(JSON.stringify({ error: "Query too long" }), {
       status: 400,
       headers: corsHeaders,
     });

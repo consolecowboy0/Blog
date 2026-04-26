@@ -14,9 +14,10 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     return res.status(400).json({ error: 'Missing system or messages' });
   }
 
-  try {
-    delete process.env.ANTHROPIC_API_KEY;
+  const savedApiKey = process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
 
+  try {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[agent-sdk-chat] Starting query');
 
@@ -66,6 +67,8 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     }
     console.error('[agent-sdk-chat] Error:', message);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;
   }
 });
 

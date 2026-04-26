@@ -40,6 +40,15 @@ export async function POST({ request }) {
     });
   }
 
+  const w = Number(width);
+  const h = Number(height);
+  if (!Number.isInteger(w) || !Number.isInteger(h) || w < 16 || w > 512 || h < 16 || h > 512) {
+    return new Response(JSON.stringify({ error: "width and height must be integers between 16 and 512" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
       method: "POST",
@@ -49,7 +58,7 @@ export async function POST({ request }) {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: "blurry, low quality, text, watermark",
       }),
     });

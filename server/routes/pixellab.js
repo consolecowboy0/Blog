@@ -18,6 +18,12 @@ router.post('/api/pixellab', async (req, res) => {
     return res.status(400).json({ error: 'Missing description' });
   }
 
+  const w = Number(width);
+  const h = Number(height);
+  if (!Number.isInteger(w) || !Number.isInteger(h) || w < 16 || w > 512 || h < 16 || h > 512) {
+    return res.status(400).json({ error: 'width and height must be integers between 16 and 512' });
+  }
+
   try {
     const response = await fetch('https://api.pixellab.ai/v1/generate-image-pixflux', {
       method: 'POST',
@@ -27,7 +33,7 @@ router.post('/api/pixellab', async (req, res) => {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: 'blurry, low quality, text, watermark',
       }),
     });

@@ -601,29 +601,25 @@ const { title, description = 'A blog.' } = Astro.props;
       return;
     }
 
-    function djb2(str: string): string {
-      let hash = 5381;
-      for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) + hash) + str.charCodeAt(i);
-        hash = hash & hash;
-      }
-      return (hash >>> 0).toString(16).padStart(8, '0').slice(0, 8);
-    }
-
     const fp = [
       navigator.userAgent, screen.width + 'x' + screen.height,
       String(screen.colorDepth), Intl.DateTimeFormat().resolvedOptions().timeZone,
       navigator.language, String(navigator.hardwareConcurrency || 0), navigator.platform,
     ].join('|');
 
+    // Per-visitor UUID, generated once and cached in localStorage. Collision-free
+    // across browsers/devices. The fingerprint string above is still sent to the
+    // server as metadata for spam/abuse triage, but is no longer used for identity.
+    // Migrate any legacy fingerprint-hash IDs (8 hex chars) by regenerating.
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
     let visitorId = localStorage.getItem('dm_visitor_id');
-    if (!visitorId) {
-      visitorId = djb2(fp);
+    if (!visitorId || !uuidRe.test(visitorId)) {
+      visitorId = crypto.randomUUID();
       localStorage.setItem('dm_visitor_id', visitorId);
     }
 
     const idDisplay = document.getElementById('dm-visitor-id');
-    if (idDisplay) idDisplay.textContent = 'ID: ' + visitorId;
+    if (idDisplay) idDisplay.textContent = 'ID: ' + visitorId.slice(0, 8);
 
     const toggleBtn = document.getElementById('dm-chat-toggle');
     const panel = document.getElementById('dm-chat-panel');

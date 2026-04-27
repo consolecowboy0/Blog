@@ -75,6 +75,19 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof slug !== 'string' || slug.length > 200) {
+    return new Response(JSON.stringify({ error: 'Invalid slug' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+  if (content !== undefined && (typeof content !== 'string' || content.length > 500000)) {
+    return new Response(JSON.stringify({ error: 'Content too large' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   const safe = slug.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
   const filename = `${safe}.md`;
 

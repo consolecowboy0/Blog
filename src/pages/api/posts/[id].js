@@ -31,7 +31,8 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id]', err.message);
+    return new Response(JSON.stringify({ error: 'Server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -62,6 +63,12 @@ export async function PUT({ params, request }) {
     }
 
     const { title, date, description, draft, content } = body;
+    if (content !== undefined && (typeof content !== 'string' || content.length > 500000)) {
+      return new Response(JSON.stringify({ error: 'Content too large' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     if (typeof title !== 'string' || typeof date !== 'string') {
       return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
         status: 400,
@@ -94,7 +101,8 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id]', err.message);
+    return new Response(JSON.stringify({ error: 'Server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -121,7 +129,8 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts/id]', err.message);
+    return new Response(JSON.stringify({ error: 'Server error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

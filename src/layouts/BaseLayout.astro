@@ -85,11 +85,6 @@ const { title, description = 'A blog.' } = Astro.props;
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
         </a>
-        <a href="/dm/inbox" aria-label="DM Inbox" class="social-link secret-link">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
-          </svg>
-        </a>
         </div>
       </div>
     </footer>
@@ -598,7 +593,7 @@ const { title, description = 'A blog.' } = Astro.props;
 <script>
   (function () {
     // Hide widget on DM pages
-    if (window.location.pathname.startsWith('/dm/inbox') || window.location.pathname === '/dm' || window.location.pathname === '/dm/') {
+    if (window.location.pathname === '/dm' || window.location.pathname === '/dm/') {
       const toggle = document.getElementById('dm-chat-toggle');
       const panel = document.getElementById('dm-chat-panel');
       if (toggle) toggle.style.display = 'none';

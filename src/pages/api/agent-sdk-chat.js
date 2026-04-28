@@ -103,14 +103,15 @@ export async function POST({ request }) {
     });
   } catch (err) {
     const message = err.message || '';
+    console.error('[agent-sdk-chat] error:', message);
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
+        JSON.stringify({ error: "Agent SDK not available" }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

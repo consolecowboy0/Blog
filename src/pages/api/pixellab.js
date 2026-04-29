@@ -33,8 +33,17 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
-  if (!description) {
-    return new Response(JSON.stringify({ error: "Missing description" }), {
+  if (!description || typeof description !== 'string' || description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Missing or invalid description" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  const w = Number(width);
+  const h = Number(height);
+  if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || w > 1024 || h < 1 || h > 1024) {
+    return new Response(JSON.stringify({ error: "Invalid dimensions" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -49,16 +58,16 @@ export async function POST({ request }) {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: "blurry, low quality, text, watermark",
       }),
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[pixellab] API error:', res.status, await res.text());
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: 'Image generation failed' }),
+        { status: 502, headers: corsHeaders }
       );
     }
 
@@ -68,8 +77,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab] error:', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Image generation failed" }),
       { status: 500, headers: corsHeaders }
     );
   }

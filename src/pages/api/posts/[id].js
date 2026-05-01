@@ -5,6 +5,7 @@ import { getPost, savePost, deletePost } from '../../../lib/github-posts.js';
 import { corsHeadersFor, preflight } from '../../../lib/cors.js';
 
 const METHODS = 'GET, PUT, DELETE, OPTIONS';
+const SAFE_ID = /^[a-z0-9][a-z0-9._-]{0,200}$/i;
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -13,9 +14,17 @@ function unauthorized(corsHeaders) {
   });
 }
 
+function badId(corsHeaders) {
+  return new Response(JSON.stringify({ error: 'Invalid post id' }), {
+    status: 400,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
 export async function GET({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+  if (!SAFE_ID.test(params.id)) return badId(corsHeaders);
 
   try {
     const post = await getPost(params.id);
@@ -41,6 +50,7 @@ export async function GET({ params, request }) {
 export async function PUT({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+  if (!SAFE_ID.test(params.id)) return badId(corsHeaders);
 
   let body;
   try {
@@ -104,6 +114,7 @@ export async function PUT({ params, request }) {
 export async function DELETE({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+  if (!SAFE_ID.test(params.id)) return badId(corsHeaders);
 
   try {
     const found = await getPost(params.id);

@@ -31,7 +31,7 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description, width: rawW = 128, height: rawH = 128 } = body;
 
   if (!description) {
     return new Response(JSON.stringify({ error: "Missing description" }), {
@@ -39,6 +39,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   }
+
+  const width = Math.min(Math.max(1, Math.floor(Number(rawW) || 128)), 512);
+  const height = Math.min(Math.max(1, Math.floor(Number(rawH) || 128)), 512);
 
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {

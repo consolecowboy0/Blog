@@ -1,9 +1,22 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-5-20251001',
+]);
 
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   let body;
   try {
@@ -27,6 +40,27 @@ export async function POST({ request }) {
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!ALLOWED_MODELS.has(model)) {
+    return new Response(JSON.stringify({ error: "Invalid model" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (typeof system !== 'string' || system.length > 10000) {
+    return new Response(JSON.stringify({ error: "Invalid system prompt" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length > 100) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -62,10 +96,10 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "API request failed" }),
+      { status: 502, headers: corsHeaders }
     );
   }
 }

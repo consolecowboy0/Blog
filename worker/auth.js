@@ -3,7 +3,10 @@
 // lets the worker be deployed independently without pulling in the Astro project.
 import { createHmac } from 'node:crypto';
 
-const SECRET = process.env.AUTH_SECRET || 'legion-fallback-secret-set-AUTH_SECRET-in-env';
+const SECRET = process.env.AUTH_SECRET;
+if (!SECRET) {
+  throw new Error('[worker/auth] AUTH_SECRET env var is required. Cannot use fallback secret.');
+}
 const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 function sign(payload) {

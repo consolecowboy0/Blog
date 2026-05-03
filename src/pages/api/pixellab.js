@@ -31,9 +31,11 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description, width: rawW = 128, height: rawH = 128 } = body;
+  const width = Math.min(Math.max(Math.floor(Number(rawW) || 128), 16), 512);
+  const height = Math.min(Math.max(Math.floor(Number(rawH) || 128), 16), 512);
 
-  if (!description) {
+  if (!description || typeof description !== 'string' || description.length > 1000) {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
       headers: corsHeaders,
@@ -67,9 +69,9 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to call PixelLab" }),
       { status: 500, headers: corsHeaders }
     );
   }

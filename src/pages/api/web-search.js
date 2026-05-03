@@ -33,7 +33,7 @@ export async function POST({ request }) {
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string' || query.length > 500) {
     return new Response(JSON.stringify({ error: "Missing query" }), {
       status: 400,
       headers: corsHeaders,
@@ -69,9 +69,9 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
+      JSON.stringify({ error: "Failed to call Brave Search" }),
       { status: 500, headers: corsHeaders }
     );
   }

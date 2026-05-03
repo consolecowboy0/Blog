@@ -6,6 +6,7 @@ import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
 const METHODS = 'GET, POST, DELETE, OPTIONS';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const VALID_ID = /^\d{1,20}$/;
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -42,6 +43,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!VALID_ID.test(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -108,8 +115,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !VALID_ID.test(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

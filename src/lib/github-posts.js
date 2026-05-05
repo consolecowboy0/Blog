@@ -98,6 +98,8 @@ export async function listPosts() {
 }
 
 export async function getPost(id) {
+  if (!id || /[\/\\]/.test(id) || id.includes('..')) return null;
+
   for (const ext of ['.md', '.mdx']) {
     const filename = `${id}${ext}`;
     try {
@@ -126,6 +128,10 @@ export async function getPost(id) {
 }
 
 export async function savePost(filename, fileContent, sha, message) {
+  if (/[\/\\]/.test(filename) || filename.includes('..')) {
+    throw new Error('Invalid filename');
+  }
+
   const body = {
     message: message || (sha ? `Update ${filename}` : `Create ${filename}`),
     content: encodeBase64(fileContent),
@@ -146,6 +152,10 @@ export async function savePost(filename, fileContent, sha, message) {
 }
 
 export async function deletePost(filename, sha, message) {
+  if (/[\/\\]/.test(filename) || filename.includes('..')) {
+    throw new Error('Invalid filename');
+  }
+
   const body = {
     message: message || `Delete ${filename}`,
     sha,

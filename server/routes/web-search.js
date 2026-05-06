@@ -29,8 +29,7 @@ router.post('/api/web-search', async (req, res) => {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(response.status).json({ error: `Brave Search error (${response.status}): ${err}` });
+      return res.status(response.status).json({ error: `Search request failed (${response.status})` });
     }
 
     const data = await response.json();
@@ -42,7 +41,8 @@ router.post('/api/web-search', async (req, res) => {
 
     res.json({ results });
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to call Brave Search' });
+    console.error('[web-search] error:', err.message);
+    res.status(500).json({ error: 'Search request failed' });
   }
 });
 

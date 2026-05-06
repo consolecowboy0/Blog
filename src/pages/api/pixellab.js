@@ -31,12 +31,21 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description } = body;
+  const width = Math.min(Math.max(Number(body.width) || 128, 16), 512);
+  const height = Math.min(Math.max(Number(body.height) || 128, 16), 512);
 
-  if (!description) {
+  if (!description || typeof description !== 'string') {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Description too long" }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -55,10 +64,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: `Image generation failed (${res.status})` }),
+        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -68,9 +76,10 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Image generation failed" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

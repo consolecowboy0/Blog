@@ -109,9 +109,10 @@ export async function POST({ request }) {
         { status: 501, headers: corsHeaders }
       );
     }
+    console.error('[agent-sdk-chat] error:', message);
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } finally {
     if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;

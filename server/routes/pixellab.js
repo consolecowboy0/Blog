@@ -13,9 +13,14 @@ router.post('/api/pixellab', async (req, res) => {
     return res.status(500).json({ error: 'No PixelLab API key configured' });
   }
 
-  const { description, width = 128, height = 128 } = req.body || {};
-  if (!description) {
+  const { description } = req.body || {};
+  const width = Math.min(Math.max(Number(req.body?.width) || 128, 16), 512);
+  const height = Math.min(Math.max(Number(req.body?.height) || 128, 16), 512);
+  if (!description || typeof description !== 'string') {
     return res.status(400).json({ error: 'Missing description' });
+  }
+  if (description.length > 2000) {
+    return res.status(400).json({ error: 'Description too long' });
   }
 
   try {
@@ -33,14 +38,14 @@ router.post('/api/pixellab', async (req, res) => {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(response.status).json({ error: `PixelLab error (${response.status}): ${err}` });
+      return res.status(response.status).json({ error: `Image generation failed (${response.status})` });
     }
 
     const data = await response.json();
     res.json({ image: data.image.base64 });
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to call PixelLab' });
+    console.error('[pixellab] error:', err.message);
+    res.status(500).json({ error: 'Image generation failed' });
   }
 });
 

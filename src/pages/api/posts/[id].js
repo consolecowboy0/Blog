@@ -5,6 +5,7 @@ import { getPost, savePost, deletePost } from '../../../lib/github-posts.js';
 import { corsHeadersFor, preflight } from '../../../lib/cors.js';
 
 const METHODS = 'GET, PUT, DELETE, OPTIONS';
+const SAFE_ID = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -13,9 +14,22 @@ function unauthorized(corsHeaders) {
   });
 }
 
+function validateId(id, corsHeaders) {
+  if (!id || id.length > 200 || !SAFE_ID.test(id)) {
+    return new Response(JSON.stringify({ error: 'Invalid post id' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  return null;
+}
+
 export async function GET({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+
+  const bad = validateId(params.id, corsHeaders);
+  if (bad) return bad;
 
   try {
     const post = await getPost(params.id);
@@ -31,7 +45,8 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] GET error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to fetch post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -41,6 +56,9 @@ export async function GET({ params, request }) {
 export async function PUT({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+
+  const bad = validateId(params.id, corsHeaders);
+  if (bad) return bad;
 
   let body;
   try {
@@ -94,7 +112,8 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] error:', err.message);
+    return new Response(JSON.stringify({ error: 'GitHub API error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -104,6 +123,9 @@ export async function PUT({ params, request }) {
 export async function DELETE({ params, request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'backend')) return unauthorized(corsHeaders);
+
+  const bad = validateId(params.id, corsHeaders);
+  if (bad) return bad;
 
   try {
     const found = await getPost(params.id);
@@ -121,7 +143,8 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] error:', err.message);
+    return new Response(JSON.stringify({ error: 'GitHub API error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -2,8 +2,9 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
@@ -31,10 +32,19 @@ export async function POST({ request }) {
     });
   }
 
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`web-search:${ip}`, 20, 5 * 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
+
   const { query } = body;
 
-  if (!query) {
-    return new Response(JSON.stringify({ error: "Missing query" }), {
+  if (!query || typeof query !== 'string' || query.length > 1000) {
+    return new Response(JSON.stringify({ error: "Missing or invalid query" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -51,9 +61,8 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Search failed (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }

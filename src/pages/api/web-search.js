@@ -33,8 +33,15 @@ export async function POST({ request }) {
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return new Response(JSON.stringify({ error: "Missing query" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (query.length > 500) {
+    return new Response(JSON.stringify({ error: "Query too long" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -51,9 +58,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API error:', res.status, await res.text());
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Search failed (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -70,8 +77,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[web-search] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
+      JSON.stringify({ error: "Search unavailable" }),
       { status: 500, headers: corsHeaders }
     );
   }

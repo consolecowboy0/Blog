@@ -31,14 +31,24 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description, width: rawW = 128, height: rawH = 128 } = body;
 
-  if (!description) {
+  if (!description || typeof description !== 'string') {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
       headers: corsHeaders,
     });
   }
+
+  if (description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Description too long" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  const width = Math.min(Math.max(Math.floor(Number(rawW) || 128), 16), 512);
+  const height = Math.min(Math.max(Math.floor(Number(rawH) || 128), 16), 512);
 
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
@@ -55,9 +65,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[pixellab] API error:', res.status, await res.text());
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Image generation failed (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -68,8 +78,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Image generation unavailable" }),
       { status: 500, headers: corsHeaders }
     );
   }

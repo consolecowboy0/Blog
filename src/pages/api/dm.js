@@ -37,6 +37,10 @@ export async function POST({ request, clientAddress }) {
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
+    if (fingerprint !== undefined && (typeof fingerprint !== 'string' || fingerprint.length > 500)) {
+      return json({ error: 'Invalid fingerprint' }, 400);
+    }
+
     const rlIp = checkRate(`dm-send:${ip}`, 10, 5 * 60 * 1000);
     if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
     const rlVis = checkRate(`dm-send:${visitor_id}`, 20, 10 * 60 * 1000);

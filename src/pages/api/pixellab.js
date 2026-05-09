@@ -40,6 +40,13 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof width !== 'number' || typeof height !== 'number' || width < 1 || height < 1 || width > 1024 || height > 1024) {
+    return new Response(JSON.stringify({ error: "Dimensions must be 1-1024" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
       method: "POST",

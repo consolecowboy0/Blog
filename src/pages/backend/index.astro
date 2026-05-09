@@ -910,12 +910,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const mdPanes = document.querySelector('.md-panes') as HTMLElement;
   let previewTimer: ReturnType<typeof setTimeout> | null = null;
 
+  function sanitizeHtml(html: string): string {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    for (const el of doc.querySelectorAll('script, iframe, object, embed, form, base, meta, link')) {
+      el.remove();
+    }
+    for (const el of doc.querySelectorAll('*')) {
+      for (const attr of [...el.attributes]) {
+        const name = attr.name.toLowerCase();
+        if (name.startsWith('on') || (name === 'href' && attr.value.trimStart().toLowerCase().startsWith('javascript:')) || (name === 'src' && attr.value.trimStart().toLowerCase().startsWith('javascript:'))) {
+          el.removeAttribute(attr.name);
+        }
+      }
+    }
+    return doc.body.innerHTML;
+  }
+
   function updatePreview() {
     if (!mdPreview || !fieldContent) return;
     const raw = fieldContent.value;
     try {
       // @ts-ignore - marked loaded via CDN
-      mdPreview.innerHTML = window.marked ? window.marked.parse(raw) : escapeHtml(raw);
+      mdPreview.innerHTML = window.marked ? sanitizeHtml(window.marked.parse(raw)) : escapeHtml(raw);
     } catch {
       mdPreview.innerHTML = escapeHtml(raw);
     }

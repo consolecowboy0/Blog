@@ -33,8 +33,15 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
-  if (!description) {
-    return new Response(JSON.stringify({ error: "Missing description" }), {
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 1024 || height > 1024) {
+    return new Response(JSON.stringify({ error: "Invalid dimensions (1-1024)" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!description || typeof description !== 'string' || description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Missing or invalid description (max 2000 chars)" }), {
       status: 400,
       headers: corsHeaders,
     });

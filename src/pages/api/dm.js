@@ -37,6 +37,8 @@ export async function POST({ request, clientAddress }) {
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
+    const safeFingerprint = typeof fingerprint === 'string' ? fingerprint.slice(0, 256) : '';
+
     const rlIp = checkRate(`dm-send:${ip}`, 10, 5 * 60 * 1000);
     if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
     const rlVis = checkRate(`dm-send:${visitor_id}`, 20, 10 * 60 * 1000);
@@ -52,12 +54,12 @@ export async function POST({ request, clientAddress }) {
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
-        ...(fingerprint ? { fingerprint } : {}),
+        ...(safeFingerprint ? { fingerprint: safeFingerprint } : {}),
       });
     } else {
       await docRef.set({
         id: visitor_id,
-        fingerprint: fingerprint || '',
+        fingerprint: safeFingerprint,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
         created: now,

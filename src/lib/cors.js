@@ -25,6 +25,9 @@ export function corsHeadersFor(request, methods = 'GET, POST, OPTIONS') {
   const h = {
     'Access-Control-Allow-Methods': methods,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Content-Type': 'application/json',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
     'Vary': 'Origin',
   };
   if (allow) {

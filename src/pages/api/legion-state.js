@@ -28,9 +28,17 @@ export async function PUT({ request }) {
   const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
+  const raw = await request.text();
+  if (raw.length > 5 * 1024 * 1024) {
+    return new Response(JSON.stringify({ error: 'Payload too large (max 5MB)' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
+
   let body;
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,

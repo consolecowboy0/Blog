@@ -1,9 +1,32 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-5-20251001',
+]);
+
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-chat:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   let body;
   try {
@@ -25,8 +48,22 @@ export async function POST({ request }) {
 
   const { system, messages, model = "claude-sonnet-4-20250514" } = body;
 
-  if (!system || !messages) {
+  if (!ALLOWED_MODELS.has(model)) {
+    return new Response(JSON.stringify({ error: "Model not allowed" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!system || typeof system !== 'string' || !Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (messages.length > 100) {
+    return new Response(JSON.stringify({ error: "Too many messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -63,8 +100,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-chat] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
       { status: 500, headers: corsHeaders }
     );
   }

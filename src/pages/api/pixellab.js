@@ -2,14 +2,24 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`pixellab:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -33,12 +43,22 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
-  if (!description) {
+  if (!description || typeof description !== 'string') {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
       headers: corsHeaders,
     });
   }
+
+  if (description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Description too long" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  const w = Math.min(Math.max(Number(width) || 128, 16), 512);
+  const h = Math.min(Math.max(Number(height) || 128, 16), 512);
 
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
@@ -49,7 +69,7 @@ export async function POST({ request }) {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: "blurry, low quality, text, watermark",
       }),
     });
@@ -68,8 +88,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to call PixelLab" }),
       { status: 500, headers: corsHeaders }
     );
   }

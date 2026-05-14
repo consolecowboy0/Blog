@@ -31,10 +31,12 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description } = body;
+  const width = Math.min(Math.max(Number(body.width) || 128, 16), 512);
+  const height = Math.min(Math.max(Number(body.height) || 128, 16), 512);
 
-  if (!description) {
-    return new Response(JSON.stringify({ error: "Missing description" }), {
+  if (!description || typeof description !== 'string' || description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Missing or invalid description" }), {
       status: 400,
       headers: corsHeaders,
     });

@@ -31,7 +31,8 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] GET error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to fetch post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -94,7 +95,8 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] PUT error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to save post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -121,7 +123,8 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error('[posts] DELETE error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to delete post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

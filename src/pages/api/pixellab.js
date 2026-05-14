@@ -33,6 +33,13 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 512 || height > 512) {
+    return new Response(JSON.stringify({ error: "Invalid dimensions (max 512x512)" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   if (!description) {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
@@ -55,9 +62,8 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Image generation failed (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -67,9 +73,9 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to generate image" }),
       { status: 500, headers: corsHeaders }
     );
   }

@@ -25,11 +25,13 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         const saved = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (saved === 'dark' || saved === 'rainbow') {
           document.documentElement.setAttribute('data-theme', saved);
-        } else if (!saved && prefersDark) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (saved === 'light') {
+          // explicit user choice — leave default (no attribute)
+        } else {
+          // no saved preference: default to rainbow
+          document.documentElement.setAttribute('data-theme', 'rainbow');
         }
       })();
     </script>

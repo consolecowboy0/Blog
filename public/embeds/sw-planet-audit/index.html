@@ -28,6 +28,32 @@
   --card-bg: #0d0d14;
   --null: #1a1a24;
 }
+[data-theme="rainbow"] {
+  --bg: #1b0e3a;
+  --bg-card: #1b0e3a;
+  --bg-card-hover: #15082b;
+  --bg-track: #15082b;
+  --bg-panel: #1b0e3a;
+  --bg-panel-hover: #15082b;
+  --card-bg: #1b0e3a;
+  --null: #15082b;
+  --input-bg: #15082b;
+  --border: #5a2ea0;
+  --border-light: #7c4ad0;
+  --text: #e8f7ff;
+  --text-secondary: #ffb3e6;
+  --text-sec: #ffb3e6;
+  --text-muted: #c787c0;
+  --fg: #e8f7ff;
+  --fg-muted: #ffb3e6;
+  --accent-red: #ff2a92;
+  --accent-blue: #4ad9ff;
+  --accent-green: #00e5d5;
+  --accent-gold: #ffd166;
+}
+[data-theme="rainbow"] .icon-moon { display: none; }
+[data-theme="rainbow"] .icon-sun { display: block; }
+
 
 *, *::before, *::after { box-sizing: border-box; }
 body {
@@ -134,12 +160,18 @@ body {
   .bar-label { width: 90px; }
 }
 </style>
-<script>
-(function(){
-  var t = localStorage.getItem('theme');
-  if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
-})();
+<script>    (function(){
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'rainbow') {
+        document.documentElement.setAttribute('data-theme', t);
+      } else if (t === 'light') {
+        // explicit user choice — leave default
+      } else {
+        // no saved preference: default to rainbow
+        document.documentElement.setAttribute('data-theme', 'rainbow');
+      }
+    })();
+
 </script>
 </head>
 <body>
@@ -188,9 +220,9 @@ body {
 
 <script>
 document.getElementById('theme-btn').addEventListener('click', function() {
-  var cur = document.documentElement.getAttribute('data-theme');
-  var next = cur === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
+  var cur = document.documentElement.getAttribute('data-theme') || 'light';
+  var next = ({light:'dark', dark:'rainbow', rainbow:'light'})[cur] || 'dark';
+  if (next === 'light') { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', next); }
   localStorage.setItem('theme', next);
 });
 

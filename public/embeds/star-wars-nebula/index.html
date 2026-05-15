@@ -11,12 +11,18 @@
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
   @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
 </style>
-<script>
-  (function(){
-    var t = localStorage.getItem('theme');
-    if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-  })();
+<script>    (function(){
+      var t = localStorage.getItem('theme');
+      if (t === 'dark' || t === 'rainbow') {
+        document.documentElement.setAttribute('data-theme', t);
+      } else if (t === 'light') {
+        // explicit user choice — leave default
+      } else {
+        // no saved preference: default to rainbow
+        document.documentElement.setAttribute('data-theme', 'rainbow');
+      }
+    })();
+
 </script>
 <style>
 :root {
@@ -38,6 +44,32 @@
   --bg: #0a0a0f; --bg-panel: #0d0d14; --bg-panel-hover: #14141f;
   --border: #1e1e2e; --text: #e5e5e5; --text-sec: #999; --text-muted: #666; --input-bg: #14141f;
 }
+[data-theme="rainbow"] {
+  --bg: #1b0e3a;
+  --bg-card: #1b0e3a;
+  --bg-card-hover: #15082b;
+  --bg-track: #15082b;
+  --bg-panel: #1b0e3a;
+  --bg-panel-hover: #15082b;
+  --card-bg: #1b0e3a;
+  --null: #15082b;
+  --input-bg: #15082b;
+  --border: #5a2ea0;
+  --border-light: #7c4ad0;
+  --text: #e8f7ff;
+  --text-secondary: #ffb3e6;
+  --text-sec: #ffb3e6;
+  --text-muted: #c787c0;
+  --fg: #e8f7ff;
+  --fg-muted: #ffb3e6;
+  --accent-red: #ff2a92;
+  --accent-blue: #4ad9ff;
+  --accent-green: #00e5d5;
+  --accent-gold: #ffd166;
+}
+[data-theme="rainbow"] .icon-moon { display: none; }
+[data-theme="rainbow"] .icon-sun { display: block; }
+
 *, *::before, *::after { box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: var(--font-sans); margin: 0; overflow: hidden; }
 .app { height: 100vh; display: flex; flex-direction: column; }
@@ -699,8 +731,9 @@ document.getElementById('search').addEventListener('input', (e) => {
 
 // ── Theme toggle ────────────────────────────────────────────────
 document.getElementById('theme-toggle').addEventListener('click', () => {
-  const next = isDark() ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = ({light:'dark', dark:'rainbow', rainbow:'light'})[current] || 'dark';
+  if (next === 'light') { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', next); }
   localStorage.setItem('theme', next);
   render();
 });

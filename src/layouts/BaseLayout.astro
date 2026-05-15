@@ -604,9 +604,17 @@ const { title, description = 'A blog.' } = Astro.props;
 </style>
 
 <script>
+  function broadcastThemeToEmbeds(theme: string) {
+    document.querySelectorAll('iframe').forEach((iframe) => {
+      try {
+        iframe.contentWindow?.postMessage({ type: 'parent-theme', theme }, '*');
+      } catch { /* cross-origin — ignore */ }
+    });
+  }
+
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const cycle = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
+    const cycle: Record<string, string> = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
     const next = cycle[current] || 'dark';
     if (next === 'light') {
       document.documentElement.removeAttribute('data-theme');
@@ -614,6 +622,7 @@ const { title, description = 'A blog.' } = Astro.props;
       document.documentElement.setAttribute('data-theme', next);
     }
     localStorage.setItem('theme', next);
+    broadcastThemeToEmbeds(next);
   });
 </script>
 

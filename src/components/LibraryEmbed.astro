@@ -17,18 +17,35 @@ const { src, title } = Astro.props;
         <p class="library-loading-text">Loading</p>
       </div>
     </div>
-    <iframe src={src} title={title} loading="lazy"></iframe>
+    <iframe data-src={src} title={title} loading="lazy"></iframe>
   </div>
 </div>
 
 <script>
+  // Resolve current parent theme so the iframe boots into the right palette
+  // (no flash). Live updates flow via postMessage from the BaseLayout toggle.
+  function currentTheme(): string {
+    return document.documentElement.getAttribute('data-theme') || 'light';
+  }
+
   document.querySelectorAll('.library-embed-container').forEach((container) => {
-    const iframe = container.querySelector('iframe');
+    const iframe = container.querySelector('iframe') as HTMLIFrameElement | null;
     const loading = container.querySelector('.library-loading');
     if (!iframe || !loading) return;
 
+    const baseSrc = iframe.getAttribute('data-src') || '';
+    const sep = baseSrc.includes('?') ? '&' : '?';
+    iframe.src = baseSrc + sep + 'theme=' + encodeURIComponent(currentTheme());
+
     iframe.addEventListener('load', () => {
       loading.classList.add('loaded');
+      // Re-send in case the iframe missed the URL hint (defensive).
+      try {
+        iframe.contentWindow?.postMessage(
+          { type: 'parent-theme', theme: currentTheme() },
+          '*'
+        );
+      } catch { /* cross-origin — ignore */ }
     });
   });
 </script>

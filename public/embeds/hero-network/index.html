@@ -12,16 +12,32 @@
   </style>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>    (function(){
-      var t = localStorage.getItem('theme');
-      if (t === 'dark' || t === 'rainbow') {
-        document.documentElement.setAttribute('data-theme', t);
-      } else if (t === 'light') {
-        // explicit user choice — leave default
-      } else {
-        // no saved preference: default to rainbow
-        document.documentElement.setAttribute('data-theme', 'rainbow');
-      }
-    })();
+  function applyTheme(t){
+    if (t === 'dark' || t === 'rainbow') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+  var urlTheme = new URLSearchParams(location.search).get('theme');
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+    applyTheme(urlTheme);
+  } else {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'rainbow') {
+      applyTheme(saved);
+    } else if (saved === 'light') {
+      // explicit
+    } else {
+      applyTheme('rainbow');
+    }
+  }
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'parent-theme') {
+      applyTheme(e.data.theme);
+    }
+  });
+})();
 
   </script>
   <style>

@@ -19,6 +19,59 @@
   --code-bg: #0d0d14;
 }
 
+/* Rainbow mode — synthwave / Thor: Ragnarok / Tyr-rune palette */
+[data-theme="rainbow"] {
+  --bg: #1b0e3a;
+  --fg: #e8f7ff;
+  --fg-muted: #ffb3e6;
+  --accent: #ff2a92;
+  --border: #5a2ea0;
+  --code-bg: #15082b;
+  --rainbow-grad: linear-gradient(90deg, #ff6ec7 0%, #ff2a92 25%, #a85aff 50%, #4ad9ff 75%, #00e5d5 100%);
+  --rainbow-glow: 0 0 12px rgba(255, 42, 146, 0.4), 0 0 24px rgba(74, 217, 255, 0.2);
+}
+
+/* Headings get the gradient treatment */
+[data-theme="rainbow"] h1,
+[data-theme="rainbow"] h2,
+[data-theme="rainbow"] .site-title {
+  background: var(--rainbow-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Links get a neon glow on hover */
+[data-theme="rainbow"] a:hover {
+  text-shadow: var(--rainbow-glow);
+  border-color: #ff2a92;
+}
+
+/* Code blocks pick up the deep-purple synthwave background */
+[data-theme="rainbow"] pre,
+[data-theme="rainbow"] code {
+  border-color: #a85aff;
+}
+
+/* Subtle scanline / shimmer background for header in rainbow mode */
+[data-theme="rainbow"] header {
+  background: linear-gradient(180deg, #1b0e3a 0%, #2a1659 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+[data-theme="rainbow"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--rainbow-grad);
+  opacity: 0.7;
+}
+
 * {
   margin: 0;
   padding: 0;

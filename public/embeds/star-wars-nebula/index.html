@@ -254,10 +254,12 @@ Object.entries(ROUTES).forEach(([name, r]) => {
 // ── Theme ───────────────────────────────────────────────────────
 const themeColors = {
   light: { bg: '#f8f8f5', edge: 'rgba(180,180,170,0.15)', edgeRoute: 'rgba(140,140,130,0.3)', label: '#555', glow: 'rgba(200,190,160,0.12)' },
-  dark: { bg: '#0a0a0f', edge: 'rgba(60,60,100,0.35)', edgeRoute: 'rgba(80,80,120,0.5)', label: '#aaa', glow: 'rgba(40,30,80,0.4)' }
+  dark: { bg: '#0a0a0f', edge: 'rgba(60,60,100,0.35)', edgeRoute: 'rgba(80,80,120,0.5)', label: '#aaa', glow: 'rgba(40,30,80,0.4)' },
+  rainbow: { bg: '#1b0e3a', edge: 'rgba(168,90,255,0.25)', edgeRoute: 'rgba(255,42,146,0.45)', label: '#ffb3e6', glow: 'rgba(74,217,255,0.18)' }
 };
-function isDark() { return document.documentElement.getAttribute('data-theme') === 'dark'; }
-function T() { return themeColors[isDark() ? 'dark' : 'light']; }
+function currentTheme() { return document.documentElement.getAttribute('data-theme') || 'light'; }
+function isDark() { const t = currentTheme(); return t === 'dark' || t === 'rainbow'; }
+function T() { return themeColors[currentTheme()] || themeColors.light; }
 
 // ── Canvas Setup ────────────────────────────────────────────────
 const canvas = document.createElement('canvas');

@@ -12,9 +12,15 @@
     </style>
     <script>
       (function(){
-        var t = localStorage.getItem('theme');
-        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        var saved = localStorage.getItem('theme');
+        if (saved === 'dark' || saved === 'rainbow') {
+          document.documentElement.setAttribute('data-theme', saved);
+        } else if (saved === 'light') {
+          // explicit user choice — leave default (no attribute)
+        } else {
+          // no saved preference: default to rainbow
+          document.documentElement.setAttribute('data-theme', 'rainbow');
+        }
       })();
     </script>
     <script type="module" crossorigin src="./assets/index-CM-t89xv.js"></script>
@@ -34,7 +40,10 @@
       #theme-toggle-btn svg { width: 16px; height: 16px; }
       [data-theme="dark"] .icon-moon { display: none; }
       .icon-sun { display: none; }
+      .icon-rainbow { display: none; }
       [data-theme="dark"] .icon-sun { display: block; }
+      [data-theme="rainbow"] .icon-moon { display: none; }
+      [data-theme="rainbow"] .icon-rainbow { display: block; }
 
       [data-theme="dark"] {
         --bg-primary: #0a0a0f !important;
@@ -49,6 +58,25 @@
         --accent-red: #e5e5e5 !important;
         --chart-grid: #1e1e2e !important;
       }
+
+      [data-theme="rainbow"] {
+        --bg-primary: #1b0e3a !important;
+        --bg-secondary: #15082b !important;
+        --bg-card: #1b0e3a !important;
+        --bg-card-hover: #2a1659 !important;
+        --border: #5a2ea0 !important;
+        --border-light: #7c4ad0 !important;
+        --text-primary: #e8f7ff !important;
+        --text-secondary: #ffb3e6 !important;
+        --text-muted: #c787c0 !important;
+        --accent-red: #ff2a92 !important;
+        --accent-blue: #4ad9ff !important;
+        --accent-green: #00e5d5 !important;
+        --accent-gold: #ffd166 !important;
+        --accent-orange: #ff6ec7 !important;
+        --accent-purple: #a85aff !important;
+        --chart-grid: #5a2ea0 !important;
+      }
     </style>
   </head>
   <body>
@@ -56,12 +84,18 @@
     <button id="theme-toggle-btn" aria-label="Toggle theme">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-f1" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-f1)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-f1)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-f1)" opacity="0.4"/></svg>
     </button>
     <script>
       document.getElementById('theme-toggle-btn').addEventListener('click', function() {
-        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        var next = isDark ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var cycle = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
+        var next = cycle[current] || 'dark';
+        if (next === 'light') {
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', next);
+        }
         localStorage.setItem('theme', next);
       });
       // Move toggle into React-rendered header once it mounts

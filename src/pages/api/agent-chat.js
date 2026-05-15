@@ -1,9 +1,23 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-5-20251001',
+]);
+const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
 
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   let body;
   try {
@@ -23,10 +37,18 @@ export async function POST({ request }) {
     });
   }
 
-  const { system, messages, model = "claude-sonnet-4-20250514" } = body;
+  const { system, messages, model } = body;
+  const resolvedModel = ALLOWED_MODELS.has(model) ? model : DEFAULT_MODEL;
 
-  if (!system || !messages) {
+  if (!system || !Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (messages.length > 200) {
+    return new Response(JSON.stringify({ error: "Too many messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -41,7 +63,7 @@ export async function POST({ request }) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model,
+        model: resolvedModel,
         max_tokens: 1024,
         system,
         messages,

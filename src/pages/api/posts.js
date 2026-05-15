@@ -56,8 +56,8 @@ export async function POST({ request }) {
     });
   }
 
-  if (typeof title !== 'string' || typeof date !== 'string') {
-    return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
+  if (typeof slug !== 'string' || typeof title !== 'string' || typeof date !== 'string') {
+    return new Response(JSON.stringify({ error: 'slug, title, and date must be strings' }), {
       status: 400,
       headers: corsHeaders,
     });

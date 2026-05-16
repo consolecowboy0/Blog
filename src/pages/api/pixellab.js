@@ -31,14 +31,17 @@ export async function POST({ request }) {
     });
   }
 
-  const { description, width = 128, height = 128 } = body;
+  const { description, width: rawW = 128, height: rawH = 128 } = body;
 
-  if (!description) {
-    return new Response(JSON.stringify({ error: "Missing description" }), {
+  if (!description || typeof description !== 'string' || description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Missing or invalid description" }), {
       status: 400,
       headers: corsHeaders,
     });
   }
+
+  const width = Math.min(Math.max(1, Math.floor(Number(rawW) || 128)), 512);
+  const height = Math.min(Math.max(1, Math.floor(Number(rawH) || 128)), 512);
 
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
@@ -67,9 +70,9 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to call PixelLab" }),
       { status: 500, headers: corsHeaders }
     );
   }

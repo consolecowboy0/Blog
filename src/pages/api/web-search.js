@@ -2,14 +2,24 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`web-search:${ip}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -33,8 +43,15 @@ export async function POST({ request }) {
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return new Response(JSON.stringify({ error: "Missing query" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (query.length > 500) {
+    return new Response(JSON.stringify({ error: "Query too long" }), {
       status: 400,
       headers: corsHeaders,
     });

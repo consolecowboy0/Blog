@@ -2,18 +2,28 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Serialize Agent SDK calls so concurrent requests don't step on the shared
 // ANTHROPIC_API_KEY env-var toggle.
 let sdkLock = Promise.resolve();
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-sdk:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 

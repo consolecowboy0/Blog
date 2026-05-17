@@ -38,6 +38,14 @@ export async function PUT({ request }) {
     });
   }
 
+  const raw = JSON.stringify(body);
+  if (raw.length > 5 * 1024 * 1024) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   const store = getStore('legion');
   await store.setJSON('session', body);
 

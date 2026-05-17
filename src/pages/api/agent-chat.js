@@ -1,9 +1,32 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-20250414',
+]);
+
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-chat:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   let body;
   try {
@@ -27,6 +50,20 @@ export async function POST({ request }) {
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!ALLOWED_MODELS.has(model)) {
+    return new Response(JSON.stringify({ error: "Model not allowed" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length > 100) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
       status: 400,
       headers: corsHeaders,
     });

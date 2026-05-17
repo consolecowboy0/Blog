@@ -31,6 +31,10 @@ async function purgeOld(store) {
   }
 }
 
+function isValidId(id) {
+  return typeof id === 'string' && /^\d{1,20}$/.test(id);
+}
+
 export async function GET({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
@@ -42,6 +46,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!isValidId(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -93,6 +103,13 @@ export async function POST({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+  const raw = JSON.stringify(body);
+  if (raw.length > 5 * 1024 * 1024) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
   const store = getStore('legion');
   await purgeOld(store);
   const id = String(Date.now());
@@ -108,8 +125,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !isValidId(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

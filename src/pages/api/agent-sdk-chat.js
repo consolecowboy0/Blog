@@ -102,6 +102,7 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-sdk-chat] error:', err);
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
@@ -110,7 +111,7 @@ export async function POST({ request }) {
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

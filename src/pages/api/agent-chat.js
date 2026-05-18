@@ -1,9 +1,24 @@
 export const prerender = false;
 
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-20250414',
+]);
+
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-chat:${ip}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   let body;
   try {
@@ -27,6 +42,20 @@ export async function POST({ request }) {
 
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!ALLOWED_MODELS.has(model)) {
+    return new Response(JSON.stringify({ error: "Invalid model" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length > 50) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -62,9 +91,9 @@ export async function POST({ request }) {
       status: 200,
       headers: corsHeaders,
     });
-  } catch (err) {
+  } catch {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
       { status: 500, headers: corsHeaders }
     );
   }

@@ -109,8 +109,9 @@ export async function POST({ request }) {
         { status: 501, headers: corsHeaders }
       );
     }
+    console.error('[agent-sdk-chat] error:', message);
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

@@ -56,6 +56,13 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof slug !== 'string' || slug.length > 200 || /[\/\\]|\.\./.test(slug)) {
+    return new Response(JSON.stringify({ error: 'Invalid slug' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   if (typeof title !== 'string' || typeof date !== 'string') {
     return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
       status: 400,

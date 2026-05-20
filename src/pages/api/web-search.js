@@ -33,10 +33,17 @@ export async function POST({ request }) {
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return new Response(JSON.stringify({ error: "Missing query" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (query.length > 500) {
+    return new Response(JSON.stringify({ error: "Query too long" }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -51,10 +58,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "Search request failed" }),
+        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -67,12 +73,12 @@ export async function POST({ request }) {
 
     return new Response(JSON.stringify({ results }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call search service" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

@@ -1,9 +1,22 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+
+const ALLOWED_MODELS = new Set([
+  'claude-sonnet-4-20250514',
+  'claude-haiku-4-20250414',
+]);
 
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   let body;
   try {
@@ -11,7 +24,7 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -19,7 +32,7 @@ export async function POST({ request }) {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "API mode disabled" }), {
       status: 403,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -28,9 +41,18 @@ export async function POST({ request }) {
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+
+  if (!Array.isArray(messages) || messages.length > 100) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const resolvedModel = ALLOWED_MODELS.has(model) ? model : 'claude-sonnet-4-20250514';
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -41,7 +63,7 @@ export async function POST({ request }) {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model,
+        model: resolvedModel,
         max_tokens: 1024,
         system,
         messages,
@@ -52,20 +74,20 @@ export async function POST({ request }) {
 
     if (!res.ok) {
       return new Response(
-        JSON.stringify({ error: data.error?.message || "API error" }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "API error" }),
+        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const text = data.content?.[0]?.text || "";
     return new Response(JSON.stringify({ text }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

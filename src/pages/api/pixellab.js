@@ -33,12 +33,22 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
-  if (!description) {
+  if (!description || typeof description !== 'string') {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
+
+  if (description.length > 2000) {
+    return new Response(JSON.stringify({ error: "Description too long" }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const w = Math.min(Math.max(Number(width) || 128, 16), 512);
+  const h = Math.min(Math.max(Number(height) || 128, 16), 512);
 
   try {
     const res = await fetch("https://api.pixellab.ai/v1/generate-image-pixflux", {
@@ -49,28 +59,27 @@ export async function POST({ request }) {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: "blurry, low quality, text, watermark",
       }),
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "PixelLab request failed" }),
+        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await res.json();
     return new Response(JSON.stringify({ image: data.image.base64 }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call PixelLab" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

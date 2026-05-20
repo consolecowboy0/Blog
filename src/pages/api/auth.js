@@ -42,10 +42,17 @@ export async function POST({ request, clientAddress }) {
     });
   }
 
+  if (typeof password !== 'string' || password.length > 500) {
+    return new Response(JSON.stringify({ error: 'Invalid input' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   if (!verifyPassword(password, scope)) {
     return new Response(JSON.stringify({ error: 'Wrong password' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 

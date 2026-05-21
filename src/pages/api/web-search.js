@@ -70,8 +70,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[web-search] search failed:', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
+      JSON.stringify({ error: "Failed to call Brave Search" }),
       { status: 500, headers: corsHeaders }
     );
   }

@@ -1,9 +1,17 @@
 export const prerender = false;
 
+import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
+
+  if (!requireAuth(request, 'legion')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   let body;
   try {
@@ -63,8 +71,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-chat] API call failed:', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
       { status: 500, headers: corsHeaders }
     );
   }

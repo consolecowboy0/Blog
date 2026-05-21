@@ -42,6 +42,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!/^[0-9a-zA-Z_-]+$/.test(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -108,8 +114,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !/^[0-9a-zA-Z_-]+$/.test(id)) {
+    return new Response(JSON.stringify({ error: 'Invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

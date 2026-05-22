@@ -24,9 +24,19 @@ export async function GET({ request }) {
   });
 }
 
+const MAX_BODY_BYTES = 2 * 1024 * 1024; // 2 MB
+
 export async function PUT({ request }) {
   const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+
+  const len = parseInt(request.headers.get('content-length') || '0', 10);
+  if (len > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
 
   let body;
   try {

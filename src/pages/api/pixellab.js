@@ -33,7 +33,15 @@ export async function POST({ request }) {
 
   const { description, width = 128, height = 128 } = body;
 
-  if (!description) {
+  if (!Number.isInteger(width) || !Number.isInteger(height) ||
+      width < 1 || width > 1024 || height < 1 || height > 1024) {
+    return new Response(JSON.stringify({ error: "Invalid dimensions" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!description || typeof description !== 'string' || description.length > 2000) {
     return new Response(JSON.stringify({ error: "Missing description" }), {
       status: 400,
       headers: corsHeaders,
@@ -55,9 +63,8 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Image generation error (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -68,8 +75,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to generate image" }),
       { status: 500, headers: corsHeaders }
     );
   }

@@ -9,7 +9,7 @@ const METHODS = 'GET, PUT, DELETE, OPTIONS';
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
     status: 401,
-    headers: corsHeaders,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 }
 
@@ -31,7 +31,8 @@ export async function GET({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error(`[posts] GET ${params.id} error:`, err.message);
+    return new Response(JSON.stringify({ error: 'Failed to fetch post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -48,7 +49,7 @@ export async function PUT({ params, request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -65,19 +66,19 @@ export async function PUT({ params, request }) {
     if (typeof title !== 'string' || typeof date !== 'string') {
       return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
         status: 400,
-        headers: corsHeaders,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     if (title.length > 300 || date.length > 40) {
       return new Response(JSON.stringify({ error: 'title or date too long' }), {
         status: 400,
-        headers: corsHeaders,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     if (description && (typeof description !== 'string' || description.length > 1000)) {
       return new Response(JSON.stringify({ error: 'invalid description' }), {
         status: 400,
-        headers: corsHeaders,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -94,7 +95,8 @@ export async function PUT({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error(`[posts] PUT ${params.id} error:`, err.message);
+    return new Response(JSON.stringify({ error: 'Failed to update post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -121,7 +123,8 @@ export async function DELETE({ params, request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'GitHub API error', details: err.message }), {
+    console.error(`[posts] DELETE ${params.id} error:`, err.message);
+    return new Response(JSON.stringify({ error: 'Failed to delete post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -19,29 +19,29 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   const apiKey = process.env.BRAVE_SEARCH_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "No Brave Search API key configured" }), {
+    return new Response(JSON.stringify({ error: "Search not configured" }), {
       status: 500,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   const { query } = body;
 
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return new Response(JSON.stringify({ error: "Missing query" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   try {
-    const params = new URLSearchParams({ q: query, count: '5' });
+    const params = new URLSearchParams({ q: query.slice(0, 500), count: '5' });
     const res = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
       headers: {
         "Accept": "application/json",
@@ -51,10 +51,10 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API error:', res.status);
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "Search request failed" }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -67,12 +67,13 @@ export async function POST({ request }) {
 
     return new Response(JSON.stringify({ results }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('[web-search] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Search failed" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

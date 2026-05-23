@@ -11,7 +11,7 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -19,7 +19,7 @@ export async function POST({ request }) {
   if (!apiKey) {
     return new Response(JSON.stringify({ error: "API mode disabled" }), {
       status: 403,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -28,7 +28,7 @@ export async function POST({ request }) {
   if (!system || !messages) {
     return new Response(JSON.stringify({ error: "Missing system or messages" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -51,21 +51,23 @@ export async function POST({ request }) {
     const data = await res.json();
 
     if (!res.ok) {
+      console.error('[agent-chat] Anthropic API error:', data.error?.message);
       return new Response(
-        JSON.stringify({ error: data.error?.message || "API error" }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: "API request failed" }),
+        { status: res.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const text = data.content?.[0]?.text || "";
     return new Response(JSON.stringify({ text }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('[agent-chat] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call API" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

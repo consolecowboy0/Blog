@@ -46,18 +46,22 @@ export async function POST({ request, clientAddress }) {
     const doc = await docRef.get();
     const now = Date.now();
 
+    const safeFingerprint = (fingerprint && typeof fingerprint === 'string')
+      ? fingerprint.slice(0, 256).replace(/[^\x20-\x7E]/g, '')
+      : '';
+
     if (doc.exists) {
       await docRef.update({
         messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
-        ...(fingerprint ? { fingerprint } : {}),
+        ...(safeFingerprint ? { fingerprint: safeFingerprint } : {}),
       });
     } else {
       await docRef.set({
         id: visitor_id,
-        fingerprint: fingerprint || '',
+        fingerprint: safeFingerprint,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
         created: now,

@@ -10,7 +10,7 @@ export async function GET({ request }) {
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -21,7 +21,8 @@ export async function GET({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] list error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to list posts' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -34,7 +35,7 @@ export async function POST({ request }) {
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -44,7 +45,7 @@ export async function POST({ request }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -52,30 +53,36 @@ export async function POST({ request }) {
   if (!slug || !title || !date) {
     return new Response(JSON.stringify({ error: 'Missing slug, title, or date' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   if (typeof title !== 'string' || typeof date !== 'string') {
     return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
   if (title.length > 300 || date.length > 40) {
     return new Response(JSON.stringify({ error: 'title or date too long' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
   if (description && (typeof description !== 'string' || description.length > 1000)) {
     return new Response(JSON.stringify({ error: 'invalid description' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
-  const safe = slug.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+  const safe = slug.replace(/[^a-z0-9-]/gi, '-').toLowerCase().replace(/^-+|-+$/g, '');
+  if (!safe || safe.includes('..')) {
+    return new Response(JSON.stringify({ error: 'Invalid slug' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
   const filename = `${safe}.md`;
 
   // JSON strings are valid YAML double-quoted scalars, so JSON.stringify
@@ -92,7 +99,8 @@ export async function POST({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] create error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to create post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

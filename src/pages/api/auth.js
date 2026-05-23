@@ -22,7 +22,7 @@ export async function POST({ request, clientAddress }) {
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -31,21 +31,21 @@ export async function POST({ request, clientAddress }) {
   if (!password || !scope) {
     return new Response(JSON.stringify({ error: 'Missing password or scope' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   if (!['legion', 'backend'].includes(scope)) {
     return new Response(JSON.stringify({ error: 'Invalid scope' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   if (!verifyPassword(password, scope)) {
     return new Response(JSON.stringify({ error: 'Wrong password' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -55,6 +55,7 @@ export async function POST({ request, clientAddress }) {
     status: 200,
     headers: {
       ...corsHeaders,
+      'Content-Type': 'application/json',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });

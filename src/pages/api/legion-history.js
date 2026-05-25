@@ -31,6 +31,10 @@ async function purgeOld(store) {
   }
 }
 
+function isValidId(id) {
+  return /^\d{1,20}$/.test(id);
+}
+
 export async function GET({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
@@ -42,6 +46,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!isValidId(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -75,12 +85,30 @@ export async function GET({ request }) {
   });
 }
 
+const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5 MB
+
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   let body;
   try {
-    body = await request.json();
+    const text = await request.text();
+    if (text.length > MAX_BODY_BYTES) {
+      return new Response(JSON.stringify({ error: 'Payload too large' }), {
+        status: 413,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    body = JSON.parse(text);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
@@ -108,8 +136,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !isValidId(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

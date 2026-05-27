@@ -2,18 +2,28 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Serialize Agent SDK calls so concurrent requests don't step on the shared
 // ANTHROPIC_API_KEY env-var toggle.
 let sdkLock = Promise.resolve();
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-sdk:${ip}`, 15, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -27,10 +37,17 @@ export async function POST({ request }) {
     });
   }
 
-  const { system, messages, model, agentConfig } = body;
+  const { system, messages, model } = body;
 
-  if (!system || !messages) {
-    return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+  if (!system || typeof system !== 'string' || system.length > 10000) {
+    return new Response(JSON.stringify({ error: "Invalid system prompt" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -65,12 +82,8 @@ export async function POST({ request }) {
       model: sdkModel,
       systemPrompt: system,
       maxTurns: 4,
-      permissionMode: 'auto',
+      permissionMode: 'plan',
     };
-
-    if (agentConfig && Object.keys(agentConfig).length > 0) {
-      options.agents = agentConfig;
-    }
 
     console.log('[agent-sdk-chat] Calling query() with model=%s, prompt length=%d', sdkModel, userPrompt.length);
     let result = '';
@@ -91,8 +104,9 @@ export async function POST({ request }) {
     console.log('[agent-sdk-chat] SDK query complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
+      console.error('[agent-sdk-chat] Auth error in SDK result');
       return new Response(
-        JSON.stringify({ error: "Agent SDK auth error: " + result }),
+        JSON.stringify({ error: "Agent SDK auth error" }),
         { status: 401, headers: corsHeaders }
       );
     }
@@ -102,15 +116,16 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-sdk-chat]', err);
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
+        JSON.stringify({ error: "Agent SDK not available" }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
+      JSON.stringify({ error: "Failed to call Agent SDK" }),
       { status: 500, headers: corsHeaders }
     );
   } finally {

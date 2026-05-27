@@ -14,8 +14,16 @@ router.post('/api/pixellab', async (req, res) => {
   }
 
   const { description, width = 128, height = 128 } = req.body || {};
-  if (!description) {
+  if (!description || typeof description !== 'string') {
     return res.status(400).json({ error: 'Missing description' });
+  }
+  if (description.length > 2000) {
+    return res.status(400).json({ error: 'Description too long' });
+  }
+  const w = Number(width);
+  const h = Number(height);
+  if (!Number.isInteger(w) || !Number.isInteger(h) || w < 1 || h < 1 || w > 1024 || h > 1024) {
+    return res.status(400).json({ error: 'Invalid dimensions (1-1024)' });
   }
 
   try {
@@ -27,20 +35,21 @@ router.post('/api/pixellab', async (req, res) => {
       },
       body: JSON.stringify({
         description,
-        image_size: { width, height },
+        image_size: { width: w, height: h },
         negative_description: 'blurry, low quality, text, watermark',
       }),
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(response.status).json({ error: `PixelLab error (${response.status}): ${err}` });
+      console.error('[pixellab] API error:', response.status, await response.text());
+      return res.status(response.status).json({ error: `Image generation failed (${response.status})` });
     }
 
     const data = await response.json();
     res.json({ image: data.image.base64 });
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to call PixelLab' });
+    console.error('[pixellab]', err);
+    res.status(500).json({ error: 'Failed to generate image' });
   }
 });
 

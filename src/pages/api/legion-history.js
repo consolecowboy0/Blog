@@ -4,8 +4,15 @@ import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
+import { checkRate } from '../../lib/rate-limit.js';
+
 const METHODS = 'GET, POST, DELETE, OPTIONS';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_BODY_BYTES = 2 * 1024 * 1024; // 2 MB
+
+function validId(id) {
+  return typeof id === 'string' && /^\d{1,20}$/.test(id);
+}
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -31,15 +38,31 @@ async function purgeOld(store) {
   }
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`legion-hist:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
   const store = getStore('legion');
 
   await purgeOld(store);
+
+  if (id && !validId(id)) {
+    return new Response(JSON.stringify({ error: 'Invalid id' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
 
   if (id) {
     const data = await store.get('history/' + id, { type: 'json' });
@@ -75,9 +98,27 @@ export async function GET({ request }) {
   });
 }
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`legion-hist-w:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
+
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
+
   let body;
   try {
     body = await request.json();
@@ -108,8 +149,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !validId(id)) {
+    return new Response(JSON.stringify({ error: 'Missing or invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

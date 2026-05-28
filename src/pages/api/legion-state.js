@@ -3,6 +3,9 @@ export const prerender = false;
 import { getStore } from '@netlify/blobs';
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
+
+const MAX_BODY_BYTES = 2 * 1024 * 1024; // 2 MB
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -24,9 +27,26 @@ export async function GET({ request }) {
   });
 }
 
-export async function PUT({ request }) {
+export async function PUT({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`legion-state:${ip}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+    });
+  }
+
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
 
   let body;
   try {

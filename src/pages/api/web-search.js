@@ -2,8 +2,9 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
@@ -28,6 +29,15 @@ export async function POST({ request }) {
     return new Response(JSON.stringify({ error: "No Brave Search API key configured" }), {
       status: 500,
       headers: corsHeaders,
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`web-search:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -58,10 +68,10 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API error:', res.status);
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: 'Search request failed' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -74,12 +84,13 @@ export async function POST({ request }) {
 
     return new Response(JSON.stringify({ results }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('[web-search] Error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call search service" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

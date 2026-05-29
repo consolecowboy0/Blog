@@ -2,18 +2,28 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Serialize Agent SDK calls so concurrent requests don't step on the shared
 // ANTHROPIC_API_KEY env-var toggle.
 let sdkLock = Promise.resolve();
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`agent-sdk:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -92,26 +102,27 @@ export async function POST({ request }) {
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key') || result.includes('authentication'))) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK auth error: " + result }),
-        { status: 401, headers: corsHeaders }
+        JSON.stringify({ error: "Agent SDK authentication failed" }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     return new Response(JSON.stringify({ text: result }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
-        { status: 501, headers: corsHeaders }
+        JSON.stringify({ error: "Agent SDK not available" }),
+        { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    console.error('[agent-sdk-chat] Error:', message);
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Internal server error" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } finally {
     if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;

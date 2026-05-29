@@ -2,8 +2,9 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
@@ -28,6 +29,15 @@ export async function POST({ request }) {
     return new Response(JSON.stringify({ error: "No PixelLab API key configured" }), {
       status: 500,
       headers: corsHeaders,
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`pixellab:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -71,22 +81,23 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[pixellab] API error:', res.status);
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: 'Image generation failed' }),
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await res.json();
     return new Response(JSON.stringify({ image: data.image.base64 }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('[pixellab] Error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to generate image" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

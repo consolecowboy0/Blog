@@ -14,8 +14,11 @@ router.post('/api/web-search', async (req, res) => {
   }
 
   const { query } = req.body || {};
-  if (!query) {
+  if (!query || typeof query !== 'string') {
     return res.status(400).json({ error: 'Missing query' });
+  }
+  if (query.length > 500) {
+    return res.status(400).json({ error: 'Query too long' });
   }
 
   try {
@@ -29,8 +32,8 @@ router.post('/api/web-search', async (req, res) => {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(response.status).json({ error: `Brave Search error (${response.status}): ${err}` });
+      console.error('[web-search] Brave API error:', response.status);
+      return res.status(502).json({ error: 'Search request failed' });
     }
 
     const data = await response.json();
@@ -42,7 +45,8 @@ router.post('/api/web-search', async (req, res) => {
 
     res.json({ results });
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to call Brave Search' });
+    console.error('[web-search] Error:', err.message);
+    res.status(500).json({ error: 'Failed to call search service' });
   }
 });
 

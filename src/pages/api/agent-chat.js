@@ -97,12 +97,13 @@ export async function POST({ request, clientAddress }) {
     const text = data.content?.[0]?.text || "";
     return new Response(JSON.stringify({ text }), {
       status: 200,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
+    console.error('[agent-chat] Error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }

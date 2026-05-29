@@ -28,8 +28,15 @@ export async function POST({ request, clientAddress }) {
 
   const { password, scope } = body;
 
-  if (!password || !scope) {
+  if (!password || typeof password !== 'string' || !scope) {
     return new Response(JSON.stringify({ error: 'Missing password or scope' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (password.length > 1000) {
+    return new Response(JSON.stringify({ error: 'Password too long' }), {
       status: 400,
       headers: corsHeaders,
     });

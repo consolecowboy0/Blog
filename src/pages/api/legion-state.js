@@ -24,13 +24,40 @@ export async function GET({ request }) {
   });
 }
 
+const MAX_STATE_BYTES = 2 * 1024 * 1024; // 2 MB
+
 export async function PUT({ request }) {
   const corsHeaders = corsHeadersFor(request, 'GET, PUT, DELETE, OPTIONS');
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
 
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10);
+  if (contentLength > MAX_STATE_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  let raw;
+  try {
+    raw = await request.text();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Failed to read body' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (raw.length > MAX_STATE_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   let body;
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,

@@ -2,8 +2,9 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
@@ -20,6 +21,15 @@ export async function POST({ request }) {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,
       headers: corsHeaders,
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`pixellab:${ip}`, 10, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -72,8 +82,9 @@ export async function POST({ request }) {
 
     if (!res.ok) {
       const err = await res.text();
+      console.error('[pixellab] API error:', res.status, err);
       return new Response(
-        JSON.stringify({ error: `PixelLab error (${res.status}): ${err}` }),
+        JSON.stringify({ error: `Image generation failed (${res.status})` }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -84,8 +95,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[pixellab] error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call PixelLab" }),
+      JSON.stringify({ error: "Failed to generate image" }),
       { status: 500, headers: corsHeaders }
     );
   }

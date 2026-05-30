@@ -21,7 +21,8 @@ export async function GET({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] list error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to list posts' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -92,7 +93,8 @@ export async function POST({ request }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[posts] save error:', err.message);
+    return new Response(JSON.stringify({ error: 'Failed to save post' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

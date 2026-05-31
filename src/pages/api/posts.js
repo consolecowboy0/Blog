@@ -56,6 +56,13 @@ export async function POST({ request }) {
     });
   }
 
+  if (typeof slug !== 'string' || slug.length > 200) {
+    return new Response(JSON.stringify({ error: 'Invalid slug' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
   if (typeof title !== 'string' || typeof date !== 'string') {
     return new Response(JSON.stringify({ error: 'title and date must be strings' }), {
       status: 400,
@@ -70,6 +77,13 @@ export async function POST({ request }) {
   }
   if (description && (typeof description !== 'string' || description.length > 1000)) {
     return new Response(JSON.stringify({ error: 'invalid description' }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (content !== undefined && (typeof content !== 'string' || content.length > 500000)) {
+    return new Response(JSON.stringify({ error: 'Content too large' }), {
       status: 400,
       headers: corsHeaders,
     });

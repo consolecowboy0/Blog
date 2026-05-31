@@ -6,6 +6,12 @@ import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
 const METHODS = 'GET, POST, DELETE, OPTIONS';
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5 MB
+const ID_RE = /^\d{1,15}$/;
+
+function validId(id) {
+  return typeof id === 'string' && ID_RE.test(id);
+}
 
 function unauthorized(corsHeaders) {
   return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -42,6 +48,12 @@ export async function GET({ request }) {
   await purgeOld(store);
 
   if (id) {
+    if (!validId(id)) {
+      return new Response(JSON.stringify({ error: 'Invalid id' }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
     const data = await store.get('history/' + id, { type: 'json' });
     return new Response(JSON.stringify(data || null), {
       status: 200,
@@ -78,6 +90,13 @@ export async function GET({ request }) {
 export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
+  const contentLength = parseInt(request.headers.get('Content-Length') || '0', 10);
+  if (contentLength > MAX_BODY_BYTES) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: corsHeaders,
+    });
+  }
   let body;
   try {
     body = await request.json();
@@ -108,8 +127,8 @@ export async function DELETE({ request }) {
   if (!requireAuth(request, 'legion')) return unauthorized(corsHeaders);
   const url = new URL(request.url);
   const id = url.searchParams.get('id');
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing id' }), {
+  if (!id || !validId(id)) {
+    return new Response(JSON.stringify({ error: 'Invalid id' }), {
       status: 400,
       headers: corsHeaders,
     });

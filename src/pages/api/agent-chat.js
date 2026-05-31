@@ -62,6 +62,25 @@ export async function POST({ request, clientAddress }) {
     });
   }
 
+  const ALLOWED_ROLES = new Set(['user', 'assistant']);
+  for (const msg of messages) {
+    if (!msg || typeof msg !== 'object') {
+      return new Response(JSON.stringify({ error: "Invalid message entry" }), {
+        status: 400, headers: corsHeaders,
+      });
+    }
+    if (!ALLOWED_ROLES.has(msg.role)) {
+      return new Response(JSON.stringify({ error: "Invalid message role" }), {
+        status: 400, headers: corsHeaders,
+      });
+    }
+    if (typeof msg.content !== 'string' || msg.content.length > 50000) {
+      return new Response(JSON.stringify({ error: "Invalid message content" }), {
+        status: 400, headers: corsHeaders,
+      });
+    }
+  }
+
   if (!ALLOWED_MODELS.has(model)) {
     return new Response(JSON.stringify({ error: "Model not allowed" }), {
       status: 400,
@@ -100,8 +119,9 @@ export async function POST({ request, clientAddress }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-chat]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Chat service error" }),
       { status: 500, headers: corsHeaders }
     );
   }

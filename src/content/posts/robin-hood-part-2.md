@@ -2,13 +2,10 @@
 title: "Robin Hood, Part 2"
 date: "2026-05-31"
 description: "I decided I was Robin Hood. Now I'm $455 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife."
+columns: true
 ---
 
 Somewhere in the last few weeks I decided I was Robin Hood. Not the stealing part- I just like the bow, the green tights, the general silhouette of a man who has decided, on purpose, to make strangers his problem. So I gave myself a quest: one day, go find people who need help, and help them. Keep a tally like it's XP.
-
-<figure class="post-figure float-right">
-  <img src="/images/robin-hood-part-2-green-tights-silhouette.svg" alt="Minimal line drawing of a man standing heroically with hands on hips, wearing a Robin Hood feathered cap and pointed boots." />
-</figure>
 
 The day ended. The bit did not (that's part 1). I'm now around, well exactly, $355 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife.
 
@@ -17,10 +14,6 @@ This is really just entropy with a costume. Do random things. Run in a neighborh
 It's how you end up in a smoke shop with a monkey, beating a jail sentence on what amounts to a D20 charisma roll, escaping a sauna sex ring at the local gym- other stories, other days, all three real. And this morning I'm driving back from Sheetz the most roundabout way that you can. Entropy. I'm in the neighborhood, my second Summer-edition Red Bull already sweating in the cupholder, when a black dude on the sidewalk starts waving both arms and yelling at me. *Not today. I am not going to be the white guy who keeps driving. I'm just fucking not. Robin Hood baby.*
 
 Windows already down, I used the WRX's short wheelbase to high-rev a tight little U-turn back to him, which I'm sure read as very heroic and not at all like a man having a midlife event in a sedan.
-
-<figure class="post-figure float-left">
-  <img src="/images/robin-hood-part-2-tight-uturn.svg" alt="A minimal line drawing of an empty road seen from above, with two curving tire tracks that rise up, loop back on themselves, and return, left by a small car finishing a tight U-turn at the bottom." />
-</figure>
 
 "What's up my man?" Fist bump, instant. He needed a ride to Sheetz. The Sheetz I had just left. Robin Hood does not ask questions when someone is in need- he **helps** them. Hop in.
 
@@ -50,17 +43,9 @@ Here is where Robin Hood earns his stupid tights. Chicago followed me inside, ri
 
 I turned and handed him the five twenties.
 
-<figure class="post-figure float-right">
-  <img src="/images/robin-hood-part-2-atm-five-twenties.svg" alt="Minimal line drawing of a hand reaching up to pinch a small fan of folded bills emerging from a horizontal ATM cash slot." />
-</figure>
-
 He went quiet for the first time all morning. Looked at the cash, looked at me, said "that's my daddy," and pulled me into a hug like it actually meant something. And here's the thing- it did. He was grateful and he was kind, and underneath all the cutting-off-and-reattaching he was just a guy having a good morning because somebody finally stopped.
 
 "Take care of yourself," I said. Which, I realized as I said it, is what you say to a coworker leaving for a marginally better job. It was all I had. I got in the car.
-
-<figure class="post-figure float-left">
-  <img src="/images/robin-hood-quest-log.svg" alt="Minimal line drawing of a longbow with a single nocked arrow." />
-</figure>
 
 $455 and counting. No XP bar. No glowing respect meter. Just me, driving home for the second time today, Red Bull gone warm, a little holier (I guess?) and a lot weirder than when I left.
 

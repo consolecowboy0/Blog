@@ -6,6 +6,7 @@ interface Props {
     title: string;
     date: string;
     description?: string;
+    columns?: boolean;
   };
 }
 
@@ -23,7 +24,7 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
       <time datetime={frontmatter.date}>{dateStr}</time>
       <h1>{frontmatter.title}</h1>
     </header>
-    <div class="post-content">
+    <div class:list={['post-content', { 'post-columns': frontmatter.columns }]}>
       <slot />
     </div>
   </article>
@@ -64,6 +65,30 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     padding: 0.08em 0.12em 0 0;
     margin-right: 0.02em;
     color: var(--fg);
+  }
+
+  /* Two-column magazine flow (opt-in per post via `columns: true`) */
+  .post-columns {
+    column-count: 2;
+    column-gap: 2.4rem;
+    column-rule: 1px solid var(--border, rgba(128, 128, 128, 0.18));
+  }
+
+  .post-columns :global(> p) {
+    margin-top: 0;
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  /* Lead paragraph spans both columns, sets up the drop cap */
+  .post-columns :global(> p:first-of-type) {
+    column-span: all;
+  }
+
+  @media (max-width: 720px) {
+    .post-columns {
+      column-count: 1;
+    }
   }
 
   /* Magazine-style figures: text wraps around floated graphics */

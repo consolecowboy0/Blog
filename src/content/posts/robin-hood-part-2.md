@@ -32,7 +32,7 @@ On cue, Ellen's face lit up the big iPad they bolt into every car now. I hit ign
 
 "Oh that's your girl? Pretty girl man. Damn man. Man- if I was married and had kids I would want to be just like you man. Man I would have done things so different man."
 
-For a second he wasn't performing. It wasn't flattery. It was a guy looking at the life he didn't get, wishing somebody would hand him a do-over.
+For a second he wasn't performing. It wasn't flattery. It was a guy looking at the life he didn't get, wishing somebody would hand him a do-over. It didn't last.
 
 "Haha, but I guess you couldn't mess with these hotties in Chicago though, because you got your girl. It's a shame though, because they would like you too, boy. Wooo. Pretty white boy like you, riding around with all this big ding ding, I mean bling bling, I mean, you do probably have a big ding ding too, man. I bet your dick is way bigger than mine. Shit, I'm mad, mine is small. I'm going to cut yours off and attach it to mine. Haha, that's a good one."
 

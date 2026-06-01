@@ -112,19 +112,24 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
       const w = track.clientWidth;
       const g = gap();
 
-      // Pass 1: collapse to a single normal column and measure true content height.
+      // Two-column spread on a wide stage; single column on phones.
+      const cols = w >= 560 ? 2 : 1;
+      const cw = (w - (cols - 1) * g) / cols;
+
+      // Pass 1: collapse to one column at the real column width, measure height.
       pages.style.columnWidth = 'auto';
-      pages.style.width = w + 'px';
+      pages.style.width = cw + 'px';
       pages.style.height = 'auto';
       const contentH = pages.scrollHeight;
-      total = Math.max(1, Math.ceil(contentH / h));
+      const totalCols = Math.max(1, Math.ceil(contentH / h));
+      total = Math.max(1, Math.ceil(totalCols / cols));
 
-      // Pass 2: lay out exactly `total` columns, each one page wide.
-      pages.style.columnWidth = w + 'px';
+      // Pass 2: lay out every column at cw; the track shows `cols` of them at once.
+      pages.style.columnWidth = cw + 'px';
       pages.style.height = h + 'px';
-      pages.style.width = total * w + (total - 1) * g + 'px';
+      pages.style.width = totalCols * cw + (totalCols - 1) * g + 'px';
 
-      step = w + g;
+      step = cols * (cw + g);
       if (page > total - 1) page = total - 1;
       buildTicks();
       render();

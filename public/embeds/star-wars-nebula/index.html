@@ -307,7 +307,16 @@ let hiddenRegions = new Set();
 let pathResult = null;
 
 // ── Render ──────────────────────────────────────────────────────
+// Coalesce bursts of render requests (drag, wheel, hover) into one
+// draw per animation frame so the main thread never falls behind and
+// the browser stops flagging the page as unresponsive.
+let _rafPending = false;
 function render() {
+  if (_rafPending) return;
+  _rafPending = true;
+  requestAnimationFrame(() => { _rafPending = false; draw(); });
+}
+function draw() {
   const t = T();
   ctx.save();
   ctx.clearRect(0, 0, W, H);

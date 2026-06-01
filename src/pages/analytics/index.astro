@@ -78,8 +78,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <div id="geo-list" class="geo-list"></div>
           <p id="geo-empty" class="dash-note gate-hidden">No geography recorded yet.</p>
           <div id="region-wrap" class="region-wrap gate-hidden">
-            <h3 id="region-title"></h3>
+            <h3 id="region-title">Top regions</h3>
             <div id="region-list" class="geo-list"></div>
+          </div>
+          <div id="city-wrap" class="region-wrap gate-hidden">
+            <h3 id="city-title">Top cities</h3>
+            <div id="city-list" class="geo-list"></div>
           </div>
           <p class="cover-note" id="geo-cover"></p>
         </section>
@@ -563,24 +567,45 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       list.innerHTML = html;
     }
 
-    // Regions for the top country.
+    // Regions across all countries (name + country flag).
     const regWrap = document.getElementById('region-wrap')!;
     const regList = document.getElementById('region-list')!;
     const regions = data.regions || [];
-    if (regions.length && countries.length) {
+    if (regions.length) {
       const max = regions[0].visitors || 1;
-      document.getElementById('region-title')!.textContent = `Regions in ${countries[0].name}`;
       regList.innerHTML = regions.map((r: any) => {
         const w = Math.max(2, Math.round((r.visitors / max) * 100));
+        const label = r.name || r.region;
+        const title = r.country ? `${label}, ${r.country}` : label;
         return `<div class="geo-row">
-          <span class="geo-flag"></span>
-          <span class="geo-mid"><span class="geo-name">${escapeHtml(r.region)}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
+          <span class="geo-flag">${escapeHtml(r.flag || '🌐')}</span>
+          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(title)}">${escapeHtml(label)}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
           <span class="geo-count">${fmt(r.visitors)}</span>
         </div>`;
       }).join('');
       regWrap.classList.remove('gate-hidden');
     } else {
       regWrap.classList.add('gate-hidden');
+    }
+
+    // Cities across all countries (city + country flag).
+    const cityWrap = document.getElementById('city-wrap')!;
+    const cityList = document.getElementById('city-list')!;
+    const cities = data.cities || [];
+    if (cities.length) {
+      const max = cities[0].visitors || 1;
+      cityList.innerHTML = cities.map((c: any) => {
+        const w = Math.max(2, Math.round((c.visitors / max) * 100));
+        const title = c.country ? `${c.city}, ${c.country}` : c.city;
+        return `<div class="geo-row">
+          <span class="geo-flag">${escapeHtml(c.flag || '🌐')}</span>
+          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(title)}">${escapeHtml(c.city)}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
+          <span class="geo-count">${fmt(c.visitors)}</span>
+        </div>`;
+      }).join('');
+      cityWrap.classList.remove('gate-hidden');
+    } else {
+      cityWrap.classList.add('gate-hidden');
     }
 
     // Coverage caption only when there is located data to qualify.

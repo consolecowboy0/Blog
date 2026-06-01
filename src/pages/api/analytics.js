@@ -5,7 +5,7 @@ import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import {
   classifyChannel, sourceLabel, CHANNELS, CHANNEL_LABELS,
-  flagEmoji, isSpamHost, isPlausibleHost, CC_NAME,
+  flagEmoji, isSpamHost, isPlausibleHost, CC_NAME, regionLabel,
 } from '../../lib/channels.js';
 
 // Returns aggregated pageview stats for the dashboard, focused on WHERE
@@ -66,7 +66,8 @@ export async function GET({ request }) {
     const bySource = new Map();    // label -> { views, visitors:Set, chanTally:Map }
     const byRef = new Map();       // referrer host -> views (legacy topReferrers)
     const byCountry = new Map();   // co -> { views, visitors:Set, name }
-    const byRegion = new Map();    // `${co}|${reg}` -> { co, reg, views, visitors:Set }
+    const byRegion = new Map();    // `${co}|${reg}` -> { co, reg, name, views, visitors:Set }
+    const byCity = new Map();      // `${co}|${city}` -> { co, city, country, views, visitors:Set }
     const byCampaign = new Map();  // campaign -> { views, visitors:Set, source, medium }
     const channelSeriesMap = new Map(); // day -> Map(channel -> Set vid)
 
@@ -131,9 +132,17 @@ export async function GET({ request }) {
         if (d.reg) {
           const rk = `${d.co}|${d.reg}`;
           let rm = byRegion.get(rk);
-          if (!rm) { rm = { co: d.co, reg: d.reg, views: 0, visitors: new Set() }; byRegion.set(rk, rm); }
+          if (!rm) { rm = { co: d.co, reg: d.reg, name: '', views: 0, visitors: new Set() }; byRegion.set(rk, rm); }
+          if (!rm.name && d.regn) rm.name = d.regn; // first stored subdivision name wins
           rm.views++;
           if (d.vid) rm.visitors.add(d.vid);
+        }
+        if (d.city) {
+          const ck = `${d.co}|${d.city}`;
+          let cym = byCity.get(ck);
+          if (!cym) { cym = { co: d.co, city: d.city, country: d.con || CC_NAME[d.co] || d.co, views: 0, visitors: new Set() }; byCity.set(ck, cym); }
+          cym.views++;
+          if (d.vid) cym.visitors.add(d.vid);
         }
       }
 
@@ -218,15 +227,27 @@ export async function GET({ request }) {
       coverage: geoTotalViews ? geoKnownViews / geoTotalViews : 0,
     };
 
-    // Regions: only for the single top country, with a small floor.
-    const topCo = topCountries[0]?.code;
-    const regions = topCo
-      ? [...byRegion.values()]
-          .filter((r) => r.co === topCo && r.visitors.size >= 5)
-          .map((r) => ({ code: r.co, region: r.reg, views: r.views, visitors: r.visitors.size }))
-          .sort((a, b) => b.visitors - a.visitors || (a.region < b.region ? -1 : 1))
-          .slice(0, 12)
-      : [];
+    // Regions across all countries, ranked by unique visitors. Codes resolve to
+    // names where available (stored subdivision name, then US-state fallback).
+    // No top-country restriction and no visitor floor, so low-traffic regions
+    // still surface. `code` is the country (for the flag); `region` the raw code.
+    const regions = [...byRegion.values()]
+      .map((r) => ({
+        code: r.co, region: r.reg, name: regionLabel(r.co, r.reg, r.name),
+        flag: flagEmoji(r.co), country: byCountry.get(r.co)?.name || CC_NAME[r.co] || r.co,
+        views: r.views, visitors: r.visitors.size,
+      }))
+      .sort((a, b) => b.visitors - a.visitors || b.views - a.views || (a.name < b.name ? -1 : 1))
+      .slice(0, 20);
+
+    // Cities across all countries, ranked by unique visitors.
+    const cities = [...byCity.values()]
+      .map((c) => ({
+        city: c.city, code: c.co, country: c.country, flag: flagEmoji(c.co),
+        views: c.views, visitors: c.visitors.size,
+      }))
+      .sort((a, b) => b.visitors - a.visitors || b.views - a.views || (a.city < b.city ? -1 : 1))
+      .slice(0, 15);
 
     // Campaigns: top 15 by unique visitors.
     const topCampaigns = [...byCampaign.entries()]
@@ -268,6 +289,7 @@ export async function GET({ request }) {
         countriesOther,
         geo,
         regions,
+        cities,
 
         topCampaigns,
         hasCampaigns: topCampaigns.length > 0,

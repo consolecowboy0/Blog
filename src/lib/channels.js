@@ -120,3 +120,28 @@ export const CC_NAME = {
   NZ: 'New Zealand', SG: 'Singapore', KR: 'South Korea', ZA: 'South Africa',
   PT: 'Portugal', UA: 'Ukraine', TR: 'Turkey', AR: 'Argentina', CL: 'Chile',
 };
+
+// Subdivision code -> name for US states. Retroactive nicety for docs that
+// predate stored subdivision names: x-nf-geo now supplies `regn` directly for
+// every country, so this only fills gaps for older US rows.
+export const US_STATES = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
+  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
+  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi',
+  MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire',
+  NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York', NC: 'North Carolina',
+  ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania',
+  RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee',
+  TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington',
+  WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming', DC: 'District of Columbia',
+};
+
+// Best available human label for a subdivision: stored name first, then the
+// US-state fallback, then the bare code.
+export function regionLabel(co, reg, regn) {
+  if (regn) return regn;
+  if (co === 'US' && US_STATES[reg]) return US_STATES[reg];
+  return reg || '';
+}

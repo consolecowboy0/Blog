@@ -75,4 +75,6 @@ He went quiet for the first time all morning. Looked at the cash, looked at me, 
 
 $455 and counting. No XP bar. No glowing respect meter. Just me, driving home for the second time today, Red Bull gone warm, a little holier (I guess?) and a lot weirder than when I left.
 
+<img class="chart-img" src="/images/charts/robin-hood-part-2-running-tally.svg" alt="Big-number callout titled &quot;The Robin Hood Tab&quot; showing $455 in large red type with the label &quot;and counting,&quot; and a breakdown beneath reading $355 going in plus $100 (five twenties at the ATM) equals $455 total. Takeaway: the running cost of the Robin Hood habit is a plain dollar figure, not a game-style XP bar or respect meter." loading="lazy" />
+
 lol. Nobody said being Robin Hood was gonna be easy.

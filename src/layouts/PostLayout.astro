@@ -6,6 +6,7 @@ interface Props {
     title: string;
     date: string;
     description?: string;
+    paginate?: boolean;
   };
 }
 
@@ -23,11 +24,171 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
       <time datetime={frontmatter.date}>{dateStr}</time>
       <h1>{frontmatter.title}</h1>
     </header>
-    <div class="post-content">
-      <slot />
-    </div>
+    {frontmatter.paginate ? (
+      <div class="post-content post-reader" data-reader>
+        <div class="post-reader-stage">
+          <div class="post-reader-track">
+            <div class="post-reader-pages">
+              <slot />
+            </div>
+          </div>
+        </div>
+        <div class="post-reader-controls" aria-label="Page navigation">
+          <button type="button" class="post-reader-btn prev" data-prev aria-label="Previous page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <span>Previous</span>
+          </button>
+          <div class="post-reader-meter">
+            <span class="post-reader-counter" data-counter>1 / 1</span>
+            <div class="post-reader-progress" data-progress></div>
+          </div>
+          <button type="button" class="post-reader-btn next" data-next aria-label="Next page">
+            <span>Next</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+        <div class="post-reader-hint" data-hint>Use &larr; &rarr; keys, swipe, or tap below to turn pages</div>
+      </div>
+    ) : (
+      <div class="post-content">
+        <slot />
+      </div>
+    )}
   </article>
 </BaseLayout>
+
+<script>
+  const ROMAN = ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII',
+    'XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX','XXI','XXII','XXIII','XXIV'];
+  const roman = (n: number) => ROMAN[n] ?? String(n);
+
+  function setupReader(reader: HTMLElement) {
+    const stage = reader.querySelector<HTMLElement>('.post-reader-stage')!;
+    const track = reader.querySelector<HTMLElement>('.post-reader-track')!;
+    const pages = reader.querySelector<HTMLElement>('.post-reader-pages')!;
+    const counter = reader.querySelector<HTMLElement>('[data-counter]')!;
+    const progress = reader.querySelector<HTMLElement>('[data-progress]')!;
+    const hint = reader.querySelector<HTMLElement>('[data-hint]')!;
+    const prev = reader.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = reader.querySelector<HTMLButtonElement>('[data-next]')!;
+    const controls = reader.querySelector<HTMLElement>('.post-reader-controls')!;
+
+    let page = 0;
+    let total = 1;
+    let step = 0;
+    let maxSeen = 0;
+    let ticks: HTMLButtonElement[] = [];
+    let turnTimer: ReturnType<typeof setTimeout>;
+
+    function gap() {
+      const g = parseFloat(getComputedStyle(pages).columnGap);
+      return Number.isFinite(g) ? g : 0;
+    }
+
+    function buildTicks() {
+      if (ticks.length === total) return;
+      progress.innerHTML = '';
+      ticks = [];
+      for (let i = 0; i < total; i++) {
+        const t = document.createElement('button');
+        t.type = 'button';
+        t.className = 'post-reader-tick';
+        t.setAttribute('aria-label', 'Go to page ' + (i + 1));
+        t.addEventListener('click', () => goTo(i));
+        progress.appendChild(t);
+        ticks.push(t);
+      }
+    }
+
+    function layout() {
+      // Size the page to whatever vertical space is left in the viewport,
+      // so the controls (and Next) always stay on screen at any window size.
+      const top = track.getBoundingClientRect().top;
+      const reserve = controls.offsetHeight + hint.offsetHeight + 56;
+      const avail = window.innerHeight - top - reserve;
+      const h = Math.max(180, Math.floor(avail));
+      track.style.height = h + 'px';
+
+      const w = track.clientWidth;
+      const g = gap();
+
+      // Pass 1: collapse to a single normal column and measure true content height.
+      pages.style.columnWidth = 'auto';
+      pages.style.width = w + 'px';
+      pages.style.height = 'auto';
+      const contentH = pages.scrollHeight;
+      total = Math.max(1, Math.ceil(contentH / h));
+
+      // Pass 2: lay out exactly `total` columns, each one page wide.
+      pages.style.columnWidth = w + 'px';
+      pages.style.height = h + 'px';
+      pages.style.width = total * w + (total - 1) * g + 'px';
+
+      step = w + g;
+      if (page > total - 1) page = total - 1;
+      buildTicks();
+      render();
+    }
+
+    function render() {
+      pages.style.transform = 'translateX(' + -(page * step) + 'px)';
+      counter.innerHTML = roman(page + 1) + ' <span>/</span> ' + roman(total);
+      prev.disabled = page === 0;
+      next.disabled = page >= total - 1;
+      maxSeen = Math.max(maxSeen, page);
+      ticks.forEach((t, i) => {
+        t.classList.toggle('active', i === page);
+        t.classList.toggle('seen', i <= maxSeen);
+      });
+    }
+
+    function goTo(target: number, dir = 0) {
+      target = Math.min(Math.max(target, 0), total - 1);
+      if (target === page) return;
+      const delta = dir || (target > page ? 1 : -1);
+      stage.classList.remove('turn-fwd', 'turn-back');
+      // reflow so the class re-adds cleanly on rapid turns
+      void stage.offsetWidth;
+      stage.classList.add(delta > 0 ? 'turn-fwd' : 'turn-back');
+      clearTimeout(turnTimer);
+      turnTimer = setTimeout(() => stage.classList.remove('turn-fwd', 'turn-back'), 520);
+      page = target;
+      render();
+    }
+
+    const go = (delta: number) => goTo(page + delta, delta);
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(-1);
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') go(1);
+    });
+
+    // Touch swipe — horizontal intent only, so vertical scroll gestures pass through.
+    let sx = 0, sy = 0;
+    track.addEventListener('touchstart', (e) => {
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+    }, { passive: true });
+    track.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - sx;
+      const dy = e.changedTouches[0].clientY - sy;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) go(dx < 0 ? 1 : -1);
+    }, { passive: true });
+
+    let t: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(t);
+      t = setTimeout(layout, 150);
+    });
+
+    layout();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+    window.addEventListener('load', layout);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-reader]').forEach(setupReader);
+</script>
 
 <style>
   .post-header {
@@ -64,6 +225,190 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     padding: 0.08em 0.12em 0 0;
     margin-right: 0.02em;
     color: var(--fg);
+  }
+
+  /* ===================================================================
+     Paginated reader (opt-in per post via `paginate: true`).
+     Column engine slices content into viewport-height pages; the chrome
+     below dresses it as a bound, page-turning volume.
+     =================================================================== */
+  .post-reader {
+    --reader-radius: 14px;
+    user-select: none;
+    margin-top: 0.5rem;
+  }
+
+  /* The paper card. Stacked pseudo-sheets behind give "bound volume" depth. */
+  .post-reader-stage {
+    position: relative;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--reader-radius);
+    padding: 2.2rem clamp(1.4rem, 4vw, 3.2rem) 2.2rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 50px -28px rgba(0, 0, 0, 0.45);
+  }
+
+  .post-reader-stage::before,
+  .post-reader-stage::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: var(--reader-radius);
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .post-reader-stage::before { transform: translate(6px, 7px) rotate(0.25deg); opacity: 0.5; }
+  .post-reader-stage::after  { transform: translate(3px, 3px); opacity: 0.78; }
+
+  .post-reader-track {
+    position: relative;
+    overflow: hidden;
+    height: 60vh; /* Fallback; JS resizes to fit the viewport. */
+  }
+
+  /* Spine + turn shadows that sweep in during a page turn. */
+  .post-reader-track::before,
+  .post-reader-track::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 48px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.42s ease;
+  }
+  .post-reader-track::before {
+    left: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0));
+  }
+  .post-reader-track::after {
+    right: 0;
+    background: linear-gradient(270deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0));
+  }
+  .post-reader-stage.turn-fwd .post-reader-track::after { opacity: 1; }
+  .post-reader-stage.turn-back .post-reader-track::before { opacity: 1; }
+
+  .post-reader-pages {
+    column-gap: 3rem;
+    column-fill: auto;
+    transition: transform 0.5s cubic-bezier(0.36, 0.66, 0.2, 1);
+    will-change: transform;
+  }
+
+  /* Each page is one viewport-width column; drop cap still leads page one */
+  .post-reader-pages :global(> p:first-of-type) {
+    font-size: 1.12rem;
+    line-height: 1.7;
+  }
+
+  .post-reader-pages :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 3.6rem;
+    line-height: 0.78;
+    padding: 0.08em 0.12em 0 0;
+    margin-right: 0.02em;
+    color: var(--fg);
+  }
+
+  /* ---- Controls bar ---- */
+  .post-reader-controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.1rem;
+  }
+
+  .post-reader-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 600;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.12s, box-shadow 0.2s, opacity 0.2s;
+  }
+  .post-reader-btn.prev { justify-self: start; }
+  .post-reader-btn.next { justify-self: end; }
+  .post-reader-btn svg { width: 15px; height: 15px; }
+  .post-reader-btn:hover:not(:disabled) {
+    border-color: var(--fg);
+    box-shadow: 0 4px 14px -8px rgba(0, 0, 0, 0.5);
+  }
+  .post-reader-btn:active:not(:disabled) { transform: translateY(1px); }
+  .post-reader-btn:disabled { opacity: 0.32; cursor: default; }
+
+  .post-reader-meter { text-align: center; min-width: 0; }
+
+  .post-reader-counter {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    color: var(--fg);
+    letter-spacing: 0.08em;
+    margin-bottom: 0.55rem;
+  }
+  .post-reader-counter :global(span) { color: var(--fg-muted); opacity: 0.6; margin: 0 0.15em; }
+
+  /* Segmented progress — one tick per page, click to jump. */
+  .post-reader-progress {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .post-reader-tick {
+    width: 22px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--border);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.2s, width 0.25s;
+  }
+  .post-reader-tick:hover { transform: scaleY(1.8); }
+  .post-reader-tick.seen { background: var(--fg-muted); }
+  .post-reader-tick.active { background: var(--fg); width: 30px; }
+
+  .post-reader-hint {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    opacity: 0.6;
+    margin-top: 0.85rem;
+  }
+
+  /* Rainbow theme flourish on the active tick. */
+  :global([data-theme="rainbow"]) .post-reader-tick.active {
+    background: var(--accent);
+    box-shadow: var(--rainbow-glow);
+  }
+
+  @media (max-width: 640px) {
+    .post-reader-controls { grid-template-columns: auto 1fr auto; gap: 0.5rem; }
+    .post-reader-btn span { display: none; }
+    .post-reader-btn { padding: 0.6rem; min-width: 0; }
+    .post-reader-stage { padding: 1.7rem 1.3rem; }
+    .post-reader-tick { width: 14px; }
   }
 
   /* Magazine-style figures: text wraps around floated graphics */

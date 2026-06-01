@@ -1,0 +1,304 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Analytics - dustinlanders.com">
+  <div id="gate">
+    <div class="gate-box">
+      <div class="gate-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2>Analytics</h2>
+      <p class="gate-sub">Enter password to continue.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
+        <button type="submit" id="gate-unlock">Unlock</button>
+      </form>
+      <p id="gate-error" class="gate-error gate-hidden">Wrong password</p>
+    </div>
+  </div>
+
+  <section id="panel" style="display: none;">
+    <div class="dash-header">
+      <h1>Site analytics</h1>
+      <div class="dash-controls">
+        <select id="range-select">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <button id="sign-out" class="secondary-btn">Sign Out</button>
+      </div>
+    </div>
+
+    <div id="dash-loading" class="dash-note">Loading…</div>
+    <div id="dash-error" class="dash-note dash-error gate-hidden"></div>
+
+    <div id="dash-body" class="gate-hidden">
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-label">Pageviews</div>
+          <div class="stat-value" id="stat-views">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unique visitors</div>
+          <div class="stat-value" id="stat-visitors">—</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="trend-chart"></canvas>
+      </div>
+
+      <div class="tables">
+        <div class="table-block">
+          <h3>Top pages</h3>
+          <table id="paths-table"><tbody></tbody></table>
+        </div>
+        <div class="table-block">
+          <h3>Top referrers</h3>
+          <table id="refs-table"><tbody></tbody></table>
+          <p id="refs-empty" class="dash-note gate-hidden">No external referrers yet.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  #gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+  }
+  .gate-box { text-align: center; max-width: 320px; width: 100%; }
+  .gate-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--code-bg); color: var(--fg-muted);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;
+  }
+  .gate-box h2 { margin-top: 0; margin-bottom: 0.2rem; font-size: 1.25rem; }
+  .gate-sub { color: var(--fg-muted); font-size: 0.8rem; margin-bottom: 1.25rem; }
+  #gate-form { display: flex; gap: 0.4rem; }
+  #gate-password {
+    flex: 1; padding: 0.55rem 0.85rem; border: 1px solid var(--border);
+    border-radius: 10px; background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 0.84rem; outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  #gate-password:focus {
+    border-color: var(--fg-muted);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-muted) 10%, transparent);
+  }
+  #gate-form button {
+    padding: 0.55rem 1.25rem; background: var(--fg); color: var(--bg);
+    border: none; border-radius: 10px; font-family: var(--font-body);
+    font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  #gate-form button:hover { opacity: 0.85; }
+  .gate-error { color: #e54; font-size: 0.78rem; margin-top: 0.75rem; }
+  .gate-hidden { display: none; }
+
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .dash-header h1 { margin: 0; font-size: 1.5rem; }
+  .dash-controls { display: flex; gap: 0.5rem; align-items: center; }
+  #range-select {
+    padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 0.82rem;
+  }
+  .secondary-btn {
+    padding: 0.4rem 0.9rem; background: transparent; color: var(--fg);
+    border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-body);
+    font-size: 0.82rem; cursor: pointer;
+  }
+  .secondary-btn:hover { background: var(--code-bg); }
+
+  .dash-note { color: var(--fg-muted); font-size: 0.85rem; padding: 0.5rem 0; }
+  .dash-error { color: #e54; }
+
+  .stat-cards { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .stat-card {
+    flex: 1; min-width: 160px; border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.25rem; background: var(--code-bg);
+  }
+  .stat-label { font-size: 0.75rem; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat-value { font-size: 2rem; font-weight: 800; margin-top: 0.25rem; font-family: var(--font-mono); }
+
+  .chart-wrap {
+    border: 1px solid var(--border); border-radius: 12px; padding: 1rem;
+    margin-bottom: 1.5rem; position: relative; height: 320px;
+  }
+  .chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+  .tables { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 700px) { .tables { grid-template-columns: 1fr; } }
+  .table-block h3 { margin: 0 0 0.6rem; font-size: 0.95rem; }
+  .table-block table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+  .table-block td {
+    padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+  .table-block td:last-child { text-align: right; color: var(--fg-muted); white-space: nowrap; }
+  .table-block td:first-child {
+    max-width: 0; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+</style>
+
+<script>
+  const API_BASE = '';
+  let authToken = localStorage.getItem('auth_token') || null;
+  let chart = null;
+
+  const gate = document.getElementById('gate');
+  const panel = document.getElementById('panel');
+  const gatePassword = document.getElementById('gate-password') as HTMLInputElement;
+  const gateError = document.getElementById('gate-error');
+  const rangeSelect = document.getElementById('range-select') as HTMLSelectElement;
+  const loadingEl = document.getElementById('dash-loading');
+  const errorEl = document.getElementById('dash-error');
+  const bodyEl = document.getElementById('dash-body');
+
+  function showPanel() {
+    gate!.style.display = 'none';
+    panel!.style.display = 'block';
+    loadData();
+  }
+
+  async function tryToken() {
+    if (!authToken) return false;
+    // A 401 from the data fetch means the token is stale/wrong-scope.
+    showPanel();
+    return true;
+  }
+
+  async function unlock(e: Event) {
+    e.preventDefault();
+    const pw = gatePassword!.value;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, scope: 'analytics' }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        authToken = data.token;
+        localStorage.setItem('auth_token', authToken!);
+        gateError!.classList.add('gate-hidden');
+        gatePassword!.value = '';
+        showPanel();
+      } else {
+        gateError!.textContent = res.status === 429 ? 'Too many attempts. Wait a bit.' : 'Wrong password';
+        gateError!.classList.remove('gate-hidden');
+        gatePassword!.value = '';
+      }
+    } catch {
+      gateError!.textContent = 'Auth failed.';
+      gateError!.classList.remove('gate-hidden');
+    }
+  }
+
+  function signOut() {
+    authToken = null;
+    localStorage.removeItem('auth_token');
+    panel!.style.display = 'none';
+    gate!.style.display = 'flex';
+    gatePassword!.value = '';
+  }
+
+  async function loadData() {
+    loadingEl!.classList.remove('gate-hidden');
+    errorEl!.classList.add('gate-hidden');
+    bodyEl!.classList.add('gate-hidden');
+
+    const days = rangeSelect!.value;
+    try {
+      const res = await fetch(`${API_BASE}/api/analytics?days=${days}`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (res.status === 401) { signOut(); return; }
+      if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+      const data = await res.json();
+      render(data);
+      loadingEl!.classList.add('gate-hidden');
+      bodyEl!.classList.remove('gate-hidden');
+    } catch (err: any) {
+      loadingEl!.classList.add('gate-hidden');
+      errorEl!.textContent = 'Could not load analytics: ' + (err?.message || err);
+      errorEl!.classList.remove('gate-hidden');
+    }
+  }
+
+  function fmt(n: number) { return n.toLocaleString('en-US'); }
+
+  async function render(data: any) {
+    document.getElementById('stat-views')!.textContent = fmt(data.totals.views);
+    document.getElementById('stat-visitors')!.textContent = fmt(data.totals.visitors);
+
+    // Trend chart
+    const labels = data.series.map((d: any) => d.day.slice(5)); // MM-DD
+    const views = data.series.map((d: any) => d.views);
+    const visitors = data.series.map((d: any) => d.visitors);
+
+    const { Chart, registerables } = await import('chart.js');
+    Chart.register(...registerables);
+    const ctx = document.getElementById('trend-chart') as HTMLCanvasElement;
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Pageviews', data: views, borderColor: '#4663ff', backgroundColor: 'rgba(70,99,255,0.12)', fill: true, tension: 0.3, pointRadius: 2 },
+          { label: 'Visitors', data: visitors, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.10)', fill: true, tension: 0.3, pointRadius: 2 },
+        ],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { labels: { font: { family: 'Inter, sans-serif' } } } },
+        scales: {
+          x: { ticks: { maxTicksLimit: 12, font: { family: 'Inter, sans-serif' } } },
+          y: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Inter, sans-serif' } } },
+        },
+      },
+    });
+
+    // Top pages
+    const pathsBody = document.querySelector('#paths-table tbody')!;
+    pathsBody.innerHTML = data.topPaths.length
+      ? data.topPaths.map((p: any) =>
+          `<tr><td title="${escapeHtml(p.path)}">${escapeHtml(p.path)}</td><td>${fmt(p.views)}</td></tr>`).join('')
+      : '<tr><td>No data yet</td><td></td></tr>';
+
+    // Top referrers
+    const refsBody = document.querySelector('#refs-table tbody')!;
+    const refsEmpty = document.getElementById('refs-empty');
+    if (data.topReferrers.length) {
+      refsEmpty!.classList.add('gate-hidden');
+      refsBody.innerHTML = data.topReferrers.map((r: any) =>
+        `<tr><td title="${escapeHtml(r.ref)}">${escapeHtml(r.ref)}</td><td>${fmt(r.views)}</td></tr>`).join('');
+    } else {
+      refsBody.innerHTML = '';
+      refsEmpty!.classList.remove('gate-hidden');
+    }
+  }
+
+  function escapeHtml(s: string) {
+    return String(s).replace(/[&<>"']/g, (c) =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] as string));
+  }
+
+  document.getElementById('gate-form')!.addEventListener('submit', unlock);
+  document.getElementById('sign-out')!.addEventListener('click', signOut);
+  rangeSelect!.addEventListener('change', loadData);
+
+  tryToken();
+</script>

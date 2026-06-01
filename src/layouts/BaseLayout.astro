@@ -25,14 +25,8 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         const saved = localStorage.getItem('theme');
-        if (saved === 'dark' || saved === 'rainbow') {
-          document.documentElement.setAttribute('data-theme', saved);
-        } else if (saved === 'light') {
-          // explicit user choice — leave default (no attribute)
-        } else {
-          // no saved preference: default to rainbow
-          document.documentElement.setAttribute('data-theme', 'rainbow');
-        }
+        // Only two themes for now: rainbow (asgard) and batman. Default to asgard.
+        document.documentElement.setAttribute('data-theme', saved === 'batman' ? 'batman' : 'rainbow');
       })();
     </script>
     <script is:inline>
@@ -88,33 +82,24 @@ const { title, description = 'A blog.' } = Astro.props;
           <a href="/posts">Writing</a>
           <a href="/library">Library</a>
           <a href="/dm">DM</a>
-          <button id="theme-toggle" aria-label="Cycle theme (light / dark / rainbow)">
-            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
+          <button id="theme-toggle" aria-label="Cycle theme (asgard / batman)">
             <svg class="icon-rainbow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <defs>
+                <!-- Variation E (Asgard / Bifrost). Prior stops — D: #ff3b2f/#ffd23f/#ff2e8a/#2ad4ff,
+                     C: #ffe14d/#ff2e7e/#5a3cff/#2dffd0, B: #ffd23f/#ff2e7e/#b14aff/#2ad4ff, A: #ff6ec7/#a85aff/#4ad9ff/#00e5d5 -->
                 <linearGradient id="rainbow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#ff6ec7"/>
-                  <stop offset="33%" stop-color="#a85aff"/>
-                  <stop offset="66%" stop-color="#4ad9ff"/>
-                  <stop offset="100%" stop-color="#00e5d5"/>
+                  <stop offset="0%" stop-color="#ff5e7e"/>
+                  <stop offset="33%" stop-color="#ffe14d"/>
+                  <stop offset="66%" stop-color="#38bdf8"/>
+                  <stop offset="100%" stop-color="#c084fc"/>
                 </linearGradient>
               </defs>
               <path d="M2 18a10 10 0 0 1 20 0" stroke="url(#rainbow-grad)" fill="none"/>
               <path d="M5 18a7 7 0 0 1 14 0" stroke="url(#rainbow-grad)" fill="none" opacity="0.7"/>
               <path d="M8 18a4 4 0 0 1 8 0" stroke="url(#rainbow-grad)" fill="none" opacity="0.4"/>
+            </svg>
+            <svg class="icon-bat" width="18" height="18" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true">
+              <path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/>
             </svg>
           </button>
         </div>
@@ -342,14 +327,11 @@ const { title, description = 'A blog.' } = Astro.props;
   }
 
   /* Icon shown = the NEXT theme (what clicking will switch to). */
-  /* Light → click → Dark: show moon. Dark → click → Rainbow: show rainbow. Rainbow → click → Light: show sun. */
-  .icon-sun { display: none; }
-  .icon-moon { display: block; }
+  /* Asgard→Batman: bat. Batman→Asgard: rainbow. */
   .icon-rainbow { display: none; }
-  :global([data-theme="dark"]) .icon-moon { display: none; }
-  :global([data-theme="dark"]) .icon-rainbow { display: block; }
-  :global([data-theme="rainbow"]) .icon-moon { display: none; }
-  :global([data-theme="rainbow"]) .icon-sun { display: block; }
+  .icon-bat { display: none; }
+  :global([data-theme="rainbow"]) .icon-bat { display: block; }
+  :global([data-theme="batman"]) .icon-rainbow { display: block; }
 
   /* DM Chat Widget */
   #dm-chat-toggle {
@@ -655,14 +637,9 @@ const { title, description = 'A blog.' } = Astro.props;
   }
 
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme') || 'light';
-    const cycle: Record<string, string> = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
-    const next = cycle[current] || 'dark';
-    if (next === 'light') {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', next);
-    }
+    const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
+    const next = current === 'batman' ? 'rainbow' : 'batman';
+    document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     broadcastThemeToEmbeds(next);
   });

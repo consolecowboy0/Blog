@@ -19,7 +19,87 @@
   --code-bg: #0d0d14;
 }
 
-/* Rainbow mode — synthwave / Thor: Ragnarok / Tyr-rune palette */
+/* Batman mode — Dark Knight: cold gunmetal blue-steel + muted bat-gold.
+   Classic comic values (swap in for pitch-black + bright yellow):
+   --bg #0a0a0c; --fg #e8e8ea; --fg-muted #8a8a92; --accent #ffdf1b; --border #26262c; --code-bg #050506; */
+[data-theme="batman"] {
+  --bg: #10151e;
+  --fg: #c3cbd6;
+  --fg-muted: #6e7888;
+  --accent: #c9a648;
+  --border: #283040;
+  --code-bg: #0b0f16;
+}
+
+/* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
+   [data-theme="rainbow"] block is active at a time. To switch, comment the active
+   one and uncomment another. All palette-specific colors are vars so the
+   structural rules further down never need to change. */
+
+/* ===== ACTIVE: Variation E — Asgard / Bifrost (royal night-sky navy, gold regalia, rainbow-bridge sweep) ===== */
+[data-theme="rainbow"] {
+  --bg: #0b1338;
+  --fg: #fdf4e3;
+  --fg-muted: #e8b84b;
+  --accent: #ffcc4d;
+  --border: #6b5320;
+  --code-bg: #070d28;
+  --rainbow-grad: linear-gradient(90deg, #ff5e7e 0%, #ffb347 18%, #ffe14d 35%, #4ade80 52%, #38bdf8 70%, #6366f1 86%, #c084fc 100%);
+  --rainbow-glow: 0 0 14px rgba(255, 204, 77, 0.5), 0 0 28px rgba(99, 102, 241, 0.35);
+  --rainbow-border-bright: #ffcc4d;
+  --rainbow-header-from: #0b1338;
+  --rainbow-header-to: #142a66;
+}
+
+/* ===== Variation D — Muspelheim (molten forge base, fire → cosmos sweep). Uncomment to use. =====
+[data-theme="rainbow"] {
+  --bg: #1d0805;
+  --fg: #fff0e8;
+  --fg-muted: #ff9e5c;
+  --accent: #ff4d2e;
+  --border: #6e2410;
+  --code-bg: #120303;
+  --rainbow-grad: linear-gradient(90deg, #ff3b2f 0%, #ff7a1f 20%, #ffd23f 40%, #ff2e8a 62%, #9b4dff 82%, #2ad4ff 100%);
+  --rainbow-glow: 0 0 14px rgba(255, 77, 46, 0.5), 0 0 28px rgba(255, 138, 31, 0.3);
+  --rainbow-border-bright: #ff7a1f;
+  --rainbow-header-from: #1d0805;
+  --rainbow-header-to: #3a0f08;
+}
+*/
+
+/* ===== Variation C — Wormhole (teal-black void, full-spectrum cosmic sweep). Uncomment to use. =====
+[data-theme="rainbow"] {
+  --bg: #04161b;
+  --fg: #eafcff;
+  --fg-muted: #7af0d0;
+  --accent: #ff3d9a;
+  --border: #155e6b;
+  --code-bg: #021014;
+  --rainbow-grad: linear-gradient(90deg, #ffe14d 0%, #ff8a1f 16%, #ff2e7e 36%, #c026ff 56%, #5a3cff 72%, #1fb6ff 88%, #2dffd0 100%);
+  --rainbow-glow: 0 0 14px rgba(255, 61, 154, 0.5), 0 0 28px rgba(45, 255, 208, 0.3);
+  --rainbow-border-bright: #2dd4ff;
+  --rainbow-header-from: #04161b;
+  --rainbow-header-to: #0a3540;
+}
+*/
+
+/* ===== Variation B — Sakaar Sunburst (purple void, gold → cyan). Uncomment to use. =====
+[data-theme="rainbow"] {
+  --bg: #23082e;
+  --fg: #fff1e6;
+  --fg-muted: #ffc36b;
+  --accent: #ff7a1f;
+  --border: #7a2ea0;
+  --code-bg: #1a0622;
+  --rainbow-grad: linear-gradient(90deg, #ffd23f 0%, #ff8a1f 22%, #ff2e7e 48%, #b14aff 72%, #2ad4ff 100%);
+  --rainbow-glow: 0 0 12px rgba(255, 138, 31, 0.45), 0 0 24px rgba(177, 74, 255, 0.25);
+  --rainbow-border-bright: #b14aff;
+  --rainbow-header-from: #23082e;
+  --rainbow-header-to: #4a1466;
+}
+*/
+
+/* ===== ORIGINAL: Variation A — Synthwave (pink → magenta → purple → cyan → teal). Uncomment to restore. =====
 [data-theme="rainbow"] {
   --bg: #1b0e3a;
   --fg: #e8f7ff;
@@ -29,7 +109,11 @@
   --code-bg: #15082b;
   --rainbow-grad: linear-gradient(90deg, #ff6ec7 0%, #ff2a92 25%, #a85aff 50%, #4ad9ff 75%, #00e5d5 100%);
   --rainbow-glow: 0 0 12px rgba(255, 42, 146, 0.4), 0 0 24px rgba(74, 217, 255, 0.2);
+  --rainbow-border-bright: #a85aff;
+  --rainbow-header-from: #1b0e3a;
+  --rainbow-header-to: #2a1659;
 }
+*/
 
 /* Headings get the gradient treatment */
 [data-theme="rainbow"] h1,
@@ -45,18 +129,18 @@
 /* Links get a neon glow on hover */
 [data-theme="rainbow"] a:hover {
   text-shadow: var(--rainbow-glow);
-  border-color: #ff2a92;
+  border-color: var(--accent);
 }
 
 /* Code blocks pick up the deep-purple synthwave background */
 [data-theme="rainbow"] pre,
 [data-theme="rainbow"] code {
-  border-color: #a85aff;
+  border-color: var(--rainbow-border-bright);
 }
 
 /* Subtle scanline / shimmer background for header in rainbow mode */
 [data-theme="rainbow"] header {
-  background: linear-gradient(180deg, #1b0e3a 0%, #2a1659 100%);
+  background: linear-gradient(180deg, var(--rainbow-header-from) 0%, var(--rainbow-header-to) 100%);
   border-bottom-color: transparent;
   position: relative;
 }
@@ -70,6 +154,22 @@
   height: 1px;
   background: var(--rainbow-grad);
   opacity: 0.7;
+}
+
+/* Batman: headings and wordmark glow bat-signal yellow */
+[data-theme="batman"] h1,
+[data-theme="batman"] h2,
+[data-theme="batman"] .site-title {
+  color: var(--accent);
+}
+
+[data-theme="batman"] a:hover {
+  border-color: var(--accent);
+}
+
+/* Thin bat-yellow rule under the header */
+[data-theme="batman"] header {
+  border-bottom-color: var(--accent);
 }
 
 * {

@@ -1,0 +1,91 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  description?: string;
+}
+
+const { id, title, description } = Astro.props;
+---
+
+<a class="library-link-card" href={`/library/${id}`}>
+  <span class="ll-eyebrow">Interactive</span>
+  <span class="ll-title">{title}</span>
+  {description && <span class="ll-desc">{description}</span>}
+  <span class="ll-cta">Launch interactive &rarr;</span>
+</a>
+
+<style>
+  /* Drop-in replacement for an inline iframe embed: a light, zero-cost card
+     that links out to the standalone /library/<id> page where the interactive
+     loads on its own. No iframe, no eager app/data fetch on the post. */
+  .library-link-card {
+    display: block;
+    margin: 2rem 0;
+    padding: 1.4rem 1.6rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    transition: background 0.15s, border-color 0.15s, transform 0.12s;
+  }
+
+  .library-link-card:hover {
+    background: var(--code-bg);
+    border-color: var(--fg);
+  }
+
+  .library-link-card:active {
+    transform: translateY(1px);
+  }
+
+  .ll-eyebrow {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.15em 0.5em;
+    border: 1px solid #3b82f6;
+    color: #3b82f6;
+  }
+
+  .ll-title {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    margin: 0.7rem 0 0;
+    color: var(--fg);
+  }
+
+  .ll-desc {
+    display: block;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--fg-muted);
+    margin: 0.35rem 0 0;
+  }
+
+  .ll-cta {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg);
+    margin-top: 0.9rem;
+  }
+
+  .library-link-card:hover .ll-cta {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  :global([data-theme="rainbow"]) .ll-eyebrow {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+</style>

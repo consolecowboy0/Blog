@@ -327,6 +327,8 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
   .post-reader-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    min-width: 7.5rem;
     gap: 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.72rem;
@@ -403,7 +405,7 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
   @media (max-width: 640px) {
     .post-reader-controls { grid-template-columns: auto 1fr auto; gap: 0.5rem; }
     .post-reader-btn span { display: none; }
-    .post-reader-btn { padding: 0.6rem; }
+    .post-reader-btn { padding: 0.6rem; min-width: 0; }
     .post-reader-stage { padding: 1.7rem 1.3rem; }
     .post-reader-tick { width: 14px; }
   }

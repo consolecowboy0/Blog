@@ -105,10 +105,25 @@
     <p class="sub">Drag the throttle. Watch exhaust spin the turbine, which spins the compressor, which jams more air into the engine.</p>
 
     <div class="stage">
-      <svg viewBox="0 0 720 320" role="img" aria-label="Turbocharger diagram">
-        <!-- shaft -->
+      <svg viewBox="0 0 720 332" role="img" aria-label="Turbocharger diagram">
+        <defs>
+          <clipPath id="shaftClip"><rect x="330" y="150" width="60" height="14" rx="3"/></clipPath>
+        </defs>
+        <!-- shaft: the turbine drives the compressor through it; hot energy flows left -->
         <rect x="330" y="150" width="60" height="14" rx="3" fill="var(--shaft)" opacity="0.85"/>
-        <text class="lbl-sm" x="360" y="142" text-anchor="middle">shaft</text>
+        <g clip-path="url(#shaftClip)">
+          <g id="shaftFlow" opacity="0" fill="none" stroke="var(--hot)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="413,152 408,157 413,162"/>
+            <polyline points="401,152 396,157 401,162"/>
+            <polyline points="389,152 384,157 389,162"/>
+            <polyline points="377,152 372,157 377,162"/>
+            <polyline points="365,152 360,157 365,162"/>
+            <polyline points="353,152 348,157 353,162"/>
+            <polyline points="341,152 336,157 341,162"/>
+            <polyline points="329,152 324,157 329,162"/>
+          </g>
+        </g>
+        <text class="lbl-sm" x="360" y="142" text-anchor="middle">drives compressor</text>
 
         <!-- TURBINE side (hot, right) -->
         <g id="turbineWheel" style="transform-origin:480px 157px;">
@@ -148,11 +163,11 @@
           <polygon points="40,150 100,150 100,142 120,157 100,172 100,164 40,164"/>
         </g>
         <g id="coldOut" fill="var(--cold)">
-          <text class="lbl-sm" x="240" y="300" text-anchor="middle">boosted air → engine</text>
+          <text class="lbl-sm" x="240" y="320" text-anchor="middle">boosted air → engine</text>
           <polygon points="220,275 260,275 260,267 280,282 260,297 260,289 220,289" opacity="0"/>
         </g>
         <g id="hotIn" fill="var(--hot)">
-          <text class="lbl-sm" x="480" y="300" text-anchor="middle">exhaust from engine</text>
+          <text class="lbl-sm" x="480" y="320" text-anchor="middle">exhaust from engine</text>
           <polygon points="440,275 480,275 480,267 500,282 480,297 480,289 440,289" opacity="0"/>
         </g>
         <g id="hotOut" fill="var(--hot)">
@@ -210,6 +225,7 @@
     var comp = document.getElementById('compWheel');
     var coldOut = document.querySelector('#coldOut polygon');
     var hotIn = document.querySelector('#hotIn polygon');
+    var shaftFlow = document.getElementById('shaftFlow');
 
     // engine limits
     var IDLE = 800;
@@ -220,6 +236,7 @@
     var MAX_BOOST = 15;    // psi of boost at full throttle
 
     var angle = 0;
+    var shaftPhase = 0;
     var last = null;
 
     function speed() {
@@ -280,6 +297,11 @@
       // boost arrows fade in with speed
       coldOut.setAttribute('opacity', Math.min(1, s * 1.3).toFixed(2));
       hotIn.setAttribute('opacity', Math.min(1, s * 1.3).toFixed(2));
+
+      // shaft: hot energy flows from the turbine into the compressor (right to left)
+      shaftPhase = (shaftPhase + dt * 55 * s) % 12;
+      shaftFlow.style.transform = 'translateX(' + (-shaftPhase).toFixed(2) + 'px)';
+      shaftFlow.setAttribute('opacity', Math.min(1, s * 1.6).toFixed(2));
 
       requestAnimationFrame(tick);
     }

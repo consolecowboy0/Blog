@@ -55,12 +55,14 @@
       }
       #theme-toggle-btn:hover { color: var(--text-primary, #1a1a1a); }
       #theme-toggle-btn svg { width: 16px; height: 16px; }
-      [data-theme="dark"] .icon-moon { display: none; }
+      /* Icon shown = the NEXT theme in the cycle (matches site header).
+         light → moon, dark → rainbow, rainbow → sun. */
       .icon-sun { display: none; }
       .icon-rainbow { display: none; }
-      [data-theme="dark"] .icon-sun { display: block; }
+      [data-theme="dark"] .icon-moon { display: none; }
+      [data-theme="dark"] .icon-rainbow { display: block; }
       [data-theme="rainbow"] .icon-moon { display: none; }
-      [data-theme="rainbow"] .icon-rainbow { display: block; }
+      [data-theme="rainbow"] .icon-sun { display: block; }
 
       [data-theme="dark"] {
         --bg-primary: #0a0a0f !important;

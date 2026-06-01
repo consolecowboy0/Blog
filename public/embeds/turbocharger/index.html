@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How a Turbocharger Works</title>
+  <style>
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
+  </style>
+  <script>
+  (function(){
+    function applyTheme(t){
+      if (t === 'dark' || t === 'rainbow') document.documentElement.setAttribute('data-theme', t);
+      else if (t === 'light') document.documentElement.removeAttribute('data-theme');
+    }
+    var urlTheme = new URLSearchParams(location.search).get('theme');
+    if (urlTheme) applyTheme(urlTheme);
+    else {
+      var saved = localStorage.getItem('theme');
+      if (saved) applyTheme(saved); else applyTheme('rainbow');
+    }
+    window.addEventListener('message', function(e){
+      if (e && e.data && e.data.type === 'parent-theme') applyTheme(e.data.theme);
+    });
+  })();
+  </script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-card: #f5f5f0;
+      --border: #d4d4d0;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --hot: #e10600;
+      --cold: #3b82f6;
+      --shaft: #b45309;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0a0a0f; --bg-card: #14141f; --border: #1e1e2e;
+      --text: #e5e5e5; --text-secondary: #999999; --text-muted: #666666;
+    }
+    [data-theme="rainbow"] {
+      --bg: #1b0e3a; --bg-card: #15082b; --border: #5a2ea0;
+      --text: #e8f7ff; --text-secondary: #ffb3e6; --text-muted: #c787c0;
+      --hot: #ff2a92; --cold: #4ad9ff; --shaft: #ffd166;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 17px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 28px 24px 48px; }
+    h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+    .stage {
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      padding: 12px;
+    }
+    svg { width: 100%; height: auto; display: block; }
+    .lbl { font-family: var(--font-sans); font-size: 13px; font-weight: 700; fill: var(--text); }
+    .lbl-sm { font-family: var(--font-mono); font-size: 11px; fill: var(--text-secondary); }
+    .controls {
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .controls label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+    input[type=range] { flex: 1; min-width: 200px; accent-color: var(--hot); }
+    .readout { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 800; color: var(--hot); min-width: 130px; text-align: right; }
+    .legend { margin-top: 18px; display: flex; gap: 22px; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-secondary); }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .steps { margin-top: 26px; display: grid; gap: 12px; }
+    .step { display: flex; gap: 12px; align-items: flex-start; }
+    .num { flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--hot); color: #fff; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+    .step p { font-size: 0.92rem; }
+    .step b { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>How a Turbocharger Works</h1>
+    <p class="sub">Drag the throttle. Watch exhaust spin the turbine, which spins the compressor, which jams more air into the engine.</p>
+
+    <div class="stage">
+      <svg viewBox="0 0 720 320" role="img" aria-label="Turbocharger diagram">
+        <!-- shaft -->
+        <rect x="330" y="150" width="60" height="14" rx="3" fill="var(--shaft)" opacity="0.85"/>
+        <text class="lbl-sm" x="360" y="142" text-anchor="middle">shaft</text>
+
+        <!-- TURBINE side (hot, right) -->
+        <g id="turbineWheel" style="transform-origin:480px 157px;">
+          <circle cx="480" cy="157" r="62" fill="none" stroke="var(--hot)" stroke-width="3"/>
+          <g stroke="var(--hot)" stroke-width="6" stroke-linecap="round">
+            <line x1="480" y1="157" x2="480" y2="103"/>
+            <line x1="480" y1="157" x2="526" y2="130"/>
+            <line x1="480" y1="157" x2="526" y2="184"/>
+            <line x1="480" y1="157" x2="480" y2="211"/>
+            <line x1="480" y1="157" x2="434" y2="184"/>
+            <line x1="480" y1="157" x2="434" y2="130"/>
+          </g>
+          <circle cx="480" cy="157" r="9" fill="var(--hot)"/>
+        </g>
+        <text class="lbl" x="480" y="245" text-anchor="middle">Turbine</text>
+        <text class="lbl-sm" x="480" y="262" text-anchor="middle">spun by exhaust</text>
+
+        <!-- COMPRESSOR side (cold, left) -->
+        <g id="compWheel" style="transform-origin:240px 157px;">
+          <circle cx="240" cy="157" r="62" fill="none" stroke="var(--cold)" stroke-width="3"/>
+          <g stroke="var(--cold)" stroke-width="6" stroke-linecap="round">
+            <line x1="240" y1="157" x2="240" y2="103"/>
+            <line x1="240" y1="157" x2="286" y2="130"/>
+            <line x1="240" y1="157" x2="286" y2="184"/>
+            <line x1="240" y1="157" x2="240" y2="211"/>
+            <line x1="240" y1="157" x2="194" y2="184"/>
+            <line x1="240" y1="157" x2="194" y2="130"/>
+          </g>
+          <circle cx="240" cy="157" r="9" fill="var(--cold)"/>
+        </g>
+        <text class="lbl" x="240" y="245" text-anchor="middle">Compressor</text>
+        <text class="lbl-sm" x="240" y="262" text-anchor="middle">packs in fresh air</text>
+
+        <!-- airflow arrows -->
+        <g id="coldIn" fill="var(--cold)">
+          <text class="lbl-sm" x="60" y="100" text-anchor="middle">fresh air in</text>
+          <polygon points="40,150 100,150 100,142 120,157 100,172 100,164 40,164"/>
+        </g>
+        <g id="coldOut" fill="var(--cold)">
+          <text class="lbl-sm" x="240" y="300" text-anchor="middle">boosted air → engine</text>
+          <polygon points="220,275 260,275 260,267 280,282 260,297 260,289 220,289" opacity="0"/>
+        </g>
+        <g id="hotIn" fill="var(--hot)">
+          <text class="lbl-sm" x="480" y="300" text-anchor="middle">exhaust from engine</text>
+          <polygon points="440,275 480,275 480,267 500,282 480,297 480,289 440,289" opacity="0"/>
+        </g>
+        <g id="hotOut" fill="var(--hot)">
+          <text class="lbl-sm" x="660" y="100" text-anchor="middle">exhaust out</text>
+          <polygon points="600,150 660,150 660,142 680,157 660,172 660,164 600,164"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="controls">
+      <label for="rpm">Throttle</label>
+      <input id="rpm" type="range" min="0" max="100" value="20" />
+      <div class="readout" id="readout">0 RPM</div>
+    </div>
+
+    <div class="legend">
+      <span><i class="dot" style="background:var(--hot)"></i> Hot exhaust gas</span>
+      <span><i class="dot" style="background:var(--cold)"></i> Cool intake air</span>
+      <span><i class="dot" style="background:var(--shaft)"></i> Connecting shaft</span>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="num">1</div><p><b>Exhaust spins the turbine.</b> Hot gas leaving the engine would normally be wasted. Instead it blasts through the turbine wheel and makes it spin.</p></div>
+      <div class="step"><div class="num">2</div><p><b>The shaft links the two wheels.</b> Turbine and compressor sit on one shaft. Spin one, the other spins at the same speed, up to ~150,000 RPM.</p></div>
+      <div class="step"><div class="num">3</div><p><b>The compressor packs in air.</b> The spinning compressor sucks in fresh air and forces it into the engine under pressure, called boost.</p></div>
+      <div class="step"><div class="num">4</div><p><b>More air means more power.</b> Extra air lets the engine burn more fuel each cycle, so a small engine punches well above its size.</p></div>
+    </div>
+  </div>
+
+  <script>
+    var rpmEl = document.getElementById('rpm');
+    var readout = document.getElementById('readout');
+    var turbine = document.getElementById('turbineWheel');
+    var comp = document.getElementById('compWheel');
+    var coldOut = document.querySelector('#coldOut polygon');
+    var hotIn = document.querySelector('#hotIn polygon');
+
+    var angle = 0;
+    var last = null;
+
+    function speed() {
+      var t = +rpmEl.value / 100;        // 0..1
+      return t * t;                       // ease, idle stays calm
+    }
+
+    function tick(now) {
+      if (last == null) last = now;
+      var dt = (now - last) / 1000; last = now;
+      var s = speed();
+      angle = (angle + dt * 1400 * s) % 360;
+      turbine.style.transform = 'rotate(' + angle + 'deg)';
+      comp.style.transform = 'rotate(' + (-angle) + 'deg)';
+
+      var rpm = Math.round(s * 150000 / 1000) * 1000;
+      readout.textContent = rpm.toLocaleString() + ' RPM';
+
+      // boost arrows fade in with speed
+      coldOut.setAttribute('opacity', Math.min(1, s * 1.3).toFixed(2));
+      hotIn.setAttribute('opacity', Math.min(1, s * 1.3).toFixed(2));
+
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

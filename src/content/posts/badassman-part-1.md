@@ -2,7 +2,7 @@
 title: "Could a Real Batman Exist? Part 1"
 date: "2026-05-31"
 description: "Building a superhero from scratch with real numbers. Part one: a soft guy with a protein deficit versus a flight of stairs."
-draft: false
+draft: true
 ---
 ## Could a real Batman exist?
 

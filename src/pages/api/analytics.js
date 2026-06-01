@@ -3,9 +3,27 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import {
+  classifyChannel, sourceLabel, CHANNELS, CHANNEL_LABELS,
+  flagEmoji, isSpamHost, isPlausibleHost, CC_NAME,
+} from '../../lib/channels.js';
 
-// Returns aggregated pageview stats for the dashboard. Auth: scope "analytics".
-// Query param: ?days=30 (1..90).
+// Returns aggregated pageview stats for the dashboard, focused on WHERE
+// visitors come from: acquisition channels, granular sources, geography, and
+// UTM campaigns. Channels/sources are classified at read time from raw stored
+// signals, so one deploy reclassifies all history. Auth: scope "analytics".
+// Query params: ?days=30 (1..90), ?owner=1 to include the owner's own visits.
+
+// A visit that should paint the where-from breakdowns: looks human, is not the
+// owner (unless asked), and is not referrer spam. Old docs predate the `human`
+// flag; missing `human` is treated as human (can't be re-judged after the fact).
+function countsAsTraffic(d, includeOwner) {
+  if (d.human === 0) return false;                 // explicitly bot-ish
+  if (!includeOwner && d.own === 1) return false;  // owner's own visits
+  if (d.ref && isSpamHost(d.ref)) return false;    // referrer spam
+  if (d.ref && !isPlausibleHost(d.ref)) return false;
+  return true;
+}
 
 export async function GET({ request }) {
   const corsHeaders = corsHeadersFor(request, 'GET, OPTIONS');
@@ -22,6 +40,7 @@ export async function GET({ request }) {
   let days = parseInt(url.searchParams.get('days') || '30', 10);
   if (!Number.isFinite(days) || days < 1) days = 30;
   if (days > 90) days = 90;
+  const includeOwner = url.searchParams.get('owner') === '1';
 
   const since = Date.now() - days * 24 * 60 * 60 * 1000;
 
@@ -32,16 +51,34 @@ export async function GET({ request }) {
       .where('ts', '>=', since)
       .get();
 
+    // ms timestamp of the first deploy carrying geo/UTM/channel data. Lets the
+    // dashboard shade the trend before this point. 0 = unset (no seam drawn).
+    const DATA_EPOCH = parseInt(
+      process.env.ANALYTICS_DATA_EPOCH || import.meta.env.ANALYTICS_DATA_EPOCH || '0', 10
+    ) || 0;
+
     let total = 0;
     const visitors = new Set();
-    const byDay = new Map();      // day -> { views, visitors:Set }
-    const byPath = new Map();     // path -> views
-    const byRef = new Map();      // ref host -> views
+    const byDay = new Map();       // day -> { views, visitors:Set }   (all traffic)
+    const byPath = new Map();      // path -> views                    (all traffic)
 
-    snap.forEach((doc) => {
-      const d = doc.data();
+    const byChannel = new Map();   // channel -> { views, visitors:Set }
+    const bySource = new Map();    // label -> { views, visitors:Set, chanTally:Map }
+    const byRef = new Map();       // referrer host -> views (legacy topReferrers)
+    const byCountry = new Map();   // co -> { views, visitors:Set, name }
+    const byRegion = new Map();    // `${co}|${reg}` -> { co, reg, views, visitors:Set }
+    const byCampaign = new Map();  // campaign -> { views, visitors:Set, source, medium }
+    const channelSeriesMap = new Map(); // day -> Map(channel -> Set vid)
+
+    let geoTotalViews = 0, geoKnownViews = 0; // coverage denominators
+    let channelTotalViews = 0;
+    let firstTs = 0;
+
+    snap.forEach((docSnap) => {
+      const d = docSnap.data();
       total++;
       if (d.vid) visitors.add(d.vid);
+      if (!firstTs || d.ts < firstTs) firstTs = d.ts;
 
       const day = d.day || new Date(d.ts).toISOString().slice(0, 10);
       let dd = byDay.get(day);
@@ -52,10 +89,64 @@ export async function GET({ request }) {
       const path = d.path || '/';
       byPath.set(path, (byPath.get(path) || 0) + 1);
 
-      if (d.ref) byRef.set(d.ref, (byRef.get(d.ref) || 0) + 1);
+      // Everything below is "where from" and is human / non-owner / non-spam only.
+      if (!countsAsTraffic(d, includeOwner)) return;
+
+      const host = d.ref || '';
+      const ch = classifyChannel(host, d.utm_medium, d.utm_source);
+
+      // Channel totals
+      let cm = byChannel.get(ch);
+      if (!cm) { cm = { views: 0, visitors: new Set() }; byChannel.set(ch, cm); }
+      cm.views++;
+      if (d.vid) cm.visitors.add(d.vid);
+      channelTotalViews++;
+
+      // Channel-by-day VIEW counts. Views partition exactly (each doc lands in
+      // one channel), so the stacked trend stays additive. Unique visitors would
+      // overlap across channels and not sum.
+      let cs = channelSeriesMap.get(day);
+      if (!cs) { cs = new Map(); channelSeriesMap.set(day, cs); }
+      cs.set(ch, (cs.get(ch) || 0) + 1);
+
+      // Granular source
+      const label = sourceLabel(host, d.utm_source);
+      let sm = bySource.get(label);
+      if (!sm) { sm = { views: 0, visitors: new Set(), chanTally: new Map() }; bySource.set(label, sm); }
+      sm.views++;
+      if (d.vid) sm.visitors.add(d.vid);
+      sm.chanTally.set(ch, (sm.chanTally.get(ch) || 0) + 1);
+
+      // Legacy referrer host leaderboard (external hosts only).
+      if (host) byRef.set(host, (byRef.get(host) || 0) + 1);
+
+      // Geography coverage + buckets
+      geoTotalViews++;
+      if (d.co) {
+        geoKnownViews++;
+        let gm = byCountry.get(d.co);
+        if (!gm) { gm = { views: 0, visitors: new Set(), name: d.con || CC_NAME[d.co] || d.co }; byCountry.set(d.co, gm); }
+        gm.views++;
+        if (d.vid) gm.visitors.add(d.vid);
+        if (d.reg) {
+          const rk = `${d.co}|${d.reg}`;
+          let rm = byRegion.get(rk);
+          if (!rm) { rm = { co: d.co, reg: d.reg, views: 0, visitors: new Set() }; byRegion.set(rk, rm); }
+          rm.views++;
+          if (d.vid) rm.visitors.add(d.vid);
+        }
+      }
+
+      // Campaign (first-touch: beacon tags only the session entry pageview).
+      if (d.utm_campaign) {
+        let pm = byCampaign.get(d.utm_campaign);
+        if (!pm) { pm = { views: 0, visitors: new Set(), source: d.utm_source || '', medium: d.utm_medium || '' }; byCampaign.set(d.utm_campaign, pm); }
+        pm.views++;
+        if (d.vid) pm.visitors.add(d.vid);
+      }
     });
 
-    // Build a continuous day series so the chart has no gaps.
+    // Continuous day series so the chart has no gaps.
     const series = [];
     for (let i = days - 1; i >= 0; i--) {
       const key = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
@@ -69,11 +160,90 @@ export async function GET({ request }) {
       });
     }
 
+    // Channels: always emit all six in fixed order so the legend never reflows.
+    const chDenom = channelTotalViews || 1;
+    const channels = CHANNELS.map((ch) => {
+      const v = byChannel.get(ch) || { views: 0, visitors: new Set() };
+      return {
+        channel: ch,
+        label: CHANNEL_LABELS[ch],
+        views: v.views,
+        visitors: v.visitors.size,
+        pct: v.views / chDenom,
+      };
+    });
+
+    // Per-day VIEW counts by channel (for the optional stacked view).
+    const channelSeries = series.map((s) => {
+      const cs = channelSeriesMap.get(s.day);
+      const row = { day: s.day };
+      for (const ch of CHANNELS) row[ch] = cs?.get(ch) || 0;
+      return row;
+    });
+
+    // Sources: top 20 by unique visitors, plus an explicit Other remainder.
+    // Channel chip = the source's modal channel.
+    const sourcesAll = [...bySource.entries()]
+      .map(([source, v]) => {
+        // Modal channel for the chip; ties break by CHANNELS precedence, not
+        // Firestore scan order, so the result is deterministic.
+        let topCh = 'other', best = -1;
+        for (const [c, n] of v.chanTally) {
+          if (n > best || (n === best && CHANNELS.indexOf(c) < CHANNELS.indexOf(topCh))) {
+            best = n; topCh = c;
+          }
+        }
+        return { source, channel: topCh, views: v.views, visitors: v.visitors.size };
+      })
+      .sort((a, b) => b.visitors - a.visitors || (a.source < b.source ? -1 : 1));
+    const topSources = sourcesAll.slice(0, 20);
+    const sourcesOther = {
+      views: sourcesAll.slice(20).reduce((s, x) => s + x.views, 0),
+      count: Math.max(0, sourcesAll.length - 20),
+    };
+
+    // Countries: top 15 by unique visitors + Other remainder. Coverage tracked
+    // separately so percentages are honest about unknown geography.
+    const countriesAll = [...byCountry.entries()]
+      .map(([code, v]) => ({
+        code, name: v.name, flag: flagEmoji(code),
+        views: v.views, visitors: v.visitors.size,
+      }))
+      .sort((a, b) => b.visitors - a.visitors || (a.code < b.code ? -1 : 1));
+    const topCountries = countriesAll.slice(0, 15);
+    const countriesOther = { views: countriesAll.slice(15).reduce((s, x) => s + x.views, 0) };
+    const geo = {
+      knownViews: geoKnownViews,
+      unknownViews: geoTotalViews - geoKnownViews,
+      coverage: geoTotalViews ? geoKnownViews / geoTotalViews : 0,
+    };
+
+    // Regions: only for the single top country, with a small floor.
+    const topCo = topCountries[0]?.code;
+    const regions = topCo
+      ? [...byRegion.values()]
+          .filter((r) => r.co === topCo && r.visitors.size >= 5)
+          .map((r) => ({ code: r.co, region: r.reg, views: r.views, visitors: r.visitors.size }))
+          .sort((a, b) => b.visitors - a.visitors || (a.region < b.region ? -1 : 1))
+          .slice(0, 12)
+      : [];
+
+    // Campaigns: top 15 by unique visitors.
+    const topCampaigns = [...byCampaign.entries()]
+      .map(([campaign, v]) => ({
+        campaign, source: v.source, medium: v.medium,
+        channel: classifyChannel('', v.medium, v.source),
+        views: v.views, visitors: v.visitors.size,
+      }))
+      .sort((a, b) => b.visitors - a.visitors || (a.campaign < b.campaign ? -1 : 1))
+      .slice(0, 15);
+
     const topPaths = [...byPath.entries()]
       .map(([path, views]) => ({ path, views }))
       .sort((a, b) => b.views - a.views)
       .slice(0, 25);
 
+    // Legacy field, kept for compatibility (external referrer hosts).
     const topReferrers = [...byRef.entries()]
       .map(([ref, views]) => ({ ref, views }))
       .sort((a, b) => b.views - a.views)
@@ -82,7 +252,26 @@ export async function GET({ request }) {
     return new Response(
       JSON.stringify({
         days,
+        dataEpoch: DATA_EPOCH,
+        firstTs,
+        owner: includeOwner,
         totals: { views: total, visitors: visitors.size },
+
+        channels,
+        channelTotalViews,
+        channelSeries,
+
+        topSources,
+        sourcesOther,
+
+        topCountries,
+        countriesOther,
+        geo,
+        regions,
+
+        topCampaigns,
+        hasCampaigns: topCampaigns.length > 0,
+
         series,
         topPaths,
         topReferrers,

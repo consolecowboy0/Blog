@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" width="320" height="320">
+  <defs>
+    <g id="cal" stroke-linejoin="round" stroke-linecap="round" fill="none">
+      <line x1="118" y1="40" x2="118" y2="74"/>
+      <line x1="202" y1="40" x2="202" y2="74"/>
+      <ellipse cx="118" cy="40" rx="11" ry="14"/>
+      <ellipse cx="202" cy="40" rx="11" ry="14"/>
+      <rect x="60" y="66" width="200" height="190" rx="10"/>
+      <line x1="60" y1="104" x2="260" y2="104"/>
+      <line x1="93" y1="104" x2="93" y2="256"/>
+      <line x1="126" y1="104" x2="126" y2="256"/>
+      <line x1="160" y1="104" x2="160" y2="256"/>
+      <line x1="193" y1="104" x2="193" y2="256"/>
+      <line x1="226" y1="104" x2="226" y2="256"/>
+      <line x1="60" y1="142" x2="260" y2="142"/>
+      <line x1="60" y1="180" x2="260" y2="180"/>
+      <line x1="60" y1="218" x2="260" y2="218"/>
+      <circle cx="76" cy="123" r="2"/>
+      <circle cx="109" cy="123" r="2"/>
+      <circle cx="143" cy="123" r="2"/>
+      <circle cx="176" cy="123" r="2"/>
+      <circle cx="209" cy="123" r="2"/>
+      <circle cx="243" cy="123" r="2"/>
+      <circle cx="76" cy="161" r="2"/>
+      <circle cx="109" cy="161" r="2"/>
+      <circle cx="176" cy="161" r="2"/>
+      <circle cx="209" cy="161" r="2"/>
+      <circle cx="243" cy="161" r="2"/>
+      <circle cx="76" cy="199" r="2"/>
+      <circle cx="109" cy="199" r="2"/>
+      <circle cx="143" cy="199" r="2"/>
+      <circle cx="176" cy="199" r="2"/>
+      <circle cx="209" cy="199" r="2"/>
+      <circle cx="243" cy="199" r="2"/>
+      <circle cx="76" cy="237" r="2"/>
+      <circle cx="109" cy="237" r="2"/>
+      <circle cx="143" cy="237" r="2"/>
+      <circle cx="176" cy="237" r="2"/>
+      <circle cx="209" cy="237" r="2"/>
+      <circle cx="243" cy="237" r="2"/>
+      <circle cx="143" cy="161" r="19"/>
+      <path d="M134 161 l6 8 14 -17"/>
+    </g>
+  </defs>
+  <use href="#cal" stroke="#000" stroke-width="5" opacity="0.5"/>
+  <use href="#cal" stroke="#fff" stroke-width="2"/>
+</svg>

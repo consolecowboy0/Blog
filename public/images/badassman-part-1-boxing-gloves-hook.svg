@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360" width="320" height="360" role="img" aria-label="A pair of boxing gloves hanging by their laces from a wall hook">
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round" paint-order="stroke">
+    <path d="M160 26 v22 q0 14 -14 14" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <circle cx="160" cy="22" r="6" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M148 62 C120 86 104 96 96 120 M150 64 C176 92 200 100 212 122" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M96 120 C70 124 56 146 58 174 C60 204 80 230 110 234 C140 238 156 218 156 188 C156 162 150 138 132 126 C120 118 108 118 96 120 Z" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M58 176 C44 178 40 192 50 202 C58 210 70 208 74 198" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M118 126 C128 140 130 156 126 172" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M212 122 C238 126 252 148 250 176 C248 206 228 230 200 234 C172 238 156 218 156 190 C156 164 162 140 180 128 C192 120 202 120 212 122 Z" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M250 178 C264 180 268 194 258 204 C250 212 238 210 234 200" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M190 128 C180 142 178 158 182 174" stroke="#000" stroke-width="6" opacity="0.5"/>
+    <path d="M160 26 v22 q0 14 -14 14" stroke="#fff" stroke-width="2.5"/>
+    <circle cx="160" cy="22" r="6" stroke="#fff" stroke-width="2.5"/>
+    <path d="M148 62 C120 86 104 96 96 120 M150 64 C176 92 200 100 212 122" stroke="#fff" stroke-width="2.5"/>
+    <path d="M96 120 C70 124 56 146 58 174 C60 204 80 230 110 234 C140 238 156 218 156 188 C156 162 150 138 132 126 C120 118 108 118 96 120 Z" stroke="#fff" stroke-width="2.5"/>
+    <path d="M58 176 C44 178 40 192 50 202 C58 210 70 208 74 198" stroke="#fff" stroke-width="2.5"/>
+    <path d="M118 126 C128 140 130 156 126 172" stroke="#fff" stroke-width="2.5"/>
+    <path d="M212 122 C238 126 252 148 250 176 C248 206 228 230 200 234 C172 238 156 218 156 190 C156 164 162 140 180 128 C192 120 202 120 212 122 Z" stroke="#fff" stroke-width="2.5"/>
+    <path d="M250 178 C264 180 268 194 258 204 C250 212 238 210 234 200" stroke="#fff" stroke-width="2.5"/>
+    <path d="M190 128 C180 142 178 158 182 174" stroke="#fff" stroke-width="2.5"/>
+  </g>
+</svg>

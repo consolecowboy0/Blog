@@ -167,6 +167,19 @@
   border-color: var(--accent);
 }
 
+/* Wordmark lights up like the bat-signal on hover */
+[data-theme="batman"] .site-title {
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+[data-theme="batman"] .site-title:hover {
+  color: #ffe27a;
+  text-shadow:
+    0 0 4px rgba(255, 226, 122, 0.8),
+    0 0 12px rgba(201, 166, 72, 0.7),
+    0 0 28px rgba(201, 166, 72, 0.5);
+}
+
 /* Thin bat-yellow rule under the header */
 [data-theme="batman"] header {
   border-bottom-color: var(--accent);

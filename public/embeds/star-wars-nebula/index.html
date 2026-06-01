@@ -12,25 +12,19 @@
   @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
 </style>
 <script>    (function(){
+  // Two themes only, matching the site: rainbow (Asgard) lives in :root, batman is the override.
   function applyTheme(t){
-    if (t === 'dark' || t === 'rainbow') {
-      document.documentElement.setAttribute('data-theme', t);
-    } else if (t === 'light') {
+    if (t === 'batman') {
+      document.documentElement.setAttribute('data-theme', 'batman');
+    } else {
       document.documentElement.removeAttribute('data-theme');
     }
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
-  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+  if (urlTheme) {
     applyTheme(urlTheme);
   } else {
-    var saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'rainbow') {
-      applyTheme(saved);
-    } else if (saved === 'light') {
-      // explicit
-    } else {
-      applyTheme('rainbow');
-    }
+    applyTheme(localStorage.getItem('theme') === 'batman' ? 'batman' : 'rainbow');
   }
   window.addEventListener('message', function(e){
     if (e && e.data && e.data.type === 'parent-theme') {
@@ -42,46 +36,55 @@
 </script>
 <style>
 :root {
-  --bg: #ffffff;
-  --bg-panel: #ffffff;
-  --bg-panel-hover: #f5f5f0;
-  --border: #d4d4d0;
-  --text: #1a1a1a;
-  --text-sec: #555;
-  --text-muted: #888;
-  --input-bg: #e8e8e3;
+  --bg: #0b1338;
+  --bg-card: #142a66;
+  --bg-card-hover: #1d3a85;
+  --bg-track: #070d28;
+  --bg-panel: #0d1a45;
+  --bg-panel-hover: #1d3a85;
+  --card-bg: #142a66;
+  --null: #070d28;
+  --input-bg: #070d28;
+  --border: #2e447f;
+  --border-light: #3f5aa0;
+  --text: #fdf4e3;
+  --text-secondary: #c9b78a;
+  --text-sec: #c9b78a;
+  --text-muted: #8b95bd;
+  --fg: #fdf4e3;
+  --fg-muted: #c9b78a;
+  --accent-red: #ff5e7e;
+  --accent-blue: #4ad9ff;
+  --accent-green: #4ade80;
+  --accent-gold: #ffcc4d;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
   --deep-core: #fbbf24; --core: #22d3ee; --colonies: #60a5fa; --inner-rim: #4ade80;
   --expansion: #2dd4bf; --mid-rim: #c084fc; --outer-rim: #fb923c;
   --wild-space: #94a3b8; --unknown: #f87171; --hutt-space: #a78bfa;
 }
-[data-theme="dark"] {
-  --bg: #0a0a0f; --bg-panel: #0d0d14; --bg-panel-hover: #14141f;
-  --border: #1e1e2e; --text: #e5e5e5; --text-sec: #999; --text-muted: #666; --input-bg: #14141f;
-}
-[data-theme="rainbow"] {
-  --bg: #1b0e3a;
-  --bg-card: #1b0e3a;
-  --bg-card-hover: #15082b;
-  --bg-track: #15082b;
-  --bg-panel: #1b0e3a;
-  --bg-panel-hover: #15082b;
-  --card-bg: #1b0e3a;
-  --null: #15082b;
-  --input-bg: #15082b;
-  --border: #5a2ea0;
-  --border-light: #7c4ad0;
-  --text: #e8f7ff;
-  --text-secondary: #ffb3e6;
-  --text-sec: #ffb3e6;
-  --text-muted: #c787c0;
-  --fg: #e8f7ff;
-  --fg-muted: #ffb3e6;
-  --accent-red: #ff2a92;
-  --accent-blue: #4ad9ff;
-  --accent-green: #00e5d5;
-  --accent-gold: #ffd166;
+[data-theme="batman"] {
+  --bg: #10151e;
+  --bg-card: #1a212e;
+  --bg-card-hover: #232c3d;
+  --bg-track: #0b0f16;
+  --bg-panel: #161d28;
+  --bg-panel-hover: #232c3d;
+  --card-bg: #1a212e;
+  --null: #0b0f16;
+  --input-bg: #0b0f16;
+  --border: #283040;
+  --border-light: #3a455a;
+  --text: #c3cbd6;
+  --text-secondary: #93a0b3;
+  --text-sec: #93a0b3;
+  --text-muted: #6e7888;
+  --fg: #c3cbd6;
+  --fg-muted: #93a0b3;
+  --accent-red: #d6736f;
+  --accent-blue: #5aa9d6;
+  --accent-green: #7fb98a;
+  --accent-gold: #c9a648;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -122,13 +125,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
 .theme-toggle:hover { color: var(--text); }
 .theme-toggle svg { width: 16px; height: 16px; }
 /* Icon shown = the NEXT theme in the cycle (matches site header).
-   light → moon, dark → rainbow, rainbow → sun. */
-.icon-sun { display: none; }
+   rainbow (Asgard) → bat, batman → rainbow. */
 .icon-rainbow { display: none; }
-[data-theme="dark"] .icon-moon { display: none; }
-[data-theme="dark"] .icon-rainbow { display: block; }
-[data-theme="rainbow"] .icon-moon { display: none; }
-[data-theme="rainbow"] .icon-sun { display: block; }
+.icon-bat { display: block; }
+[data-theme="batman"] .icon-bat { display: none; }
+[data-theme="batman"] .icon-rainbow { display: block; }
 </style>
 </head>
 <body>
@@ -139,9 +140,8 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
         <span class="subtitle" id="subtitle">Loading...</span>
       </div>
       <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-sw" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-sw)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-sw)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-sw)" opacity="0.4"/></svg>
+        <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-sw" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-sw)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-sw)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-sw)" opacity="0.4"/></svg>
+        <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
       </button>
     </div>
     <div class="main">
@@ -273,13 +273,12 @@ Object.entries(ROUTES).forEach(([name, r]) => {
 
 // ── Theme ───────────────────────────────────────────────────────
 const themeColors = {
-  light: { bg: '#f8f8f5', edge: 'rgba(180,180,170,0.15)', edgeRoute: 'rgba(140,140,130,0.3)', label: '#555', glow: 'rgba(200,190,160,0.12)' },
-  dark: { bg: '#0a0a0f', edge: 'rgba(60,60,100,0.35)', edgeRoute: 'rgba(80,80,120,0.5)', label: '#aaa', glow: 'rgba(40,30,80,0.4)' },
-  rainbow: { bg: '#1b0e3a', edge: 'rgba(168,90,255,0.25)', edgeRoute: 'rgba(255,42,146,0.45)', label: '#ffb3e6', glow: 'rgba(74,217,255,0.18)' }
+  rainbow: { bg: '#0b1338', edge: 'rgba(120,150,255,0.22)', edgeRoute: 'rgba(255,204,77,0.45)', label: '#c9b78a', glow: 'rgba(60,90,200,0.22)' },
+  batman: { bg: '#10151e', edge: 'rgba(80,95,130,0.28)', edgeRoute: 'rgba(201,166,72,0.45)', label: '#93a0b3', glow: 'rgba(40,55,90,0.35)' }
 };
-function currentTheme() { return document.documentElement.getAttribute('data-theme') || 'light'; }
-function isDark() { const t = currentTheme(); return t === 'dark' || t === 'rainbow'; }
-function T() { return themeColors[currentTheme()] || themeColors.light; }
+function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'batman' ? 'batman' : 'rainbow'; }
+function isDark() { return true; }
+function T() { return themeColors[currentTheme()]; }
 
 // ── Canvas Setup ────────────────────────────────────────────────
 const canvas = document.createElement('canvas');
@@ -762,9 +761,8 @@ document.getElementById('search').addEventListener('input', (e) => {
 
 // ── Theme toggle ────────────────────────────────────────────────
 document.getElementById('theme-toggle').addEventListener('click', () => {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = ({light:'dark', dark:'rainbow', rainbow:'light'})[current] || 'dark';
-  if (next === 'light') { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', next); }
+  const next = document.documentElement.getAttribute('data-theme') === 'batman' ? 'rainbow' : 'batman';
+  if (next === 'batman') { document.documentElement.setAttribute('data-theme', 'batman'); } else { document.documentElement.removeAttribute('data-theme'); }
   localStorage.setItem('theme', next);
   render();
 });

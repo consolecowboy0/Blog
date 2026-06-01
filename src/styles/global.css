@@ -204,3 +204,13 @@ th {
   width: 100% !important;
   max-height: 400px;
 }
+
+/* Chart images: transparent background blends with page.
+   Dark themes invert luminance but keep hues so text/marks stay readable. */
+.chart-img {
+  background: transparent;
+}
+[data-theme="dark"] .chart-img,
+[data-theme="rainbow"] .chart-img {
+  filter: invert(1) hue-rotate(180deg);
+}

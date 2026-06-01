@@ -85,6 +85,7 @@
     .gauge { flex: 1; min-width: 150px; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg); }
     .gauge-val { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 800; color: var(--text); line-height: 1.1; transition: color 0.15s; }
     .gauge-val.cold { color: var(--cold); }
+    .gauge-val.boost { color: var(--shaft); }
     .gauge-val.redline { color: var(--hot); }
     .gauge-cap { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-top: 4px; }
     .gauge-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 3px; min-height: 1.1em; }
@@ -177,6 +178,11 @@
         <div class="gauge-cap">turbo shaft rpm</div>
         <div class="gauge-note">spins ~20x faster</div>
       </div>
+      <div class="gauge">
+        <div class="gauge-val cold" id="boostReadout">-10.0</div>
+        <div class="gauge-cap">manifold psi</div>
+        <div class="gauge-note" id="boostNote">vacuum</div>
+      </div>
     </div>
 
     <div class="legend">
@@ -198,6 +204,8 @@
     var engineReadout = document.getElementById('engineReadout');
     var turboReadout = document.getElementById('turboReadout');
     var engineNote = document.getElementById('engineNote');
+    var boostReadout = document.getElementById('boostReadout');
+    var boostNote = document.getElementById('boostNote');
     var turbine = document.getElementById('turbineWheel');
     var comp = document.getElementById('compWheel');
     var coldOut = document.querySelector('#coldOut polygon');
@@ -208,6 +216,8 @@
     var REDLINE = 6000;
     var CUTOFF = 6800;     // fuel cutoff
     var TURBO_MAX = 150000; // turbo shaft top speed
+    var VAC_IDLE = 10;     // psi of manifold vacuum at closed throttle (~ -20 inHg)
+    var MAX_BOOST = 15;    // psi of boost at full throttle
 
     var angle = 0;
     var last = null;
@@ -232,6 +242,28 @@
       // turbo shaft scales with engine, spools above idle
       var turbo = Math.round(s * TURBO_MAX / 1000) * 1000;
       turboReadout.textContent = turbo.toLocaleString();
+
+      // manifold pressure (gauge psi): closed throttle pulls vacuum, the
+      // spooling turbo overcomes it and crosses into positive boost.
+      var t = +rpmEl.value / 100;
+      var psi = MAX_BOOST * s - VAC_IDLE * (1 - t);
+      var shown = Math.abs(psi) < 0.05 ? 0 : psi;
+      boostReadout.textContent = (shown > 0 ? '+' : '') + shown.toFixed(1);
+      boostReadout.classList.remove('cold', 'boost', 'redline');
+      if (shown < 0) {
+        boostReadout.classList.add('cold');
+        boostNote.textContent = shown < -7 ? 'high vacuum' : 'vacuum';
+      } else if (shown > 0) {
+        if (shown >= MAX_BOOST * 0.92) {
+          boostReadout.classList.add('redline');
+          boostNote.textContent = 'full boost';
+        } else {
+          boostReadout.classList.add('boost');
+          boostNote.textContent = 'on boost';
+        }
+      } else {
+        boostNote.textContent = 'off boost';
+      }
 
       // redline / cutoff warnings
       if (engine >= CUTOFF) {

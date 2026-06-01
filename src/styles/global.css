@@ -209,6 +209,10 @@ th {
    Dark themes invert luminance but keep hues so text/marks stay readable. */
 .chart-img {
   background: transparent;
+  display: block;
+  max-width: 480px;
+  width: 100%;
+  margin: 1.5rem auto;
 }
 [data-theme="dark"] .chart-img,
 [data-theme="rainbow"] .chart-img {

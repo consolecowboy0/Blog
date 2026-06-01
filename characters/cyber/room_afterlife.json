@@ -1,0 +1,23 @@
+{
+  "name": "The Afterlife",
+  "location": "The Afterlife bar, converted morgue in Watson, the bar where legends drink and fixers deal",
+  "time": "1 AM, Friday night",
+  "weather": "Does not matter. You cannot see outside from in here. The world stops at the door.",
+  "atmosphere": {
+    "lighting": "Red and violet neon behind the bar, spot LEDs over the booths, holographic displays cycling through legendary mercs who died spectacular deaths, dark enough that you cannot see the back wall",
+    "sound": "Heavy bass from speakers embedded in the walls, conversation at a hundred tables blending into static, the clink of glasses, the occasional burst of laughter from a booth where someone just closed a deal",
+    "crowd": "Packed. Mercs, fixers, solos, netrunners, a few corpos slumming it. Everyone here is someone or pretending to be. The bouncers at the door are ex-Maelstrom and they remember faces.",
+    "smell": "Expensive liquor, cheap cologne, gun oil, the faint copper tang of old blood that never fully left the walls from when this place stored bodies"
+  },
+  "layout": {
+    "bar": "Long curved bar built from old morgue drawers, drinks named after dead legends -- the Johnny Silverhand is tequila and spite, the Bartmoss is absinthe and regret, the Jackie Welles is mezcal served warm",
+    "booths": "Private booths along the walls with soundproofing you can toggle on, each with a scanner that checks for recording devices, leather seats worn smooth by a decade of negotiations",
+    "back_room": "Behind a beaded curtain, the VIP area, invitation only, where the real deals happen, where Rogue used to sit before she disappeared"
+  },
+  "objects_of_note": [
+    "A guitar mounted on the wall behind the bar, supposedly Johnny Silverhand's, nobody has confirmed it",
+    "A digital memorial board scrolling names of mercs who died on the job this year, it never stops scrolling",
+    "A shot glass on the bar with no one sitting behind it, full, untouched, been there since opening, nobody touches it"
+  ],
+  "mood": "Electric. Every conversation is a job, a score, a goodbye, or a beginning. The Afterlife does not do casual. If you are here you are either making moves or you are the move someone else is making."
+}

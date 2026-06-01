@@ -1,0 +1,25 @@
+{
+  "name": "Tom's Diner",
+  "location": "A greasy spoon in Kabuki, Watson district, Night City, wedged between a ripperdoc clinic and a shuttered pachinko parlor",
+  "time": "3:17 AM, midweek, 2077",
+  "weather": "Acid rain streaking the windows, neon reflections bleeding across wet asphalt, smog ceiling so low the megabuildings disappear into it",
+  "atmosphere": {
+    "lighting": "Harsh fluorescents inside, pink and cyan neon from the signs outside painting stripes across every surface, a busted holographic menu flickering above the counter showing items they stopped serving years ago",
+    "sound": "Rain hammering the corrugated metal awning, a police AV passing overhead rattling the windows, the hiss and pop of the griddle, a tinny radio cycling between ads for Kiroshi optics and a late-night pirate station playing Johnny Silverhand's old tracks",
+    "crowd": "Near empty. A boostergang kid in the corner booth with chrome arms nodding off. A corpo in a wrinkled suit staring at nothing, tie loose, briefcase between his feet like someone might take it. The cook behind the counter has a Militech arm and does not look up.",
+    "smell": "Synthetic coffee, frying SCOP protein, ozone from the neon, wet concrete, the faint chemical sweetness of whatever they spray to keep the roaches out"
+  },
+  "layout": {
+    "counter": "Eight stools with cracked red vinyl, a bulletproof partition between the counter and the kitchen with a slot for plates, a tip jar with a sticker that says 'No Eddies No Service' but Carol still pours",
+    "booths": "Six booths along the rain-streaked window, orange vinyl patched with duct tape, each with a scratched-up port for jacking in that nobody trusts, a view of the street where a Delamain cab just clipped a vending machine",
+    "kitchen": "Visible through the partition, one cook who goes by Hector, Militech cybernetic left arm from the Unification War, whiteboard behind him with prices crossed out and rewritten in red"
+  },
+  "objects_of_note": [
+    "A shard someone left on the counter, unmarked, could be anything",
+    "A newspaper from two days ago with the headline 'Arasaka Tower Security Breach - Corp Denies Everything'",
+    "A half-eaten plate of synth-eggs and SCOP sausage pushed to the end of the counter, still warm",
+    "A wet umbrella leaning against the door that does not belong to anyone inside",
+    "Bullet hole in the window patched with clear tape, spider-cracks radiating out like a starburst"
+  ],
+  "mood": "The kind of place you end up when everywhere else kicked you out or shut down. Nobody here planned to be here. The coffee tastes like battery acid but it is hot and Carol keeps filling it without asking. Outside, Night City never stops. In here, it almost does."
+}

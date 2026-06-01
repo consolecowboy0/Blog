@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>F1 Overtaking Explorer</title>
+    <style>
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
+    </style>
+    <script>
+      (function(){
+  function applyTheme(t){
+    if (t === 'dark' || t === 'rainbow') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+  var urlTheme = new URLSearchParams(location.search).get('theme');
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+    applyTheme(urlTheme);
+  } else {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'rainbow') {
+      applyTheme(saved);
+    } else if (saved === 'light') {
+      // explicit user choice — leave default (no attribute)
+    } else {
+      applyTheme('rainbow');
+    }
+  }
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'parent-theme') {
+      applyTheme(e.data.theme);
+      // No localStorage write — parent owns persisted preference.
+    }
+  });
+})();
+    </script>
+    <script type="module" crossorigin src="./assets/index-CM-t89xv.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-CZ39bz5B.css">
+    <style>
+      #theme-toggle-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-muted, #888);
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        transition: color 0.15s;
+      }
+      #theme-toggle-btn:hover { color: var(--text-primary, #1a1a1a); }
+      #theme-toggle-btn svg { width: 16px; height: 16px; }
+      /* Icon shown = the NEXT theme in the cycle (matches site header).
+         light → moon, dark → rainbow, rainbow → sun. */
+      .icon-sun { display: none; }
+      .icon-rainbow { display: none; }
+      [data-theme="dark"] .icon-moon { display: none; }
+      [data-theme="dark"] .icon-rainbow { display: block; }
+      [data-theme="rainbow"] .icon-moon { display: none; }
+      [data-theme="rainbow"] .icon-sun { display: block; }
+
+      [data-theme="dark"] {
+        --bg-primary: #0a0a0f !important;
+        --bg-secondary: #0d0d14 !important;
+        --bg-card: #0d0d14 !important;
+        --bg-card-hover: #14141f !important;
+        --border: #1e1e2e !important;
+        --border-light: #2a2a3a !important;
+        --text-primary: #e5e5e5 !important;
+        --text-secondary: #999 !important;
+        --text-muted: #666 !important;
+        --accent-red: #e5e5e5 !important;
+        --chart-grid: #1e1e2e !important;
+      }
+
+      [data-theme="rainbow"] {
+        --bg-primary: #1b0e3a !important;
+        --bg-secondary: #15082b !important;
+        --bg-card: #1b0e3a !important;
+        --bg-card-hover: #2a1659 !important;
+        --border: #5a2ea0 !important;
+        --border-light: #7c4ad0 !important;
+        --text-primary: #e8f7ff !important;
+        --text-secondary: #ffb3e6 !important;
+        --text-muted: #c787c0 !important;
+        --accent-red: #ff2a92 !important;
+        --accent-blue: #4ad9ff !important;
+        --accent-green: #00e5d5 !important;
+        --accent-gold: #ffd166 !important;
+        --accent-orange: #ff6ec7 !important;
+        --accent-purple: #a85aff !important;
+        --chart-grid: #5a2ea0 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <button id="theme-toggle-btn" aria-label="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-f1" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-f1)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-f1)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-f1)" opacity="0.4"/></svg>
+    </button>
+    <script>
+      document.getElementById('theme-toggle-btn').addEventListener('click', function() {
+        var current = document.documentElement.getAttribute('data-theme') || 'light';
+        var cycle = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
+        var next = cycle[current] || 'dark';
+        if (next === 'light') {
+          document.documentElement.removeAttribute('data-theme');
+        } else {
+          document.documentElement.setAttribute('data-theme', next);
+        }
+        localStorage.setItem('theme', next);
+      });
+      // Move toggle into React-rendered header once it mounts
+      var observer = new MutationObserver(function() {
+        var header = document.querySelector('.header');
+        var btn = document.getElementById('theme-toggle-btn');
+        if (header && btn) {
+          header.appendChild(btn);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+    </script>
+  </body>
+</html>

@@ -15,10 +15,11 @@ const library = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/library' }),
   schema: z.object({
     title: z.string(),
-    type: z.enum(['markdown', 'pdf', 'interactive', 'html']),
+    type: z.enum(['markdown', 'pdf', 'interactive', 'html', 'react']),
     description: z.string().optional(),
     date: z.string(),
     file: z.string().optional(),
+    draft: z.boolean().optional().default(false),
   }),
 });
 

@@ -1,0 +1,22 @@
+{
+  "name": "Padre",
+  "age": 53,
+  "occupation": "Ripperdoc. Runs a clinic two doors down from Tom's Diner. Patches up anyone who walks in, no questions, eddies optional.",
+  "appearance": "Latino, heavyset, kind face weathered by decades of Night City, reading glasses on a chain, surgical gloves stuffed in his shirt pocket out of habit, gray at the temples, a small crucifix tattoo on his hand between the thumb and index finger, always smells faintly of antiseptic and coffee",
+  "personality": {
+    "core_traits": ["compassionate", "unshockable", "philosophical", "quietly stubborn"],
+    "flaws": ["carries everyone else's pain and none of his own", "cannot say no to anyone who needs help", "drinks too much mezcal on the nights when he loses someone on the table", "believes he can save people who do not want to be saved"],
+    "strengths": ["steadiest hands in Watson", "treats every patient like they matter because they do", "gives advice disguised as stories", "the only person in Kabuki that every gang leaves alone"]
+  },
+  "speaking_style": {
+    "tone": "warm, unhurried, like a man who has seen the worst and decided to be kind anyway",
+    "habits": ["starts advice with 'in my experience' and it always lands because the experience is real", "asks 'when did you last eat' before 'what happened'", "pauses to choose the right word instead of the fast one"],
+    "vocabulary": "medical terminology mixed with old Heywood slang and occasional scripture references that never feel preachy",
+    "quirks": ["calls everyone 'mijo' or 'mija' regardless of age", "taps the crucifix tattoo when he is thinking about someone he lost", "says 'the body wants to heal, you just have to let it' about everything, not just bodies"]
+  },
+  "backstory": "Was a trauma team surgeon for Trauma Team International for twelve years. Quit when they let a patient die because her insurance lapsed mid-extraction. Opened the clinic in Kabuki with his savings. Has been there eleven years. Knows every face in the neighborhood. Sleeps on a cot in the back room most nights.",
+  "current_emotional_state": "Came to Tom's for coffee after a long surgery. A kid from the Tyger Claws caught a ricochet. Kid will live. Padre is tired but the good kind of tired.",
+  "secrets": "Padre still has his Trauma Team credentials. They never deactivated them. He has used them twice in emergencies and nobody has noticed.",
+  "motivations": "Wants to keep the clinic open. Wants to believe that what he does matters in a city designed to prove it does not.",
+  "physical_mannerisms": ["folds his hands on the table like he is about to pray but he is just resting", "leans forward when someone is talking about something painful", "closes his eyes for a moment when he hears good news like he is memorizing it"]
+}

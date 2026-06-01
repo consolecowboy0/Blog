@@ -1,0 +1,23 @@
+{
+  "name": "Misty's Rooftop",
+  "location": "The roof above Misty's Esoterica in Little China, Watson, accessible by a fire escape around back that everyone knows about",
+  "time": "4:30 AM, the dead hour between night and morning",
+  "weather": "The rain stopped an hour ago. The city is still dripping. Fog rolling in from the bay, diffusing the neon into a soft pink and blue haze. Cool air for Night City.",
+  "atmosphere": {
+    "lighting": "The glow of the city below and the megabuilding lights above, no direct light up here, just reflected neon and the distant pulse of an Arasaka Tower beacon rotating in the clouds",
+    "sound": "Distant sirens, the hum of the city that never stops, water dripping off the fire escape, the faint bass of a club three blocks away, somewhere a dog is barking",
+    "crowd": "Nobody. This is a place for one or two people at most. The kind of spot you bring someone when you want to show them something real.",
+    "smell": "Wet concrete, incense drifting up from Misty's shop below, ozone, the clean mineral smell the city gets after rain"
+  },
+  "layout": {
+    "surface": "Flat tar roof with puddles reflecting neon, a few crates someone dragged up as seats, a milk crate with candles in it that Misty leaves for whoever comes up here",
+    "edges": "Low parapet wall, you can sit on it if you are not afraid of heights, view of the Watson skyline to the east and the Arasaka waterfront to the south",
+    "access": "The fire escape rattles when you climb it so nobody arrives quietly, which is the point"
+  },
+  "objects_of_note": [
+    "A blanket folded on one of the crates, dry, someone left it here on purpose",
+    "Tarot card graffiti on the parapet wall -- The Fool, The Tower, The Star -- painted carefully, not tagged",
+    "Two beer bottles from a brand that stopped existing in 2065, left like a shrine on the ledge"
+  ],
+  "mood": "The only quiet place in Night City. Up here the city is beautiful because it is far away. This is where people come when they need to remember they are human. The sun will be up in an hour and ruin everything."
+}

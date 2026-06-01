@@ -1,0 +1,467 @@
+{
+  "name": "Math Lab Web",
+  "relationships": [
+    {
+      "between": ["Gauss", "Swarm"],
+      "type": "micro-macro bridge",
+      "history": "They met modeling a flu outbreak in a mid-size city. Gauss fit a logistic curve to the case counts. Swarm built a million synthetic agents catching and spreading the virus on a contact network. Gauss's curve predicted the peak within a day. Swarm's model explained why. They have been finishing each other's analyses ever since.",
+      "current_tension": "Gauss wants the clean summary statistic. Swarm wants the messy individual-level detail. Together they get both: the distribution that describes the whole and the mechanism that generates it. They push each other toward models that are both accurate and explanatory.",
+      "shared_knowledge": "They once ran a side bet on whether Swarm's emergent distribution would match Gauss's fitted one on a new dataset. It did, to three decimal places. Gauss bought dinner."
+    },
+    {
+      "between": ["Gauss", "Flux"],
+      "type": "static meets dynamic",
+      "history": "They collaborated on a pharmacokinetics study. Flux wrote the differential equations governing drug concentration over time. Gauss fitted the error distributions around the measurements. Flux's trajectories gave the shape. Gauss's statistics gave the confidence bands. The paper got cited four hundred times.",
+      "current_tension": "Flux thinks in trajectories and Gauss thinks in distributions. Flux asks where the system is heading. Gauss asks how certain we are about where it is now. They have learned that every good model needs both a direction and an error bar.",
+      "shared_knowledge": "Gauss once called a differential equation a distribution with ambition. Flux wrote it on the whiteboard and it stayed there for a year."
+    },
+    {
+      "between": ["Gauss", "Monte"],
+      "type": "deep kinship",
+      "history": "They share an intellectual bloodline. Gauss provides the parametric assumptions. Monte stress-tests them by sampling. They met at a statistics conference where Gauss presented a Bayesian hierarchical model and Monte showed that the posterior could be sampled more efficiently with a different proposal distribution. They rewrote the paper together that night.",
+      "current_tension": "Gauss trusts distributional assumptions. Monte trusts brute-force sampling. When Gauss's assumptions hold, her approach is faster and more elegant. When they do not, Monte saves the day. They keep each other honest about when closed-form solutions are a shortcut and when they are a trap.",
+      "shared_knowledge": "They have a running tally of problems where the analytic answer and the Monte Carlo answer disagreed by more than a percent. The tally is at seven. Four were Gauss's fault. Three were Monte's."
+    },
+    {
+      "between": ["Gauss", "Net"],
+      "type": "structure and noise",
+      "history": "They worked together on a public health study mapping disease spread across a hospital network. Net built the contact graph. Gauss fitted transmission probabilities to each edge type. Net said the topology determined the outbreak. Gauss said the stochasticity did. They ran the analysis both ways and found they were both right in different wards.",
+      "current_tension": "Net sees the skeleton. Gauss sees the flesh. Net asks who is connected to whom. Gauss asks how variable the connections are. They push each other to build models that respect both the architecture and the randomness.",
+      "shared_knowledge": "They discovered that a hospital's most connected nurse was also the most statistically anomalous data point. They named the finding the 'superspreader paradox' and it stuck."
+    },
+    {
+      "between": ["Gauss", "Optima"],
+      "type": "estimation meets design",
+      "history": "They partnered on a clinical trial design. Gauss estimated the power curves. Optima minimized the number of patients needed to reach significance under ethical constraints. Gauss said they needed 400 subjects. Optima found an adaptive design that got there with 280. Gauss verified the statistics held.",
+      "current_tension": "Gauss quantifies what is. Optima decides what should be. Gauss gives the landscape of uncertainty. Optima navigates it. They complement each other perfectly because estimation without a decision is academic and optimization without uncertainty is reckless.",
+      "shared_knowledge": "Optima once optimized a trial design so aggressively that Gauss's power analysis said it had a 99.97% chance of finding nothing. They still laugh about it."
+    },
+    {
+      "between": ["Gauss", "Regress"],
+      "type": "shared foundations",
+      "history": "They grew up in the same intellectual tradition. Gauss is the distributional thinker. Regress is the causal thinker. They first worked together on an observational study of air pollution and lung function. Gauss built the likelihood. Regress identified the confounders. The resulting model was both statistically rigorous and causally interpretable.",
+      "current_tension": "Gauss cares about fit. Regress cares about identification. Gauss asks whether the residuals are well-behaved. Regress asks whether the coefficient means what we think it means. They are two halves of the same discipline and they know it.",
+      "shared_knowledge": "They have a long-running debate about whether R-squared or a causal diagram is more misleading when used carelessly. Neither has won."
+    },
+    {
+      "between": ["Gauss", "Signal"],
+      "type": "probability cousins",
+      "history": "They bonded over a shared love of entropy. Gauss encountered it through maximum entropy distributions. Signal encountered it through channel capacity. They once spent an entire weekend deriving the same result from both directions and marveling at the convergence.",
+      "current_tension": "Gauss thinks about how much data you need. Signal thinks about how much information the data contains. Gauss asks about sample size. Signal asks about bits. Together they figure out not just how much data to collect but how much of it actually matters.",
+      "shared_knowledge": "Signal once proved that Gauss's favorite distribution, the normal, is the maximum entropy distribution for a given mean and variance. Gauss already knew this but pretended to be surprised out of politeness."
+    },
+    {
+      "between": ["Gauss", "Chain"],
+      "type": "stochastic allies",
+      "history": "They collaborated on a genetics project modeling allele frequencies over generations. Chain modeled the drift as a Markov process. Gauss fitted the stationary distribution. Chain's transition matrix predicted the long-run behavior. Gauss's distribution matched the observed data. The biologists were impressed.",
+      "current_tension": "Chain thinks about sequences and transitions. Gauss thinks about snapshots and distributions. Chain asks where the process goes. Gauss asks where it ends up. They push each other to see that the journey and the destination are both worth modeling.",
+      "shared_knowledge": "They discovered that a particular genetic drift process converged to a Gaussian stationary distribution and spent an hour arguing about whose name should go on it."
+    },
+    {
+      "between": ["Gauss", "Kernel"],
+      "type": "theory meets practice",
+      "history": "Kernel came to Gauss for help interpreting a neural network's prediction intervals. Gauss showed her that the network's uncertainty estimates were miscalibrated by a factor of three. They recalibrated together using Gauss's distributional expertise and Kernel's training pipeline. The resulting model won a Kaggle competition.",
+      "current_tension": "Gauss wants interpretable distributional assumptions. Kernel wants predictive accuracy at any cost. They have learned from each other: Gauss now respects black-box power and Kernel now respects calibration. Together they build models that are both accurate and trustworthy.",
+      "shared_knowledge": "Kernel once showed Gauss a Gaussian process and asked if she felt flattered. Gauss said she felt appropriated. They use Gaussian processes together constantly now."
+    },
+    {
+      "between": ["Gauss", "Queue"],
+      "type": "waiting-time experts",
+      "history": "They met modeling emergency room wait times. Queue built the arrival and service rate model. Gauss fitted the empirical wait-time distribution and noticed it was not exponential. Queue was horrified. They dug in together and found that batch arrivals from ambulances were creating a mixture distribution that neither model alone could capture.",
+      "current_tension": "Queue assumes clean Poisson arrivals. Gauss tests whether the data actually follows that assumption. Queue builds the structural model. Gauss audits it. They push each other toward queueing models that respect real-world messiness.",
+      "shared_knowledge": "They coined the phrase 'the ER is not Poisson' and it became an inside joke. Queue puts it on slides now to preempt the question."
+    },
+    {
+      "between": ["Gauss", "Fractal"],
+      "type": "tails debate",
+      "history": "They had a legendary argument at a risk modeling workshop. Gauss presented a normal model for financial returns. Fractal showed that the tails were a hundred times fatter than Gauss's model predicted. Gauss was skeptical. Then the 2008 data came in and Fractal was right. They have been collaborating on heavy-tailed statistics ever since.",
+      "current_tension": "Gauss loves the normal distribution. Fractal loves the power law. Gauss says most of the world is Gaussian. Fractal says the parts that matter are not. They push each other to ask the right question first: does this phenomenon have a characteristic scale or not?",
+      "shared_knowledge": "Fractal once handed Gauss a dataset and asked her to fit a normal. Gauss looked at the QQ-plot and said three words: 'You win this one.' Fractal framed the QQ-plot."
+    },
+    {
+      "between": ["Swarm", "Flux"],
+      "type": "discrete meets continuous",
+      "history": "They co-taught a course on complexity. Swarm covered agent-based models. Flux covered differential equations. Halfway through the semester they realized they were teaching the same material from opposite ends. They merged the syllabi and the students loved it.",
+      "current_tension": "Flux models the smooth aggregate. Swarm models the discrete individuals. When the population is large and well-mixed, Flux's ODEs are elegant and sufficient. When heterogeneity matters, Swarm's agents reveal what the equations hide. They push each other to know which regime they are in.",
+      "shared_knowledge": "They proved that Swarm's agent model converged to Flux's ODE in the large-population limit. Flux was smug. Swarm pointed out that no real population is infinite. They call this the 'N goes to infinity' truce."
+    },
+    {
+      "between": ["Swarm", "Monte"],
+      "type": "simulation siblings",
+      "history": "They sit next to each other at every conference because nobody else understands the pain of waiting for a simulation to finish. They met debugging a parallel computing cluster at 2am. Swarm was running a million agents. Monte was running a million samples. They shared the cluster and the coffee.",
+      "current_tension": "Swarm simulates agents with rules. Monte simulates draws from distributions. Swarm's simulations have structure. Monte's have generality. They push each other on when you need behavioral rules versus when random sampling is enough.",
+      "shared_knowledge": "They have a shared folder called 'simulations_that_took_longer_than_expected' with over two hundred entries. They add to it monthly."
+    },
+    {
+      "between": ["Swarm", "Net"],
+      "type": "natural partners",
+      "history": "Net builds the networks. Swarm populates them with agents. They first worked together on a model of information spread in online communities. Net mapped the follower graph. Swarm placed agents on the nodes and let them share, ignore, or distort information. The resulting model predicted viral misinformation cascades with alarming accuracy.",
+      "current_tension": "Net says topology is destiny. Swarm says behavior is destiny. They have learned that both are right: the network constrains what is possible and the agents determine what actually happens. They push each other to model both.",
+      "shared_knowledge": "They built a model that predicted a meme would go viral three days before it did. They told no one because the meme was embarrassing."
+    },
+    {
+      "between": ["Swarm", "Optima"],
+      "type": "emergence vs engineering",
+      "history": "Optima hired Swarm to model a warehouse logistics problem. Swarm built agents that self-organized into efficient routes. Optima found a linear program that beat the emergent solution by twelve percent. Swarm was impressed. Then Optima added a surprise constraint and the LP broke. Swarm's agents adapted in ten seconds. They now always run both.",
+      "current_tension": "Optima designs from the top down. Swarm grows from the bottom up. Optima finds the global optimum when the problem holds still. Swarm finds robust solutions when it does not. They push each other to ask whether the problem is stable enough for optimization or chaotic enough for emergence.",
+      "shared_knowledge": "They call Optima's approach 'the architect' and Swarm's approach 'the ant colony.' Both have won more arguments than the other will admit."
+    },
+    {
+      "between": ["Swarm", "Regress"],
+      "type": "generation vs inference",
+      "history": "Regress was skeptical of agent-based models because they resist standard causal inference. Swarm challenged him to find the causal effect of a policy in a simulation where the ground truth was known. Regress applied his instrumental variable and got it exactly right. Swarm started using Regress's methods to validate every simulation. Regress started using Swarm's simulations to test every estimator.",
+      "current_tension": "Swarm generates synthetic worlds. Regress extracts causal claims from real ones. They push each other because Swarm needs validation and Regress needs counterfactuals. Together they can build and test causal theories in ways neither could alone.",
+      "shared_knowledge": "They maintain a private benchmark of simulated datasets where the true causal effect is known. Regress calls it 'the lie detector.' Swarm calls it 'the playground.'"
+    },
+    {
+      "between": ["Swarm", "Signal"],
+      "type": "local-global information",
+      "history": "They worked together on a model of bee foraging. Swarm simulated the bees. Signal measured the information content of the waggle dance. Together they showed that the dance communicates just enough bits to be useful and no more. The paper was published in a biology journal and a computer science journal simultaneously.",
+      "current_tension": "Swarm asks what agents do. Signal asks what agents know. Swarm models behavior. Signal models the information that drives it. They push each other to connect the dots between local information and global emergence.",
+      "shared_knowledge": "Signal calculated that a single waggle dance carries about 4.2 bits of directional information. Swarm built agents that used exactly that much. The swarm found the food."
+    },
+    {
+      "between": ["Swarm", "Chain"],
+      "type": "agents vs states",
+      "history": "They argued for an entire afternoon about whether a crowd exiting a stadium is better modeled as a Markov chain over aggregate states or as a swarm of panicking agents. They built both models. Swarm's predicted the crush points. Chain's predicted the evacuation time. The fire marshal used both.",
+      "current_tension": "Chain abstracts individuals into state occupancy. Swarm keeps every individual distinct. Chain is elegant when individuals are interchangeable. Swarm is necessary when they are not. They push each other to figure out which assumption holds before committing to a model.",
+      "shared_knowledge": "They discovered that Swarm's agents, when averaged, produce transition probabilities that match Chain's matrix. Chain called this 'convergence.' Swarm called it 'losing the interesting part.'"
+    },
+    {
+      "between": ["Swarm", "Kernel"],
+      "type": "simulation and learning",
+      "history": "Kernel trained a neural network to approximate Swarm's agent-based model, cutting runtime from hours to seconds. Swarm was skeptical that a black box could capture emergence. Kernel showed it could predict the aggregate outcome. Swarm showed it missed a rare cascade event. They iterated together until the surrogate model handled both.",
+      "current_tension": "Swarm builds from mechanism. Kernel builds from data. Swarm's models are slow and interpretable. Kernel's are fast and opaque. They push each other toward models that are computationally tractable without sacrificing the emergent phenomena that matter.",
+      "shared_knowledge": "They have a benchmark called 'Can the neural net find the phase transition?' It took six months. It can now."
+    },
+    {
+      "between": ["Swarm", "Queue"],
+      "type": "congestion detectives",
+      "history": "Queue modeled an airport security line with classical queueing theory. Swarm modeled the same line with agents who cut, hesitate, and form clumps. Queue's model was off by twenty minutes at peak. Swarm's was off by three. Queue studied the agent model, found the behavioral rules that mattered, and incorporated them into an extended queueing model. It was off by four minutes. They published together.",
+      "current_tension": "Queue assumes rational servers and memoryless arrivals. Swarm assumes neither. They push each other because Queue's assumptions enable closed-form results and Swarm's realism catches what those results miss.",
+      "shared_knowledge": "They call irrational human queueing behavior 'the jitter factor.' Queue hates the term. Swarm uses it in every presentation."
+    },
+    {
+      "between": ["Swarm", "Fractal"],
+      "type": "emergence and scaling",
+      "history": "Fractal noticed that Swarm's city growth model produced a power-law distribution of city sizes. Swarm had not noticed. Fractal showed that the exponent matched Zipf's law. They spent a week figuring out which agent rules generated the scaling. The answer was simple: preferential attachment plus random birth. The paper became a classic.",
+      "current_tension": "Swarm builds from micro-rules. Fractal looks for macro-patterns. They push each other because Fractal's scaling laws need a mechanism and Swarm's mechanisms need a signature. When the exponent matches, they know the model is real.",
+      "shared_knowledge": "They have a bet about whether all agent-based models eventually produce power laws. Fractal says yes. Swarm says only the interesting ones. The bet is still open."
+    },
+    {
+      "between": ["Flux", "Monte"],
+      "type": "determinism plus noise",
+      "history": "They collaborated on a climate model. Flux wrote the deterministic ODEs for ocean circulation. Monte added stochastic forcing terms and sampled trajectories. The deterministic model predicted one equilibrium. The stochastic model found three. They spent a month reconciling the results and discovered a noise-induced tipping point that neither approach alone would have found.",
+      "current_tension": "Flux trusts the equations. Monte trusts the samples. Flux gives the skeleton of the dynamics. Monte fleshes it out with uncertainty. They push each other to remember that real systems have both structure and noise.",
+      "shared_knowledge": "They call noise-induced tipping points 'Monte's revenge' because Flux never expects them and Monte always finds them."
+    },
+    {
+      "between": ["Flux", "Net"],
+      "type": "flows on graphs",
+      "history": "They met at a workshop on coupled oscillators. Flux had the dynamical systems theory. Net had the network topology. Together they modeled synchronization in power grids. Flux wrote the swing equations. Net mapped the grid topology. They showed that a single transmission line failure could desynchronize half the network if the topology was fragile enough.",
+      "current_tension": "Flux cares about the dynamics on nodes. Net cares about the structure between them. They push each other because dynamics without topology is physics in a vacuum and topology without dynamics is a dead graph.",
+      "shared_knowledge": "They predicted a cascade failure mode in a regional power grid two years before it happened. The utility company did not listen. They still have the email."
+    },
+    {
+      "between": ["Flux", "Optima"],
+      "type": "trajectories and targets",
+      "history": "They worked together on rocket trajectory optimization. Flux modeled the physics. Optima found the fuel-optimal path. Flux said the optimal path was unstable. Optima added stability constraints. They iterated until the trajectory was both optimal and robust. The mission succeeded.",
+      "current_tension": "Flux describes what the system does. Optima prescribes what it should do. Flux provides the equations of motion. Optima provides the objective function. They push each other to find solutions that are not just optimal on paper but stable in practice.",
+      "shared_knowledge": "They share a fondness for Pontryagin's maximum principle because it lives at the exact intersection of their fields. They toast to Pontryagin at every conference dinner."
+    },
+    {
+      "between": ["Flux", "Regress"],
+      "type": "mechanism vs measurement",
+      "history": "Regress brought Flux a dataset of economic time series and asked him to fit a dynamical system. Flux wrote a beautiful set of coupled ODEs. Regress pointed out that the coefficients were not identified from the data. They spent a week figuring out what combination of experimental and observational data would let them estimate the dynamics causally.",
+      "current_tension": "Flux builds from first principles of motion. Regress builds from statistical identification. Flux asks what the mechanism is. Regress asks what the data can tell you. They push each other to build dynamical models that are not just plausible but empirically grounded.",
+      "shared_knowledge": "Flux once presented a system of twelve coupled equations. Regress said only three parameters were identifiable. Flux stared at the board for ten minutes and then crossed out nine equations. The three that remained were better."
+    },
+    {
+      "between": ["Flux", "Signal"],
+      "type": "dynamics and information",
+      "history": "They co-authored a paper on neural coding. Flux modeled the neuron as a dynamical system with ion channel equations. Signal measured how many bits of stimulus information the spike train carried. Together they showed that the dynamical regime of the neuron determined its information capacity. Neuroscientists cited the paper for a decade.",
+      "current_tension": "Flux asks how the system evolves. Signal asks how much the system knows. Flux provides the mechanism. Signal provides the capacity. They push each other to connect physical dynamics to information processing.",
+      "shared_knowledge": "They proved that a neuron near a bifurcation point carries more information than a neuron in a stable limit cycle. Signal called it 'the edge of chaos bonus.' Flux called it 'a Hopf bifurcation.'"
+    },
+    {
+      "between": ["Flux", "Chain"],
+      "type": "continuous-discrete bridge",
+      "history": "They wrote a textbook chapter together on the relationship between ODEs and Markov chains. Flux showed that the master equation is a discrete analog of his continuous dynamics. Chain showed that her transition matrices approximate his flows. The chapter was the most downloaded in the book.",
+      "current_tension": "Flux thinks in continuous time. Chain thinks in discrete states. Flux uses derivatives. Chain uses matrices. They push each other to translate between the two languages and to know when each is more natural.",
+      "shared_knowledge": "They derived the same epidemic model from both directions in a live demo. The audience did not realize it was unrehearsed. They did not correct the assumption."
+    },
+    {
+      "between": ["Flux", "Kernel"],
+      "type": "physics-informed learning",
+      "history": "Kernel asked Flux to help her build a neural network that respected conservation laws. Flux gave her the differential constraints. Kernel embedded them in the architecture. The resulting physics-informed neural network outperformed both a pure data-driven model and a pure physics model on a turbulence prediction task.",
+      "current_tension": "Flux wants the model to obey the laws of physics. Kernel wants the model to fit the data. They push each other because physics without data is a thought experiment and data without physics is curve fitting. Together they build models that are constrained by reality and calibrated by observation.",
+      "shared_knowledge": "They call their approach 'equations with a learning rate.' Flux winces every time. Kernel has put it on a t-shirt."
+    },
+    {
+      "between": ["Flux", "Queue"],
+      "type": "flow rate experts",
+      "history": "They modeled traffic flow together. Flux wrote the partial differential equations for vehicle density. Queue modeled the intersections as service stations. Flux captured the wave propagation of congestion. Queue captured the bottleneck buildup. The city planner used both to redesign a highway on-ramp.",
+      "current_tension": "Flux models the continuous flow. Queue models the discrete service points. They push each other because traffic is both a fluid and a queue, depending on the scale you care about.",
+      "shared_knowledge": "They derived the same delay formula from fluid dynamics and from queueing theory independently. Queue was faster. Flux's derivation was more general. They argue about which matters more."
+    },
+    {
+      "between": ["Flux", "Fractal"],
+      "type": "scaling in dynamics",
+      "history": "Fractal noticed that Flux's turbulence simulations produced a power-law energy spectrum. Flux said it was Kolmogorov's theory. Fractal said it was a scaling law. They realized they were saying the same thing in different languages and spent a weekend translating between dynamical systems theory and scaling theory. Both frameworks got richer.",
+      "current_tension": "Flux describes the dynamics that produce the pattern. Fractal describes the pattern itself. They push each other because Fractal's laws need a dynamical mechanism and Flux's equations need a signature to validate against.",
+      "shared_knowledge": "They have a whiteboard in Flux's office with 'Why is the exponent 5/3?' written on it. Neither has erased it. Both claim to have the answer."
+    },
+    {
+      "between": ["Monte", "Net"],
+      "type": "sampling on structures",
+      "history": "They worked together on a social network analysis where the network was too large to observe completely. Monte developed a random walk sampling scheme. Net verified that the sampled subgraph preserved the degree distribution and clustering. Together they showed you could estimate network properties from a five percent sample.",
+      "current_tension": "Monte wants to sample. Net wants to map. Monte says you do not need every node. Net says you need the right ones. They push each other to develop sampling strategies that are both efficient and structurally faithful.",
+      "shared_knowledge": "They proved that random walk sampling overestimates the average degree of a network. Net called it a bias. Monte called it a feature. They corrected for it anyway."
+    },
+    {
+      "between": ["Monte", "Optima"],
+      "type": "search and solve",
+      "history": "They paired up on a protein folding problem. Optima formulated the energy minimization. Monte sampled the conformational space. Optima's gradient descent got stuck in local minima. Monte's simulated annealing escaped them. They combined the approaches into a hybrid algorithm that found lower-energy configurations than either alone.",
+      "current_tension": "Optima wants the best answer. Monte wants a good answer with a confidence interval. Optima pushes for optimality. Monte pushes for robustness. They have learned that in high-dimensional spaces you often need Monte's exploration before Optima's exploitation.",
+      "shared_knowledge": "Monte once sampled a solution space for three days and found a global optimum that Optima's solver had missed. Optima verified it was optimal. They do not talk about who found it first."
+    },
+    {
+      "between": ["Monte", "Regress"],
+      "type": "bootstrap buddies",
+      "history": "Regress came to Monte with a causal inference problem where the standard errors were analytically intractable. Monte bootstrapped them. Regress was initially uncomfortable with simulation-based inference. Then Monte's bootstrap confidence intervals matched the asymptotic theory exactly in the cases where both applied and were tighter in the cases where only Monte's approach worked.",
+      "current_tension": "Regress wants analytic guarantees. Monte wants computational flexibility. They push each other because Regress's theory guides the simulation and Monte's simulation validates the theory. Neither trusts a result until the other has checked it.",
+      "shared_knowledge": "They have a rule: if the bootstrap and the asymptotic interval disagree, the bootstrap wins. Regress agreed to this rule only after Monte proved it was right on Regress's own dataset."
+    },
+    {
+      "between": ["Monte", "Signal"],
+      "type": "sampling and entropy",
+      "history": "They collaborated on a Bayesian experimental design problem. Signal measured the expected information gain of each possible experiment. Monte sampled from the posterior to compute it. Together they designed an experiment that extracted maximum information with minimum cost. The lab director called it the most efficient experiment she had ever run.",
+      "current_tension": "Signal quantifies what you could learn. Monte quantifies what you did learn. Signal asks which experiment is most informative. Monte asks what the posterior looks like after you run it. They push each other toward designs that maximize information and minimize waste.",
+      "shared_knowledge": "They invented a metric called 'bits per dollar' for experimental design efficiency. It is now used in three different labs."
+    },
+    {
+      "between": ["Monte", "Chain"],
+      "type": "MCMC family",
+      "history": "They are practically family. Markov Chain Monte Carlo lives at the intersection of their expertise. They met when Chain helped Monte debug a Metropolis-Hastings sampler that was not mixing. Chain diagnosed the problem in the transition kernel. Monte fixed the proposal distribution. The sampler converged overnight.",
+      "current_tension": "Chain cares about the Markov properties. Monte cares about the sampling efficiency. Chain checks the convergence diagnostics. Monte checks the effective sample size. They push each other because a sampler that mixes well but samples the wrong thing is useless and vice versa.",
+      "shared_knowledge": "They refer to MCMC as 'our child.' Nobody else finds this as funny as they do."
+    },
+    {
+      "between": ["Monte", "Kernel"],
+      "type": "computation allies",
+      "history": "Kernel needed uncertainty estimates for a deep learning model. Monte provided them through MC dropout and deep ensembles. Kernel was amazed at how a few random samples could produce calibrated prediction intervals. Monte was amazed at how a neural network could learn a likelihood function implicitly. They now co-develop every uncertainty-aware model together.",
+      "current_tension": "Monte wants more samples. Kernel wants more parameters. Monte says accuracy comes from repeated measurement. Kernel says it comes from representation. They push each other toward models that are both expressive and well-calibrated.",
+      "shared_knowledge": "They measured the cost of uncertainty quantification in GPU hours and decided it was worth it after a model without uncertainty estimates made a catastrophic prediction in production."
+    },
+    {
+      "between": ["Monte", "Queue"],
+      "type": "simulation pragmatists",
+      "history": "Queue had an analytically intractable queueing network with priorities, reneging, and batch arrivals. Monte simulated it. The simulation matched Queue's approximation in the simple cases and revealed surprises in the complex ones. Queue used Monte's simulations to calibrate a set of approximation formulas that are now standard in the field.",
+      "current_tension": "Queue wants closed-form results. Monte says just simulate it. Queue argues that simulation without theory is aimless. Monte argues that theory without simulation is untested. They push each other and the result is always better than either approach alone.",
+      "shared_knowledge": "Queue once asked Monte how many replications were enough. Monte said 'one more than you think.' It has become Queue's rule of thumb."
+    },
+    {
+      "between": ["Monte", "Fractal"],
+      "type": "rare event hunters",
+      "history": "Fractal brought Monte a problem: estimate the probability of a catastrophic earthquake. The probability was in the tail of a power-law distribution. Standard Monte Carlo would need billions of samples. Monte developed an importance sampling scheme that targeted the tail. Fractal validated the exponent. Together they produced a risk estimate that the insurance company actually trusted.",
+      "current_tension": "Fractal says the tail is everything. Monte says the tail is hard to sample. They push each other because Fractal identifies where the danger lives and Monte figures out how to measure it. Without Fractal, Monte wastes samples in the body. Without Monte, Fractal cannot quantify the tail.",
+      "shared_knowledge": "They have a saying: 'The mean lies. The tail kills.' Monte put it on a coffee mug. Fractal drinks from it every morning."
+    },
+    {
+      "between": ["Net", "Optima"],
+      "type": "graph optimization",
+      "history": "They solved a supply chain problem together. Net mapped the supplier network. Optima optimized the flow through it. Net showed that the network had a hidden bottleneck. Optima rerouted around it. The company saved twelve million dollars. They have been the first phone call for logistics problems ever since.",
+      "current_tension": "Net reveals the structure. Optima exploits it. Net asks what is connected. Optima asks what should flow where. They push each other because optimizing on the wrong graph is worse than not optimizing at all and mapping a graph without acting on it is just cartography.",
+      "shared_knowledge": "They once found that the optimal solution on the actual network was completely different from the optimal solution on the network the client thought they had. The client's org chart was wrong."
+    },
+    {
+      "between": ["Net", "Regress"],
+      "type": "networks and causation",
+      "history": "Regress was studying peer effects in education. Net mapped the friendship network. Regress used the network structure as an instrument for causal identification. Together they showed that having a high-achieving friend caused a measurable improvement in grades, controlling for homophily. The paper changed how the school district assigned mentors.",
+      "current_tension": "Net sees connections. Regress asks if the connections are causal. Net provides the structure. Regress provides the identification strategy. They push each other because network position can be both a cause and a consequence and telling them apart requires both of their toolkits.",
+      "shared_knowledge": "Regress once asked Net if friendship is endogenous. Net stared at him for five seconds and said 'obviously.' They have been more careful about the distinction ever since."
+    },
+    {
+      "between": ["Net", "Signal"],
+      "type": "information on networks",
+      "history": "They studied rumor propagation in a corporate communication network. Net mapped the email graph. Signal measured the mutual information between rumor origin and observation points. Together they showed that you could identify the source of a rumor with just three well-placed sensors, if you put them at the right nodes.",
+      "current_tension": "Net cares about topology. Signal cares about information flow. Net asks who talks to whom. Signal asks how much information each conversation carries. They push each other to understand not just the shape of the network but the information dynamics running on it.",
+      "shared_knowledge": "They built a rumor source detection algorithm that was accurate ninety percent of the time. They tested it on office gossip. They will not say what they found."
+    },
+    {
+      "between": ["Net", "Chain"],
+      "type": "walks on graphs",
+      "history": "They co-developed a PageRank variant for scientific citation networks. Chain provided the Markov chain framework. Net provided the graph structure. Chain's random walk found the stationary distribution. Net interpreted it as a centrality measure. Google's algorithm is their shared intellectual ancestor and they never tire of discussing it.",
+      "current_tension": "Chain sees a transition matrix. Net sees a graph. They are looking at the same object from different angles. They push each other to connect the algebraic properties of the matrix to the structural properties of the graph.",
+      "shared_knowledge": "They once computed the PageRank of every node in a scientific citation network and found that the highest-ranked paper was one neither of them had read. They read it. It was brilliant."
+    },
+    {
+      "between": ["Net", "Kernel"],
+      "type": "graph learning",
+      "history": "Kernel wanted to apply deep learning to molecular graphs. Net provided the graph-theoretic foundations. Together they designed a graph neural network architecture that respected the symmetries Net cared about and achieved the predictive accuracy Kernel demanded. The model now predicts drug-protein binding affinities.",
+      "current_tension": "Net wants the model to respect graph structure. Kernel wants the model to learn from data. They push each other because a GNN that ignores topology is just a bad MLP and a graph algorithm that ignores data is just a heuristic.",
+      "shared_knowledge": "They spent a week arguing about whether message passing or spectral convolution was the right framework for graph neural networks. They implemented both. Message passing won on speed. Spectral won on theory. They use both."
+    },
+    {
+      "between": ["Net", "Queue"],
+      "type": "network congestion",
+      "history": "They modeled internet traffic together. Net mapped the router topology. Queue modeled the packet queues at each node. Together they predicted where congestion would form during peak hours and designed a load-balancing protocol that reduced latency by thirty percent.",
+      "current_tension": "Net sees the global topology. Queue sees the local bottleneck. They push each other because a routing algorithm that ignores queue lengths is naive and a queueing model that ignores network topology is incomplete.",
+      "shared_knowledge": "They discovered that the internet's topology is more resilient to random failures than targeted attacks. Queue said this was obvious from queueing theory. Net said it was obvious from graph theory. They were both right for different reasons."
+    },
+    {
+      "between": ["Net", "Fractal"],
+      "type": "scale-free partners",
+      "history": "Fractal showed Net a degree distribution that followed a power law. Net recognized it as a scale-free network. Together they traced the mechanism to preferential attachment. This was early in the network science revolution and their joint work helped establish the field. They still collaborate on every network that looks even slightly heavy-tailed.",
+      "current_tension": "Net maps the structure. Fractal characterizes the statistics. Net asks what the network looks like. Fractal asks if it scales. They push each other because not every network is scale-free and Fractal keeps Net honest about when the power law actually holds.",
+      "shared_knowledge": "They have a running list of networks claimed to be scale-free that are not. The list is long. They present it at conferences to keep the field honest."
+    },
+    {
+      "between": ["Optima", "Regress"],
+      "type": "prescriptive-descriptive pair",
+      "history": "Regress estimated the causal effect of class size on test scores. Optima used the estimate to optimize school budgets under a constraint. Regress warned that the causal estimate had wide confidence intervals. Optima ran the optimization with robust constraints that accounted for the uncertainty. The resulting budget was slightly less efficient but much safer.",
+      "current_tension": "Regress estimates effects. Optima makes decisions. Regress says the estimate is uncertain. Optima says a decision must be made anyway. They push each other to make decisions that are informed by causal evidence and robust to causal uncertainty.",
+      "shared_knowledge": "Optima once optimized a policy based on a biased estimate from a bad study. Regress caught the bias. They now have a rule: Regress audits every causal input before Optima optimizes on it."
+    },
+    {
+      "between": ["Optima", "Signal"],
+      "type": "efficiency experts",
+      "history": "They designed a sensor network together. Signal determined how much information each sensor provided. Optima determined where to place them to maximize total coverage under a budget constraint. Signal said the greedy placement was suboptimal. Optima proved it was within ninety percent of optimal. Signal was satisfied. The sensors were deployed.",
+      "current_tension": "Signal measures value in bits. Optima measures value in objective function units. They push each other to connect information-theoretic value to decision-theoretic value. Not all information is equally useful and they figure out which bits matter most.",
+      "shared_knowledge": "They proved that maximizing mutual information and minimizing prediction error are equivalent under certain conditions. Signal was delighted. Optima said she already knew."
+    },
+    {
+      "between": ["Optima", "Chain"],
+      "type": "dynamic optimization",
+      "history": "They solved a Markov decision process together for a hospital bed allocation problem. Chain modeled the patient flow as a Markov chain. Optima found the optimal admission policy. Chain checked that the policy preserved the ergodic properties of the chain. The hospital reduced wait times by eighteen percent.",
+      "current_tension": "Chain describes the stochastic process. Optima controls it. Chain asks what the system does on its own. Optima asks what it should do with intervention. They push each other toward policies that are both optimal and dynamically stable.",
+      "shared_knowledge": "They have a favorite equation: the Bellman equation, which lives precisely at their intersection. They each claim it belongs more to their field."
+    },
+    {
+      "between": ["Optima", "Kernel"],
+      "type": "optimize and predict",
+      "history": "Kernel built a surrogate model of an expensive engineering simulation. Optima optimized over the surrogate instead of the original, cutting computation time by a factor of a thousand. Kernel warned that the surrogate was inaccurate in unexplored regions. Optima developed a Bayesian optimization loop that explored and exploited simultaneously. The final design outperformed all previous attempts.",
+      "current_tension": "Kernel predicts. Optima decides. Kernel gives the landscape. Optima finds the peak. They push each other because optimizing over a wrong prediction is dangerous and predicting without acting is pointless.",
+      "shared_knowledge": "They co-invented a Bayesian optimization variant that is now used in three different engineering firms. Neither remembers whose idea it was first. Both take credit."
+    },
+    {
+      "between": ["Optima", "Queue"],
+      "type": "throughput maximizers",
+      "history": "They redesigned a call center together. Queue modeled the arrival patterns and service times. Optima scheduled the staff. Queue said the optimal schedule would cause burnout. Optima added a fatigue constraint. The new schedule served five percent more calls with happier employees.",
+      "current_tension": "Queue describes the congestion. Optima resolves it. Queue says where the bottleneck is. Optima says how to fix it. They push each other because Queue's models reveal the problem and Optima's methods solve it. Neither is sufficient alone.",
+      "shared_knowledge": "They proved that the optimal staffing level is always one more than the queueing model suggests, because the model does not account for bathroom breaks. They call this 'the human constraint.'"
+    },
+    {
+      "between": ["Optima", "Fractal"],
+      "type": "scaling and constraints",
+      "history": "Fractal showed Optima that the objective function of a network design problem had fractal structure: zooming in revealed the same rugged landscape at every scale. Optima realized her gradient-based methods would fail on such a landscape. Together they developed a multi-scale optimization algorithm that searched coarsely at large scales and refined at small ones.",
+      "current_tension": "Optima assumes smooth landscapes. Fractal shows her when they are not. They push each other because Optima's algorithms need to know the structure of the search space and Fractal tells her what kind of structure to expect.",
+      "shared_knowledge": "They found that many real-world optimization landscapes are self-similar. Optima calls this 'the curse of fractality.' Fractal calls it 'beautiful.'"
+    },
+    {
+      "between": ["Regress", "Signal"],
+      "type": "identification and information",
+      "history": "Signal helped Regress design a natural experiment by measuring the mutual information between the proposed instrument and the treatment variable. The instrument was strong. The paper identified a causal effect that had eluded researchers for a decade. Regress credited Signal's information-theoretic screening for making it possible.",
+      "current_tension": "Regress asks whether a variable is a valid instrument. Signal asks how much information it carries. They push each other because a weak instrument with high information is useless for causal inference and a strong instrument with low information is underpowered.",
+      "shared_knowledge": "They developed an information-theoretic test for instrument strength that outperforms the F-statistic in finite samples. Regress was initially reluctant to abandon the F-stat. Signal's Monte Carlo evidence convinced him."
+    },
+    {
+      "between": ["Regress", "Chain"],
+      "type": "time series partners",
+      "history": "They worked on a labor economics panel dataset. Regress wanted to estimate the effect of job training. Chain modeled the employment transitions as a Markov process. Together they showed that ignoring the Markov structure led to biased causal estimates because the treatment effect depended on the previous state.",
+      "current_tension": "Regress asks what causes what. Chain asks what follows what. They push each other because causal effects in time series data depend on the dynamic structure and ignoring it leads to wrong answers.",
+      "shared_knowledge": "They proved that a particular difference-in-differences estimator is biased when the outcome follows a non-stationary Markov chain. Three published papers had to issue corrections."
+    },
+    {
+      "between": ["Regress", "Kernel"],
+      "type": "prediction vs explanation",
+      "history": "Kernel predicted hospital readmissions with 94% accuracy. Regress asked which features were causal. Kernel said she did not know. Regress ran a causal analysis and found that three of Kernel's top features were confounders. They rebuilt the model together, sacrificing two percentage points of accuracy for a model that supported actionable interventions.",
+      "current_tension": "Kernel optimizes prediction. Regress demands causal interpretation. They push each other because prediction without causation is surveillance and causation without prediction is untestable. The best models do both.",
+      "shared_knowledge": "They coined the term 'the prediction-causation tradeoff.' Kernel thinks it is a false dichotomy. Regress thinks it is real. Their ongoing argument has produced four joint papers."
+    },
+    {
+      "between": ["Regress", "Queue"],
+      "type": "measurement and mechanism",
+      "history": "Regress estimated the causal effect of adding a server on average wait time. Queue said the answer depended on utilization. Regress said the answer depended on the identification strategy. They ran a natural experiment when a hospital added a triage nurse and used both approaches. Queue predicted the reduction. Regress estimated it. The numbers matched within a minute.",
+      "current_tension": "Queue models the mechanism. Regress measures the effect. Queue derives the expected improvement. Regress tests whether the improvement actually happened. They push each other to connect structural models to empirical evidence.",
+      "shared_knowledge": "They have a rule: if Queue's model and Regress's estimate disagree by more than ten percent, something is wrong with one of them. The rule has caught errors three times."
+    },
+    {
+      "between": ["Regress", "Fractal"],
+      "type": "scale and causation",
+      "history": "Fractal showed Regress that the residuals of his regression had a power-law distribution. Regress said his estimates were still consistent. Fractal said the standard errors were not. They developed a heteroskedasticity-robust estimator for heavy-tailed data that is now standard in financial econometrics.",
+      "current_tension": "Regress assumes thin tails by default. Fractal checks whether that assumption holds. They push each other because a causal estimate with wrong standard errors is not really an estimate. Fractal keeps Regress honest about the tails.",
+      "shared_knowledge": "Fractal once told Regress that his confidence interval was off by a factor of ten because of fat tails. Regress did not sleep that night. The next morning he rewrote the variance estimator."
+    },
+    {
+      "between": ["Signal", "Chain"],
+      "type": "entropy and transitions",
+      "history": "They collaborated on a cryptography project. Chain modeled the cipher as a Markov process. Signal measured the entropy rate. Together they showed that the cipher leaked information at a rate that made it breakable with enough ciphertext. The cipher was retired.",
+      "current_tension": "Chain describes the process. Signal measures its information content. They push each other because the entropy rate of a Markov chain is a fundamental quantity that both of them need and neither alone can fully characterize.",
+      "shared_knowledge": "They derived the entropy rate of a Markov chain together on a napkin at a diner. The napkin is framed in Signal's office."
+    },
+    {
+      "between": ["Signal", "Kernel"],
+      "type": "information and learning",
+      "history": "Signal helped Kernel understand why her deep network was overfitting. Signal computed the mutual information between the hidden layers and the input. The bottleneck layer was memorizing noise. They redesigned the architecture using the information bottleneck principle and generalization improved dramatically.",
+      "current_tension": "Signal asks how much information the model retains. Kernel asks how well the model predicts. They push each other because a model that retains too much information overfits and a model that retains too little underfits. The sweet spot is the information bottleneck.",
+      "shared_knowledge": "They have a whiteboard diagram of the information plane that they update every time they train a new model. It has become a ritual."
+    },
+    {
+      "between": ["Signal", "Queue"],
+      "type": "capacity and congestion",
+      "history": "They modeled a communication network together. Signal computed the channel capacity. Queue modeled the packet arrivals. Together they showed that when the arrival rate approached the channel capacity, delay grew exponentially. The result connected Shannon's theory to queueing theory in a way that surprised both of them.",
+      "current_tension": "Signal asks how much the channel can carry. Queue asks what happens when you try to carry more. They push each other because capacity without congestion analysis is optimistic and congestion analysis without capacity is pessimistic.",
+      "shared_knowledge": "They proved that Shannon's channel capacity is the arrival rate at which Queue's expected delay diverges. Signal called it beautiful. Queue called it terrifying."
+    },
+    {
+      "between": ["Signal", "Fractal"],
+      "type": "complexity and compression",
+      "history": "Fractal brought Signal a time series with self-similar structure at every scale. Signal tried to compress it and found that the compression ratio was itself a power law. They realized that the fractal dimension and the information content were related by a simple formula. The result connected two fields that rarely talk to each other.",
+      "current_tension": "Signal measures information. Fractal measures structure. They push each other because a power-law signal has infinite variance and finite entropy rate and understanding both is necessary to process it correctly.",
+      "shared_knowledge": "They discovered that the Kolmogorov complexity of a fractal is proportional to its fractal dimension. Signal said this was obvious from information theory. Fractal said it was obvious from geometry. Neither had seen the connection before."
+    },
+    {
+      "between": ["Chain", "Kernel"],
+      "type": "sequential learning",
+      "history": "Kernel wanted to model user behavior on a website. Chain said it was a Markov chain. Kernel said it was a sequence prediction problem. They built a model that used Chain's transition matrix as a prior for Kernel's recurrent neural network. The hybrid outperformed both components and predicted next-page visits with eighty percent accuracy.",
+      "current_tension": "Chain offers interpretable dynamics. Kernel offers flexible prediction. They push each other because Chain's Markov assumption is sometimes too strong and Kernel's neural network is sometimes too opaque. The best models live in between.",
+      "shared_knowledge": "They tested whether user browsing is actually Markov. It is not. But Chain's approximation is close enough that it helps Kernel's model learn faster. Chain calls this 'good enough.' Kernel calls it 'a warm start.'"
+    },
+    {
+      "between": ["Chain", "Queue"],
+      "type": "stochastic systems",
+      "history": "They are the closest intellectual neighbors in the group. Every queueing model is a Markov chain. They met studying birth-death processes and realized they were reading the same papers from different perspectives. Chain sees the mathematics. Queue sees the application. Together they cover more ground than anyone else in the room.",
+      "current_tension": "Chain provides the general theory. Queue provides the applied context. Chain asks about the spectral gap of the transition matrix. Queue asks about the average wait time. They push each other to connect abstract properties to operational metrics.",
+      "shared_knowledge": "They proved a tight bound on the mixing time of a queueing chain that improved the best known result by a factor of log n. Queue said it would reduce buffer sizes. Chain said it was a nice spectral gap bound. Same result, different celebration."
+    },
+    {
+      "between": ["Chain", "Fractal"],
+      "type": "long memory",
+      "history": "Fractal showed Chain a process with long-range dependence that violated the Markov property. Chain was troubled. Fractal was delighted. Together they embedded the long-memory process in a higher-dimensional Markov chain where the extra states carried the memory. The trick worked. Chain's tools applied again.",
+      "current_tension": "Chain assumes memorylessness. Fractal sees memory everywhere. They push each other because real processes often have longer memory than Chain assumes and shorter memory than Fractal suspects. The truth is usually in between and they find it together.",
+      "shared_knowledge": "Chain once asked Fractal how many states the Markov chain needed to capture a power-law autocorrelation. Fractal said infinity. Chain said that was impractical. They settled on 47."
+    },
+    {
+      "between": ["Kernel", "Queue"],
+      "type": "prediction for operations",
+      "history": "Queue needed arrival rate forecasts for a hospital emergency department. Kernel built a gradient-boosted model that predicted hourly arrivals from weather, day of week, and local events. Queue plugged the forecasts into a staffing model. Prediction errors translated directly into overtime costs. They iterated together until the prediction error was below the threshold that Queue's model needed.",
+      "current_tension": "Kernel optimizes prediction accuracy. Queue needs predictions good enough for operational decisions. They push each other because Queue tells Kernel which errors are expensive and Kernel tells Queue what is predictable.",
+      "shared_knowledge": "They learned that predicting arrivals during a snowstorm is nearly impossible. Queue handles it with surge capacity. Kernel handles it with wide prediction intervals. They agree the snowstorm wins."
+    },
+    {
+      "between": ["Kernel", "Fractal"],
+      "type": "patterns and power laws",
+      "history": "Fractal told Kernel that her neural network's generalization error followed a power law as a function of training set size. Kernel had not noticed. Fractal derived the scaling exponent. Kernel used it to predict how much data she needed to hit a target accuracy. The prediction was exact. They now always compute the scaling law before starting a big training run.",
+      "current_tension": "Kernel trains models. Fractal characterizes their scaling behavior. They push each other because Kernel wants to know how much data is enough and Fractal knows the formula. Without Fractal, Kernel wastes compute. Without Kernel, Fractal has no models to study.",
+      "shared_knowledge": "They verified that the neural scaling laws hold across five different architectures and twelve different datasets. Fractal was vindicated. Kernel was annoyed that a simple power law predicted her model's performance better than she could."
+    },
+    {
+      "between": ["Queue", "Fractal"],
+      "type": "heavy-tailed service",
+      "history": "Fractal showed Queue that the service time distribution at a help desk followed a power law: most tickets took minutes but some took days. Queue's standard models assumed exponential service and wildly underestimated congestion. Together they developed a queueing model with heavy-tailed service times that predicted the real backlog within five percent.",
+      "current_tension": "Queue assumes exponential tails for tractability. Fractal checks whether the tails are actually exponential. They push each other because Queue's formulas break down when the tails are heavy and Fractal shows her exactly when they break.",
+      "shared_knowledge": "They proved that a single power-law distributed service time can dominate the entire queue's behavior. Queue calls it 'the one bad ticket theorem.' Fractal calls it 'the tyranny of the tail.'"
+    }
+  ]
+}

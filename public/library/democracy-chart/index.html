@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three Ways to Measure a Decline</title>
+    <style>
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --bg: #ffffff;
+        --text: #1a1a1a;
+        --text-sec: #555;
+        --text-muted: #888;
+        --border: #d4d4d0;
+        --card-bg: #ffffff;
+        --grid-color: #e8e8e3;
+      }
+      [data-theme="dark"] {
+        --bg: #111111;
+        --text: #e5e5e5;
+        --text-sec: #999;
+        --text-muted: #666;
+        --border: #2a2a2a;
+        --card-bg: #111111;
+        --grid-color: #2a2a2a;
+      }
+      [data-theme="rainbow"] {
+        --bg: #1b0e3a;
+        --text: #e8f7ff;
+        --text-sec: #ffb3e6;
+        --text-muted: #c787c0;
+        --border: #5a2ea0;
+        --card-bg: #1b0e3a;
+        --grid-color: #5a2ea0;
+      }
+      body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; }
+      .theme-toggle { position:fixed; top:12px; right:12px; background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; z-index:10; }
+      .theme-toggle:hover { color:var(--text); }
+      .theme-toggle svg { width:16px; height:16px; }
+      /* Icon shown = the NEXT theme in the cycle (matches site header).
+         light → moon, dark → rainbow, rainbow → sun. */
+      .icon-sun { display:none; }
+      .icon-rainbow { display:none; }
+      [data-theme="dark"] .icon-moon { display:none; }
+      [data-theme="dark"] .icon-rainbow { display:block; }
+      [data-theme="rainbow"] .icon-moon { display:none; }
+      [data-theme="rainbow"] .icon-sun { display:block; }
+    </style>
+    <script>
+      (function(){
+  function applyTheme(t){
+    if (t === 'dark' || t === 'rainbow') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+  var urlTheme = new URLSearchParams(location.search).get('theme');
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+    applyTheme(urlTheme);
+  } else {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'rainbow') {
+      applyTheme(saved);
+    } else if (saved === 'light') {
+      // explicit user choice — leave default (no attribute)
+    } else {
+      applyTheme('rainbow');
+    }
+  }
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'parent-theme') {
+      applyTheme(e.data.theme);
+      // No localStorage write — parent owns persisted preference.
+    }
+  });
+})();
+    </script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/recharts@2/umd/Recharts.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-dem" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-dem)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-dem)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-dem)" opacity="0.4"/></svg>
+    </button>
+    <script type="text/babel">
+const { useState } = React;
+const {
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+  ReferenceArea,
+  ComposedChart,
+  Line,
+} = Recharts;
+
+// Freedom House (100-point scale)
+const freedomHouseData = [
+  { year: 2006, fh: 93 },
+  { year: 2007, fh: 93 },
+  { year: 2008, fh: 93 },
+  { year: 2009, fh: 94 },
+  { year: 2010, fh: 94 },
+  { year: 2011, fh: 93 },
+  { year: 2012, fh: 92 },
+  { year: 2013, fh: 91 },
+  { year: 2014, fh: 91 },
+  { year: 2015, fh: 90 },
+  { year: 2016, fh: 89 },
+  { year: 2017, fh: 88 },
+  { year: 2018, fh: 86 },
+  { year: 2019, fh: 86 },
+  { year: 2020, fh: 83 },
+  { year: 2021, fh: 83 },
+  { year: 2022, fh: 83 },
+  { year: 2023, fh: 83 },
+  { year: 2024, fh: 84 },
+];
+
+// Century Foundation Democracy Meter (Jan 2026)
+const cfData = [
+  { year: 2024, cf: 79 },
+  { year: 2025, cf: 57 },
+];
+
+// Bright Line Watch expert survey (700+ political scientists)
+const blwData = [
+  { year: 2017, blw: 67 },
+  { year: 2025, blw: 53 },
+];
+
+// Build merged dataset through 2026
+const allYears = [];
+for (let y = 2006; y <= 2026; y++) {
+  const fh = freedomHouseData.find((d) => d.year === y);
+  const cf = cfData.find((d) => d.year === y);
+  const blw = blwData.find((d) => d.year === y);
+  allYears.push({
+    year: y,
+    fh: fh ? fh.fh : null,
+    cf: cf ? cf.cf : null,
+    blw: blw ? blw.blw : null,
+  });
+}
+
+function getThemeColors() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    bg: s.getPropertyValue('--bg').trim(),
+    text: s.getPropertyValue('--text').trim(),
+    textSec: s.getPropertyValue('--text-sec').trim(),
+    textMuted: s.getPropertyValue('--text-muted').trim(),
+    border: s.getPropertyValue('--border').trim(),
+    cardBg: s.getPropertyValue('--card-bg').trim(),
+    gridColor: s.getPropertyValue('--grid-color').trim(),
+  };
+}
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  const c = getThemeColors();
+  const names = {
+    fh: "Freedom House",
+    cf: "Century Foundation",
+    blw: "Bright Line Watch",
+  };
+  return (
+    <div
+      style={{
+        background: c.cardBg,
+        border: "1px solid " + c.border,
+        padding: "10px 14px",
+        fontFamily: '"Inter", -apple-system, sans-serif',
+        fontSize: "0.8rem",
+        lineHeight: 1.6,
+      }}
+    >
+      <div
+        style={{
+          fontWeight: 800,
+          marginBottom: 4,
+          color: c.text,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {label}
+      </div>
+      {payload.map((entry, i) =>
+        entry.value != null ? (
+          <div
+            key={i}
+            style={{ display: "flex", gap: 6, alignItems: "center" }}
+          >
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: entry.stroke || entry.color,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ color: c.textSec }}>{names[entry.dataKey]}</span>
+            <span
+              style={{
+                fontWeight: 700,
+                color: c.text,
+                marginLeft: "auto",
+              }}
+            >
+              {entry.value}
+            </span>
+          </div>
+        ) : null
+      )}
+    </div>
+  );
+};
+
+// Custom hollow circle for the pending FH 2025 data point
+const HollowDot = ({ cx, cy }) => {
+  if (!cx || !cy) return null;
+  const c = getThemeColors();
+  return (
+    <g>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={5}
+        fill={c.bg}
+        stroke={c.text}
+        strokeWidth={1.5}
+      />
+      <text
+        x={cx + 10}
+        y={cy + 4}
+        fontSize={11}
+        fontWeight={700}
+        fill={c.text}
+        fontFamily='"Inter", -apple-system, sans-serif'
+      >
+        ?
+      </text>
+    </g>
+  );
+};
+
+function DemocracyChart() {
+  const [theme, setTheme] = useState(
+    document.documentElement.getAttribute('data-theme') || 'light'
+  );
+
+  React.useEffect(() => {
+    const obs = new MutationObserver(() => {
+      setTheme(document.documentElement.getAttribute('data-theme') || 'light');
+    });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
+
+  const c = getThemeColors();
+
+  // Separate dataset for the pending FH point - dashed connector from last known
+  const fhPending = [
+    { year: 2024, fhGhost: 84 },
+    { year: 2025, fhGhost: 70 },
+  ];
+
+  // Merge pending into allYears
+  const chartData = allYears.map((d) => {
+    const ghost = fhPending.find((g) => g.year === d.year);
+    return { ...d, fhGhost: ghost ? ghost.fhGhost : null };
+  });
+
+  return (
+    <div
+      style={{
+        background: "var(--bg)",
+        minHeight: "100vh",
+        fontFamily: '"Inter", -apple-system, sans-serif',
+        color: "var(--text)",
+        WebkitFontSmoothing: "antialiased",
+        lineHeight: 1.7,
+        padding: "2rem 1.5rem 4rem",
+        fontSize: "17px",
+      }}
+    >
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div style={{ marginBottom: "0.25rem" }}>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              color: "var(--text-sec)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              fontWeight: 600,
+            }}
+          >
+            Mar 17, 2026
+          </span>
+        </div>
+        <h1
+          style={{
+            fontSize: "2.25rem",
+            fontWeight: 800,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.2,
+            margin: "0 0 0.75rem 0",
+          }}
+        >
+          Three Ways to Measure a Decline
+        </h1>
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: "var(--text-sec)",
+            margin: "0 0 2.5rem 0",
+            maxWidth: 600,
+          }}
+        >
+          U.S. democracy scores from three independent indices, all on a 0-100
+          scale. Two have published 2025 numbers. The third releases Thursday.
+        </p>
+
+        {/* Chart */}
+        <div
+          style={{
+            border: "1px solid var(--border)",
+            padding: "1.5rem 1rem 1rem",
+            background: "var(--card-bg)",
+            marginBottom: "2rem",
+          }}
+        >
+          <div style={{ width: "100%", height: 420 }}>
+            <ResponsiveContainer>
+              <ComposedChart
+                data={chartData}
+                margin={{ top: 16, right: 32, left: 4, bottom: 12 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={c.gridColor}
+                  vertical={false}
+                />
+
+                {/* "Partly Free" zone */}
+                <ReferenceArea
+                  y1={40}
+                  y2={70}
+                  fill={c.text}
+                  fillOpacity={0.03}
+                />
+
+                <ReferenceLine
+                  y={70}
+                  stroke={c.text}
+                  strokeDasharray="8 4"
+                  strokeOpacity={0.2}
+                  label={{
+                    value: "PARTLY FREE",
+                    position: "insideTopLeft",
+                    fill: c.textMuted,
+                    fontSize: 9,
+                    fontWeight: 600,
+                    fontFamily: '"Inter", sans-serif',
+                    dy: 4,
+                    dx: 4,
+                  }}
+                />
+
+                {/* Trump 1.0 */}
+                <ReferenceArea
+                  x1={2017}
+                  x2={2020}
+                  fill={c.text}
+                  fillOpacity={0.03}
+                />
+                {/* Trump 2.0 */}
+                <ReferenceArea
+                  x1={2025}
+                  x2={2026}
+                  fill={c.text}
+                  fillOpacity={0.03}
+                />
+
+                <XAxis
+                  dataKey="year"
+                  tick={{
+                    fill: c.textSec,
+                    fontSize: 11,
+                    fontFamily: '"Inter", sans-serif',
+                  }}
+                  tickLine={{ stroke: c.border }}
+                  axisLine={{ stroke: c.border }}
+                  tickFormatter={(v) =>
+                    v % 2 === 0 ? `'${String(v).slice(2)}` : ""
+                  }
+                  domain={[2006, 2026]}
+                />
+                <YAxis
+                  domain={[40, 100]}
+                  ticks={[40, 50, 60, 70, 80, 90, 100]}
+                  tick={{
+                    fill: c.textSec,
+                    fontSize: 11,
+                    fontFamily: '"Inter", sans-serif',
+                  }}
+                  tickLine={{ stroke: c.border }}
+                  axisLine={{ stroke: c.border }}
+                  width={30}
+                />
+                <Tooltip content={<CustomTooltip />} />
+
+                {/* Freedom House - solid line through known data */}
+                <Line
+                  type="monotone"
+                  dataKey="fh"
+                  stroke={c.text}
+                  strokeWidth={2}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    if (!cx || !cy) return null;
+                    const isEndpoint =
+                      payload.year === 2006 || payload.year === 2024;
+                    return (
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={isEndpoint ? 3.5 : 1.5}
+                        fill={c.text}
+                        stroke="none"
+                      />
+                    );
+                  }}
+                  activeDot={{
+                    r: 4,
+                    fill: c.text,
+                    stroke: c.bg,
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={false}
+                />
+
+                {/* FH ghost/pending line - dashed from 84 down to threshold */}
+                <Line
+                  type="monotone"
+                  dataKey="fhGhost"
+                  stroke={c.text}
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  strokeOpacity={0.35}
+                  dot={(props) => {
+                    const { cx, cy, payload } = props;
+                    if (!cx || !cy) return null;
+                    if (payload.year === 2025) {
+                      return <HollowDot cx={cx} cy={cy} />;
+                    }
+                    return null;
+                  }}
+                  activeDot={false}
+                  connectNulls={true}
+                  legendType="none"
+                />
+
+                {/* Century Foundation */}
+                <Line
+                  type="monotone"
+                  dataKey="cf"
+                  stroke="#92400e"
+                  strokeWidth={2}
+                  dot={{ r: 3.5, fill: "#92400e", strokeWidth: 0 }}
+                  activeDot={{
+                    r: 5,
+                    fill: "#92400e",
+                    stroke: c.bg,
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={true}
+                />
+
+                {/* Bright Line Watch */}
+                <Line
+                  type="monotone"
+                  dataKey="blw"
+                  stroke="#9ca3af"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={{ r: 3.5, fill: "#9ca3af", strokeWidth: 0 }}
+                  activeDot={{
+                    r: 5,
+                    fill: "#9ca3af",
+                    stroke: c.bg,
+                    strokeWidth: 2,
+                  }}
+                  connectNulls={true}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Legend strip */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1.25rem",
+              flexWrap: "wrap",
+              paddingTop: "0.75rem",
+              borderTop: "1px solid var(--grid-color)",
+              fontSize: "0.7rem",
+              color: "var(--text-sec)",
+              letterSpacing: "0.03em",
+              alignItems: "center",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 2,
+                  background: "var(--text)",
+                  borderRadius: 1,
+                }}
+              />
+              <span>Freedom House</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  border: "1.5px solid var(--text)",
+                  background: "var(--bg)",
+                }}
+              />
+              <span>Pending (Mar 20)</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 2,
+                  background: "#92400e",
+                  borderRadius: 1,
+                }}
+              />
+              <span>Century Foundation</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 16,
+                  height: 0,
+                  borderTop: "2px dashed #9ca3af",
+                }}
+              />
+              <span>Bright Line Watch</span>
+            </div>
+            <div style={{ marginLeft: "auto", color: "var(--text-muted)" }}>
+              Shaded bands = Trump presidencies
+            </div>
+          </div>
+        </div>
+
+        {/* Prose annotations */}
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong>The black line</strong> is Freedom House, the longest-running
+          and most cited democracy index. It aggregates 25 indicators of
+          political rights and civil liberties into a 100-point score. The U.S.
+          scored 93 when the current scale launched in 2006. By 2024 it had
+          fallen to 84. Eleven of those points disappeared between 2010 and
+          2020, with six lost during Trump's first term. The dashed line drops
+          to the threshold at 70, where a country gets reclassified from "Free"
+          to "Partly Free." The hollow circle is the pending number. It lands
+          Thursday.
+        </p>
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong style={{ color: "#92400e" }}>The amber line</strong> is the
+          Century Foundation's Democracy Meter, first published in January 2026.
+          It scored the U.S. at 79 for 2024 and 57 for 2025. A 28 percent
+          collapse in a single year. Already well below the threshold.
+        </p>
+        <p style={{ marginBottom: "1.25rem" }}>
+          <strong style={{ color: "#9ca3af" }}>The dashed gray line</strong> is
+          Bright Line Watch, a survey of more than 700 political scientists. They
+          scored U.S. democracy at 67 after the 2016 election. By late 2025 it
+          had fallen to 53, the largest single drop in the survey's history,
+          placing the country roughly midway between Canada and Russia.
+        </p>
+        <p>
+          Each index uses its own methodology, so cross-comparison is
+          approximate. But the direction is not ambiguous. All three are falling.
+          Two of the three have already crossed below the line that separates
+          democracies from semi-democracies. Thursday tells us whether the most
+          conservative of the three follows them down.
+        </p>
+
+        <hr
+          style={{
+            border: "none",
+            borderTop: "1px solid var(--border)",
+            margin: "2.5rem 0",
+          }}
+        />
+
+        <p
+          style={{
+            fontSize: "0.8rem",
+            color: "var(--text-sec)",
+            lineHeight: 1.6,
+            fontStyle: "italic",
+          }}
+        >
+          Sources: Freedom House, <em>Freedom in the World</em> (2006-2025
+          reports). Century Foundation, "U.S. Democracy Meter" (Jan 2026).
+          Bright Line Watch expert survey (2017, 2025). Freedom House
+          intermediate year-over-year values interpolated from confirmed
+          endpoints and reported decline rates. The Economist Intelligence
+          Unit's Democracy Index separately classifies the U.S. as a "flawed
+          democracy" at 7.85/10.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<DemocracyChart />);
+    </script>
+    <script>
+document.getElementById('theme-toggle').addEventListener('click', function() {
+  var current = document.documentElement.getAttribute('data-theme') || 'light';
+  var cycle = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
+  var next = cycle[current] || 'dark';
+  if (next === 'light') {
+    document.documentElement.removeAttribute('data-theme');
+  } else {
+    document.documentElement.setAttribute('data-theme', next);
+  }
+  localStorage.setItem('theme', next);
+});
+    </script>
+  </body>
+</html>

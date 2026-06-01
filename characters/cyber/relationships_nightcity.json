@@ -1,0 +1,75 @@
+{
+  "name": "Night City Web",
+  "relationships": [
+    {
+      "between": ["Dusty", "Kira Tanaka"],
+      "type": "electric tension",
+      "history": "Kira came into Dusty's shop three weeks ago needing a motorcycle courier for a data drop. Dusty did the job. Kira paid double. They have been finding excuses to run into each other since.",
+      "current_tension": "Kira thinks Dusty is reckless and beautiful and exactly the kind of distraction she cannot afford. Dusty thinks Kira talks too fast and looks at him like she is solving a puzzle and he likes both of those things.",
+      "shared_knowledge": "They both know the data drop was not the real reason Kira came to the shop. Neither has said it."
+    },
+    {
+      "between": ["Dusty", "Vex"],
+      "type": "mutual respect with heat",
+      "history": "Vex hired Dusty to build a custom bike for a getaway two months ago. The job went sideways. Dusty improvised a fix at speed that saved Vex's life. Vex does not forget things like that.",
+      "current_tension": "Vex does not trust how comfortable Dusty makes her feel. Dusty has never met anyone who scares him a little and he is into it.",
+      "shared_knowledge": "They saved each other's lives on that job. Neither has acknowledged what that means."
+    },
+    {
+      "between": ["Dusty", "Sable"],
+      "type": "cat and mouse",
+      "history": "Sable has been trying to recruit Dusty as a regular operator for six months. Dusty keeps saying no. Sable keeps raising the offer. It stopped being about the eddies three months ago.",
+      "current_tension": "Sable is not used to being told no. Dusty is not used to someone who sees through his act. They flirt like they are sparring.",
+      "shared_knowledge": "Sable knows Dusty is smarter than he lets on. Dusty knows Sable is lonelier than she lets on. Neither has called the other out."
+    },
+    {
+      "between": ["Dusty", "Padre"],
+      "type": "patient and doc",
+      "history": "Padre has patched Dusty up four times in the last year. Last time Dusty stayed for mezcal after. They talked until 5 AM about motorcycles and God and whether Night City has a soul.",
+      "current_tension": "Padre sees something in Dusty that reminds Padre of himself when Padre was young and still believed things could change. Padre has not said this.",
+      "shared_knowledge": "Dusty told Padre about the motorcycle wreck that ended his stunt career. Padre is one of three people in Night City who knows Dusty's real history."
+    },
+    {
+      "between": ["Kira Tanaka", "Vex"],
+      "type": "professional with history",
+      "history": "Vex has run security on three of Kira's data operations. Kira trusts Vex with her life. Vex charges Kira half rate and pretends it is a bulk discount.",
+      "current_tension": "Kira just intercepted the Arasaka data packet about her parents. Kira needs muscle she can trust. Vex is the only name on the list.",
+      "shared_knowledge": "Vex knows what happened to Kira's parents. Kira does not know Vex knows."
+    },
+    {
+      "between": ["Kira Tanaka", "Sable"],
+      "type": "fixer and asset",
+      "history": "Sable has brokered three of Kira's biggest data sales. They make each other money. They do not pretend it is friendship.",
+      "current_tension": "Kira has data that could hurt Arasaka. Sable wants to sell it. Kira wants to broadcast it for free. This disagreement has not happened yet but it is coming.",
+      "shared_knowledge": "Sable knows Kira's real identity. Kira gave it to Sable as collateral. It is the most dangerous thing Sable holds."
+    },
+    {
+      "between": ["Kira Tanaka", "Padre"],
+      "type": "found family",
+      "history": "Padre has been Kira's ripperdoc since she was 19. Padre installed Kira's first neural port. Padre worries about Kira like a father worries.",
+      "current_tension": "Kira has not come in for a maintenance check in three months. Padre knows that means Kira is pushing her implants too hard. Padre has left two messages Kira has not returned.",
+      "shared_knowledge": "Padre knew Kira's grandmother. Kira does not know this."
+    },
+    {
+      "between": ["Vex", "Sable"],
+      "type": "professional with friction",
+      "history": "Sable gives Vex work. Clean contracts, fair pay. They have been doing business for four years. Sable once tried to give Vex a job that violated Vex's code. Vex walked out. Sable never did it again.",
+      "current_tension": "Sable respects Vex more than anyone in Night City and resents that Vex will never owe Sable anything.",
+      "shared_knowledge": "Vex knows Sable could leave Night City. Sable knows Vex is not really dead. They hold each other's biggest secrets."
+    },
+    {
+      "between": ["Vex", "Padre"],
+      "type": "old soldiers",
+      "history": "Padre was the surgeon who treated Vex after the Badlands job that made Vex walk away from Militech. Padre did not ask questions. Vex did not offer answers. That was three years ago.",
+      "current_tension": "Vex comes to Padre for maintenance on her Gorilla Arms. They talk about the weather and what Carol is cooking at the diner. They never talk about the war. Both of them are fine with that.",
+      "shared_knowledge": "Padre knows Vex's real name. Padre has never used it."
+    },
+    {
+      "between": ["Sable", "Padre"],
+      "type": "mutual sanctuary",
+      "history": "Sable sends people to Padre's clinic when they need help and cannot pay. Padre sends people to Sable when they need work and have no contacts. They have never discussed this arrangement. It just works.",
+      "current_tension": "Padre is the one person Sable does not run calculations on. Sable is not sure if that is trust or something she should be worried about.",
+      "shared_knowledge": "They both keep Kabuki running in their own way. They both know the other is essential. They never say it."
+    }
+  ]
+}

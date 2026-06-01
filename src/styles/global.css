@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
 :root {
   --bg: #ffffff;
   --fg: #1a1a1a;
@@ -7,9 +5,71 @@
   --accent: #0a0a0a;
   --border: #d4d4d0;
   --code-bg: #e8e8e3;
-  --max-width: 720px;
+  --max-width: 1200px;
   --font-body: 'Inter', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+}
+
+[data-theme="dark"] {
+  --bg: #0a0a0f;
+  --fg: #e5e5e5;
+  --fg-muted: #999;
+  --accent: #f0f0f0;
+  --border: #1e1e2e;
+  --code-bg: #0d0d14;
+}
+
+/* Rainbow mode — synthwave / Thor: Ragnarok / Tyr-rune palette */
+[data-theme="rainbow"] {
+  --bg: #1b0e3a;
+  --fg: #e8f7ff;
+  --fg-muted: #ffb3e6;
+  --accent: #ff2a92;
+  --border: #5a2ea0;
+  --code-bg: #15082b;
+  --rainbow-grad: linear-gradient(90deg, #ff6ec7 0%, #ff2a92 25%, #a85aff 50%, #4ad9ff 75%, #00e5d5 100%);
+  --rainbow-glow: 0 0 12px rgba(255, 42, 146, 0.4), 0 0 24px rgba(74, 217, 255, 0.2);
+}
+
+/* Headings get the gradient treatment */
+[data-theme="rainbow"] h1,
+[data-theme="rainbow"] h2,
+[data-theme="rainbow"] .site-title {
+  background: var(--rainbow-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Links get a neon glow on hover */
+[data-theme="rainbow"] a:hover {
+  text-shadow: var(--rainbow-glow);
+  border-color: #ff2a92;
+}
+
+/* Code blocks pick up the deep-purple synthwave background */
+[data-theme="rainbow"] pre,
+[data-theme="rainbow"] code {
+  border-color: #a85aff;
+}
+
+/* Subtle scanline / shimmer background for header in rainbow mode */
+[data-theme="rainbow"] header {
+  background: linear-gradient(180deg, #1b0e3a 0%, #2a1659 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+[data-theme="rainbow"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--rainbow-grad);
+  opacity: 0.7;
 }
 
 * {
@@ -136,11 +196,25 @@ th {
 .chart-container {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: #fff;
+  background: var(--bg);
   border: 1px solid var(--border);
 }
 
 .chart-container canvas {
   width: 100% !important;
   max-height: 400px;
+}
+
+/* Chart images: transparent background blends with page.
+   Dark themes invert luminance but keep hues so text/marks stay readable. */
+.chart-img {
+  background: transparent;
+  display: block;
+  max-width: 480px;
+  width: 100%;
+  margin: 1.5rem auto;
+}
+[data-theme="dark"] .chart-img,
+[data-theme="rainbow"] .chart-img {
+  filter: invert(1) hue-rotate(180deg);
 }

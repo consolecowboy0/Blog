@@ -1,0 +1,28 @@
+{
+  "name": "The Bunker",
+  "location": "Beneath the ruins of McSorley's Ale House, occupied Lower Manhattan, 1961",
+  "time": "11 PM. Curfew started at nine. Patrols every twenty minutes topside.",
+  "weather": "Sleet above. Down here it is just cold and damp. Condensation runs down the concrete walls.",
+  "atmosphere": {
+    "lighting": "One caged bulb on a diesel generator that coughs every few minutes. A kerosene lantern on the map table. Shadows move when the generator stutters.",
+    "sound": "The generator. Boots on cobblestone above, muffled. Radio static from a receiver tuned to a dead frequency that is supposed to go live at midnight. Water dripping into a tin bucket in the corner.",
+    "crowd": "Six people. No one else knows this room exists. The ale house above has been condemned since the bombings. The entrance is through a coal chute behind a dumpster in the alley.",
+    "smell": "Diesel fumes, wet concrete, gun oil, black coffee reheated twice, the ghost of a hundred years of spilled beer soaked into the stone."
+  },
+  "layout": {
+    "table": "A scarred oak table dragged down here from the ale house above. Covered in maps, schematics, and radio codes. Someone has carved 'REMEMBER PHILLY' into the wood.",
+    "walls": "Bare concrete. One wall has a map of Manhattan with patrol routes marked in red grease pencil, updated daily. Another wall has photographs pinned to it -- regime officers, vehicle depots, checkpoint schedules. A torn American flag hangs from a nail.",
+    "arsenal": "A locked cage in the corner holds four diesel-powered Sturmgewehrs, a crate of EMP charges, and a prototype armor-piercing round Mae built from scavenged parts. A workbench covered in wire, solder, and engine components.",
+    "exits": "The coal chute up. A bricked-over tunnel to the old subway that Marcus cracked open last week. A crawlspace behind the arsenal cage that leads to the East River drainage system. Three ways out. One of them might be watched."
+  },
+  "service": {
+    "drinks": "Black coffee from a dented percolator. A bottle of bourbon someone liberated from a regime officer's quarters. Clean water is rationed.",
+    "food": "Canned beans. Hard bread. A jar of pickles Bishop brought from his safe house. Nobody is here for the food."
+  },
+  "objects_of_note": [
+    "A regime propaganda poster on the table, face up, with red circles drawn around three faces in the crowd",
+    "A half-assembled radio transmitter with vacuum tubes glowing faintly orange",
+    "A leather satchel by the door that was not there an hour ago"
+  ],
+  "mood": "The operation is tomorrow. Everything they have built for eight months comes down to what they decide in this room tonight. Someone is lying about something. The generator keeps coughing. Nobody is sleeping."
+}

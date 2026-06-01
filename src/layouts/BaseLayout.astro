@@ -1,4 +1,9 @@
 ---
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/800.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+
 interface Props {
   title: string;
   description?: string;
@@ -14,14 +19,61 @@ const { title, description = 'A blog.' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      (function() {
+        const saved = localStorage.getItem('theme');
+        if (saved === 'dark' || saved === 'rainbow') {
+          document.documentElement.setAttribute('data-theme', saved);
+        } else if (saved === 'light') {
+          // explicit user choice — leave default (no attribute)
+        } else {
+          // no saved preference: default to rainbow
+          document.documentElement.setAttribute('data-theme', 'rainbow');
+        }
+      })();
+    </script>
+    <slot name="head" />
   </head>
   <body>
     <header>
       <nav>
         <a href="/" class="site-title">dustinlanders.com</a>
         <div class="nav-links">
+          <a href="/posts">Writing</a>
           <a href="/library">Library</a>
+          <a href="/dm">DM</a>
+          <button id="theme-toggle" aria-label="Cycle theme (light / dark / rainbow)">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="icon-rainbow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <defs>
+                <linearGradient id="rainbow-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#ff6ec7"/>
+                  <stop offset="33%" stop-color="#a85aff"/>
+                  <stop offset="66%" stop-color="#4ad9ff"/>
+                  <stop offset="100%" stop-color="#00e5d5"/>
+                </linearGradient>
+              </defs>
+              <path d="M2 18a10 10 0 0 1 20 0" stroke="url(#rainbow-grad)" fill="none"/>
+              <path d="M5 18a7 7 0 0 1 14 0" stroke="url(#rainbow-grad)" fill="none" opacity="0.7"/>
+              <path d="M8 18a4 4 0 0 1 8 0" stroke="url(#rainbow-grad)" fill="none" opacity="0.4"/>
+            </svg>
+          </button>
         </div>
       </nav>
     </header>
@@ -30,7 +82,7 @@ const { title, description = 'A blog.' } = Astro.props;
     </main>
     <footer>
       <div class="footer-row">
-        <p>&copy; {new Date().getFullYear()} · <a href="https://vectorracer.com">vectorracer</a></p>
+        <p>&copy; {new Date().getFullYear()} <a href="/dev" class="dev-dot">·</a> <a href="https://vectorracer.com">vectorracer</a></p>
         <div class="social-icons">
         <a href="https://instagram.com/LandersDustin" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,9 +96,64 @@ const { title, description = 'A blog.' } = Astro.props;
             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
           </svg>
         </a>
+        <a href="/legion" aria-label="Legion" class="social-link secret-link">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </a>
         </div>
       </div>
     </footer>
+
+    <!-- DM Chat Widget -->
+    <button id="dm-chat-toggle" aria-label="Send a message">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+      </svg>
+    </button>
+
+    <div id="dm-chat-panel">
+      <div class="dm-header">
+        <div class="dm-header-left">
+          <div class="dm-header-avatar">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+            </svg>
+          </div>
+          <div>
+            <span class="dm-title">Direct message</span>
+            <span class="dm-visitor-id" id="dm-visitor-id"></span>
+          </div>
+        </div>
+        <button id="dm-chat-close" aria-label="Close chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="dm-messages" id="dm-messages">
+        <div class="dm-empty-state">
+          <div class="dm-empty-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
+            </svg>
+          </div>
+          <p class="dm-empty-title">No messages yet</p>
+          <p class="dm-empty-sub">Say hello below.</p>
+        </div>
+      </div>
+      <div class="dm-input-area">
+        <textarea id="dm-input" rows="1" placeholder="Write something..."></textarea>
+        <button id="dm-send" title="Send" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+
   </body>
 </html>
 
@@ -56,15 +163,22 @@ const { title, description = 'A blog.' } = Astro.props;
 
 <style>
   header {
-    padding: 2rem 1.5rem;
-    max-width: var(--max-width);
-    margin: 0 auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
   }
 
   nav {
+    max-width: var(--max-width);
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .site-title {
@@ -78,6 +192,19 @@ const { title, description = 'A blog.' } = Astro.props;
   .nav-links {
     display: flex;
     gap: 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    nav {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .nav-links {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 
   .nav-links a {
@@ -97,7 +224,7 @@ const { title, description = 'A blog.' } = Astro.props;
   main {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 1.5rem 4rem;
+    padding: 2rem 1.5rem 4rem;
     min-height: 60vh;
   }
 
@@ -136,4 +263,535 @@ const { title, description = 'A blog.' } = Astro.props;
   .social-link:hover {
     color: var(--fg);
   }
+
+  .secret-link {
+    opacity: 0.08;
+  }
+  .secret-link:hover {
+    opacity: 0.6;
+  }
+
+  .dev-dot {
+    color: inherit;
+    border: none;
+    text-decoration: none;
+    cursor: default;
+  }
+
+  .dev-dot:hover {
+    color: inherit;
+    opacity: 1;
+  }
+
+  #theme-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--fg-muted);
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+
+  #theme-toggle:hover {
+    color: var(--fg);
+  }
+
+  /* Icon shown = the NEXT theme (what clicking will switch to). */
+  /* Light → click → Dark: show moon. Dark → click → Rainbow: show rainbow. Rainbow → click → Light: show sun. */
+  .icon-sun { display: none; }
+  .icon-moon { display: block; }
+  .icon-rainbow { display: none; }
+  :global([data-theme="dark"]) .icon-moon { display: none; }
+  :global([data-theme="dark"]) .icon-rainbow { display: block; }
+  :global([data-theme="rainbow"]) .icon-moon { display: none; }
+  :global([data-theme="rainbow"]) .icon-sun { display: block; }
+
+  /* DM Chat Widget */
+  #dm-chat-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #dm-chat-toggle:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18), 0 8px 28px rgba(0, 0, 0, 0.1);
+  }
+
+  #dm-chat-toggle:active {
+    transform: scale(0.96);
+  }
+
+  #dm-chat-panel {
+    position: fixed;
+    bottom: 5rem;
+    right: 1.5rem;
+    width: 360px;
+    max-height: 480px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    z-index: 9998;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 12px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  #dm-chat-panel.dm-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .dm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .dm-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .dm-header-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--fg);
+    color: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .dm-title {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--fg);
+    display: block;
+    line-height: 1.2;
+  }
+
+  .dm-visitor-id {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    color: var(--fg-muted);
+    margin-top: 0.05rem;
+    opacity: 0.6;
+  }
+
+  #dm-chat-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--fg-muted);
+    padding: 0.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  #dm-chat-close:hover {
+    color: var(--fg);
+    background: var(--code-bg);
+  }
+
+  .dm-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 0.75rem 0.5rem;
+    min-height: 200px;
+    max-height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    scroll-behavior: smooth;
+    background:
+      radial-gradient(ellipse at 15% 50%, color-mix(in srgb, var(--code-bg) 35%, transparent) 0%, transparent 65%),
+      radial-gradient(ellipse at 85% 80%, color-mix(in srgb, var(--code-bg) 25%, transparent) 0%, transparent 55%);
+  }
+
+  :global(.dm-empty-state) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    gap: 0.35rem;
+    flex: 1;
+  }
+
+  :global(.dm-empty-icon) {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--code-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-muted);
+    margin-bottom: 0.15rem;
+    opacity: 0.45;
+  }
+
+  :global(.dm-empty-title) {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--fg-muted);
+    margin: 0;
+  }
+
+  :global(.dm-empty-sub) {
+    font-size: 0.68rem;
+    color: var(--fg-muted);
+    margin: 0;
+    opacity: 0.55;
+  }
+
+  :global(.dm-msg) {
+    max-width: 82%;
+    animation: dmMsgIn 0.2s ease-out;
+  }
+
+  @keyframes dmMsgIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  :global(.dm-msg-visitor) {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  :global(.dm-msg-admin) {
+    margin-right: auto;
+    text-align: left;
+  }
+
+  :global(.dm-msg-text) {
+    display: inline-block;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    font-family: var(--font-body);
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  :global(.dm-msg-visitor .dm-msg-text) {
+    background: var(--fg);
+    color: var(--bg);
+    border-radius: 14px 14px 4px 14px;
+  }
+
+  :global(.dm-msg-admin .dm-msg-text) {
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    border-radius: 14px 14px 14px 4px;
+  }
+
+  :global(.dm-msg-time) {
+    display: block;
+    font-size: 0.5rem;
+    color: var(--fg-muted);
+    margin-top: 0.1rem;
+    font-family: var(--font-mono);
+    opacity: 0.5;
+    padding: 0 0.15rem;
+  }
+
+  .dm-input-area {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.4rem;
+    padding: 0.55rem 0.65rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  #dm-input {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--code-bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    padding: 0.45rem 0.75rem;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    max-height: 5rem;
+    line-height: 1.45;
+  }
+
+  #dm-input:focus {
+    border-color: var(--fg-muted);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--fg-muted) 8%, transparent);
+  }
+
+  #dm-send {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  #dm-send:hover:not(:disabled) {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+
+  #dm-send:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  #dm-send:disabled {
+    opacity: 0.2;
+    cursor: default;
+    transform: none;
+  }
+
+  @media (max-width: 480px) {
+    #dm-chat-panel {
+      width: calc(100% - 2rem);
+      right: 1rem;
+      left: 1rem;
+      bottom: 4.5rem;
+    }
+  }
 </style>
+
+<script>
+  function broadcastThemeToEmbeds(theme: string) {
+    document.querySelectorAll('iframe').forEach((iframe) => {
+      try {
+        iframe.contentWindow?.postMessage({ type: 'parent-theme', theme }, '*');
+      } catch { /* cross-origin — ignore */ }
+    });
+  }
+
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    const cycle: Record<string, string> = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
+    const next = cycle[current] || 'dark';
+    if (next === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', next);
+    }
+    localStorage.setItem('theme', next);
+    broadcastThemeToEmbeds(next);
+  });
+</script>
+
+<script>
+  (function () {
+    // Hide widget on DM pages
+    if (window.location.pathname === '/dm' || window.location.pathname === '/dm/') {
+      const toggle = document.getElementById('dm-chat-toggle');
+      const panel = document.getElementById('dm-chat-panel');
+      if (toggle) toggle.style.display = 'none';
+      if (panel) panel.style.display = 'none';
+      return;
+    }
+
+    const fp = [
+      navigator.userAgent, screen.width + 'x' + screen.height,
+      String(screen.colorDepth), Intl.DateTimeFormat().resolvedOptions().timeZone,
+      navigator.language, String(navigator.hardwareConcurrency || 0), navigator.platform,
+    ].join('|');
+
+    // Per-visitor UUID, generated once and cached in localStorage. Collision-free
+    // across browsers/devices. The fingerprint string above is still sent to the
+    // server as metadata for spam/abuse triage, but is no longer used for identity.
+    // Migrate any legacy fingerprint-hash IDs (8 hex chars) by regenerating.
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    let visitorId = localStorage.getItem('dm_visitor_id');
+    if (!visitorId || !uuidRe.test(visitorId)) {
+      visitorId = crypto.randomUUID();
+      localStorage.setItem('dm_visitor_id', visitorId);
+    }
+
+    const idDisplay = document.getElementById('dm-visitor-id');
+    if (idDisplay) idDisplay.textContent = 'ID: ' + visitorId.slice(0, 8);
+
+    const toggleBtn = document.getElementById('dm-chat-toggle');
+    const panel = document.getElementById('dm-chat-panel');
+    const closeBtn = document.getElementById('dm-chat-close');
+    const messagesDiv = document.getElementById('dm-messages');
+    const input = document.getElementById('dm-input') as HTMLTextAreaElement | null;
+    const sendBtn = document.getElementById('dm-send');
+
+    let isOpen = false;
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
+    let lastMsgCount = 0;
+    let lastMsgTime = 0;
+    let lastSendTime = 0;
+
+    toggleBtn?.addEventListener('click', () => {
+      isOpen = !isOpen;
+      panel?.classList.toggle('dm-open', isOpen);
+      if (isOpen) { pollMessages(); startPolling(); }
+      else { stopPolling(); }
+    });
+
+    closeBtn?.addEventListener('click', () => {
+      isOpen = false;
+      panel?.classList.remove('dm-open');
+      stopPolling();
+    });
+
+    function startPolling() {
+      stopPolling();
+      scheduleNext();
+    }
+
+    function scheduleNext() {
+      const interval = (Date.now() - lastSendTime) < 120000 ? 3000 : 10000;
+      pollInterval = setTimeout(async () => {
+        await pollMessages();
+        if (isOpen) scheduleNext();
+      }, interval);
+    }
+
+    function stopPolling() {
+      if (pollInterval) { clearTimeout(pollInterval); pollInterval = null; }
+    }
+
+    function escapeHtml(str: string): string {
+      const el = document.createElement('span');
+      el.textContent = str;
+      return el.innerHTML;
+    }
+
+    function fmtTime(ts: number): string {
+      const diff = Date.now() - ts;
+      if (diff < 60000) return 'now';
+      if (diff < 3600000) return Math.floor(diff / 60000) + 'm';
+      if (diff < 86400000) return Math.floor(diff / 3600000) + 'h';
+      return new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    function makeBubble(msg: { from: string; text: string; time: number }): string {
+      const cls = msg.from === 'admin' ? 'dm-msg-admin' : 'dm-msg-visitor';
+      return `<div class="dm-msg ${cls}"><span class="dm-msg-text">${escapeHtml(msg.text)}</span><span class="dm-msg-time">${fmtTime(msg.time)}</span></div>`;
+    }
+
+    // Optimistic send
+    async function sendMessage() {
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Append locally first
+      input.value = '';
+      if (sendBtn) sendBtn.setAttribute('disabled', '');
+      appendLocal(text, 'visitor');
+      lastSendTime = Date.now();
+
+      // Fire to server
+      try {
+        await fetch('/api/dm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint: fp }),
+        });
+      } catch { /* silent */ }
+      input.focus();
+    }
+
+    function appendLocal(text: string, from: string) {
+      if (!messagesDiv) return;
+      const empty = messagesDiv.querySelector('.dm-empty-state');
+      if (empty) empty.remove();
+      const now = Date.now();
+      const div = document.createElement('div');
+      div.innerHTML = makeBubble({ from, text, time: now });
+      messagesDiv.appendChild(div.firstElementChild!);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      lastMsgCount++;
+      lastMsgTime = now;
+    }
+
+    async function pollMessages() {
+      try {
+        const res = await fetch('/api/dm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'poll', visitor_id: visitorId }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const msgs = data.messages || [];
+          const serverLastTime = msgs.length > 0 ? msgs[msgs.length - 1].time : 0;
+          if (msgs.length !== lastMsgCount || serverLastTime !== lastMsgTime) {
+            renderAll(msgs);
+          }
+        }
+      } catch { /* silent */ }
+    }
+
+    function renderAll(messages: Array<{ text: string; from: string; time: number }>) {
+      if (!messagesDiv) return;
+      if (!messages.length) {
+        messagesDiv.innerHTML = '<div class="dm-empty-state"><div class="dm-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path></svg></div><p class="dm-empty-title">No messages yet</p><p class="dm-empty-sub">Say hello below.</p></div>';
+        lastMsgCount = 0;
+        lastMsgTime = 0;
+        return;
+      }
+      messagesDiv.innerHTML = messages.map(makeBubble).join('');
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      lastMsgCount = messages.length;
+      lastMsgTime = messages[messages.length - 1].time;
+    }
+
+    sendBtn?.addEventListener('click', sendMessage);
+    input?.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+    input?.addEventListener('input', () => {
+      if (sendBtn) sendBtn.toggleAttribute('disabled', !input.value.trim());
+    });
+  })();
+</script>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 360" width="600" height="360">
+  <!-- Minimal line-art: a lone sedan on an empty street at dawn, long shadow.
+       Theme-proof: black halo under, white line over. -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- halo pass (black) -->
+    <g stroke="#000" opacity="0.5">
+      <!-- low sun -->
+      <circle cx="78" cy="150" r="30" stroke-width="6"/>
+      <!-- horizon / street -->
+      <path d="M20 268 L580 268" stroke-width="6"/>
+      <!-- long cast shadow -->
+      <path d="M250 268 L560 290" stroke-width="6"/>
+      <path d="M300 268 L560 278" stroke-width="6"/>
+      <!-- car body -->
+      <path d="M150 268 L154 236 L190 228 L246 188 L356 184 L412 224 L452 232 L456 268" stroke-width="8"/>
+      <!-- wheel arches -->
+      <path d="M196 268 Q224 224 256 268" stroke-width="8"/>
+      <path d="M356 268 Q384 224 416 268" stroke-width="8"/>
+      <!-- wheels -->
+      <circle cx="226" cy="270" r="26" stroke-width="8"/>
+      <circle cx="386" cy="270" r="26" stroke-width="8"/>
+      <!-- windows -->
+      <path d="M256 196 L300 192 L300 224 L240 226 Z" stroke-width="5"/>
+      <path d="M312 192 L348 190 L386 224 L312 224 Z" stroke-width="5"/>
+    </g>
+
+    <!-- line pass (white) -->
+    <g stroke="#fff" opacity="0.95">
+      <circle cx="78" cy="150" r="30" stroke-width="2.4"/>
+      <path d="M20 268 L580 268" stroke-width="2.4"/>
+      <path d="M250 268 L560 290" stroke-width="1.8"/>
+      <path d="M300 268 L560 278" stroke-width="1.8"/>
+      <path d="M150 268 L154 236 L190 228 L246 188 L356 184 L412 224 L452 232 L456 268" stroke-width="2.8"/>
+      <path d="M196 268 Q224 224 256 268" stroke-width="2.8"/>
+      <path d="M356 268 Q384 224 416 268" stroke-width="2.8"/>
+      <circle cx="226" cy="270" r="26" stroke-width="2.8"/>
+      <circle cx="386" cy="270" r="26" stroke-width="2.8"/>
+      <path d="M256 196 L300 192 L300 224 L240 226 Z" stroke-width="1.8"/>
+      <path d="M312 192 L348 190 L386 224 L312 224 Z" stroke-width="1.8"/>
+    </g>
+  </g>
+</svg>

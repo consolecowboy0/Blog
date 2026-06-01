@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 2026 Simulator — Overtake Mode, Boost &amp; Active Aero</title>
+  <style>
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
+  </style>
+  <script src="./d3-slim.js"></script>
+  <script>    (function(){
+  function applyTheme(t){
+    if (t === 'dark' || t === 'rainbow') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+    }
+  }
+  var urlTheme = new URLSearchParams(location.search).get('theme');
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+    applyTheme(urlTheme);
+  } else {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'rainbow') {
+      applyTheme(saved);
+    } else if (saved === 'light') {
+      // explicit
+    } else {
+      applyTheme('rainbow');
+    }
+  }
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.type === 'parent-theme') {
+      applyTheme(e.data.theme);
+    }
+  });
+})();
+
+  </script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f5f5f0;
+      --bg-track: #e8e8e3;
+      --border: #d4d4d0;
+      --border-light: #b4b4b0;
+      --text: #1a1a1a;
+      --text-secondary: #555555;
+      --text-muted: #888888;
+      --accent-red: #e10600;
+      --accent-blue: #3b82f6;
+      --accent-green: #16a34a;
+      --accent-gold: #b45309;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0a0f;
+      --bg-card: #0d0d14;
+      --bg-card-hover: #14141f;
+      --bg-track: #14141f;
+      --border: #1e1e2e;
+      --border-light: #2a2a3a;
+      --text: #e5e5e5;
+      --text-secondary: #999999;
+      --text-muted: #666666;
+    }
+[data-theme="rainbow"] {
+  --bg: #1b0e3a;
+  --bg-card: #1b0e3a;
+  --bg-card-hover: #15082b;
+  --bg-track: #15082b;
+  --bg-panel: #1b0e3a;
+  --bg-panel-hover: #15082b;
+  --card-bg: #1b0e3a;
+  --null: #15082b;
+  --input-bg: #15082b;
+  --border: #5a2ea0;
+  --border-light: #7c4ad0;
+  --text: #e8f7ff;
+  --text-secondary: #ffb3e6;
+  --text-sec: #ffb3e6;
+  --text-muted: #c787c0;
+  --fg: #e8f7ff;
+  --fg-muted: #ffb3e6;
+  --accent-red: #ff2a92;
+  --accent-blue: #4ad9ff;
+  --accent-green: #00e5d5;
+  --accent-gold: #ffd166;
+}
+
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { font-size: 17px; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      padding: 10px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .header h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .header .subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Main layout */
+    .main-content {
+      padding: 12px 32px;
+    }
+
+    .viz-layout {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .viz-layout { grid-template-columns: 1fr; }
+      .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+
+    /* Panels */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* Circuit panel */
+    .circuit-panel {
+      position: relative;
+    }
+
+    .circuit-panel svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 420px;
+    }
+
+    /* Controls bar */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      background: var(--bg-card);
+    }
+
+    .lap-counter {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .lap-counter span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .controls {
+      display: flex;
+      gap: 2px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      padding: 5px 12px;
+      background: var(--bg-card);
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-right: 1px solid var(--border);
+    }
+
+    .btn:last-child { border-right: none; }
+    .btn:hover { background: var(--bg-card-hover); }
+    .btn.active { background: var(--text); color: #fff; }
+
+    /* Boost button */
+    .boost-btn {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 10px 16px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--accent-blue);
+      color: var(--accent-blue);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .boost-btn:hover { background: #3b82f60a; }
+    .boost-btn.active { background: var(--accent-blue); color: #fff; }
+
+    .boost-btn.red { background: var(--bg-card); border-color: var(--accent-red); color: var(--accent-red); }
+    .boost-btn.red:hover { background: #e106000a; }
+    .boost-btn.red.active { background: var(--accent-red); color: #fff; }
+
+    /* Side panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .side-panel .panel {
+      border-bottom: none;
+    }
+
+    .side-panel .panel:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Telemetry */
+    .speed-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .speed-label {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speed-label .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .speed-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+    }
+
+    .speed-unit {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* Battery */
+    .battery-section { margin-bottom: 12px; }
+
+    .battery-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .battery-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+
+    .battery-pct {
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .battery-track {
+      width: 100%;
+      height: 6px;
+      background: var(--bg-track);
+      overflow: visible;
+      position: relative;
+    }
+
+    .battery-fill {
+      height: 100%;
+      transition: width 0.15s;
+      position: relative;
+    }
+
+    .battery-fill.overcharged {
+      background-image: linear-gradient(90deg, var(--fill-color, #3b82f6) 0%, var(--fill-color, #3b82f6) calc(100% / var(--bat-pct, 1) * 100), var(--accent-gold) calc(100% / var(--bat-pct, 1) * 100), var(--accent-gold) 100%) !important;
+    }
+
+    .battery-overflow {
+      position: absolute;
+      right: -2px;
+      top: -2px;
+      bottom: -2px;
+      width: 4px;
+      background: var(--accent-gold);
+      border-radius: 1px;
+      box-shadow: 0 0 6px var(--accent-gold);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .battery-overflow.active {
+      opacity: 1;
+      animation: pulse-glow 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 4px var(--accent-gold); }
+      50% { box-shadow: 0 0 10px var(--accent-gold); }
+    }
+
+    .battery-pct.overcharged {
+      color: var(--accent-gold) !important;
+      font-weight: 800;
+    }
+
+    /* Status grid */
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    .status-item {
+      padding: 8px 12px;
+      background: var(--bg-card-hover);
+      text-align: center;
+    }
+
+    .status-item:first-child {
+      border-right: 1px solid var(--border);
+    }
+
+    .status-item .label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .status-item .value {
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .status-item .value.on { color: var(--accent-green); }
+    .status-item .value.off { color: var(--border-light); }
+    .status-item .value.active-boost { color: var(--accent-blue); }
+    .status-item .value.overtake-active { color: var(--accent-red); }
+
+    /* Legend */
+    .legend-bar {
+      display: flex;
+      gap: 16px;
+      padding: 8px 20px;
+      border: 1px solid var(--border);
+      border-top: none;
+      background: var(--bg-card);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-swatch {
+      width: 12px;
+      height: 3px;
+    }
+
+    /* Race banner */
+    .race-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 6px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .race-banner .overtake-count {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: var(--accent-red);
+      padding-right: 16px;
+      border-right: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .race-banner .overtake-count .count-label {
+      font-weight: 400;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+    }
+
+    .race-banner .event-log {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .race-banner .event-log .event {
+      display: inline;
+      padding: 0 12px;
+    }
+
+    .race-banner .event-log .event:not(:last-child)::after {
+      content: '·';
+      margin-left: 12px;
+      color: var(--border-light);
+    }
+
+    .race-banner .event-log .boost-event { color: var(--accent-blue); }
+    .race-banner .event-log .overtake-event { color: var(--accent-red); }
+    .race-banner .event-log .recharge-event { color: var(--accent-green); }
+
+    /* Explainer (collapsible) */
+    .explainer {
+      border: 1px solid var(--border);
+      border-top: none;
+      background: var(--bg-card);
+    }
+
+    .explainer summary {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      padding: 8px 20px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .explainer summary .help-hint {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #fff;
+      font-size: 0.55rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-left: 2px;
+      animation: hint-pulse 2s ease-in-out 3;
+      flex-shrink: 0;
+    }
+
+    .explainer[open] summary .help-hint {
+      animation: none;
+      background: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59,130,246,0.5); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 4px rgba(59,130,246,0); }
+    }
+
+    .explainer summary::-webkit-details-marker { display: none; }
+
+    .explainer summary::before {
+      content: '\25B6';
+      font-size: 0.5rem;
+      transition: transform 0.2s;
+    }
+
+    .explainer[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .explainer .explainer-body {
+      padding: 4px 20px 16px;
+    }
+
+    .explainer h3 {
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .explainer p {
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .explainer p:last-child { margin-bottom: 0; }
+
+    .hl { font-weight: 600; color: var(--text); }
+    .hl-blue { font-weight: 600; color: var(--accent-blue); }
+    .hl-red { font-weight: 600; color: var(--accent-red); }
+    .hl-green { font-weight: 600; color: var(--accent-green); }
+    .hl-gold { font-weight: 600; color: var(--accent-gold); }
+
+    /* Tooltip */
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 100;
+      max-width: 240px;
+      line-height: 1.5;
+    }
+
+    .tooltip strong { color: var(--text); }
+    .tooltip.visible { opacity: 1; }
+
+    /* SVG zone labels */
+    .zone-label {
+      font-size: 8px;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      text-anchor: middle;
+      pointer-events: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Interval counter */
+    .interval-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom: none;
+    }
+
+    .interval-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .interval-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      letter-spacing: -0.02em;
+      color: var(--text);
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .interval-value.within-drs {
+      color: var(--accent-gold);
+      text-shadow: 0 0 8px rgba(180, 83, 9, 0.5);
+    }
+
+    .interval-indicator {
+      font-size: 0.6rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      min-width: 50px;
+    }
+
+    .interval-indicator.leader-a { color: var(--accent-red); }
+    .interval-indicator.leader-b { color: var(--accent-blue); }
+
+    /* MOM helper text */
+    .mom-helper {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    /* Circuit name overlay */
+    .circuit-name {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+    .theme-toggle:hover { color: var(--text); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    /* Icon shown = the NEXT theme in the cycle (matches site header).
+       light → moon, dark → rainbow, rainbow → sun. */
+    .icon-sun { display: none; }
+    .icon-rainbow { display: none; }
+    [data-theme="dark"] .icon-moon { display: none; }
+    [data-theme="dark"] .icon-rainbow { display: block; }
+    [data-theme="rainbow"] .icon-moon { display: none; }
+    [data-theme="rainbow"] .icon-sun { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">
+    <h1>F1 2026 Simulator</h1>
+    <span class="subtitle">Overtake Mode + Boost — Active Aero &amp; Energy Management (2026 Regs)</span>
+  </div>
+  <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-circuit" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-circuit)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-circuit)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-circuit)" opacity="0.4"/></svg>
+  </button>
+</div>
+
+<div class="race-banner">
+  <div class="overtake-count">
+    <span class="count-label">Overtakes</span>
+    <span id="overtake-count-val">0</span>
+  </div>
+  <div class="event-log" id="event-log"></div>
+</div>
+
+<div class="main-content">
+  <div class="viz-layout">
+    <!-- Left: Circuit -->
+    <div>
+      <div class="controls-bar">
+        <div class="lap-counter">LAP <span id="lap-num">1</span> / 10</div>
+        <div class="controls">
+          <button class="btn" id="btn-play">Play</button>
+          <button class="btn" id="btn-pause">Pause</button>
+          <button class="btn" id="btn-reset">Reset</button>
+          <button class="btn" id="btn-speed">1x</button>
+        </div>
+      </div>
+      <div class="circuit-panel panel" id="circuit-panel">
+        <div id="circuit-svg"></div>
+      </div>
+      <details class="explainer">
+        <summary>How it works <span class="help-hint" title="Click to learn how the 2026 regulations work">?</span></summary>
+        <div class="explainer-body">
+          <h3>How the 2026 F1 Overtake &amp; Boost Systems Work</h3>
+          <p>
+            The <span class="hl">2026 F1 regulations</span> dramatically increase electrical power. The MGU-K jumps from 120kW to
+            <span class="hl-blue">350kW</span>, meaning nearly half the car's ~750kW total comes from the electric motor. DRS is gone, replaced by
+            <span class="hl-blue">active aerodynamics</span> and a new energy-based overtaking system with two distinct tools:
+          </p>
+          <p>
+            <span class="hl-blue">Boost</span> is your baseline energy tool -- regular battery deployment via a steering wheel button, available to
+            <span class="hl">any driver, anytime, anywhere</span> on track. No proximity requirement. The ERS harvests energy from braking and
+            exhaust gases; drivers deploy it whenever they want. It <span class="hl-red">drains the Energy Store faster</span>, so managing
+            when to use it is key. Both cars have a Boost button (press <strong>A</strong> or <strong>B</strong>).
+          </p>
+          <p>
+            <span class="hl-gold">Overtake Mode</span> is conditional -- a weapon you <span class="hl">earn by getting close enough to fight</span>.
+            When the chaser is within ~1 second at the <span class="hl-gold">Overtake Zone</span> (on the pit straight approaching T1),
+            they earn an extra <span class="hl-blue">+0.6 MJ</span> of energy deployed on the <span class="hl">following lap</span>.
+            This bonus pushes the <span class="hl-gold">Energy Store above 100%</span> (shown in gold on the battery bar),
+            giving the chaser a visible energy advantage. The leader's MGU-K electrical power tapers off after
+            <span class="hl-red">290 km/h</span>, while the chaser with Overtake can deploy 350kW all the way up to
+            <span class="hl-blue">337 km/h</span> -- a significant straight-line advantage at high speeds. When Overtake Mode is
+            active, the AI automatically deploys boost on straights to capitalize on this extended range.
+          </p>
+          <p>
+            <span class="hl">Regenerative braking</span> is automatic -- whenever a car decelerates, the MGU-K harvests kinetic energy
+            (up to 350kW) to recharge the Energy Store. Heavier braking means more regen. This circuit is the perfect test: long straights where the MGU-K taper matters most,
+            and deep braking chicanes that feed the battery. Watch how Car B can earn Overtake Mode by closing up, then deploy the
+            extra energy on the following lap to make a move into the first chicane.
+          </p>
+        </div>
+      </details>
+    </div>
+
+    <!-- Right: Telemetry -->
+    <div class="side-panel">
+      <!-- Car A -->
+      <div class="panel">
+        <div class="panel-title" id="title-a">Car A — Leader</div>
+        <div class="speed-row">
+          <div class="speed-label"><div class="dot" style="background:#e10600"></div> Speed</div>
+          <div class="speed-value" id="speed-a" style="color:#e10600">0<span class="speed-unit"> km/h</span></div>
+        </div>
+        <div class="battery-section">
+          <div class="battery-header">
+            <div class="battery-label">Energy Store</div>
+            <div class="battery-pct" id="bat-a-pct" style="color:#e10600">100%</div>
+          </div>
+          <div class="battery-track">
+            <div class="battery-fill" id="bat-a-fill" style="background:#e10600;width:100%"><div class="battery-overflow" id="bat-a-overflow"></div></div>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">BOOST</div>
+            <div class="value off" id="mom-a">OFF</div>
+          </div>
+          <div class="status-item">
+            <div class="label">OVERTAKE</div>
+            <div class="value off" id="overtake-a">OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interval Counter -->
+      <div class="interval-counter">
+        <div class="interval-label">INTERVAL</div>
+        <div class="interval-value" id="interval-gap">+0.000s</div>
+        <div class="interval-indicator" id="interval-who"></div>
+      </div>
+
+      <!-- Car B -->
+      <div class="panel">
+        <div class="panel-title" id="title-b">Car B — Chaser</div>
+        <div class="speed-row">
+          <div class="speed-label"><div class="dot" style="background:#3b82f6"></div> Speed</div>
+          <div class="speed-value" id="speed-b" style="color:#3b82f6">0<span class="speed-unit"> km/h</span></div>
+        </div>
+        <div class="battery-section">
+          <div class="battery-header">
+            <div class="battery-label">Energy Store</div>
+            <div class="battery-pct" id="bat-b-pct" style="color:#3b82f6">100%</div>
+          </div>
+          <div class="battery-track">
+            <div class="battery-fill" id="bat-b-fill" style="background:#3b82f6;width:100%"><div class="battery-overflow" id="bat-b-overflow"></div></div>
+          </div>
+        </div>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="label">BOOST</div>
+            <div class="value off" id="mom-b">OFF</div>
+          </div>
+          <div class="status-item">
+            <div class="label">OVERTAKE</div>
+            <div class="value off" id="overtake-b">OFF</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boost Controls -->
+      <div class="panel">
+        <div class="panel-title">Boost Buttons</div>
+        <p class="mom-helper">Boost is regular battery deployment — available to any driver, anytime, anywhere on track. Drains the Energy Store faster but gives a speed advantage. Press <strong>A</strong> / <strong>B</strong> to toggle.</p>
+        <button class="boost-btn red" id="btn-boost-a" style="margin-bottom:6px">Boost Car A (A)</button>
+        <button class="boost-btn" id="btn-boost-b">Boost Car B (B)</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+(function () {
+  // ─── Circuit geometry ────────────────────────────────────────────
+  // Traced as normalized coordinates (0-1) following a high-speed layout.
+  // Direction: clockwise as viewed from above.
+  //
+  // Key features:
+  //   - Very long start/finish straight
+  //   - Variante del Rettifilo (T1-T2 chicane) - heavy braking
+  //   - Curva Grande (fast right-hander)
+  //   - Variante della Roggia (T4-T5 chicane) - heavy braking
+  //   - Lesmo 1 & 2 (fast right-handers)
+  //   - Long back straight (Rettifilo Tribune → Ascari)
+  //   - Variante Ascari (T8-T9-T10 chicane)
+  //   - Straight to Parabolica
+  //   - Curva Parabolica (long right-hander, now Curva Alboreto)
+  //   - Short run to start/finish
+
+  // Circuit coordinates inspired by a high-speed layout
+  // Realistic speed factors calibrated for 2026 regs
+  // TOP_SPEED = 355 km/h; sf values = actual_speed / 355
+  // Sources: FIA 2026 technical regulations
+  // T1-T2 (Rettifilo): ~68-80 km/h, Curva Grande: ~260-270 km/h
+  // Roggia chicane: ~70-78 km/h, Lesmo 1: ~200 km/h, Lesmo 2: ~185 km/h
+  // Back straight: ~340-345 km/h, Ascari: ~138-200 km/h
+  // Parabolica min: ~210 km/h, exit: ~275 km/h
+  const RAW_POINTS = [
+    // Start/finish straight (very long)
+    // Cars exit Parabolica at ~290 km/h, build to 355 km/h by T1 braking zone
+    { x: 0.084, y: 0.733, sf: 0.92, zone: 'straight', name: 'Start/Finish' },
+    { x: 0.091, y: 0.693, sf: 0.96, zone: 'overtake' },
+    { x: 0.099, y: 0.647, sf: 0.99, zone: 'overtake' },
+    { x: 0.106, y: 0.601, sf: 1.00, zone: 'overtake' },
+    { x: 0.113, y: 0.560, sf: 1.00, zone: 'straight' },
+    { x: 0.120, y: 0.514, sf: 1.00, zone: 'straight' },
+    { x: 0.127, y: 0.468, sf: 0.97, zone: 'straight' },
+    { x: 0.131, y: 0.445, sf: 0.90, zone: 'corner' },  // braking begins (~320 km/h)
+    { x: 0.134, y: 0.421, sf: 0.70, zone: 'corner' },  // heavy braking (~249 km/h)
+    { x: 0.139, y: 0.381, sf: 0.42, zone: 'corner' },  // deep braking (~149 km/h)
+    { x: 0.151, y: 0.365, sf: 0.28, zone: 'corner' },  // trail braking (~99 km/h)
+
+    // Variante del Rettifilo (T1-T2 chicane) - HEAVY BRAKING
+    // One of the heaviest braking zones in F1: 355→68 km/h in ~120m
+    { x: 0.162, y: 0.349, sf: 0.20, zone: 'corner' },  // T1 apex (~71 km/h)
+    { x: 0.149, y: 0.303, sf: 0.19, zone: 'corner' },  // T2 apex (~68 km/h)
+
+    // Curva Grande (fast sweeping right)
+    // Cars accelerate hard out of chicane, carry ~260 km/h through Curva Grande
+    { x: 0.155, y: 0.257, sf: 0.37, zone: 'corner' },  // accelerating (~131 km/h)
+    { x: 0.172, y: 0.218, sf: 0.70, zone: 'corner' },  // building speed (~249 km/h)
+    { x: 0.218, y: 0.180, sf: 0.76, zone: 'corner' },  // mid-corner (~270 km/h)
+
+    // Variante della Roggia (T4-T5 chicane) - HEAVY BRAKING
+    // Heavy braking from ~310 km/h to ~73 km/h
+    { x: 0.250, y: 0.168, sf: 0.87, zone: 'corner' },  // braking begins (~309 km/h)
+    { x: 0.268, y: 0.162, sf: 0.55, zone: 'corner' },  // heavy braking (~195 km/h)
+    { x: 0.277, y: 0.159, sf: 0.32, zone: 'corner' },  // deep braking (~114 km/h)
+    { x: 0.285, y: 0.156, sf: 0.21, zone: 'corner' },  // T4 apex (~75 km/h)
+    { x: 0.363, y: 0.144, sf: 0.20, zone: 'corner' },  // T5 apex (~71 km/h)
+
+    // Lesmo 1 - fast right-hander, ~200 km/h apex
+    // Braking from ~270 km/h to ~195 km/h
+    { x: 0.410, y: 0.141, sf: 0.76, zone: 'corner' },  // braking for Lesmo 1 (~270 km/h)
+    { x: 0.433, y: 0.140, sf: 0.55, zone: 'corner' },  // deep braking Lesmo 1 (~195 km/h)
+    { x: 0.513, y: 0.136, sf: 0.57, zone: 'corner' },  // apex (~202 km/h)
+
+    // Lesmo 2 - slightly slower right-hander, ~185 km/h apex
+    // Braking from ~230 km/h to ~185 km/h
+    { x: 0.570, y: 0.134, sf: 0.65, zone: 'corner' },  // braking for Lesmo 2 (~231 km/h)
+    { x: 0.593, y: 0.133, sf: 0.53, zone: 'corner' },  // deep braking Lesmo 2 (~188 km/h)
+    { x: 0.655, y: 0.114, sf: 0.51, zone: 'corner' },  // exit (~181 km/h)
+
+    // Back straight toward Ascari (long straight - Straight Mode zone)
+    // Cars accelerate from ~180 km/h to ~345 km/h
+    { x: 0.723, y: 0.104, sf: 0.80, zone: 'straight' },  // building speed (~284 km/h)
+    { x: 0.761, y: 0.096, sf: 0.86, zone: 'straight' },  // high speed (~305 km/h)
+    { x: 0.799, y: 0.089, sf: 0.92, zone: 'straight' },  // high speed (~327 km/h)
+    { x: 0.876, y: 0.083, sf: 0.97, zone: 'straight' },  // near peak (~345 km/h)
+
+    // Variante Ascari (T8-T9-T10) - chicane with braking
+    // Braking from ~345 km/h, minimum ~140 km/h at T8, accelerating through T10
+    { x: 0.893, y: 0.095, sf: 0.80, zone: 'corner' },  // braking begins (~284 km/h)
+    { x: 0.901, y: 0.108, sf: 0.55, zone: 'corner' },  // heavy braking (~195 km/h)
+    { x: 0.908, y: 0.122, sf: 0.41, zone: 'corner' },  // deep braking into T8 (~146 km/h)
+    { x: 0.914, y: 0.162, sf: 0.39, zone: 'corner' },  // T9 apex (~138 km/h)
+    { x: 0.913, y: 0.208, sf: 0.54, zone: 'corner' },  // T10 exit (~192 km/h, accelerating hard)
+
+    // Straight to Parabolica
+    // Accelerating from Ascari exit toward Parabolica braking
+    { x: 0.844, y: 0.231, sf: 0.60, zone: 'straight' },  // accelerating (~213 km/h)
+    { x: 0.783, y: 0.251, sf: 0.82, zone: 'straight' },  // building speed (~291 km/h)
+    { x: 0.713, y: 0.274, sf: 0.88, zone: 'straight' },  // high speed (~312 km/h)
+    { x: 0.648, y: 0.301, sf: 0.91, zone: 'straight' },  // near peak (~323 km/h)
+    { x: 0.588, y: 0.332, sf: 0.90, zone: 'straight' },  // starting to scrub (~320 km/h)
+    { x: 0.535, y: 0.358, sf: 0.80, zone: 'corner' },  // braking for Parabolica (~284 km/h)
+    { x: 0.474, y: 0.389, sf: 0.72, zone: 'corner' },  // heavy braking (~256 km/h)
+    { x: 0.414, y: 0.419, sf: 0.65, zone: 'corner' },  // trail braking into Parabolica (~231 km/h)
+
+    // Curva Parabolica / Curva Alboreto (long sweeping right)
+    // Long constant-radius corner, minimum ~210 km/h, exit ~275 km/h
+    { x: 0.354, y: 0.450, sf: 0.62, zone: 'corner' },  // entry (~220 km/h)
+    { x: 0.348, y: 0.490, sf: 0.60, zone: 'corner' },  // tightening (~213 km/h)
+    { x: 0.303, y: 0.526, sf: 0.59, zone: 'corner' },  // near apex (~210 km/h)
+    { x: 0.293, y: 0.573, sf: 0.59, zone: 'corner' },  // apex (~210 km/h)
+    { x: 0.284, y: 0.619, sf: 0.60, zone: 'corner' },  // past apex (~213 km/h)
+    { x: 0.277, y: 0.659, sf: 0.62, zone: 'corner' },  // opening up (~220 km/h)
+    { x: 0.269, y: 0.705, sf: 0.65, zone: 'corner' },  // accelerating (~231 km/h)
+    { x: 0.261, y: 0.751, sf: 0.69, zone: 'corner' },  // building speed (~245 km/h)
+    { x: 0.253, y: 0.798, sf: 0.73, zone: 'corner' },  // exit phase (~259 km/h)
+    { x: 0.246, y: 0.838, sf: 0.77, zone: 'corner' },  // late exit (~273 km/h)
+    { x: 0.238, y: 0.884, sf: 0.80, zone: 'straight' },  // onto straight (~284 km/h)
+    { x: 0.195, y: 0.919, sf: 0.76, zone: 'corner' },  // final curve (~270 km/h)
+    { x: 0.123, y: 0.903, sf: 0.79, zone: 'corner' },  // unwinding (~280 km/h)
+    { x: 0.089, y: 0.868, sf: 0.84, zone: 'corner' },  // opening up (~298 km/h)
+    { x: 0.081, y: 0.822, sf: 0.88, zone: 'straight' },  // pit straight (~312 km/h)
+    { x: 0.080, y: 0.776, sf: 0.93, zone: 'straight' },  // building to S/F (~330 km/h)
+  ];
+
+  // ─── Canvas setup ─────────────────────────────────────────────────
+  const W = 720, H = 520;
+  const PAD = 35;
+
+  function toCanvas(p) {
+    return { x: PAD + p.x * (W - 2 * PAD), y: PAD + p.y * (H - 2 * PAD) };
+  }
+
+  const canvasPoints = RAW_POINTS.map(toCanvas);
+
+  const lineGen = d3.line()
+    .x(d => d.x)
+    .y(d => d.y)
+    .curve(d3.curveCardinalClosed.tension(0.55));
+
+  const pathData = lineGen(canvasPoints);
+
+  // ─── Create SVG ───────────────────────────────────────────────────
+  const svg = d3.select('#circuit-svg')
+    .append('svg')
+    .attr('viewBox', `0 0 ${W} ${H}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  const defs = svg.append('defs');
+
+  // Subtle shadow for car dots
+  const carShadow = defs.append('filter').attr('id', 'carShadow')
+    .attr('x', '-50%').attr('y', '-50%').attr('width', '200%').attr('height', '200%');
+  carShadow.append('feDropShadow')
+    .attr('dx', '0').attr('dy', '0').attr('stdDeviation', '3').attr('flood-opacity', '0.3');
+
+  // ─── Sample path at high resolution ───────────────────────────────
+  const hiddenPath = svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('stroke', 'none');
+
+  const pathNode = hiddenPath.node();
+  const totalLength = pathNode.getTotalLength();
+
+  const NUM_SAMPLES = 1200;
+  const N_RAW = canvasPoints.length;
+
+  // Map each RAW_POINT to its closest path position (t value) along the spline.
+  // Use a fine sweep so each control point lands at the right spot on the curve.
+  const FINE = 4000;
+  const rawT = [];
+  let searchStart = 0;
+  for (let r = 0; r < N_RAW; r++) {
+    let bestDist = Infinity, bestT = 0;
+    // Sweep forward from the previous match to keep monotonic ordering
+    for (let i = 0; i < FINE; i++) {
+      const idx = (searchStart + i) % FINE;
+      const len = (idx / FINE) * totalLength;
+      const pt = pathNode.getPointAtLength(len);
+      const dx = pt.x - canvasPoints[r].x;
+      const dy = pt.y - canvasPoints[r].y;
+      const d = dx * dx + dy * dy;
+      if (d < bestDist) { bestDist = d; bestT = idx / FINE; }
+    }
+    rawT.push(bestT);
+    searchStart = Math.round(bestT * FINE);
+  }
+
+  // Interpolate sf and zone for any t value between raw control points
+  function interpAt(t) {
+    t = ((t % 1) + 1) % 1;
+    // Find the two surrounding raw points by t
+    let lo = N_RAW - 1, hi = 0;
+    for (let r = 0; r < N_RAW; r++) {
+      if (rawT[r] <= t) lo = r;
+    }
+    hi = (lo + 1) % N_RAW;
+
+    let tLo = rawT[lo], tHi = rawT[hi];
+    // Handle wrap-around (last point → first point)
+    if (tHi <= tLo) tHi += 1;
+    let tNorm = t;
+    if (tNorm < tLo) tNorm += 1;
+
+    const span = tHi - tLo;
+    const frac = span > 0.0001 ? Math.max(0, Math.min(1, (tNorm - tLo) / span)) : 0;
+    const sf = RAW_POINTS[lo].sf * (1 - frac) + RAW_POINTS[hi].sf * frac;
+    // Zone comes from whichever control point is closer by fraction
+    const zone = frac < 0.5 ? RAW_POINTS[lo].zone : RAW_POINTS[hi].zone;
+    return { sf, zone };
+  }
+
+  const sampledPoints = [];
+  for (let i = 0; i < NUM_SAMPLES; i++) {
+    const t = i / NUM_SAMPLES;
+    const len = t * totalLength;
+    const pt = pathNode.getPointAtLength(len);
+    const { sf, zone } = interpAt(t);
+    sampledPoints.push({ x: pt.x, y: pt.y, t, len, sf, zone });
+  }
+
+  // ─── Zone highlights ──────────────────────────────────────────────
+  const zoneColors = {
+    overtake: 'rgba(180,83,9,0.15)',
+  };
+
+  const zoneStroke = {
+    overtake: 'rgba(180,83,9,0.35)',
+  };
+
+  function getZoneSegments() {
+    const segments = [];
+    let current = null;
+    for (const p of sampledPoints) {
+      if (p.zone === 'straight' || p.zone === 'corner') {
+        if (current) { segments.push(current); current = null; }
+        continue;
+      }
+      if (!current || current.zone !== p.zone) {
+        if (current) segments.push(current);
+        current = { zone: p.zone, points: [p] };
+      } else {
+        current.points.push(p);
+      }
+    }
+    if (current) segments.push(current);
+    return segments;
+  }
+
+  const zoneSegments = getZoneSegments();
+  const zonesGroup = svg.append('g');
+
+  for (const seg of zoneSegments) {
+    if (seg.points.length < 2) continue;
+    const segLine = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom);
+    zonesGroup.append('path')
+      .attr('d', segLine(seg.points))
+      .attr('fill', 'none')
+      .attr('stroke', zoneColors[seg.zone])
+      .attr('stroke-width', 34)
+      .attr('stroke-linecap', 'round');
+    zonesGroup.append('path')
+      .attr('d', segLine(seg.points))
+      .attr('fill', 'none')
+      .attr('stroke', zoneStroke[seg.zone])
+      .attr('stroke-width', 16)
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-dasharray', '2,5');
+  }
+
+  // ─── Track rendering ──────────────────────────────────────────────
+  // Track border
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('class', 'track-border')
+    .attr('stroke', '#c0c0bc')
+    .attr('stroke-width', 14)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round');
+
+  // Track surface
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('class', 'track-surface')
+    .attr('stroke', '#d4d4d0')
+    .attr('stroke-width', 10)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round');
+
+  // Center line
+  svg.append('path')
+    .attr('d', pathData)
+    .attr('fill', 'none')
+    .attr('class', 'track-center')
+    .attr('stroke', '#b4b4b0')
+    .attr('stroke-width', 0.5)
+    .attr('stroke-dasharray', '6,6');
+
+  // Start/finish line
+  const sfPoint = sampledPoints[0];
+  svg.append('line')
+    .attr('class', 'sf-line')
+    .attr('x1', sfPoint.x).attr('y1', sfPoint.y - 9)
+    .attr('x2', sfPoint.x).attr('y2', sfPoint.y + 9)
+    .attr('stroke', '#1a1a1a')
+    .attr('stroke-width', 2);
+
+  // ─── Zone labels ─────────────────────────────────────────
+
+  // Zone type labels
+  const zoneLabelData = [
+    { text: 'OVERTAKE', idx: Math.floor(NUM_SAMPLES * 0.05), dx: -22, dy: 0 },
+  ];
+
+  for (const z of zoneLabelData) {
+    const p = sampledPoints[z.idx];
+    const colors = { BOOST: '#3b82f6', OVERTAKE: '#b45309' };
+    svg.append('text')
+      .attr('class', 'zone-label')
+      .attr('x', p.x + (z.dx || 0))
+      .attr('y', p.y + (z.dy || 0))
+      .attr('fill', colors[z.text] || '#888')
+      .attr('opacity', 0.75)
+      .text(z.text);
+  }
+
+  // Circuit name
+  svg.append('text')
+    .attr('class', 'circuit-name')
+    .attr('x', W / 2)
+    .attr('y', 20)
+    .attr('text-anchor', 'middle')
+    .attr('fill', '#c0c0bc')
+    .text('F1 2026 Circuit');
+
+  // ─── Cars ─────────────────────────────────────────────────────────
+  const TRAIL_LEN = 50;
+
+  const trailA = svg.append('path')
+    .attr('fill', 'none')
+    .attr('stroke', '#e10600')
+    .attr('stroke-width', 3)
+    .attr('stroke-linecap', 'round')
+    .attr('opacity', 0.3);
+
+  const trailB = svg.append('path')
+    .attr('fill', 'none')
+    .attr('stroke', '#3b82f6')
+    .attr('stroke-width', 3)
+    .attr('stroke-linecap', 'round')
+    .attr('opacity', 0.3);
+
+  const carA = svg.append('circle')
+    .attr('r', 5)
+    .attr('fill', '#e10600')
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 1.5)
+    .attr('filter', 'url(#carShadow)');
+
+  const carB = svg.append('circle')
+    .attr('r', 5)
+    .attr('fill', '#3b82f6')
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 1.5)
+    .attr('filter', 'url(#carShadow)');
+
+  const labelA = svg.append('text')
+    .attr('fill', '#e10600')
+    .attr('font-size', '9px')
+    .attr('font-weight', '800')
+    .attr('font-family', 'var(--font-sans)')
+    .attr('text-anchor', 'middle')
+    .text('A');
+
+  const labelB = svg.append('text')
+    .attr('fill', '#3b82f6')
+    .attr('font-size', '9px')
+    .attr('font-weight', '800')
+    .attr('font-family', 'var(--font-sans)')
+    .attr('text-anchor', 'middle')
+    .text('B');
+
+  // Boost ring
+  const boostRing = svg.append('circle')
+    .attr('r', 10)
+    .attr('fill', 'none')
+    .attr('stroke', '#3b82f6')
+    .attr('stroke-width', 1.5)
+    .attr('opacity', 0);
+
+  // ─── State ────────────────────────────────────────────────────────
+  const BASE_SPEED = 0.0007;
+
+  let state = {
+    running: false,
+    speedMult: 1,
+    tA: 0,
+    tB: 0.94,
+    batA: 100,
+    batB: 100,
+    momA: false,
+    momB: false,
+    momAManual: false,
+    momBManual: false,
+    overtakeEarnedA: false,  // Car A: proximity detected this lap → grants +0.6 MJ next lap
+    overtakeActiveA: false,  // Car A: +0.6 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedA: 0,        // Car A: how much of the overtake energy has been spent this lap
+    overtakeEarnedB: false,  // Car B: proximity detected this lap → grants +0.6 MJ next lap
+    overtakeActiveB: false,  // Car B: +0.6 MJ granted, MGU-K extended to 337 km/h this lap
+    overtakeUsedB: 0,        // Car B: how much of the overtake energy has been spent this lap
+    lap: 1,
+    events: [],
+    trailAHist: [],
+    trailBHist: [],
+    overtakeCount: 0,
+    carBLeading: false,
+    prevSfA: 0.92,
+    prevSfB: 0.84,
+    peakSfA: 0.92,
+    peakSfB: 0.84,
+  };
+
+  function resetState() {
+    state.running = false;
+    state.tA = 0;
+    state.tB = 0.94;
+    state.batA = 100;
+    state.batB = 100;
+    state.momA = false;
+    state.momB = false;
+    state.momAManual = false;
+    state.momBManual = false;
+    state.overtakeEarnedA = false;
+    state.overtakeActiveA = false;
+    state.overtakeUsedA = 0;
+    state.overtakeEarnedB = false;
+    state.overtakeActiveB = false;
+    state.overtakeUsedB = 0;
+    state.lap = 1;
+    state.events = [];
+    state.trailAHist = [];
+    state.trailBHist = [];
+    state.overtakeCount = 0;
+    state.carBLeading = false;
+    state.prevSfA = 0.92;
+    state.prevSfB = 0.84;
+    state.peakSfA = 0.92;
+    state.peakSfB = 0.84;
+    document.getElementById('btn-boost-a').classList.remove('active');
+    document.getElementById('btn-boost-b').classList.remove('active');
+    updateUI();
+    logEvent('Simulation reset', '');
+  }
+
+  function getGap() {
+    let gap = state.tA - state.tB;
+    if (gap < 0) gap += 1;
+    if (gap > 0.5) gap = 1 - gap;
+    return gap;
+  }
+
+  function getZoneAt(t) {
+    const idx = Math.floor(((t % 1) + 1) % 1 * NUM_SAMPLES) % NUM_SAMPLES;
+    return sampledPoints[idx];
+  }
+
+  function getPointAt(t) {
+    const len = ((t % 1) + 1) % 1 * totalLength;
+    return pathNode.getPointAtLength(len);
+  }
+
+  // ─── Event log ────────────────────────────────────────────────────
+  function logEvent(text, cls) {
+    state.events.unshift({ text, cls });
+    if (state.events.length > 50) state.events.pop();
+    const el = document.getElementById('event-log');
+    el.innerHTML = state.events.slice(0, 5).map(e =>
+      `<span class="event ${e.cls}">${e.text}</span>`
+    ).join('');
+    document.getElementById('overtake-count-val').textContent = state.overtakeCount;
+  }
+
+  // ─── Simulation ───────────────────────────────────────────────────
+  // MGU-K taper: leader's electrical power tapers after 290 km/h, chaser w/ Overtake deploys to 337 km/h
+  // Model this as a speed-dependent multiplier penalty at high speeds
+  function mguTaper(sf, taperThreshold) {
+    // sf=1.0 → 355 km/h; threshold in km/h; above threshold, electrical boost fades linearly
+    const speedKmh = sf * 355;
+    if (speedKmh <= taperThreshold) return 1.0;
+    // Linearly reduce electrical contribution from 100% to 0% between threshold and 355 km/h
+    return Math.max(0, 1 - (speedKmh - taperThreshold) / (355 - taperThreshold));
+  }
+
+  function step() {
+    if (!state.running) return;
+
+    const gap = getGap();
+    // Proximity check: within ~1 second of car ahead
+    // At avg speed ~0.7 sf, car covers ~0.0005 track/frame × 60fps = 0.03 track/sec
+    const withinOvertake = gap < 0.03;
+
+    const zoneA = getZoneAt(state.tA);
+    const zoneB = getZoneAt(state.tB);
+
+    // Determine who is the chaser, with hysteresis so cars can pass through each other.
+    // Without hysteresis, slipstream/overtake bonuses swap every frame at the crossover
+    // point, creating an invisible wall that prevents overtaking.
+    const PASS_THROUGH_GAP = 0.008; // must pull ahead by this much before roles swap
+    const prevCarBLeading = state.carBLeading;
+    const bAheadRaw = state.tB > state.tA || (state.tA - state.tB > 0.5);
+    if (bAheadRaw !== state.carBLeading && gap > PASS_THROUGH_GAP) {
+      state.carBLeading = bAheadRaw;
+    }
+    const aIsChaser = state.carBLeading;    // Car A is chaser when Car B is ahead
+    const bIsChaser = !state.carBLeading;   // Car B is chaser when Car A is ahead
+
+    // ── Car A ──
+    // 2026 regs: MGU-K 350kW, Energy Store 4 MJ (SOC delta), ICE ~400kW
+    // Boost: available to everyone, anytime, via steering wheel button — just battery deployment
+    let sfA = zoneA.sf;
+    // AI strategy: auto-deploy on straights/overtake zones when Overtake Mode is active
+    const autoMOMA = state.overtakeActiveA && state.overtakeUsedA < 100 && state.batA > 5 &&
+        (zoneA.zone === 'straight' || zoneA.zone === 'overtake');
+    const manualMOMA = state.momAManual && state.batA > 5 &&
+      (zoneA.zone === 'straight' || zoneA.zone === 'overtake');
+    state.momA = autoMOMA || manualMOMA;
+
+    if (state.momA) {
+      // Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
+      const taperKmh = state.overtakeActiveA ? 337 : 290;
+      const taper = mguTaper(sfA, taperKmh);
+      sfA *= 1 + 0.06 * taper;  // up to ~6% gain, fading above taper speed
+      state.batA = Math.max(0, state.batA - (manualMOMA ? 0.25 : 0.14) * state.speedMult);
+      if (state.batA <= 5) {
+        state.momAManual = false;
+        document.getElementById('btn-boost-a').classList.remove('active');
+        logEvent('Car A Boost depleted -- Energy Store low!', 'boost-event');
+      }
+    }
+
+    // Overtake Mode active for Car A: extra energy from the +0.6 MJ grant
+    if (state.overtakeActiveA && state.overtakeUsedA < 100) {
+      const inDeployZone = zoneA.zone === 'overtake' || zoneA.zone === 'straight';
+      if (inDeployZone) {
+        sfA *= 1.03;  // extra speed from extended MGU-K deployment window
+        state.overtakeUsedA += 0.35 * state.speedMult;
+        if (state.overtakeUsedA >= 100) {
+          logEvent('Car A Overtake Mode energy depleted for this lap', '');
+        }
+      }
+    }
+
+    // Braking regen: MGU-K harvests up to 350kW during deceleration
+    // Track peak speed before braking zone; regen continuously while car is slower than peak
+    // This models real regenerative braking: energy recovered ~ (v_peak² - v_current²)
+    if (zoneA.sf >= state.peakSfA) {
+      state.peakSfA = zoneA.sf;  // update peak while accelerating or at constant speed
+    }
+    const brakingIntensityA = state.peakSfA - zoneA.sf;
+    const regenCapA = state.overtakeActiveA ? 115 : 100;
+    if (brakingIntensityA > 0.05 && state.batA < regenCapA) {
+      const regenRate = Math.min(brakingIntensityA * 0.18, 0.35);
+      state.batA = Math.min(regenCapA, state.batA + regenRate * state.speedMult);
+    }
+    // Reset peak when car is accelerating out of corner (sf increasing)
+    if (zoneA.sf > state.prevSfA + 0.01) {
+      state.peakSfA = zoneA.sf;
+    }
+    state.prevSfA = zoneA.sf;
+
+    // ── Car B ──
+    // Boost: available anytime, no proximity requirement
+    // AI strategy: when Overtake Mode is active, auto-deploy boost on straights and overtake zones
+    // to capitalize on the extended MGU-K deployment range (337 km/h vs 290 km/h)
+    let sfB = zoneB.sf;
+
+    const autoMOMB = state.overtakeActiveB && state.overtakeUsedB < 100 && state.batB > 5 &&
+        (zoneB.zone === 'straight' || zoneB.zone === 'overtake');
+    const manualMOMB = state.momBManual && state.batB > 5 &&
+      (zoneB.zone === 'straight' || zoneB.zone === 'overtake');
+    state.momB = autoMOMB || manualMOMB;
+
+    if (state.momB) {
+      // Boost: 350kW deploy; MGU-K tapers at 290 normally, or 337 if Overtake is active
+      const taperKmh = state.overtakeActiveB ? 337 : 290;
+      const taper = mguTaper(sfB, taperKmh);
+      sfB *= 1 + 0.06 * taper;
+      state.batB = Math.max(0, state.batB - (manualMOMB ? 0.25 : 0.16) * state.speedMult);
+      if (state.batB <= 5) {
+        state.momBManual = false;
+        document.getElementById('btn-boost-b').classList.remove('active');
+        logEvent('Car B Boost depleted -- Energy Store low!', 'boost-event');
+      }
+    }
+
+    // Overtake detection: if chaser is within 1 sec at an overtake zone activation point, earn it for next lap
+    // RULE: Only the trailing car can earn Overtake Mode. Only one car can hold "earned" status at a time.
+    if (withinOvertake) {
+      if (bIsChaser && zoneB.zone === 'overtake' && !state.overtakeEarnedB) {
+        state.overtakeEarnedB = true;
+        state.overtakeEarnedA = false;  // Only one car can hold earned status
+        logEvent('Car B Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
+      }
+      if (aIsChaser && zoneA.zone === 'overtake' && !state.overtakeEarnedA) {
+        state.overtakeEarnedA = true;
+        state.overtakeEarnedB = false;  // Only one car can hold earned status
+        logEvent('Car A Overtake Mode earned! +0.6 MJ available next lap', 'boost-event');
+      }
+    }
+
+    // Overtake Mode persists until energy is depleted or the lap ends,
+    // allowing the passing car to pull away cleanly after overtaking.
+
+    // Overtake Mode active for Car B: extra energy from the +0.6 MJ grant
+    if (state.overtakeActiveB && state.overtakeUsedB < 100) {
+      const inDeployZone = zoneB.zone === 'overtake' || zoneB.zone === 'straight';
+      if (inDeployZone) {
+        sfB *= 1.03;  // extra speed from extended MGU-K deployment window
+        state.overtakeUsedB += 0.35 * state.speedMult;
+        if (state.overtakeUsedB >= 100) {
+          logEvent('Car B Overtake Mode energy depleted for this lap', '');
+        }
+      }
+    }
+
+    // Slipstream effect: realistic aero wash benefit (~5-8 km/h at close range ≈ 1.5-2%)
+    // Applied to whichever car is the chaser, not always Car B
+    if (gap < 0.04) {
+      const slipBonus = 1 + (0.04 - gap) * 0.5;  // max +2% at zero gap
+      if (bIsChaser) sfB *= slipBonus;
+      else sfA *= slipBonus;
+    }
+
+    // Braking regen: chaser gets slightly more harvest (later braking, more kinetic energy)
+    // Track peak speed before braking zone; regen continuously while car is slower than peak
+    if (zoneB.sf >= state.peakSfB) {
+      state.peakSfB = zoneB.sf;
+    }
+    const brakingIntensityB = state.peakSfB - zoneB.sf;
+    const regenCapB = state.overtakeActiveB ? 115 : 100;
+    if (brakingIntensityB > 0.05 && state.batB < regenCapB) {
+      const regenRate = Math.min(brakingIntensityB * 0.21, 0.40);  // chaser regens slightly more
+      state.batB = Math.min(regenCapB, state.batB + regenRate * state.speedMult);
+    }
+    if (zoneB.sf > state.prevSfB + 0.01) {
+      state.peakSfB = zoneB.sf;
+    }
+    state.prevSfB = zoneB.sf;
+
+    // Move
+    const prevTA = state.tA;
+    state.tA = (state.tA + BASE_SPEED * sfA * state.speedMult) % 1;
+    state.tB = (state.tB + BASE_SPEED * sfB * state.speedMult) % 1;
+
+    // Lap boundary
+    if (state.tA < prevTA) {
+      state.lap++;
+      document.getElementById('lap-num').textContent = Math.min(state.lap, 10);
+
+      // Determine who is chaser at lap boundary for overtake activation
+      const bAheadAtLap = state.tB > state.tA || (state.tA - state.tB > 0.5);
+      const aIsChaserAtLap = bAheadAtLap;
+      const bIsChaserAtLap = !bAheadAtLap;
+
+      // Overtake Mode for Car A: only activate if Car A earned it AND is still the chaser
+      // If Car A earned it but is now the leader (used it to overtake), the bonus is forfeited
+      if (state.overtakeEarnedA && aIsChaserAtLap) {
+        state.overtakeActiveA = true;
+        state.overtakeUsedA = 0;
+        state.batA = state.batA + 15;  // +0.6 MJ out of 4 MJ total = 15% — can exceed 100%
+        logEvent(`Lap ${state.lap}: Car A Overtake Mode ACTIVE -- +0.6 MJ deployed! Battery: ${Math.round(state.batA)}%`, 'boost-event');
+      } else {
+        if (state.overtakeEarnedA && !aIsChaserAtLap) {
+          logEvent(`Lap ${state.lap}: Car A Overtake Mode forfeited -- now leading`, '');
+        }
+        if (state.overtakeActiveA) logEvent(`Lap ${state.lap}: Car A Overtake Mode expired`, '');
+        state.overtakeActiveA = false;
+        state.overtakeUsedA = 0;
+      }
+      state.overtakeEarnedA = false;
+
+      // Overtake Mode for Car B: only activate if Car B earned it AND is still the chaser
+      if (state.overtakeEarnedB && bIsChaserAtLap) {
+        state.overtakeActiveB = true;
+        state.overtakeUsedB = 0;
+        state.batB = state.batB + 15;  // +0.6 MJ out of 4 MJ total = 15% — can exceed 100%
+        logEvent(`Lap ${state.lap}: Car B Overtake Mode ACTIVE -- +0.6 MJ deployed! Battery: ${Math.round(state.batB)}%`, 'boost-event');
+      } else {
+        if (state.overtakeEarnedB && !bIsChaserAtLap) {
+          logEvent(`Lap ${state.lap}: Car B Overtake Mode forfeited -- now leading`, '');
+        }
+        if (state.overtakeActiveB) logEvent(`Lap ${state.lap}: Car B Overtake Mode expired`, '');
+        state.overtakeActiveB = false;
+        state.overtakeUsedB = 0;
+      }
+      state.overtakeEarnedB = false;
+
+      logEvent(`Lap ${state.lap} started`, '');
+      if (state.lap > 10) {
+        state.running = false;
+        logEvent('Race complete!', 'overtake-event');
+        return;
+      }
+    }
+
+    // Overtake (uses hysteresis-aware carBLeading, updated earlier in step)
+    if (state.carBLeading && !prevCarBLeading) {
+      state.overtakeCount++;
+      logEvent(`Overtake! Car B passes Car A (${state.overtakeCount} total)`, 'overtake-event');
+    } else if (!state.carBLeading && prevCarBLeading) {
+      state.overtakeCount++;
+      logEvent(`Overtake! Car A retakes the lead (${state.overtakeCount} total)`, 'overtake-event');
+    }
+
+    // Trails
+    const ptA = getPointAt(state.tA);
+    const ptB = getPointAt(state.tB);
+    state.trailAHist.push({ x: ptA.x, y: ptA.y });
+    state.trailBHist.push({ x: ptB.x, y: ptB.y });
+    if (state.trailAHist.length > TRAIL_LEN) state.trailAHist.shift();
+    if (state.trailBHist.length > TRAIL_LEN) state.trailBHist.shift();
+
+    updateUI();
+  }
+
+  // ─── UI ───────────────────────────────────────────────────────────
+  function updateUI() {
+    const ptA = getPointAt(state.tA);
+    const ptB = getPointAt(state.tB);
+    const zA = getZoneAt(state.tA);
+    const zB = getZoneAt(state.tB);
+
+    carA.attr('cx', ptA.x).attr('cy', ptA.y);
+    carB.attr('cx', ptB.x).attr('cy', ptB.y);
+    labelA.attr('x', ptA.x).attr('y', ptA.y - 11);
+    labelB.attr('x', ptB.x).attr('y', ptB.y - 11);
+
+    if (state.momB) {
+      boostRing.attr('cx', ptB.x).attr('cy', ptB.y)
+        .attr('opacity', 0.5)
+        .attr('r', 10 + Math.sin(Date.now() / 100) * 2);
+    } else {
+      boostRing.attr('opacity', 0);
+    }
+
+    const trailLine = d3.line().x(d => d.x).y(d => d.y).curve(d3.curveCatmullRom);
+    if (state.trailAHist.length > 1) trailA.attr('d', trailLine(state.trailAHist));
+    if (state.trailBHist.length > 1) trailB.attr('d', trailLine(state.trailBHist));
+
+    // Speed — compute actual displayed speed including all bonuses (boost, overtake, slipstream)
+    let spdMultA = 1, spdMultB = 1;
+    if (state.momA) {
+      const taperA = state.overtakeActiveA ? 337 : 290;
+      spdMultA *= 1 + 0.06 * mguTaper(zA.sf, taperA);
+    }
+    if (state.overtakeActiveA && state.overtakeUsedA < 100) {
+      const inDeployA = zA.zone === 'overtake' || zA.zone === 'straight';
+      if (inDeployA) spdMultA *= 1.03;
+    }
+    if (state.momB) {
+      const taperB = state.overtakeActiveB ? 337 : 290;
+      spdMultB *= 1 + 0.06 * mguTaper(zB.sf, taperB);
+    }
+    if (state.overtakeActiveB && state.overtakeUsedB < 100) {
+      const inDeployB = zB.zone === 'overtake' || zB.zone === 'straight';
+      if (inDeployB) spdMultB *= 1.03;
+    }
+    const spdA = Math.round(zA.sf * 355 * spdMultA);
+    const spdB = Math.round(zB.sf * 355 * spdMultB);
+    document.getElementById('speed-a').innerHTML = `${spdA}<span class="speed-unit"> km/h</span>`;
+    document.getElementById('speed-b').innerHTML = `${spdB}<span class="speed-unit"> km/h</span>`;
+
+    // Battery — scale allows >100% when overtake bonus is active
+    const MAX_BAT_DISPLAY = 115;  // visual max for the bar
+
+    const batAPct = document.getElementById('bat-a-pct');
+    const batAFill = document.getElementById('bat-a-fill');
+    const batAOverflow = document.getElementById('bat-a-overflow');
+    batAPct.textContent = `${Math.round(state.batA)}%`;
+    batAFill.style.width = `${Math.min(state.batA / MAX_BAT_DISPLAY * 100, 100)}%`;
+    if (state.batA > 100) {
+      batAPct.classList.add('overcharged');
+      batAOverflow.classList.add('active');
+      // Show gold segment for the overtake bonus portion
+      const normalPortion = (100 / state.batA * 100);
+      batAFill.style.background = `linear-gradient(90deg, #e10600 ${normalPortion}%, #b45309 ${normalPortion}%)`;
+    } else {
+      batAPct.classList.remove('overcharged');
+      batAOverflow.classList.remove('active');
+      batAFill.style.background = '#e10600';
+    }
+
+    const batBPct = document.getElementById('bat-b-pct');
+    const batBFill = document.getElementById('bat-b-fill');
+    const batBOverflow = document.getElementById('bat-b-overflow');
+    batBPct.textContent = `${Math.round(state.batB)}%`;
+    batBFill.style.width = `${Math.min(state.batB / MAX_BAT_DISPLAY * 100, 100)}%`;
+    if (state.batB > 100) {
+      batBPct.classList.add('overcharged');
+      batBOverflow.classList.add('active');
+      const normalPortion = (100 / state.batB * 100);
+      batBFill.style.background = `linear-gradient(90deg, #3b82f6 ${normalPortion}%, #b45309 ${normalPortion}%)`;
+    } else {
+      batBPct.classList.remove('overcharged');
+      batBOverflow.classList.remove('active');
+      batBFill.style.background = '#3b82f6';
+    }
+
+    // Interval counter — convert normalized gap to seconds
+    const gap = getGap();
+    // Speed in track-units per second: BASE_SPEED * sf * 60fps
+    // Use average of both cars' speed factors for a stable reading
+    const avgSf = (zA.sf + zB.sf) / 2;
+    const trackUnitsPerSec = BASE_SPEED * Math.max(avgSf, 0.2) * 60;
+    const gapSeconds = gap / trackUnitsPerSec;
+    const bAheadDisplay = state.tB > state.tA || (state.tA - state.tB > 0.5);
+
+    const intervalEl = document.getElementById('interval-gap');
+    const intervalWho = document.getElementById('interval-who');
+    intervalEl.textContent = `+${gapSeconds.toFixed(3)}s`;
+    if (bAheadDisplay) {
+      intervalWho.textContent = 'A behind';
+      intervalWho.className = 'interval-indicator leader-b';
+    } else {
+      intervalWho.textContent = 'B behind';
+      intervalWho.className = 'interval-indicator leader-a';
+    }
+    // Highlight when within ~1 second (overtake activation threshold)
+    if (gapSeconds < 1.0) {
+      intervalEl.classList.add('within-drs');
+    } else {
+      intervalEl.classList.remove('within-drs');
+    }
+
+    // Panel titles — Car A/B stay in place, role label updates
+    document.getElementById('title-a').textContent = state.carBLeading ? 'Car A — Chaser' : 'Car A — Leader';
+    document.getElementById('title-b').textContent = state.carBLeading ? 'Car B — Leader' : 'Car B — Chaser';
+
+    // Status
+    const set = (id, on, cls) => {
+      const el = document.getElementById(id);
+      el.textContent = on ? 'ON' : 'OFF';
+      el.className = 'value ' + (on ? cls : 'off');
+    };
+    const setOvertake = (id, active, used, earned) => {
+      const el = document.getElementById(id);
+      if (active && used < 100) {
+        el.textContent = 'ACTIVE';
+        el.className = 'value overtake-active';
+      } else if (earned) {
+        el.textContent = 'ACTIVE';
+        el.className = 'value overtake-active';
+      } else {
+        el.textContent = 'OFF';
+        el.className = 'value off';
+      }
+    };
+    set('mom-a', state.momA, 'on');
+    set('mom-b', state.momB, 'active-boost');
+    setOvertake('overtake-a', state.overtakeActiveA, state.overtakeUsedA, state.overtakeEarnedA);
+    setOvertake('overtake-b', state.overtakeActiveB, state.overtakeUsedB, state.overtakeEarnedB);
+  }
+
+  // ─── Loop ─────────────────────────────────────────────────────────
+  function animate() {
+    step();
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  // ─── Controls ─────────────────────────────────────────────────────
+  document.getElementById('btn-play').addEventListener('click', () => {
+    state.running = true;
+    logEvent('Simulation started', '');
+  });
+
+  document.getElementById('btn-pause').addEventListener('click', () => {
+    state.running = false;
+    logEvent('Simulation paused', '');
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', resetState);
+
+  const speedBtn = document.getElementById('btn-speed');
+  const speeds = [1, 2, 4];
+  let speedIdx = 0;
+  speedBtn.addEventListener('click', () => {
+    speedIdx = (speedIdx + 1) % speeds.length;
+    state.speedMult = speeds[speedIdx];
+    speedBtn.textContent = `${speeds[speedIdx]}x`;
+  });
+
+  const boostBtnA = document.getElementById('btn-boost-a');
+  boostBtnA.addEventListener('click', () => {
+    state.momAManual = !state.momAManual;
+    boostBtnA.classList.toggle('active', state.momAManual);
+    logEvent(state.momAManual ? 'Car A Boost activated!' : 'Car A Boost deactivated', state.momAManual ? 'boost-event' : '');
+  });
+
+  const boostBtnB = document.getElementById('btn-boost-b');
+  boostBtnB.addEventListener('click', () => {
+    state.momBManual = !state.momBManual;
+    boostBtnB.classList.toggle('active', state.momBManual);
+    logEvent(state.momBManual ? 'Car B Boost activated!' : 'Car B Boost deactivated', state.momBManual ? 'boost-event' : '');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); state.running = !state.running; }
+    if (e.code === 'KeyA') boostBtnA.click();
+    if (e.code === 'KeyB') boostBtnB.click();
+    if (e.code === 'KeyR') resetState();
+  });
+
+  // ─── Tooltip ──────────────────────────────────────────────────────
+  const tooltip = document.getElementById('tooltip');
+
+  const zoneDesc = {
+    overtake: '<strong>Overtake Zone</strong><br>The single activation zone. If the chaser is within ~1 second of the car ahead here, they earn Overtake Mode: +0.6 MJ of extra energy granted on the <em>following</em> lap (battery can exceed 100%, shown in gold). Without Overtake, MGU-K tapers at 290 km/h; with Overtake it deploys to 337 km/h.',
+    corner: '<strong>Corner</strong><br>Active aero in maximum downforce configuration. MGU-K harvests energy under braking -- heavier braking means more regen.',
+    straight: '<strong>Straight</strong><br>Full power deployment. Speed depends on available Energy Store charge and MGU-K taper speed.',
+  };
+
+  svg.on('mousemove', function(event) {
+    const [mx, my] = d3.pointer(event);
+    let minDist = Infinity, nearest = null;
+    for (let i = 0; i < NUM_SAMPLES; i += 4) {
+      const p = sampledPoints[i];
+      const d = (p.x - mx) ** 2 + (p.y - my) ** 2;
+      if (d < minDist) { minDist = d; nearest = p; }
+    }
+
+    if (nearest && minDist < 800) {
+      tooltip.innerHTML = zoneDesc[nearest.zone];
+      tooltip.classList.add('visible');
+      tooltip.style.left = (event.clientX + 16) + 'px';
+      tooltip.style.top = (event.clientY - 10) + 'px';
+    } else {
+      tooltip.classList.remove('visible');
+    }
+  });
+
+  svg.on('mouseleave', () => tooltip.classList.remove('visible'));
+
+  // Init
+  updateUI();
+  logEvent('Ready -- press Play or Space to start', '');
+
+  // Theme toggle
+  document.getElementById('theme-toggle').addEventListener('click', function() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = ({light:'dark', dark:'rainbow', rainbow:'light'})[current] || 'dark';
+    if (next === 'light') { document.documentElement.removeAttribute('data-theme'); } else { document.documentElement.setAttribute('data-theme', next); }
+    localStorage.setItem('theme', next);
+    updateThemeColors();
+  });
+
+  // ─── Theme-aware SVG colors ─────────────────────────────────────
+  function getCSSVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function updateThemeColors() {
+    var borderColor = getCSSVar('--border');
+    var borderLight = getCSSVar('--border-light');
+
+    // Track rendering
+    svg.select('.track-border').attr('stroke', borderLight);
+    svg.select('.track-surface').attr('stroke', borderColor);
+    svg.select('.track-center').attr('stroke', borderLight);
+
+    // Start/finish line
+    svg.select('.sf-line').attr('stroke', getCSSVar('--text'));
+
+    // Circuit name text
+    svg.selectAll('.circuit-name').attr('fill', borderLight);
+
+    // Car strokes
+    var bgColor = getCSSVar('--bg');
+    carA.attr('stroke', bgColor);
+    carB.attr('stroke', bgColor);
+  }
+
+  // Apply on load
+  updateThemeColors();
+
+})();
+</script>
+</body>
+</html>

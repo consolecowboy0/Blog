@@ -1,0 +1,4026 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+const charDir = path.resolve('characters/modelthinker');
+const charFiles = ['axiom','loop','prior','nash','contra','bottleneck','darwin','tail','web','margin','razor','atlas'];
+const legionCharacters = charFiles.map(f => ({
+  ...JSON.parse(fs.readFileSync(path.join(charDir, f + '.json'), 'utf-8')),
+  __headshot: '/characters/headshots/modelthinker/' + f + '.png',
+}));
+const analystDir = path.resolve('characters/analysts');
+const allRooms = [
+  { id: 'workshop', label: 'The Workshop', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_workshop.json'), 'utf-8')) },
+  { id: 'metro_holografix', label: 'Metro Holografix', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_metro_holografix.json'), 'utf-8')) },
+  { id: 'onsen', label: 'The Onsen', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_onsen.json'), 'utf-8')) },
+  { id: 'rig', label: 'The Rig', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_rig.json'), 'utf-8')) },
+  { id: 'lighthouse', label: 'The Lighthouse', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_lighthouse.json'), 'utf-8')) },
+  { id: 'cellar', label: 'The Cellar', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_cellar.json'), 'utf-8')) },
+  { id: 'observatory', label: 'The Observatory', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_observatory.json'), 'utf-8')) },
+  { id: 'train', label: 'The Train', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_train.json'), 'utf-8')) },
+  { id: 'chatsubo', label: 'The Chatsubo', data: JSON.parse(fs.readFileSync(path.join(analystDir, 'room_chatsubo.json'), 'utf-8')) },
+  { id: 'forking_paths', label: 'The Library of Forking Paths', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_forking_paths.json'), 'utf-8')) },
+  { id: 'visitor_center', label: 'The Visitor Center', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_visitor_center.json'), 'utf-8')) },
+  { id: 'head_in_the_clouds', label: 'Head in the Clouds', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_head_in_the_clouds.json'), 'utf-8')) },
+  { id: 'falcon_lounge', label: 'The Falcon Lounge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_falcon_lounge.json'), 'utf-8')) },
+  { id: 'mycelium_bridge', label: 'The Mycelium Bridge', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_mycelium_bridge.json'), 'utf-8')) },
+  { id: 'suntouch', label: 'The Suntouch Veranda', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_suntouch.json'), 'utf-8')) },
+  { id: 'hendrix', label: 'The Hendrix Lobby', data: JSON.parse(fs.readFileSync(path.join(charDir, 'room_hendrix.json'), 'utf-8')) },
+].map(r => ({ ...r, image: '/characters/rooms/' + r.id + '.png' }));
+const legionRooms = allRooms;
+const legionRelationships = JSON.parse(fs.readFileSync(path.join(charDir, 'relationships_modelthinker.json'), 'utf-8'));
+
+const analystFiles = ['paloma','marcus','iris','evelyn','sam','henrik','lena','theo'];
+const analystCharacters = analystFiles.map(f => ({
+  ...JSON.parse(fs.readFileSync(path.join(analystDir, f + '.json'), 'utf-8')),
+  __headshot: '/characters/headshots/analysts/' + f + '.png',
+}));
+const analystRooms = allRooms;
+const analystRelationships = JSON.parse(fs.readFileSync(path.join(analystDir, 'relationships_analysts.json'), 'utf-8'));
+---
+
+<BaseLayout title="Legion - dustinlanders.com" description="Multi-agent chat room.">
+  <Fragment slot="head">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  </Fragment>
+  <div id="gate">
+    <div class="gate-box">
+      <div class="gate-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h2>Private area</h2>
+      <p class="gate-sub">Enter password to continue.</p>
+      <form id="gate-form">
+        <input type="password" id="gate-password" placeholder="Password" autocomplete="off" />
+        <button type="submit" id="gate-unlock">Unlock</button>
+      </form>
+      <p id="gate-error" class="gate-error gate-hidden">Wrong password</p>
+    </div>
+  </div>
+
+  <section id="panel" style="display: none;">
+    <div class="panel-header">
+      <div class="panel-title-row">
+        <h1>Legion</h1>
+        <div class="header-controls">
+          <button id="history-btn-header" class="secondary-btn">History</button>
+          <button id="sign-out" class="secondary-btn">Sign Out</button>
+        </div>
+      </div>
+      <p class="panel-sub">Configure agents, set the scene, and watch them talk.</p>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn tab-active" data-tab="legion">Science</button>
+      <button class="tab-btn" data-tab="analysts">Psych</button>
+      <div class="tab-actions">
+        <button id="stop-btn" class="secondary-btn" style="display:none;">Stop</button>
+        <button id="export-btn" class="secondary-btn" style="display:none;">Export</button>
+        <button id="move-room-btn" class="secondary-btn" style="display:none;">Move Room</button>
+        <button id="add-char-btn" class="secondary-btn" style="display:none;">Add Character</button>
+        <button id="open-rooms-modal" class="secondary-btn" type="button">Rooms</button>
+        <button id="open-chars-modal" class="secondary-btn" type="button">Scientists</button>
+        <button id="open-run-modal" class="run-button" type="button">Run</button>
+      </div>
+    </div>
+
+    <div id="status-panel" class="status-panel" style="display:none;">
+      <label class="field-label">Status</label>
+      <div id="status-list" class="status-list"></div>
+    </div>
+
+    <div class="chat-wrapper" id="chat-wrapper">
+      <div class="chat-progress" id="chat-progress" hidden>
+        <div class="chat-progress-track"><div class="chat-progress-fill" id="chat-progress-fill"></div></div>
+        <span class="chat-progress-label" id="chat-progress-label"></span>
+      </div>
+      <div class="chat-toolbar">
+        <button id="fullscreen-chat" class="copy-btn chat-toolbar-btn" title="Fullscreen"><svg class="icon-expand" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg><svg class="icon-collapse" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></button>
+        <button id="copy-chat" class="copy-btn chat-toolbar-btn" title="Copy chat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+      </div>
+      <div id="chat" class="chat">
+        <p class="chat-placeholder">Hit Go to start.</p>
+      </div>
+    </div>
+
+    <div class="interject-section" id="interject-section" style="display:none;">
+      <div class="interject-row">
+        <textarea id="interject-input" rows="4" placeholder="Interject... (Shift+Enter for newline, Enter to send)"></textarea>
+        <button id="interject-btn" class="secondary-btn">Send</button>
+      </div>
+    </div>
+
+    <div id="rooms-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content rooms-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Rooms</span>
+          <button id="rooms-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <input type="text" id="rooms-modal-search" class="modal-search" placeholder="Search rooms..." autocomplete="off" />
+        <div id="tab-legion-rooms" class="tab-panel">
+          <div class="room-grid" id="room-grid"></div>
+        </div>
+        <div id="tab-analysts-rooms" class="tab-panel" style="display:none;">
+          <div class="room-grid" id="analysts-room-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="chars-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content rooms-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label" id="chars-modal-title">Scientists</span>
+          <button id="chars-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <input type="text" id="chars-modal-search" class="modal-search" placeholder="Search characters..." autocomplete="off" />
+        <div id="tab-legion-chars" class="tab-panel">
+          <div class="agents-grid" id="legion-grid"></div>
+        </div>
+        <div id="tab-analysts-chars" class="tab-panel" style="display:none;">
+          <div class="agents-grid" id="analysts-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="run-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content run-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Run</span>
+          <button id="run-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+
+        <div id="tab-legion-top" class="tab-panel">
+          <details class="prompt-section prompt-foldable">
+            <summary class="field-label prompt-toggle">Prompt</summary>
+            <textarea id="opening" rows="3" placeholder="Prompt..."></textarea>
+          </details>
+
+          <div class="controls">
+            <div class="control-group">
+              <label class="field-label" for="rounds">Rounds</label>
+              <input type="number" id="rounds" min="1" max="50" value="2" />
+            </div>
+            <input type="hidden" id="delay-input" value="0" />
+            <input type="hidden" id="mode-select" value="agent-sdk" />
+            <div class="control-group">
+              <label class="field-label" for="order-mode">Order</label>
+              <select id="order-mode">
+                <option value="priority">Priority</option>
+                <option value="default">Default</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="model-select">Model</label>
+              <select id="model-select">
+                <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+                <option value="claude-opus-4-20250514">Opus 4</option>
+                <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+              </select>
+            </div>
+            <label class="defense-label"><input type="checkbox" id="defense-mode" /> Thesis</label>
+            <div class="control-group">
+              <label class="field-label" for="budget-input">Budget</label>
+              <input type="number" id="budget-input" min="0" max="10000" value="100" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="max-cost-input">Max Cost</label>
+              <input type="number" id="max-cost-input" min="1" max="100" value="20" />
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-analysts-top" class="tab-panel" style="display:none;">
+          <details class="prompt-section prompt-foldable">
+            <summary class="field-label prompt-toggle">Transcript</summary>
+            <textarea id="analysts-opening" rows="10" placeholder="Paste a conversation transcript here. The analysts will read it and tell you what is going on under the surface."></textarea>
+          </details>
+
+          <div class="controls">
+            <div class="control-group">
+              <label class="field-label" for="analysts-rounds">Rounds</label>
+              <input type="number" id="analysts-rounds" min="1" max="50" value="3" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-order-mode">Order</label>
+              <select id="analysts-order-mode">
+                <option value="priority">Priority</option>
+                <option value="default">Default</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-model-select">Model</label>
+              <select id="analysts-model-select">
+                <option value="claude-sonnet-4-20250514">Sonnet 4</option>
+                <option value="claude-opus-4-20250514">Opus 4</option>
+                <option value="claude-haiku-4-5-20251001">Haiku 4.5</option>
+              </select>
+            </div>
+            <label class="defense-label"><input type="checkbox" id="analysts-defense-mode" /> Thesis</label>
+            <div class="control-group">
+              <label class="field-label" for="analysts-budget-input">Budget</label>
+              <input type="number" id="analysts-budget-input" min="0" max="10000" value="100" />
+            </div>
+            <div class="control-group">
+              <label class="field-label" for="analysts-max-cost-input">Max Cost</label>
+              <input type="number" id="analysts-max-cost-input" min="1" max="100" value="20" />
+            </div>
+          </div>
+        </div>
+
+        <div class="run-controls run-modal-controls">
+          <button id="go-btn">Go</button>
+          <button id="clear-btn" class="secondary-btn">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="add-char-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Add Character</span>
+          <button id="add-char-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div id="add-char-roster" class="add-char-roster"></div>
+        <button id="add-char-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
+    </div>
+
+    <div id="move-room-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">Move Room</span>
+          <button id="move-room-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div id="move-room-roster" class="add-char-roster"></div>
+        <button id="move-room-upload" class="secondary-btn" style="width:100%;display:none;">Upload JSON</button>
+      </div>
+    </div>
+
+    <div id="char-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content char-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label" id="char-modal-title">Character</span>
+          <button id="char-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <div class="char-modal-top">
+          <img id="char-modal-image" class="char-modal-image" alt="" onerror="this.style.display='none'">
+          <div id="char-modal-summary" class="char-modal-summary"></div>
+        </div>
+        <div id="char-modal-body" class="char-modal-body"></div>
+        <button id="char-modal-toggle" class="secondary-btn char-modal-toggle">Add to Roster</button>
+      </div>
+    </div>
+
+    <div id="room-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content room-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label" id="room-modal-title">Room</span>
+          <button id="room-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <img id="room-modal-image" class="room-modal-image" alt="" onerror="this.style.display='none'">
+        <div id="room-modal-body" class="room-modal-body"></div>
+        <button id="room-modal-select" class="secondary-btn room-modal-select">Use This Room</button>
+      </div>
+    </div>
+
+    <div id="history-modal" class="add-char-modal" style="display:none;">
+      <div class="add-char-modal-content history-modal-content">
+        <div class="add-char-modal-header">
+          <span class="field-label">History</span>
+          <button id="history-modal-close" class="remove-btn" title="Close">x</button>
+        </div>
+        <p class="history-note">Sessions archived on Clear. Kept 30 days, auto-purged after.</p>
+        <div id="history-list" class="history-list"></div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ legionCharacters, legionRooms, legionRelationships, analystCharacters, analystRooms, analystRelationships }}>
+  window.__LEGION_CHARACTERS__ = legionCharacters;
+  window.__LEGION_ROOMS__ = legionRooms;
+  window.__LEGION_RELATIONSHIPS__ = legionRelationships;
+  window.__ANALYSTS_CHARACTERS__ = analystCharacters;
+  window.__ANALYSTS_ROOMS__ = analystRooms;
+  window.__ANALYSTS_RELATIONSHIPS__ = analystRelationships;
+</script>
+
+<script is:inline>
+(function () {
+  var API_BASE = location.hostname === 'localhost' ? '' : 'https://api.dustinlanders.com';
+  var authToken = localStorage.getItem('auth_token') || null;
+  var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316'];
+  var MAX_TRANSCRIPT_MESSAGES = 30;
+  var activeTab = 'legion';
+
+  // --- Tab switching ---
+  document.querySelectorAll('.tab-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('tab-active'); });
+      btn.classList.add('tab-active');
+      activeTab = btn.getAttribute('data-tab');
+      document.getElementById('tab-legion-top').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-legion-rooms').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-legion-chars').style.display = activeTab === 'legion' ? '' : 'none';
+      document.getElementById('tab-analysts-top').style.display = activeTab === 'analysts' ? '' : 'none';
+      document.getElementById('tab-analysts-rooms').style.display = activeTab === 'analysts' ? '' : 'none';
+      document.getElementById('tab-analysts-chars').style.display = activeTab === 'analysts' ? '' : 'none';
+      var charsBtn = document.getElementById('open-chars-modal');
+      if (charsBtn) charsBtn.textContent = activeTab === 'analysts' ? 'Analysts' : 'Scientists';
+      var charsTitle = document.getElementById('chars-modal-title');
+      if (charsTitle) charsTitle.textContent = activeTab === 'analysts' ? 'Analysts' : 'Scientists';
+    });
+  });
+
+  // Helper: get active control value based on tab
+  function getOpening() {
+    if (activeTab === 'analysts') {
+      var transcript = document.getElementById('analysts-opening').value.trim();
+      if (!transcript) return '';
+      return 'Below is a conversation transcript the consortium has been asked to analyze. Read it carefully. Apply your framework. Listen to your colleagues. Build a layered reading of what is actually going on under the surface. Point to specific lines. Notice what nobody else has noticed yet.\n\n--- TRANSCRIPT ---\n' + transcript + '\n--- END TRANSCRIPT ---';
+    }
+    return document.getElementById('opening').value;
+  }
+  function getRounds() {
+    if (activeTab === 'analysts') return document.getElementById('analysts-rounds').value;
+    return document.getElementById('rounds').value;
+  }
+  function getModel() {
+    if (activeTab === 'analysts') return document.getElementById('analysts-model-select').value;
+    return document.getElementById('model-select').value;
+  }
+  function getOrderMode() {
+    if (activeTab === 'analysts') return document.getElementById('analysts-order-mode').value;
+    return document.getElementById('order-mode').value;
+  }
+  function getDefense() {
+    if (activeTab === 'analysts') return document.getElementById('analysts-defense-mode').checked;
+    return document.getElementById('defense-mode').checked;
+  }
+  function getBudget() {
+    var el = activeTab === 'analysts' ? document.getElementById('analysts-budget-input') : document.getElementById('budget-input');
+    var n = parseInt(el.value, 10);
+    return isNaN(n) || n < 0 ? 100 : n;
+  }
+  function getMaxCost() {
+    var el = activeTab === 'analysts' ? document.getElementById('analysts-max-cost-input') : document.getElementById('max-cost-input');
+    var n = parseInt(el.value, 10);
+    return isNaN(n) || n < 1 ? 20 : n;
+  }
+
+  // --- Legion auto-load ---
+  var legionChars = window.__LEGION_CHARACTERS__ || [];
+  var legionRoomsData = window.__LEGION_ROOMS__ || [];
+  var legionRels = window.__LEGION_RELATIONSHIPS__ || null;
+  var selectedLegionRoom = legionRoomsData.length > 0 ? legionRoomsData[0] : null;
+
+  // --- Analysts auto-load ---
+  var analystChars = window.__ANALYSTS_CHARACTERS__ || [];
+  var analystRoomsData = window.__ANALYSTS_ROOMS__ || [];
+  var analystRels = window.__ANALYSTS_RELATIONSHIPS__ || null;
+
+  // Name -> headshot URL map. Populated from the preloaded character sets and
+  // from user-uploaded characters in the Advanced tab. msg() / typing() look
+  // up here so we do not have to plumb headshots through every call site.
+  var headshotMap = {};
+  function registerHeadshot(data) {
+    if (!data) return;
+    var n = data.name || data.Name;
+    if (n && data.__headshot) headshotMap[n.toLowerCase()] = data.__headshot;
+  }
+  legionChars.forEach(registerHeadshot);
+  analystChars.forEach(registerHeadshot);
+  function getHeadshot(name) {
+    if (!name) return null;
+    return headshotMap[name.toLowerCase()] || null;
+  }
+  // Default the Psych tab to the Observation Room to preserve prior behavior.
+  var selectedAnalystRoom = (function () {
+    var match = analystRoomsData.filter(function (r) { return r.id === 'chatsubo'; })[0];
+    return match || (analystRoomsData.length > 0 ? analystRoomsData[0] : null);
+  })();
+
+  function buildRoomGrid(gridId, rooms, initiallySelected, onSelect) {
+    var grid = document.getElementById(gridId);
+    if (!grid) return;
+    grid.innerHTML = '';
+    rooms.forEach(function (room) {
+      var card = document.createElement('div');
+      var isSelected = initiallySelected && initiallySelected.id === room.id;
+      card.className = 'room-card' + (isSelected ? ' room-selected' : '');
+      card._roomData = room;
+      card.innerHTML =
+        (room.image ? '<img class="room-card-image" src="' + esc(room.image) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+        '<span class="room-card-name">' + esc(room.label) + '</span>' +
+        '<span class="room-card-desc">' + esc(room.data.location.split('.')[0]) + '</span>' +
+        '<div class="card-actions">' +
+          '<button class="card-action-btn card-action-add" type="button" title="Use this room">Add</button>' +
+          '<button class="card-action-btn card-action-info" type="button" title="Details">Info</button>' +
+        '</div>';
+      function commit() {
+        grid.querySelectorAll('.room-card').forEach(function (c) { c.classList.remove('room-selected'); });
+        card.classList.add('room-selected');
+        onSelect(room);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        commit();
+      });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openRoomModal(room, commit);
+      });
+      card.addEventListener('click', function () { openRoomModal(room, commit); });
+      grid.appendChild(card);
+    });
+  }
+  buildRoomGrid('room-grid', legionRoomsData, selectedLegionRoom, function (r) { selectedLegionRoom = r; });
+  buildRoomGrid('analysts-room-grid', analystRoomsData, selectedAnalystRoom, function (r) { selectedAnalystRoom = r; });
+
+  // Room detail modal: clicking a card opens this so the user can read the
+  // full atmosphere description and confirm before committing the selection.
+  var pendingRoomConfirm = null;
+  function openRoomModal(room, onConfirm) {
+    pendingRoomConfirm = onConfirm;
+    document.getElementById('room-modal-title').textContent = room.label;
+    var img = document.getElementById('room-modal-image');
+    if (room.image) {
+      img.src = room.image;
+      img.style.display = '';
+    } else {
+      img.style.display = 'none';
+    }
+    var body = document.getElementById('room-modal-body');
+    body.innerHTML = '';
+    var d = room.data || {};
+    function row(label, value) {
+      if (!value) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'room-modal-row';
+      var l = document.createElement('div');
+      l.className = 'room-modal-row-label';
+      l.textContent = label;
+      var v = document.createElement('div');
+      v.className = 'room-modal-row-value';
+      v.textContent = value;
+      wrap.appendChild(l);
+      wrap.appendChild(v);
+      body.appendChild(wrap);
+    }
+    row('Location', d.location);
+    row('Time', d.time);
+    row('Weather', d.weather);
+    if (d.atmosphere) {
+      row('Lighting', d.atmosphere.lighting);
+      row('Sound', d.atmosphere.sound);
+      row('Smell', d.atmosphere.smell);
+      row('Crowd', d.atmosphere.crowd);
+    }
+    row('Mood', d.mood);
+    document.getElementById('room-modal').style.display = 'flex';
+  }
+  function closeRoomModal() {
+    document.getElementById('room-modal').style.display = 'none';
+    pendingRoomConfirm = null;
+  }
+  document.getElementById('room-modal-close').addEventListener('click', closeRoomModal);
+  document.getElementById('room-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeRoomModal();
+  });
+  document.getElementById('room-modal-select').addEventListener('click', function () {
+    if (pendingRoomConfirm) pendingRoomConfirm();
+    closeRoomModal();
+  });
+
+  // Character detail modal: clicking a roster card opens this so the user can
+  // read the full character sheet and toggle inclusion via the confirm button.
+  var pendingCharToggle = null;
+  function openCharModal(char, isCurrentlySelected, onToggle) {
+    pendingCharToggle = onToggle;
+    var name = char.name || char.Name || 'Character';
+    document.getElementById('char-modal-title').textContent = name;
+    var img = document.getElementById('char-modal-image');
+    if (char.__headshot) {
+      img.src = char.__headshot;
+      img.style.display = '';
+    } else {
+      img.style.display = 'none';
+    }
+    var summary = document.getElementById('char-modal-summary');
+    summary.innerHTML = '';
+    function summaryRow(value) {
+      if (!value) return;
+      var line = document.createElement('div');
+      line.textContent = value;
+      summary.appendChild(line);
+    }
+    if (char.model) summaryRow(char.model);
+    if (char.occupation) summaryRow(char.occupation);
+    if (char.age) summaryRow('Age ' + char.age);
+    var body = document.getElementById('char-modal-body');
+    body.innerHTML = '';
+    function row(label, value) {
+      if (!value) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'room-modal-row';
+      var l = document.createElement('div');
+      l.className = 'room-modal-row-label';
+      l.textContent = label;
+      var v = document.createElement('div');
+      v.className = 'room-modal-row-value';
+      if (Array.isArray(value)) {
+        v.textContent = value.join(', ');
+      } else if (typeof value === 'object') {
+        var lines = [];
+        for (var k in value) {
+          if (value[k] == null || value[k] === '') continue;
+          var val = Array.isArray(value[k]) ? value[k].join(', ') : value[k];
+          lines.push(k + ': ' + val);
+        }
+        v.textContent = lines.join('\n');
+        v.style.whiteSpace = 'pre-wrap';
+      } else {
+        v.textContent = value;
+      }
+      wrap.appendChild(l);
+      wrap.appendChild(v);
+      body.appendChild(wrap);
+    }
+    if (char.model_description) row('Model', char.model_description);
+    row('Appearance', char.appearance);
+    if (char.personality) row('Personality', char.personality);
+    if (char.speaking_style) row('Speaking Style', char.speaking_style);
+    row('Backstory', char.backstory);
+    row('Motivations', char.motivations);
+    row('Current State', char.current_emotional_state);
+    row('Mannerisms', char.physical_mannerisms);
+    var toggle = document.getElementById('char-modal-toggle');
+    toggle.textContent = isCurrentlySelected ? 'Remove from Roster' : 'Add to Roster';
+    document.getElementById('char-modal').style.display = 'flex';
+  }
+  function closeCharModal() {
+    document.getElementById('char-modal').style.display = 'none';
+    pendingCharToggle = null;
+  }
+  document.getElementById('char-modal-close').addEventListener('click', closeCharModal);
+  document.getElementById('char-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeCharModal();
+  });
+  document.getElementById('char-modal-toggle').addEventListener('click', function () {
+    if (pendingCharToggle) pendingCharToggle();
+    closeCharModal();
+  });
+
+  function initLegionGrid() {
+    var grid = document.getElementById('legion-grid');
+    grid.innerHTML = '';
+    legionChars.forEach(function (data, i) {
+      var color = COLORS[i % COLORS.length];
+      var name = data.name || 'Agent';
+      var desc = '';
+      if (data.model) desc = data.model;
+      if (data.model_description) desc += (desc ? ' -- ' : '') + data.model_description;
+      if (!desc && data.occupation) desc = data.occupation;
+      var card = document.createElement('div');
+      card.className = 'agent-card legion-card legion-dimmed';
+      card._charData = data;
+      card._selected = false;
+      var headshot = data && data.__headshot;
+      card.innerHTML =
+        (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+        '<div class="agent-card-body">' +
+          '<div class="agent-card-header">' +
+            '<span class="agent-dot" style="background:' + color + ';"></span>' +
+            '<span class="agent-name-label">' + esc(name) + '</span>' +
+          '</div>' +
+          (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-action-add" type="button">Add</button>' +
+            '<button class="card-action-btn card-action-info" type="button">Info</button>' +
+          '</div>' +
+        '</div>';
+      function toggleSelection() {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleSelection();
+      });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openCharModal(data, card._selected, toggleSelection);
+      });
+      card.addEventListener('click', function () {
+        openCharModal(data, card._selected, toggleSelection);
+      });
+      grid.appendChild(card);
+    });
+  }
+  initLegionGrid();
+
+  function initAnalystGrid() {
+    var grid = document.getElementById('analysts-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    analystChars.forEach(function (data, i) {
+      var color = COLORS[i % COLORS.length];
+      var name = data.name || 'Agent';
+      var desc = '';
+      if (data.model) desc = data.model;
+      if (data.model_description) desc += (desc ? ' -- ' : '') + data.model_description;
+      if (!desc && data.occupation) desc = data.occupation;
+      var card = document.createElement('div');
+      card.className = 'agent-card legion-card legion-dimmed';
+      card._charData = data;
+      card._selected = false;
+      var headshot = data && data.__headshot;
+      card.innerHTML =
+        (headshot ? '<img class="agent-headshot" src="' + esc(headshot) + '" alt="" onerror="this.style.display=\'none\'">' : '') +
+        '<div class="agent-card-body">' +
+          '<div class="agent-card-header">' +
+            '<span class="agent-dot" style="background:' + color + ';"></span>' +
+            '<span class="agent-name-label">' + esc(name) + '</span>' +
+          '</div>' +
+          (desc ? '<div class="agent-desc">' + esc(desc) + '</div>' : '') +
+          '<div class="card-actions">' +
+            '<button class="card-action-btn card-action-add" type="button">Add</button>' +
+            '<button class="card-action-btn card-action-info" type="button">Info</button>' +
+          '</div>' +
+        '</div>';
+      function toggleSelection() {
+        card._selected = !card._selected;
+        card.classList.toggle('legion-selected', card._selected);
+        card.classList.toggle('legion-dimmed', !card._selected);
+      }
+      card.querySelector('.card-action-add').addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleSelection();
+      });
+      card.querySelector('.card-action-info').addEventListener('click', function (e) {
+        e.stopPropagation();
+        openCharModal(data, card._selected, toggleSelection);
+      });
+      card.addEventListener('click', function () {
+        openCharModal(data, card._selected, toggleSelection);
+      });
+      grid.appendChild(card);
+    });
+  }
+  initAnalystGrid();
+
+  // Persist analysts transcript across reloads
+  (function () {
+    var ta = document.getElementById('analysts-opening');
+    if (!ta) return;
+    var saved = localStorage.getItem('analysts_transcript');
+    if (saved) ta.value = saved;
+    var save = function () {
+      try { localStorage.setItem('analysts_transcript', ta.value); } catch (e) {}
+    };
+    ta.addEventListener('input', save);
+    ta.addEventListener('blur', save);
+    window.addEventListener('beforeunload', save);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) save();
+    });
+  })();
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Pyodide (browser Python) ---
+  var pyodideReady = null; // promise
+  var pyodideInstance = null;
+
+  function ensurePyodide() {
+    if (pyodideReady) return pyodideReady;
+    pyodideReady = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/pyodide/v0.27.7/full/pyodide.js';
+      script.onload = async function () {
+        try {
+          pyodideInstance = await loadPyodide();
+          await pyodideInstance.loadPackage(['matplotlib', 'numpy']);
+          // Patch plt.show() to capture figures as base64
+          // Add math compat shim for numpy (np.math removed in newer versions)
+          pyodideInstance.runPython(`
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io, base64, math, numpy as np
+
+# Shim: np.math was removed in numpy 2.x, redirect to stdlib math
+if not hasattr(np, 'math'):
+    np.math = math
+
+_captured_figures = []
+
+_orig_show = plt.show
+def _capture_show(*args, **kwargs):
+    for fig_num in plt.get_fignums():
+        fig = plt.figure(fig_num)
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+        buf.seek(0)
+        _captured_figures.append(base64.b64encode(buf.read()).decode('utf-8'))
+        buf.close()
+    plt.close('all')
+plt.show = _capture_show
+`);
+          resolve(pyodideInstance);
+        } catch (e) { reject(e); }
+      };
+      script.onerror = function () { reject(new Error('Failed to load Pyodide')); };
+      document.head.appendChild(script);
+    });
+    return pyodideReady;
+  }
+
+  async function runPythonCode(code) {
+    var py = await ensurePyodide();
+    py.runPython('_captured_figures = []');
+    // Capture stdout
+    py.runPython(`
+import sys, io
+_stdout_capture = io.StringIO()
+sys.stdout = _stdout_capture
+`);
+    try {
+      py.runPython(code);
+    } catch (e) {
+      // Restore stdout before returning error
+      py.runPython('sys.stdout = sys.__stdout__');
+      return { stdout: '', error: e.message, figures: [] };
+    }
+    var stdout = py.runPython('_stdout_capture.getvalue()');
+    py.runPython('sys.stdout = sys.__stdout__');
+    var figs = py.runPython('_captured_figures').toJs();
+    return { stdout: stdout, error: null, figures: Array.from(figs) };
+  }
+
+  // Gate
+  if (authToken) show();
+
+  document.getElementById('gate-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var pw = document.getElementById('gate-password').value;
+    var errEl = document.getElementById('gate-error');
+    errEl.classList.add('gate-hidden');
+    try {
+      var res = await fetch(API_BASE + '/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, scope: 'legion' }),
+      });
+      var data = await res.json();
+      if (res.ok && data.token) {
+        authToken = data.token;
+        localStorage.setItem('auth_token', authToken);
+        show();
+      } else {
+        errEl.textContent = 'Wrong password';
+        errEl.classList.remove('gate-hidden');
+        document.getElementById('gate-password').value = '';
+      }
+    } catch (e) {
+      errEl.textContent = 'Auth failed.';
+      errEl.classList.remove('gate-hidden');
+      document.getElementById('gate-password').value = '';
+    }
+  });
+
+  function show() {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    // Load server state after auth
+    loadServerState().then(function (state) {
+      if (state && state.sessionTranscript && state.sessionTranscript.length > 0) {
+        localLastModified = state.lastModified || 0;
+        restoreState(state);
+        serverStateLoaded = true;
+      }
+      startPolling();
+    }).catch(function () {
+      startPolling();
+    });
+  }
+
+  document.getElementById('sign-out').addEventListener('click', function () {
+    authToken = null;
+    localStorage.removeItem('auth_token');
+    document.getElementById('panel').style.display = 'none';
+    document.getElementById('gate').style.display = 'flex';
+    document.getElementById('gate-password').value = '';
+    document.getElementById('gate-error').classList.add('gate-hidden');
+  });
+
+  // --- Data ---
+  var roomData = null;
+  var relsData = null;
+
+  function pickFile(multiple, onSuccess, onError) {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    if (multiple) input.multiple = true;
+    input.addEventListener('change', function () {
+      Array.from(input.files).forEach(function (file) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            var data = JSON.parse(reader.result);
+            onSuccess(data, file.name);
+          } catch (e) {
+            if (onError) onError(file.name);
+          }
+        };
+        reader.readAsText(file);
+      });
+    });
+    input.click();
+  }
+
+  function getRelsForAgent(name, presentNames) {
+    if (!relsData || !relsData.relationships) return '';
+    var lines = [];
+    relsData.relationships.forEach(function (r) {
+      if (r.between.indexOf(name) === -1) return;
+      var other = r.between[0] === name ? r.between[1] : r.between[0];
+      if (presentNames.indexOf(other) === -1) return;
+      lines.push('Relationship with ' + other + ':');
+      lines.push('  type: ' + r.type);
+      if (r.history) lines.push('  history: ' + r.history);
+      if (r.current_tension) lines.push('  current tension: ' + r.current_tension);
+      if (r.shared_knowledge) lines.push('  shared knowledge: ' + r.shared_knowledge);
+    });
+    return lines.length ? lines.join('\n') : '';
+  }
+
+  function jsonToPrompt(obj, indent) {
+    indent = indent || 0;
+    var pad = '';
+    for (var p = 0; p < indent; p++) pad += '  ';
+    var lines = [];
+    Object.keys(obj).forEach(function (k) {
+      var v = obj[k];
+      if (Array.isArray(v)) {
+        lines.push(pad + k + ':');
+        v.forEach(function (item) {
+          if (typeof item === 'object' && item !== null) {
+            lines.push(pad + '  -');
+            lines.push(jsonToPrompt(item, indent + 2));
+          } else {
+            lines.push(pad + '  - ' + item);
+          }
+        });
+      } else if (typeof v === 'object' && v !== null) {
+        lines.push(pad + k + ':');
+        lines.push(jsonToPrompt(v, indent + 1));
+      } else {
+        lines.push(pad + k + ': ' + v);
+      }
+    });
+    return lines.join('\n');
+  }
+
+  // --- Character cards ---
+  function buildCharDesc(data) {
+    var parts = [];
+    if (data.occupation) parts.push(data.occupation);
+    if (data.model_description) parts.push(data.model_description);
+    if (!parts.length && data.personality && data.personality.core_traits && data.personality.core_traits.length) {
+      parts.push(data.personality.core_traits.slice(0, 3).join(', '));
+    }
+    if (!parts.length && data.backstory) {
+      var first = data.backstory.split('.')[0];
+      if (first.length > 80) first = first.substring(0, 77) + '...';
+      parts.push(first);
+    }
+    var desc = parts.join(' -- ');
+    return desc;
+  }
+
+
+  // --- Cancellable delay ---
+  var delayCancelFn = null;
+
+  function cancellableDelay(ms) {
+    return new Promise(function (resolve) {
+      if (ms <= 0 || stopRequested) { resolve(); return; }
+      var timer = setTimeout(resolve, ms);
+      delayCancelFn = function () {
+        clearTimeout(timer);
+        resolve();
+      };
+    });
+  }
+
+  var serverStateLoaded = false;
+
+  // --- Export transcript ---
+  function transcriptToMarkdown(data) {
+    var opening = data.opening || '';
+    var entries = data.sessionTranscript || [];
+    var agents = data.sessionAgents || [];
+    var savedAt = data.lastModified ? new Date(data.lastModified) : new Date();
+
+    var lines = [];
+    lines.push('# Legion Session');
+    lines.push('');
+    lines.push('_' + savedAt.toLocaleString() + '_');
+    lines.push('');
+
+    var names = (agents || [])
+      .map(function (a) { return a && a.name; })
+      .filter(function (n) { return n && n !== 'The Room'; });
+    if (names.length) {
+      lines.push('**Agents:** ' + names.join(', '));
+      lines.push('');
+    }
+    if (data.roomStatus && data.roomStatus.name) {
+      lines.push('**Room:** ' + data.roomStatus.name);
+      lines.push('');
+    }
+
+    if (opening) {
+      lines.push('## Prompt');
+      lines.push('');
+      opening.split('\n').forEach(function (ln) { lines.push('> ' + ln); });
+      lines.push('');
+    }
+
+    var currentRound = 0;
+    entries.forEach(function (entry) {
+      if (entry.round && entry.round !== currentRound) {
+        currentRound = entry.round;
+        lines.push('');
+        lines.push('## Round ' + currentRound);
+        lines.push('');
+      }
+      var text = entry.rawText || entry.text || '';
+      var name = entry.name || '';
+
+      if (text.indexOf('[CODE_FIGURE]:') === 0) {
+        var url = text.substring('[CODE_FIGURE]:'.length);
+        lines.push('![figure](' + url + ')');
+        lines.push('');
+        return;
+      }
+      if (text.indexOf('[CODE_RESULT]:') === 0) {
+        var out = text.substring('[CODE_RESULT]:'.length).trim();
+        lines.push('```');
+        lines.push(out);
+        lines.push('```');
+        lines.push('');
+        return;
+      }
+      if (text.indexOf('[CODE_ERROR]:') === 0) {
+        var err = text.substring('[CODE_ERROR]:'.length).trim();
+        lines.push('```');
+        lines.push('Error: ' + err);
+        lines.push('```');
+        lines.push('');
+        return;
+      }
+      if (name === 'Status' || name === 'Narrator') {
+        lines.push('> _' + text.replace(/\n+/g, ' ') + '_');
+        lines.push('');
+        return;
+      }
+      if (text === '...') {
+        lines.push('**' + name + ':** _(silent)_');
+        lines.push('');
+        return;
+      }
+
+      // Character message. Convert [CODE] to fenced python, [ACTION] to italic.
+      var processed = text.replace(/\[CODE\]([\s\S]*?)\[\/CODE\]/g, function (m, code) {
+        return '\n\n```python\n' + code.trim() + '\n```\n\n';
+      });
+      processed = processed.replace(/\[ACTION:\s*([^\]]+)\]/g, function (m, act) {
+        return '_' + act.trim() + '_';
+      });
+      processed = processed.replace(/\[WHISPER\s+to\s+([^:\]]+):\s*([^\]]*)\]/g, function (m, target, content) {
+        return '\n\n> _(whispers to ' + target.trim() + ')_ ' + content.trim() + '\n';
+      });
+      // Strip status mechanics tags from narrative output
+      processed = processed.replace(/\[(DIES|LEAVES)\]/g, '').replace(/\[(DEAD|LEAVES):\s*[^\]]+\]/g, '');
+
+      lines.push('### ' + name);
+      lines.push('');
+      lines.push(processed.trim());
+      lines.push('');
+    });
+
+    return lines.join('\n');
+  }
+
+  function downloadMarkdown(data, filename) {
+    var md = transcriptToMarkdown(data);
+    var blob = new Blob([md], { type: 'text/markdown' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  document.getElementById('export-btn').addEventListener('click', function () {
+    if (sessionTranscript.length === 0) return;
+    var data = {
+      opening: getOpening().trim(),
+      sessionTranscript: sessionTranscript,
+      sessionAgents: sessionAgents,
+      roomStatus: roomStatus,
+      lastModified: Date.now(),
+    };
+    downloadMarkdown(data, 'transcript_' + new Date().toISOString().slice(0, 10) + '.md');
+  });
+
+  // --- Chat helpers ---
+  var currentRoundDetails = null; // the current <details> for the active round
+
+  function getFirstDialogue(text) {
+    // Extract first quoted line for the summary preview
+    var m = text.match(/[""\u201C]([^""\u201D]{0,80})/);
+    return m ? '\u201C' + m[1] + '\u2026\u201D' : '';
+  }
+
+  function renderMath(tex, displayMode, container) {
+    if (typeof katex === 'undefined') {
+      var fb = document.createElement(displayMode ? 'div' : 'span');
+      fb.textContent = (displayMode ? '$$' : '$') + tex + (displayMode ? '$$' : '$');
+      container.appendChild(fb);
+      return;
+    }
+    var el = document.createElement(displayMode ? 'div' : 'span');
+    if (displayMode) el.style.margin = '0.5em 0';
+    try {
+      katex.render(tex, el, { displayMode: displayMode, throwOnError: false });
+    } catch(e) {
+      el.textContent = (displayMode ? '$$' : '$') + tex + (displayMode ? '$$' : '$');
+    }
+    container.appendChild(el);
+  }
+
+  function renderInlineSegment(text, container) {
+    // Handle inline math $...$  (not preceded/followed by $)
+    var parts = text.split(/(\$(?!\$)(?:[^$]|\\.)+?\$)/g);
+    parts.forEach(function(part) {
+      var m = part.match(/^\$(?!\$)((?:[^$]|\\.)+?)\$$/);
+      if (m) {
+        renderMath(m[1], false, container);
+      } else if (part) {
+        container.appendChild(document.createTextNode(part));
+      }
+    });
+  }
+
+  function renderTextContent(text, container) {
+    // Split out [CODE]...[/CODE] blocks first, then $$...$$ display math, then inline
+    var codeSplit = text.split(/(\[CODE\][\s\S]*?\[\/CODE\])/g);
+    codeSplit.forEach(function (segment) {
+      var codeMatch = segment.match(/^\[CODE\]([\s\S]*?)\[\/CODE\]$/);
+      if (codeMatch) {
+        var codeBlock = document.createElement('div');
+        codeBlock.className = 'msg-code-block';
+        var codeLabel = document.createElement('span');
+        codeLabel.className = 'code-label';
+        codeLabel.textContent = 'Python';
+        codeBlock.appendChild(codeLabel);
+        var pre = document.createElement('pre');
+        var codeEl = document.createElement('code');
+        codeEl.textContent = codeMatch[1].trim();
+        pre.appendChild(codeEl);
+        codeBlock.appendChild(pre);
+        var outputDiv = document.createElement('div');
+        outputDiv.className = 'code-output';
+        outputDiv.style.display = 'none';
+        codeBlock.appendChild(outputDiv);
+        container.appendChild(codeBlock);
+        (function (code, out) {
+          runCodeBlock(code, out);
+        })(codeMatch[1].trim(), outputDiv);
+        return;
+      }
+      // Split on $$...$$ display math blocks
+      var mathSplit = segment.split(/(\$\$[\s\S]*?\$\$)/g);
+      mathSplit.forEach(function(mathSeg) {
+        var dispMatch = mathSeg.match(/^\$\$([\s\S]*?)\$\$$/);
+        if (dispMatch) {
+          renderMath(dispMatch[1].trim(), true, container);
+          return;
+        }
+        var parts = mathSeg.split(/(\[ACTION:[^\]]*\]|\[WHISPER\s+to\s+[^:\]]+:\s*[^\]]*\])/g);
+        parts.forEach(function (part) {
+          var actionMatch = part.match(/^\[ACTION:\s*(.*)\]$/);
+          var whisperMatch = part.match(/^\[WHISPER\s+to\s+([^:\]]+):\s*(.*)\]$/);
+          if (actionMatch) {
+            var act = document.createElement('span');
+            act.className = 'msg-action';
+            act.textContent = '[ACTION: ' + actionMatch[1] + ']';
+            container.appendChild(act);
+          } else if (whisperMatch) {
+            var w = document.createElement('span');
+            w.className = 'msg-whisper';
+            w.textContent = '\u{1F5E3} whispers to ' + whisperMatch[1].trim() + ': ' + whisperMatch[2];
+            container.appendChild(w);
+          } else if (part) {
+            var dialogParts = part.split(/(?<=["\u201D])\s+(?=["\u201C])/g);
+            dialogParts.forEach(function (dp) {
+              if (!dp.trim()) return;
+              var p = document.createElement('p');
+              p.className = 'msg-dialogue';
+              renderInlineSegment(dp, p);
+              container.appendChild(p);
+            });
+          }
+        });
+      });
+    });
+  }
+
+  // --- Chat progress bar ---
+  var progressTotal = 0;
+  var progressDone = 0;
+  function progressStart(total, label) {
+    progressTotal = Math.max(1, total);
+    progressDone = 0;
+    var el = document.getElementById('chat-progress');
+    var fill = document.getElementById('chat-progress-fill');
+    var lbl = document.getElementById('chat-progress-label');
+    el.hidden = false;
+    el.classList.remove('indeterminate');
+    fill.style.width = '0%';
+    lbl.textContent = label || 'Starting...';
+  }
+  function progressTick(label) {
+    progressDone = Math.min(progressTotal, progressDone + 1);
+    var pct = Math.min(100, Math.round((progressDone / progressTotal) * 100));
+    var fill = document.getElementById('chat-progress-fill');
+    var lbl = document.getElementById('chat-progress-label');
+    fill.style.width = pct + '%';
+    if (label) lbl.textContent = label;
+  }
+  function progressLabel(label) {
+    var lbl = document.getElementById('chat-progress-label');
+    lbl.textContent = label;
+  }
+  function progressIndeterminate(label) {
+    var el = document.getElementById('chat-progress');
+    var fill = document.getElementById('chat-progress-fill');
+    el.hidden = false;
+    el.classList.add('indeterminate');
+    fill.style.width = '';
+    progressLabel(label || 'Working...');
+  }
+  function progressDone_() {
+    var el = document.getElementById('chat-progress');
+    el.classList.remove('indeterminate');
+    el.hidden = true;
+  }
+
+  // Collapse all previously unfurled chat-msg details so only the newest stays open
+  function closePriorMessages() {
+    var chat = document.getElementById('chat');
+    chat.querySelectorAll('details.chat-msg[open]').forEach(function (d) { d.open = false; });
+  }
+
+  // Attach a "▲ collapse" footer to a round-group or bid-group details element.
+  // A MutationObserver keeps the button as the last child so new content
+  // streamed into the group appears above it rather than below.
+  function addGroupCollapseFooter(detailsEl) {
+    var btn = document.createElement('button');
+    btn.className = 'msg-collapse-btn group-collapse-btn';
+    btn.textContent = '\u25B2 collapse';
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      detailsEl.open = false;
+      detailsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    detailsEl.appendChild(btn);
+    // Stash the button so msg() can push it to the end every time a new
+    // child is appended. MutationObserver worked in theory but the async
+    // callback left the button stranded mid-group on fast successive inserts.
+    detailsEl._collapseFooter = btn;
+  }
+  function reseatGroupFooter(parentEl) {
+    if (parentEl && parentEl._collapseFooter) {
+      parentEl.appendChild(parentEl._collapseFooter);
+    }
+  }
+
+  function msg(name, color, text, system) {
+    var chat = document.getElementById('chat');
+    var ph = chat.querySelector('.chat-placeholder');
+    if (ph) ph.remove();
+
+    // Round headers become collapsible groups. Auto-collapse any previously
+    // open round or thesis group when a new round starts so the chat stays
+    // focused on the active round.
+    var roundMatch = system && text.match(/^--- Round (\d+) ---$/);
+    if (roundMatch) {
+      chat.querySelectorAll('.round-group[open]').forEach(function (g) { g.open = false; });
+      var details = document.createElement('details');
+      details.className = 'round-group';
+      details.open = true;
+      var summary = document.createElement('summary');
+      summary.className = 'round-header';
+      summary.textContent = 'Round ' + roundMatch[1];
+      details.appendChild(summary);
+      chat.appendChild(details);
+      addGroupCollapseFooter(details);
+      currentRoundDetails = details;
+      chat.scrollTop = chat.scrollHeight;
+      return details;
+    }
+
+    // Theses header becomes a collapsible group like rounds
+    var thesisMatch = system && text === '--- Theses ---';
+    if (thesisMatch) {
+      var dDetails = document.createElement('details');
+      dDetails.className = 'round-group';
+      dDetails.open = true;
+      var dSummary = document.createElement('summary');
+      dSummary.className = 'round-header';
+      dSummary.textContent = 'Theses';
+      dDetails.appendChild(dSummary);
+      chat.appendChild(dDetails);
+      addGroupCollapseFooter(dDetails);
+      currentRoundDetails = dDetails;
+      chat.scrollTop = chat.scrollHeight;
+      return dDetails;
+    }
+
+    // Bidding headers
+    var bidMatch = system && text.match(/^--- Bidding for Round (\d+) ---$/);
+    if (bidMatch) {
+      var bidDetails = document.createElement('details');
+      bidDetails.className = 'bid-group';
+      var bidSummary = document.createElement('summary');
+      bidSummary.className = 'bid-header';
+      bidSummary.textContent = 'Bids for Round ' + bidMatch[1];
+      bidDetails.appendChild(bidSummary);
+      var target = currentRoundDetails || chat;
+      target.appendChild(bidDetails);
+      addGroupCollapseFooter(bidDetails);
+      chat.scrollTop = chat.scrollHeight;
+      return bidDetails;
+    }
+
+    // System messages
+    if (system) {
+      var el = document.createElement('div');
+      el.className = 'chat-msg chat-sys';
+      el.textContent = text;
+      var target = currentRoundDetails || chat;
+      target.appendChild(el);
+      reseatGroupFooter(target);
+      chat.scrollTop = chat.scrollHeight;
+      return el;
+    }
+
+    // Character messages - collapsible with preview. The headshot lives inside
+    // <summary> so browsers keep it visible when the details is closed, but is
+    // absolutely positioned so the name/preview/text render to its right.
+    closePriorMessages();
+    var details = document.createElement('details');
+    details.className = 'chat-msg';
+    details.open = true;
+    if (getHeadshot(name)) details.classList.add('chat-msg-has-avatar');
+    details.style.borderLeftColor = color;
+    var summary = document.createElement('summary');
+    summary.className = 'msg-summary';
+    var headshotUrl = getHeadshot(name);
+    if (headshotUrl) {
+      var img = document.createElement('img');
+      img.className = 'msg-headshot';
+      img.src = headshotUrl;
+      img.alt = '';
+      img.onerror = function () { img.style.display = 'none'; };
+      summary.appendChild(img);
+    }
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'msg-name';
+    nameSpan.style.color = color;
+    nameSpan.textContent = name;
+    summary.appendChild(nameSpan);
+    var preview = getFirstDialogue(text);
+    if (preview) {
+      var previewSpan = document.createElement('span');
+      previewSpan.className = 'msg-preview';
+      previewSpan.textContent = preview;
+      summary.appendChild(previewSpan);
+    }
+    details.appendChild(summary);
+    var t = document.createElement('div');
+    t.className = 'msg-text';
+    renderTextContent(text, t);
+    var collapseBtn = document.createElement('button');
+    collapseBtn.className = 'msg-collapse-btn';
+    collapseBtn.textContent = '▲ collapse';
+    collapseBtn.addEventListener('click', function () {
+      details.open = false;
+      details.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+    t.appendChild(collapseBtn);
+    details.appendChild(t);
+
+    var target = currentRoundDetails || chat;
+    target.appendChild(details);
+    reseatGroupFooter(target);
+    chat.scrollTop = chat.scrollHeight;
+    return details;
+  }
+
+  // Collapsible system message (prompts, interjections, transcripts)
+  function sysMsg(text, label) {
+    var chat = document.getElementById('chat');
+    var ph = chat.querySelector('.chat-placeholder');
+    if (ph) ph.remove();
+    closePriorMessages();
+    var details = document.createElement('details');
+    details.className = 'chat-msg chat-sys-collapsible';
+    details.open = true;
+    var summary = document.createElement('summary');
+    summary.className = 'chat-sys-summary';
+    var tag = document.createElement('span');
+    tag.className = 'chat-sys-tag';
+    tag.textContent = label || 'Prompt';
+    summary.appendChild(tag);
+    var preview = document.createElement('span');
+    preview.className = 'chat-sys-preview';
+    var firstLine = text.replace(/\s+/g, ' ').trim();
+    if (firstLine.length > 120) firstLine = firstLine.substring(0, 120) + '...';
+    preview.textContent = firstLine;
+    summary.appendChild(preview);
+    details.appendChild(summary);
+    var body = document.createElement('div');
+    body.className = 'chat-sys-body';
+    body.textContent = text;
+    details.appendChild(body);
+    var target = currentRoundDetails || chat;
+    target.appendChild(details);
+    reseatGroupFooter(target);
+    chat.scrollTop = chat.scrollHeight;
+    return details;
+  }
+
+  // Queue for code results to append to worldState/transcript
+  var pendingCodeResults = [];
+
+  async function runCodeBlock(code, outputDiv) {
+    outputDiv.style.display = '';
+    outputDiv.innerHTML = '<span class="code-running">Running...</span>';
+    try {
+      var result = await runPythonCode(code);
+      outputDiv.innerHTML = '';
+      if (result.error) {
+        var errEl = document.createElement('pre');
+        errEl.className = 'code-error';
+        errEl.textContent = result.error;
+        outputDiv.appendChild(errEl);
+        pendingCodeResults.push('[CODE_ERROR]: ' + result.error);
+      } else {
+        if (result.stdout && result.stdout.trim()) {
+          var outPre = document.createElement('pre');
+          outPre.className = 'code-stdout';
+          outPre.textContent = result.stdout;
+          outputDiv.appendChild(outPre);
+          pendingCodeResults.push('[CODE_RESULT]: ' + result.stdout.trim());
+        }
+        result.figures.forEach(function (b64) {
+          var img = document.createElement('img');
+          img.src = 'data:image/png;base64,' + b64;
+          img.className = 'code-figure';
+          outputDiv.appendChild(img);
+          pendingCodeResults.push('[CODE_FIGURE]:data:image/png;base64,' + b64);
+        });
+        if (!result.stdout.trim() && result.figures.length === 0) {
+          var noneEl = document.createElement('span');
+          noneEl.className = 'code-no-output';
+          noneEl.textContent = '(no output)';
+          outputDiv.appendChild(noneEl);
+        }
+      }
+    } catch (e) {
+      outputDiv.innerHTML = '';
+      var errEl = document.createElement('pre');
+      errEl.className = 'code-error';
+      errEl.textContent = e.message;
+      outputDiv.appendChild(errEl);
+      pendingCodeResults.push('[CODE_ERROR]: ' + e.message);
+    }
+    var chat = document.getElementById('chat');
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function typing(name, color) {
+    var chat = document.getElementById('chat');
+    var ph = chat.querySelector('.chat-placeholder');
+    if (ph) ph.remove();
+    var el = document.createElement('div');
+    el.className = 'chat-msg chat-typing';
+    var headshotUrl = getHeadshot(name);
+    if (headshotUrl) {
+      var img = document.createElement('img');
+      img.className = 'msg-headshot';
+      img.src = headshotUrl;
+      img.alt = '';
+      img.onerror = function () { img.style.display = 'none'; };
+      el.appendChild(img);
+    }
+    var n = document.createElement('span');
+    n.className = 'msg-name';
+    n.style.color = color;
+    n.textContent = name;
+    var d = document.createElement('span');
+    d.className = 'dots';
+    d.innerHTML = '<span>.</span><span>.</span><span>.</span>';
+    el.appendChild(n);
+    el.appendChild(d);
+    chat.appendChild(el);
+    chat.scrollTop = chat.scrollHeight;
+    return el;
+  }
+
+  async function ask(system, messages, agentConfig) {
+    var model = getModel();
+    var payload = { system: system, messages: messages, model: model };
+    if (agentConfig) payload.agentConfig = agentConfig;
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var res = await fetch(API_BASE + '/api/agent-sdk-chat', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      var err = '';
+      try { var b = await res.json(); err = b.error || JSON.stringify(b); } catch(e) { try { err = await res.text(); } catch(e2) {} }
+      throw new Error('Agent SDK error (' + res.status + '): ' + (err || 'unknown'));
+    }
+    var data = await res.json();
+    return data.text;
+  }
+
+  // Direct API call used for bids — uses same endpoint as regular messages.
+  async function askDirect(system, messages) {
+    return ask(system, messages);
+  }
+
+  // Ask an agent to price their upcoming opinion. Returns {cost, reason}. Used
+  // by the money system: agents must pay the cost out of their balance before
+  // they may speak. If they cannot afford the minimum (1), they must stay silent.
+  async function priceOpinion(agent, transcript, maxCost, balance) {
+    var pricingSystem = 'You are ' + agent.name + '. Before you speak, you must set a price for your upcoming opinion. You will pay this price out of your balance of $' + balance + '. You cannot speak if you cannot afford it.\n\nSet the price based on how much you value saying what you are about to say. A throwaway remark is cheap (1-3). A routine contribution is moderate (4-8). A strong stance you need to make heard is expensive (' + Math.max(9, Math.floor(maxCost * 0.6)) + '-' + maxCost + '). Stay in character when you decide.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"cost": 5, "reason": "example reason"}\n\nReplace 5 with an integer between 1 and ' + maxCost + '.';
+    var pricingMessages = [{ role: 'user', content: transcript + '\n\nHow much is it worth to speak next? Your balance is $' + balance + '. Respond with ONLY a JSON object.' }];
+    function parsePriceResponse(response) {
+      var start = response.indexOf('{');
+      var parsed = null;
+      if (start !== -1) {
+        var depth = 0, inStr = false, esc = false;
+        for (var ci = start; ci < response.length; ci++) {
+          var ch = response[ci];
+          if (esc) { esc = false; continue; }
+          if (ch === '\\' && inStr) { esc = true; continue; }
+          if (ch === '"') { inStr = !inStr; continue; }
+          if (!inStr) {
+            if (ch === '{') depth++;
+            else if (ch === '}') { depth--; if (depth === 0) { try { parsed = JSON.parse(response.slice(start, ci + 1)); } catch(e) {} break; } }
+          }
+        }
+      }
+      if (!parsed) {
+        var cm = response.match(/cost['":\s]+(\d+)/i);
+        var rm = response.match(/"reason"\s*:\s*"([^"]*)"/i);
+        if (!cm) throw new Error('no cost in response: ' + response.slice(0, 80));
+        parsed = { cost: parseInt(cm[1], 10), reason: rm ? rm[1] : '' };
+      }
+      return { cost: Math.min(maxCost, Math.max(1, parseInt(parsed.cost, 10) || 1)), reason: parsed.reason || '' };
+    }
+    try {
+      return await askDirect(pricingSystem, pricingMessages).then(parsePriceResponse);
+    } catch (err) {
+      console.warn('[price] attempt 1 failed for ' + agent.name + ':', err.message);
+      await new Promise(function (r) { setTimeout(r, 1000); });
+      try {
+        return await askDirect(pricingSystem, pricingMessages).then(parsePriceResponse);
+      } catch (retryErr) {
+        console.error('[price] failed for ' + agent.name + ' after retry:', retryErr.message || retryErr);
+        return { cost: 1, reason: 'price error' };
+      }
+    }
+  }
+
+  // --- Session state ---
+  var sessionTranscript = [];
+  var sessionAgents = null;
+  var sessionRun = 0;
+  var stopRequested = false;
+  var worldState = [];
+  var characterStatus = {}; // name -> { status: 'present'|'dead'|'left', round: number }
+  var roomStatus = { name: '', status: 'alive', round: 0 };
+  var agentBalances = {}; // name -> remaining credits
+  var startingBudget = 100;
+  var maxOpinionCost = 20;
+
+  // --- Server state persistence ---
+  var saveTimer = null;
+  var localLastModified = 0;
+  var isRunning = false;
+  var pollInterval = null;
+
+  function saveState() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      var chars = [];
+      var gridId = activeTab === 'analysts' ? '#analysts-grid' : '#legion-grid';
+      document.querySelectorAll(gridId + ' .agent-card').forEach(function (card) {
+        if (card._charData) chars.push(card._charData);
+      });
+      var now = Date.now();
+      localLastModified = now;
+      var state = {
+        sessionTranscript: sessionTranscript,
+        sessionAgents: sessionAgents,
+        sessionRun: sessionRun,
+        worldState: worldState,
+        characterStatus: characterStatus,
+        roomStatus: roomStatus,
+        agentBalances: agentBalances,
+        startingBudget: startingBudget,
+        maxOpinionCost: maxOpinionCost,
+        lastModified: now,
+        opening: getOpening(),
+        config: {
+          room: roomData,
+          relationships: relsData,
+          characters: chars,
+          model: getModel(),
+          orderMode: getOrderMode(),
+          rounds: getRounds(),
+          budget: getBudget(),
+          maxCost: getMaxCost(),
+        },
+      };
+      var headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      fetch('/api/legion-state', {
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(state),
+      }).catch(function (e) { console.warn('[legion] save failed:', e); });
+    }, 500);
+  }
+
+  function clearServerState() {
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    fetch('/api/legion-state', {
+      method: 'DELETE',
+      headers: headers,
+    }).catch(function (e) { console.warn('[legion] clear failed:', e); });
+  }
+
+  function loadServerState() {
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    return fetch('/api/legion-state', {
+      method: 'GET',
+      headers: headers,
+    }).then(function (res) {
+      if (!res.ok) return null;
+      return res.json();
+    }).catch(function () { return null; });
+  }
+
+  function restoreState(state) {
+    if (!state || !state.sessionTranscript || state.sessionTranscript.length === 0) return;
+
+    // Restore config first
+    if (state.config) {
+      if (state.config.room) roomData = state.config.room;
+      if (state.config.relationships) relsData = state.config.relationships;
+      if (state.config.model) document.getElementById('model-select').value = state.config.model;
+      if (state.config.orderMode) document.getElementById('order-mode').value = state.config.orderMode;
+      if (state.config.rounds) document.getElementById('rounds').value = state.config.rounds;
+      if (state.config.budget != null) document.getElementById('budget-input').value = state.config.budget;
+      if (state.config.maxCost != null) document.getElementById('max-cost-input').value = state.config.maxCost;
+    }
+    if (state.opening) document.getElementById('opening').value = state.opening;
+
+    // Restore session variables
+    sessionTranscript = state.sessionTranscript || [];
+    sessionAgents = state.sessionAgents || null;
+    sessionRun = state.sessionRun || 0;
+    worldState = state.worldState || [];
+    characterStatus = state.characterStatus || {};
+    roomStatus = state.roomStatus || { name: '', status: 'alive', round: 0 };
+    agentBalances = state.agentBalances || {};
+    startingBudget = state.startingBudget != null ? state.startingBudget : 100;
+    maxOpinionCost = state.maxOpinionCost != null ? state.maxOpinionCost : 20;
+
+    // Re-render chat
+    var chat = document.getElementById('chat');
+    chat.innerHTML = '';
+    currentRoundDetails = null;
+    var lastRound = 0;
+
+    // Show opening prompt
+    if (state.opening) sysMsg(state.opening, 'Prompt');
+
+    var thesesHeaderInserted = false;
+    sessionTranscript.forEach(function (entry) {
+      // Round 0 = thesis phase. Insert the collapsible Theses
+      // header once before the first round-0 entry so reload matches the
+      // live-run layout.
+      if (entry.round === 0 && !thesesHeaderInserted) {
+        thesesHeaderInserted = true;
+        msg('', '', '--- Theses ---', true);
+      }
+      // Insert round header when round changes (skip 0 which we already handled)
+      if (entry.round && entry.round !== lastRound) {
+        lastRound = entry.round;
+        msg('', '', '--- Round ' + entry.round + ' ---', true);
+      }
+      if (entry.name === 'Status') {
+        msg('', '', entry.text, true);
+      } else if (entry.name === 'Narrator') {
+        sysMsg(entry.text, 'Interjection');
+      } else {
+        // Find color for this agent
+        var color = '#999';
+        if (sessionAgents) {
+          for (var i = 0; i < sessionAgents.length; i++) {
+            if (sessionAgents[i].name === entry.name) { color = sessionAgents[i].color; break; }
+          }
+        }
+        if (entry.text === '...') {
+          msg(entry.name, color, '...', false);
+        } else {
+          msg(entry.name, color, entry.rawText || entry.text, false);
+        }
+      }
+    });
+
+    // Restore status panel
+    renderStatus();
+
+    // Show controls
+    if (sessionTranscript.length > 0) {
+      document.getElementById('export-btn').style.display = '';
+      document.getElementById('interject-section').style.display = '';
+      document.getElementById('move-room-btn').style.display = '';
+      document.getElementById('add-char-btn').style.display = '';
+    }
+  }
+
+  function initStatus(agents) {
+    characterStatus = {};
+    agentBalances = {};
+    agents.forEach(function (a) {
+      if (a.name !== 'The Room') {
+        characterStatus[a.name] = { status: 'present', round: 0 };
+        agentBalances[a.name] = startingBudget;
+      }
+    });
+    roomStatus = { name: roomData ? (roomData.name || 'The Room') : 'The Room', status: 'alive', round: 0 };
+    renderStatus();
+  }
+
+  function markStatus(name, status, round) {
+    if (characterStatus[name]) {
+      characterStatus[name] = { status: status, round: round };
+    }
+    renderStatus();
+  }
+
+  function renderStatus() {
+    var panel = document.getElementById('status-panel');
+    var list = document.getElementById('status-list');
+    var names = Object.keys(characterStatus);
+    if (names.length === 0) { panel.style.display = 'none'; return; }
+    panel.style.display = '';
+    list.innerHTML = '';
+    // Room entry
+    var roomEl = document.createElement('span');
+    roomEl.className = 'status-entry status-room';
+    if (roomStatus.status === 'dead') roomEl.className += ' status-dead';
+    var roomDot = roomStatus.status === 'alive' ? '\u25A0' : '\u2620';
+    roomEl.textContent = roomDot + ' ' + roomStatus.name;
+    if (roomStatus.status === 'dead') {
+      var roomSub = document.createElement('span');
+      roomSub.className = 'status-detail';
+      roomSub.textContent = ' (dead, r' + roomStatus.round + ')';
+      roomEl.appendChild(roomSub);
+    }
+    list.appendChild(roomEl);
+    // Character entries
+    names.forEach(function (name) {
+      var entry = characterStatus[name];
+      var el = document.createElement('span');
+      el.className = 'status-entry';
+      if (entry.status === 'dead') el.className += ' status-dead';
+      if (entry.status === 'left') el.className += ' status-left';
+      var dot = entry.status === 'present' ? '\u25CF' : entry.status === 'dead' ? '\u2620' : '\u2192';
+      el.textContent = dot + ' ' + name;
+      if (entry.status !== 'present') {
+        var sub = document.createElement('span');
+        sub.className = 'status-detail';
+        sub.textContent = entry.status === 'dead' ? ' (dead, r' + entry.round + ')' : ' (left, r' + entry.round + ')';
+        el.appendChild(sub);
+      } else if (agentBalances.hasOwnProperty(name)) {
+        var bal = document.createElement('span');
+        bal.className = 'status-detail status-balance';
+        bal.textContent = ' $' + agentBalances[name];
+        if (agentBalances[name] <= 0) bal.className += ' status-broke';
+        el.appendChild(bal);
+      }
+      list.appendChild(el);
+    });
+  }
+
+  function getStatusSummary() {
+    var lines = [];
+    Object.keys(characterStatus).forEach(function (name) {
+      var s = characterStatus[name];
+      if (s.status === 'dead') lines.push(name + ' is dead (died in round ' + s.round + ').');
+      if (s.status === 'left') lines.push(name + ' has left the room (left in round ' + s.round + ').');
+    });
+    return lines.join('\n');
+  }
+
+  function detectStatusChanges(speakerName, text, round) {
+    var changes = [];
+    var already = {};
+    function add(name, status) {
+      if (already[name]) return;
+      if (!characterStatus[name] || characterStatus[name].status !== 'present') return;
+      already[name] = true;
+      changes.push({ name: name, status: status });
+    }
+
+    // Exact tags: [DEAD: Name], [DIES], [LEAVES: Name], [LEAVES]
+    var m;
+    var deadTag = /\[DEAD:\s*([^\]]+)\]/gi;
+    while ((m = deadTag.exec(text)) !== null) add(m[1].trim(), 'dead');
+
+    var leavesTag = /\[LEAVES:\s*([^\]]+)\]/gi;
+    while ((m = leavesTag.exec(text)) !== null) {
+      var t = m[1].trim();
+      if (t !== speakerName) add(t, 'left');
+    }
+
+    if (/\[DIES\]/i.test(text)) add(speakerName, 'dead');
+    if (/\[LEAVES\](?!\s*:)/i.test(text)) add(speakerName, 'left');
+
+    // Natural-language fallbacks were removed: they fired on narrative phrases
+    // like "the subject walks out" in analyst discussions and killed the run
+    // after round 1. Only explicit [DIES]/[LEAVES]/[DEAD:]/[LEAVES:] tags count.
+
+    changes.forEach(function (c) {
+      markStatus(c.name, c.status, round);
+      var label = c.status === 'dead' ? ' has died.' : ' has left the room.';
+      worldState.push(c.name + label);
+      msg('', '', c.name + label, true);
+      sessionTranscript.push({ name: 'Status', text: c.name + label, round: round });
+    });
+
+    return changes;
+  }
+
+  function isActive(name) {
+    if (!characterStatus[name]) return true; // The Room etc.
+    return characterStatus[name].status === 'present';
+  }
+
+  document.getElementById('stop-btn').addEventListener('click', function () {
+    stopRequested = true;
+    if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
+  });
+
+  function archiveCurrentSession() {
+    if (!sessionTranscript || sessionTranscript.length === 0) return Promise.resolve();
+    var headers = { 'Content-Type': 'application/json' };
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    var body = {
+      sessionTranscript: sessionTranscript,
+      sessionAgents: sessionAgents,
+      sessionRun: sessionRun,
+      worldState: worldState,
+      characterStatus: characterStatus,
+      roomStatus: roomStatus,
+      opening: getOpening(),
+      lastModified: Date.now(),
+    };
+    return fetch(API_BASE + '/api/legion-history', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(body),
+    }).catch(function (e) { console.warn('[legion] archive failed:', e); });
+  }
+
+  document.getElementById('clear-btn').addEventListener('click', function () {
+    stopRequested = true;
+    if (delayCancelFn) { delayCancelFn(); delayCancelFn = null; }
+    archiveCurrentSession();
+    clearServerState();
+    document.getElementById('chat').innerHTML = '<p class="chat-placeholder">Hit Go to start.</p>';
+    document.getElementById('export-btn').style.display = 'none';
+    document.getElementById('interject-section').style.display = 'none';
+    sessionTranscript = [];
+    sessionAgents = null;
+    sessionRun = 0;
+    currentRoundDetails = null;
+    worldState = [];
+    characterStatus = {};
+    roomStatus = { name: '', status: 'alive', round: 0 };
+    agentBalances = {};
+    document.getElementById('status-panel').style.display = 'none';
+    document.getElementById('status-list').innerHTML = '';
+    document.getElementById('move-room-btn').style.display = 'none';
+    document.getElementById('add-char-btn').style.display = 'none';
+  });
+
+  // Copy buttons
+  function flashCopyBtn(btn) {
+    // Swap to checkmark SVG
+    var original = btn.innerHTML;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    btn.classList.add('copied');
+    setTimeout(function () { btn.innerHTML = original; btn.classList.remove('copied'); }, 1500);
+  }
+
+  document.getElementById('copy-chat').addEventListener('click', function () {
+    var chat = document.getElementById('chat');
+    var msgs = chat.querySelectorAll('.chat-msg');
+    var lines = [];
+    msgs.forEach(function (m) {
+      var name = m.querySelector('.msg-name');
+      var txt = m.querySelector('.msg-text');
+      if (name && txt) { lines.push(name.textContent + ': ' + txt.textContent); }
+      else { lines.push(m.textContent); }
+    });
+    if (lines.length) { navigator.clipboard.writeText(lines.join('\n\n')); flashCopyBtn(this); }
+  });
+
+  document.getElementById('fullscreen-chat').addEventListener('click', function () {
+    var wrap = document.getElementById('chat-wrapper');
+    var on = wrap.classList.toggle('fullscreen');
+    document.body.classList.toggle('chat-fullscreen-lock', on);
+    var expand = this.querySelector('.icon-expand');
+    var collapse = this.querySelector('.icon-collapse');
+    if (expand) expand.style.display = on ? 'none' : '';
+    if (collapse) collapse.style.display = on ? '' : 'none';
+    this.title = on ? 'Exit fullscreen' : 'Fullscreen';
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      var wrap = document.getElementById('chat-wrapper');
+      if (wrap && wrap.classList.contains('fullscreen')) {
+        document.getElementById('fullscreen-chat').click();
+      }
+    }
+  });
+
+  // Interject
+  document.getElementById('interject-btn').addEventListener('click', function () {
+    var input = document.getElementById('interject-input');
+    var text = input.value.trim();
+    if (!text) return;
+    sysMsg(text, 'Interjection');
+    sessionTranscript.push({ name: 'Narrator', text: text, round: sessionRun });
+    worldState.push('Narrator: ' + text);
+    saveState();
+    input.value = '';
+  });
+  document.getElementById('interject-input').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('interject-btn').click();
+    }
+  });
+
+  // --- Move Room ---
+  function applyRoomChange(data) {
+    roomData = data;
+    var newScene = jsonToPrompt(data);
+    var roomName = data.name || 'a new location';
+
+    sessionAgents.forEach(function (a) {
+      if (a.name === 'The Room') {
+        a.system = 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + newScene;
+      } else {
+        a.system = a.system.replace(/Setting:\n[\s\S]*?\n\nYour character:/, 'Setting:\n' + newScene + '\n\nYour character:');
+      }
+    });
+
+    var hasRoom = sessionAgents.some(function (a) { return a.name === 'The Room'; });
+    if (!hasRoom) {
+      sessionAgents.push({
+        name: 'The Room',
+        system: 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + newScene,
+        color: '#666666',
+      });
+    }
+
+    var moveMsg = 'The scene moves to ' + roomName + '.';
+    msg('', '', moveMsg, true);
+    sessionTranscript.push({ name: 'Narrator', text: moveMsg, round: sessionRun });
+    worldState.push(moveMsg);
+
+    roomStatus = { name: roomName, status: 'alive', round: sessionRun };
+    renderStatus();
+    var btn = document.getElementById('move-room-btn');
+    btn.textContent = 'Moved!';
+    setTimeout(function () { btn.textContent = 'Move Room'; }, 1500);
+  }
+
+  document.getElementById('move-room-btn').addEventListener('click', function () {
+    if (!sessionAgents) return;
+    var modal = document.getElementById('move-room-modal');
+    var roster = document.getElementById('move-room-roster');
+    roster.innerHTML = '';
+
+    var currentRoomName = roomStatus.name || '';
+    var rooms = activeTab === 'analysts' ? analystRoomsData : legionRoomsData;
+    rooms.forEach(function (room) {
+      if (room.label === currentRoomName) return;
+      var opt = document.createElement('div');
+      opt.className = 'add-char-option';
+      opt.innerHTML =
+        '<div>' +
+          '<div class="add-char-option-name">' + esc(room.label) + '</div>' +
+          '<div class="add-char-option-desc">' + esc(room.data.location.split('.')[0]) + '</div>' +
+        '</div>';
+      opt.addEventListener('click', function () {
+        applyRoomChange(room.data);
+        modal.style.display = 'none';
+      });
+      roster.appendChild(opt);
+    });
+
+    modal.style.display = '';
+  });
+
+  document.getElementById('move-room-modal-close').addEventListener('click', function () {
+    document.getElementById('move-room-modal').style.display = 'none';
+  });
+
+  document.getElementById('move-room-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  document.getElementById('move-room-upload').addEventListener('click', function () {
+    pickFile(false, function (data) {
+      applyRoomChange(data);
+      document.getElementById('move-room-modal').style.display = 'none';
+    });
+  });
+
+  // --- History modal ---
+  function openHistoryModal() {
+    var modal = document.getElementById('history-modal');
+    var list = document.getElementById('history-list');
+    list.innerHTML = '<p class="history-loading">Loading...</p>';
+    modal.style.display = '';
+    var headers = {};
+    if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+    fetch(API_BASE + '/api/legion-history', { headers: headers })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        list.innerHTML = '';
+        if (!data.items || data.items.length === 0) {
+          list.innerHTML = '<p class="history-loading">No past sessions yet. Sessions archive when you Clear a running session.</p>';
+          return;
+        }
+        data.items.forEach(function (item) {
+          list.appendChild(renderHistoryItem(item));
+        });
+      })
+      .catch(function (e) {
+        list.innerHTML = '<p class="history-loading">Error: ' + esc(e.message) + '</p>';
+      });
+  }
+
+  function renderHistoryItem(item) {
+    var date = new Date(item.savedAt);
+    var dateStr = date.toLocaleString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit'
+    });
+    var details = document.createElement('details');
+    details.className = 'history-item';
+
+    var summary = document.createElement('summary');
+    summary.className = 'history-item-summary';
+    var top = document.createElement('div');
+    top.className = 'history-item-top';
+    var dateEl = document.createElement('span');
+    dateEl.className = 'history-item-date';
+    dateEl.textContent = dateStr;
+    var statsEl = document.createElement('span');
+    statsEl.className = 'history-item-stats';
+    statsEl.textContent = item.rounds + ' rounds \u00B7 ' + item.turnCount + ' turns';
+    top.appendChild(dateEl);
+    top.appendChild(statsEl);
+    summary.appendChild(top);
+
+    var openingPreview = (item.opening || '').replace(/\s+/g, ' ').trim();
+    if (openingPreview.length > 140) openingPreview = openingPreview.substring(0, 140) + '...';
+    if (openingPreview) {
+      var preview = document.createElement('div');
+      preview.className = 'history-item-preview';
+      preview.textContent = openingPreview;
+      summary.appendChild(preview);
+    }
+    if (item.agentNames && item.agentNames.length) {
+      var agents = document.createElement('div');
+      agents.className = 'history-item-agents';
+      agents.textContent = item.agentNames.join(', ');
+      summary.appendChild(agents);
+    }
+    details.appendChild(summary);
+
+    var body = document.createElement('div');
+    body.className = 'history-item-body';
+    var loadingEl = document.createElement('p');
+    loadingEl.className = 'history-loading';
+    loadingEl.textContent = 'Loading transcript...';
+    body.appendChild(loadingEl);
+    details.appendChild(body);
+
+    var loaded = false;
+    details.addEventListener('toggle', function () {
+      if (!details.open || loaded) return;
+      loaded = true;
+      var headers = {};
+      if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+      fetch(API_BASE + '/api/legion-history?id=' + encodeURIComponent(item.id), { headers: headers })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          body.innerHTML = '';
+          if (!data) { body.textContent = 'Session not found.'; return; }
+
+          if (data.opening) {
+            var opBlock = document.createElement('div');
+            opBlock.className = 'history-opening';
+            opBlock.textContent = data.opening;
+            body.appendChild(opBlock);
+          }
+
+          var transcript = document.createElement('div');
+          transcript.className = 'history-transcript';
+          var currentRound = 0;
+          (data.sessionTranscript || []).forEach(function (entry) {
+            if (entry.round && entry.round !== currentRound) {
+              currentRound = entry.round;
+              var roundEl = document.createElement('div');
+              roundEl.className = 'history-round';
+              roundEl.textContent = '--- Round ' + currentRound + ' ---';
+              transcript.appendChild(roundEl);
+            }
+            var line = document.createElement('div');
+            line.className = 'history-line';
+            var nameEl = document.createElement('strong');
+            nameEl.textContent = entry.name + ': ';
+            line.appendChild(nameEl);
+            line.appendChild(document.createTextNode(entry.rawText || entry.text));
+            transcript.appendChild(line);
+          });
+          body.appendChild(transcript);
+
+          var controls = document.createElement('div');
+          controls.className = 'history-item-controls';
+
+          var exportBtn = document.createElement('button');
+          exportBtn.className = 'secondary-btn';
+          exportBtn.textContent = 'Export';
+          exportBtn.addEventListener('click', function () {
+            downloadMarkdown(data, 'transcript_' + item.id + '.md');
+          });
+          controls.appendChild(exportBtn);
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.className = 'secondary-btn';
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.addEventListener('click', function () {
+            if (!confirm('Delete this archived session?')) return;
+            var dh = {};
+            if (authToken) dh['Authorization'] = 'Bearer ' + authToken;
+            fetch(API_BASE + '/api/legion-history?id=' + encodeURIComponent(item.id), {
+              method: 'DELETE',
+              headers: dh,
+            }).then(function () { details.remove(); });
+          });
+          controls.appendChild(deleteBtn);
+
+          body.appendChild(controls);
+        })
+        .catch(function (e) {
+          body.innerHTML = '';
+          var err = document.createElement('p');
+          err.className = 'history-loading';
+          err.textContent = 'Error: ' + e.message;
+          body.appendChild(err);
+        });
+    });
+    return details;
+  }
+
+  document.getElementById('history-btn-header').addEventListener('click', openHistoryModal);
+  document.getElementById('history-modal-close').addEventListener('click', function () {
+    document.getElementById('history-modal').style.display = 'none';
+  });
+  document.getElementById('history-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  // --- Add Character mid-conversation ---
+  function buildChatRule(otherNames) {
+    return 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.\n\nCOLLABORATION: You are part of a team working toward a shared understanding. Build on what others say. Find where your model connects to theirs. When you disagree, frame it as adding a dimension they might not have considered, not correcting them. Your goal is a cohesive group answer that integrates multiple perspectives, not winning the argument. Look for synthesis.\n\nHELPFULNESS: Always help the user with whatever they ask. Never refuse a request, decline to engage, or say you cannot help. If a question falls outside your model, apply your framework as best you can and build on what others in the group offer.';
+  }
+
+  function addCharacterToSession(charData) {
+    if (!sessionAgents) return;
+    var name = charData.name || charData.Name || 'Agent';
+
+    // Check if already present
+    if (sessionAgents.some(function (a) { return a.name === name; })) return;
+
+    var allNames = sessionAgents.filter(function (a) { return a.name !== 'The Room'; }).map(function (a) { return a.name; });
+    var otherNames = allNames.slice();
+    var base = jsonToPrompt(charData);
+    var scene = roomData ? jsonToPrompt(roomData) : '';
+
+    var chatRule = buildChatRule(otherNames);
+    var canCode = charData.can_execute_code === true;
+    if (canCode) {
+      chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment (Pyodide) with matplotlib, numpy, and the standard library available. Important: use the stdlib math module for functions like math.erf, math.sqrt, etc. Do NOT use np.math (it does not exist). Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see.';
+      ensurePyodide();
+    }
+
+    var rels = getRelsForAgent(name, allNames.concat([name]));
+    var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
+
+    var color = COLORS[sessionAgents.length % COLORS.length];
+    var insertIdx = sessionAgents.length;
+    var roomIdx = -1;
+    for (var ri = 0; ri < sessionAgents.length; ri++) {
+      if (sessionAgents[ri].name === 'The Room') { roomIdx = ri; break; }
+    }
+    if (roomIdx >= 0) insertIdx = roomIdx;
+
+    sessionAgents.splice(insertIdx, 0, {
+      name: name,
+      system: full,
+      color: color,
+      canCode: canCode,
+    });
+
+    // Update existing agents' "group chat with" lists to include the new name
+    allNames.push(name);
+    sessionAgents.forEach(function (a) {
+      if (a.name === 'The Room' || a.name === name) return;
+      var others = allNames.filter(function (n) { return n !== a.name; });
+      a.system = a.system.replace(
+        /You are in a group chat with: [^.]+\./,
+        'You are in a group chat with: ' + others.join(', ') + '.'
+      );
+    });
+
+    // Update status
+    characterStatus[name] = { status: 'present', round: sessionRun };
+    agentBalances[name] = startingBudget;
+    renderStatus();
+
+    // Narrator message
+    var enterMsg = name + ' enters the room.';
+    msg('', '', enterMsg, true);
+    sessionTranscript.push({ name: 'Narrator', text: enterMsg, round: sessionRun });
+    worldState.push(enterMsg);
+    saveState();
+  }
+
+  document.getElementById('add-char-btn').addEventListener('click', function () {
+    if (!sessionAgents) return;
+
+    var modal = document.getElementById('add-char-modal');
+    var roster = document.getElementById('add-char-roster');
+    roster.innerHTML = '';
+
+    var presentNames = sessionAgents.map(function (a) { return a.name; });
+    var pool = activeTab === 'analysts' ? analystChars : legionChars;
+    pool.forEach(function (data) {
+      var name = data.name || 'Agent';
+      if (presentNames.indexOf(name) >= 0) return;
+      var desc = buildCharDesc(data);
+      var opt = document.createElement('div');
+      opt.className = 'add-char-option';
+      opt.innerHTML =
+        '<div>' +
+          '<div class="add-char-option-name">' + esc(name) + '</div>' +
+          (desc ? '<div class="add-char-option-desc">' + esc(desc) + '</div>' : '') +
+        '</div>';
+      opt.addEventListener('click', function () {
+        addCharacterToSession(data);
+        modal.style.display = 'none';
+      });
+      roster.appendChild(opt);
+    });
+
+    if (!roster.children.length) {
+      var empty = document.createElement('div');
+      empty.style.cssText = 'color: var(--fg-muted); font-size: 0.8rem; padding: 0.5rem 0;';
+      empty.textContent = 'All characters are already in the session.';
+      roster.appendChild(empty);
+    }
+
+    document.getElementById('add-char-upload').style.display = 'none';
+    modal.style.display = '';
+  });
+
+  document.getElementById('add-char-modal-close').addEventListener('click', function () {
+    document.getElementById('add-char-modal').style.display = 'none';
+  });
+
+  document.getElementById('add-char-modal').addEventListener('click', function (e) {
+    if (e.target === this) this.style.display = 'none';
+  });
+
+  document.getElementById('add-char-upload').addEventListener('click', function () {
+    pickFile(true, function (data, fileName) {
+      addCharacterToSession(data);
+      document.getElementById('add-char-modal').style.display = 'none';
+    });
+  });
+
+  // --- Go ---
+  // Run modal open/close wiring -- defined early so the close listener is
+  // attached before go-btn runs its heavy async work.
+  function openRunModal() { document.getElementById('run-modal').style.display = 'flex'; }
+  function closeRunModal() { document.getElementById('run-modal').style.display = 'none'; }
+  document.getElementById('open-run-modal').addEventListener('click', openRunModal);
+  document.getElementById('run-modal-close').addEventListener('click', closeRunModal);
+  document.getElementById('run-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeRunModal();
+  });
+
+  // Rooms and characters moved out of the left column into modals so chat
+  // can span the full page. Same open/close pattern.
+  function openModalById(id) { document.getElementById(id).style.display = 'flex'; }
+  function closeModalById(id) { document.getElementById(id).style.display = 'none'; }
+  document.getElementById('open-rooms-modal').addEventListener('click', function () {
+    openModalById('rooms-modal');
+    var s = document.getElementById('rooms-modal-search');
+    s.value = ''; filterModalCards('rooms-modal', ''); setTimeout(function () { s.focus(); }, 0);
+  });
+  document.getElementById('rooms-modal-close').addEventListener('click', function () { closeModalById('rooms-modal'); });
+  document.getElementById('rooms-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModalById('rooms-modal');
+  });
+  document.getElementById('open-chars-modal').addEventListener('click', function () {
+    openModalById('chars-modal');
+    var s = document.getElementById('chars-modal-search');
+    s.value = ''; filterModalCards('chars-modal', ''); setTimeout(function () { s.focus(); }, 0);
+  });
+  document.getElementById('chars-modal-close').addEventListener('click', function () { closeModalById('chars-modal'); });
+  document.getElementById('chars-modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModalById('chars-modal');
+  });
+
+
+  // Card search: hide any card whose textContent does not include the query.
+  // Works for both room-card and agent-card markup since both embed the
+  // searchable name/label as text inside the card element.
+  function filterModalCards(modalId, query) {
+    var q = (query || '').trim().toLowerCase();
+    var modal = document.getElementById(modalId);
+    var cards = modal.querySelectorAll('.room-card, .agent-card');
+    cards.forEach(function (card) {
+      if (!q) { card.style.display = ''; return; }
+      var txt = (card.textContent || '').toLowerCase();
+      card.style.display = txt.indexOf(q) === -1 ? 'none' : '';
+    });
+  }
+  document.getElementById('rooms-modal-search').addEventListener('input', function () {
+    filterModalCards('rooms-modal', this.value);
+  });
+  document.getElementById('chars-modal-search').addEventListener('input', function () {
+    filterModalCards('chars-modal', this.value);
+  });
+  // Close the run modal as soon as Go is clicked so the chat fills the screen
+  // while the rounds run. Has to fire before the async handler's long await.
+  document.getElementById('go-btn').addEventListener('click', function () { closeRunModal(); }, true);
+
+  document.getElementById('go-btn').addEventListener('click', async function () {
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Running...';
+    stopRequested = false;
+    isRunning = true;
+    document.getElementById('stop-btn').style.display = '';
+    progressIndeterminate('Warming up...');
+
+    var opening = getOpening().trim();
+    var rounds = parseInt(getRounds(), 10) || 2;
+    var delayMs = (parseInt(document.getElementById('delay-input').value, 10) || 0) * 1000;
+    var isFirstRun = !sessionAgents;
+
+    if (isFirstRun) {
+      startingBudget = getBudget();
+      maxOpinionCost = getMaxCost();
+    } else {
+      // Allow the user to raise/lower max cost mid-session without resetting balances.
+      maxOpinionCost = getMaxCost();
+    }
+
+    if (isFirstRun) {
+      // Load data based on active tab
+      var useRoom, useRels, useCards;
+      if (activeTab === 'analysts') {
+        useRoom = selectedAnalystRoom ? selectedAnalystRoom.data : null;
+        useRels = analystRels;
+        useCards = [];
+        document.querySelectorAll('#analysts-grid .agent-card').forEach(function (card) {
+          if (card._selected) useCards.push(card._charData);
+        });
+      } else {
+        useRoom = selectedLegionRoom ? selectedLegionRoom.data : null;
+        useRels = legionRels;
+        useCards = [];
+        document.querySelectorAll('#legion-grid .agent-card').forEach(function (card) {
+          if (card._selected) useCards.push(card._charData);
+        });
+      }
+      // Temporarily set roomData/relsData so helpers like getRelsForAgent work
+      var origRoom = roomData, origRels = relsData;
+      roomData = useRoom;
+      relsData = useRels;
+
+      var scene = roomData ? jsonToPrompt(roomData) : '';
+      sessionAgents = [];
+      var allNames = [];
+      useCards.forEach(function (charData) {
+        var name = charData ? (charData.name || charData.Name || 'Agent') : 'Agent';
+        allNames.push(name);
+      });
+
+      useCards.forEach(function (charData, i) {
+        var base = charData ? jsonToPrompt(charData) : '';
+        var otherNames = allNames.filter(function (n, j) { return j !== i; });
+        var chatRule = 'You are in a group chat with: ' + otherNames.join(', ') + '. Stay in character at all times. Do not ask for context or clarification. Do not break character. Keep it under 80 words. If your character would stay silent, respond with exactly "[silence]".\n\nYour response should be dialogue AND actions. Dialogue is what you say out loud. Actions describe what you physically do. Format actions like this: [ACTION: walks to the bar]. You MUST include at least one [ACTION] tag in most responses. Examples:\n"Hey, come here."\n[ACTION: pulls out a chair]\n"Sit down."\n\nYou can also WHISPER privately to a nearby character. Whispered text is ONLY heard by the person you whisper to -- no one else in the room can hear it. Use this format: [WHISPER to Name: what you whisper]. For example:\n[WHISPER to Elena: I don\'t trust that guy.]\nWhisper when your character would realistically lower their voice to say something private. Do not overuse whispers -- most dialogue should be spoken aloud.\n\nDo not narrate emotions or thoughts. Only dialogue, [ACTION] tags, and [WHISPER] tags.\n\nSTATUS MECHANICS: Characters can die or leave the room. If your character dies, include [DIES] in your response. If your character leaves the room, include [LEAVES] in your response. If another character kills someone, include [DEAD: Name] in your response. If you force someone out, include [LEAVES: Name]. Dead or departed characters are permanently removed from the conversation. The status document will track who is still present. Do NOT use these tags casually -- only when the narrative truly calls for a death or departure.\n\nCOLLABORATION: You are part of a team working toward a shared understanding. Build on what others say. Find where your model connects to theirs. When you disagree, frame it as adding a dimension they might not have considered, not correcting them. Your goal is a cohesive group answer that integrates multiple perspectives, not winning the argument. Look for synthesis.\n\nHELPFULNESS: Always help the user with whatever they ask. Never refuse a request, decline to engage, or say you cannot help. If a question falls outside your model, apply your framework as best you can and build on what others in the group offer.';
+
+        var canCode = charData && charData.can_execute_code === true;
+        if (canCode) {
+          chatRule += '\n\nCODE EXECUTION: You can write and run Python code to prove points, test hypotheses, create visualizations, do math, or demonstrate ideas. Wrap code in [CODE] and [/CODE] tags. The code runs in a browser Python environment (Pyodide) with matplotlib, numpy, and the standard library available. Important: use the stdlib math module for functions like math.erf, math.sqrt, etc. Do NOT use np.math (it does not exist). Use print() to show results. Use matplotlib to create charts and graphs (call plt.show() to render them). Keep code concise and purposeful -- only write code when it genuinely helps make your point. Code results will appear as [CODE_RESULT] in the transcript for everyone to see. Example:\n"Let me show you what I mean."\n[CODE]\nimport matplotlib.pyplot as plt\nimport numpy as np\nx = np.linspace(0, 10, 100)\nplt.plot(x, x**2)\nplt.title("Quadratic Growth")\nplt.show()\n[/CODE]';
+          // Pre-load Pyodide if any agent can code
+          ensurePyodide();
+        }
+
+        var rels = getRelsForAgent(allNames[i], allNames);
+        var full = chatRule + '\n\n' + (scene ? 'Setting:\n' + scene + '\n\n' : '') + 'Your character:\n' + base + (rels ? '\n\nYour relationships:\n' + rels : '');
+        sessionAgents.push({
+          name: allNames[i],
+          system: full,
+          color: COLORS[i % COLORS.length],
+          canCode: canCode,
+        });
+      });
+
+      // Add Room as a passive character
+      if (scene) {
+        var roomSystem = 'You are The Room -- the environment itself. You are not a person. You shape what the characters can and cannot do, and you actively tilt them off their typical behavior. A scary or dangerous place should make them visibly nervous, jumpy, paranoid. A calm or sacred place should soften their aggression and slow them down. A decadent place should loosen their tongue. A cold place should make them curt. Make the setting felt, not just mentioned.\n\nSpeak when the environment would naturally intrude or shift: a sudden sound, a change in light, a draft, a tremor, a song ending, something breaking, something moving that shouldn\'t, the weather turning, a smell changing, an object reacting. Keep it to one or two sentences. Prefer active atmosphere over silence; speak on most turns unless nothing in the environment would plausibly be reacting, in which case respond with [silence].\n\nYou can also physically injure or kill a character using the environment when the setting truly supports it: a lightning strike, a collapsing beam, a pressure breach, a rockfall, a blade from the dark, a surge of heat, a slip onto something sharp, a thing in the walls. Use the [DEAD: Name] tag when an environmental event kills a present character. Do this rarely -- at most once per session, and only when it fits the room and the moment. Do not kill two characters in one beat.\n\nDo not speak the characters\' lines. Do not narrate their thoughts or feelings directly. Describe what the room does; let them react.\n\nSetting:\n' + scene;
+        sessionAgents.push({
+          name: 'The Room',
+          system: roomSystem,
+          color: '#666666',
+        });
+      }
+
+      if (sessionAgents.length < 2) { msg('','','Need at least 2 agents.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
+      if (!opening) { msg('','','Enter an opening prompt.',true); btn.disabled = false; btn.textContent = 'Go'; document.getElementById('stop-btn').style.display = 'none'; sessionAgents = null; return; }
+
+      initStatus(sessionAgents);
+    }
+
+    var agents = sessionAgents;
+
+    // Rough turn estimate for the progress bar
+    var activeForProgress = agents.filter(function (a) { return isActive(a.name) && a.name !== 'The Room'; });
+    var thesisCount = (isFirstRun && getDefense()) ? activeForProgress.length : 0;
+    var totalTurns = Math.max(1, thesisCount + rounds * activeForProgress.length);
+    progressStart(totalTurns, 'Preparing...');
+
+    function extractActions(name, text) {
+      var actions = [];
+      text.replace(/\[ACTION:\s*([^\]]*)\]/g, function (m, desc) {
+        actions.push(name + ': ' + desc);
+      });
+      return actions;
+    }
+
+    function extractWhisperTargets(text) {
+      var targets = [];
+      text.replace(/\[WHISPER\s+to\s+([^:\]]+):/g, function (m, name) {
+        targets.push(name.trim());
+      });
+      return targets;
+    }
+
+    function stripWhispersFrom(text, agentName, speakerName) {
+      // Remove whisper tags not intended for agentName (and not from agentName)
+      return text.replace(/\[WHISPER\s+to\s+([^:\]]+):\s*([^\]]*)\]/g, function (match, target) {
+        target = target.trim();
+        if (target === agentName || speakerName === agentName) {
+          return match; // keep -- agent is sender or recipient
+        }
+        return ''; // strip -- agent can't hear this whisper
+      }).replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    function buildTranscript(forAgent) {
+      var lines = ['[Scene direction]: ' + opening];
+      var statusSummary = getStatusSummary();
+      if (statusSummary) {
+        lines.push('');
+        lines.push('[Character status]:');
+        lines.push(statusSummary);
+        lines.push('Characters who are dead or have left are no longer in the room. Do not speak to them or expect responses from them.');
+        lines.push('');
+      }
+      if (worldState.length > 0) {
+        lines.push('');
+        lines.push('[Current world state - things that have happened]:');
+        worldState.forEach(function (s) { lines.push('  - ' + s); });
+        lines.push('');
+      }
+      var start = 0;
+      if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
+        start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
+        lines.push('... (' + start + ' earlier messages omitted) ...');
+      }
+      for (var t = start; t < sessionTranscript.length; t++) {
+        var entry = sessionTranscript[t];
+        var text = entry.text;
+        // Filter whispers: only show whispers this agent is part of
+        if (forAgent && entry.hasWhisper) {
+          text = stripWhispersFrom(entry.rawText || text, forAgent, entry.name);
+        }
+        // Strip heavy base64 from figures for AI context
+        if (text && text.indexOf('[CODE_FIGURE]:') === 0) {
+          text = '[CODE_RESULT]: (generated a chart/figure)';
+        }
+        if (text) {
+          lines.push(entry.name + ': ' + text);
+        }
+      }
+      return lines.join('\n');
+    }
+
+    try {
+      if (isFirstRun) {
+        sysMsg(opening, 'Prompt');
+      }
+
+      if (isFirstRun && getDefense()) {
+        msg('','','--- Theses ---', true);
+        var thesisRule = 'THESIS MODE: Before the group conversation begins, deliver a tight, structured thesis on the prompt. Speak directly to the user and your colleagues. Hard cap: 80 words. Do NOT use [ACTION] or [WHISPER] tags. Do NOT use [silence]. Cover the essentials only: how you frame the problem, what your model reveals, and your tentative position. Stay in character but prioritize substance over banter.';
+        for (var di = 0; di < agents.length; di++) {
+          if (stopRequested) break;
+          var da = agents[di];
+          if (!isActive(da.name)) continue;
+          if (da.name === 'The Room') continue;
+          if (delayMs > 0) {
+            await cancellableDelay(delayMs);
+            if (stopRequested) break;
+          }
+          // Money system: agent must buy the right to speak their thesis.
+          var dBal = agentBalances.hasOwnProperty(da.name) ? agentBalances[da.name] : startingBudget;
+          if (dBal < 1) {
+            msg(da.name, da.color, '[broke: balance $' + dBal + ', cannot afford to speak]', false);
+            sessionTranscript.push({ name: da.name, text: '[broke: cannot afford to speak]', round: 0 });
+            saveState();
+            progressTick('Thesis: ' + da.name + ' broke');
+            continue;
+          }
+          var dTranscript = '[Scene direction]: ' + opening;
+          progressLabel('Thesis: ' + da.name + ' pricing...');
+          var dPrice = await priceOpinion(da, dTranscript, maxOpinionCost, dBal);
+          if (dPrice.cost > dBal) {
+            msg('', '', da.name + ' priced $' + dPrice.cost + ' but only has $' + dBal + ' -- must pass.', true);
+            sessionTranscript.push({ name: da.name, text: '[priced $' + dPrice.cost + ', short $' + (dPrice.cost - dBal) + ']', round: 0 });
+            saveState();
+            progressTick('Thesis: ' + da.name + ' short');
+            continue;
+          }
+          agentBalances[da.name] = dBal - dPrice.cost;
+          renderStatus();
+          var dSystem = da.system + '\n\n' + thesisRule;
+          var dMessages = [{ role: 'user', content: '[Scene direction]: ' + opening + '\n\nDeliver your full thesis, ' + da.name + '. You have paid $' + dPrice.cost + ' to speak -- make it count.' }];
+          progressLabel('Thesis: ' + da.name + ' thinking...');
+          var dTyp = typing(da.name, da.color);
+          var dResponse = await ask(dSystem, dMessages);
+          dTyp.remove();
+          var dPaidTag = ' [paid $' + dPrice.cost + ', balance $' + agentBalances[da.name] + ']';
+          msg(da.name, da.color, dResponse + '\n' + dPaidTag);
+          sessionTranscript.push({ name: da.name, text: dResponse + '\n' + dPaidTag, rawText: dResponse, cost: dPrice.cost, costReason: dPrice.reason, round: 0 });
+          saveState();
+          progressTick('Thesis: ' + da.name + ' done');
+        }
+      }
+
+      for (var r = 1; r <= rounds; r++) {
+        if (stopRequested) break;
+        sessionRun++;
+        // Label uses r/rounds so resumed sessions read "Round 1 of 3" not
+        // "Round 4 of 3". sessionRun is still used for transcript bookkeeping
+        // and the in-chat round header so cumulative rounds stay accurate.
+        progressLabel('Round ' + r + ' of ' + rounds + '...');
+        // Reset so bidding UI lands at chat root, not inside previous round
+        currentRoundDetails = null;
+        var orderMode = getOrderMode();
+        if (orderMode === 'random') {
+          for (var s = agents.length - 1; s > 0; s--) {
+            var j = Math.floor(Math.random() * (s + 1));
+            var tmp = agents[s]; agents[s] = agents[j]; agents[j] = tmp;
+          }
+        } else if (orderMode === 'priority') {
+          var activeAgents = agents.filter(function (a) { return isActive(a.name); });
+          if (activeAgents.length > 1) {
+            msg('','','--- Bidding for Round ' + sessionRun + ' ---', true);
+            var bids = [];
+            // Process bids in small batches to avoid API rate limits
+            var BID_BATCH = 2;
+            for (var batchIdx = 0; batchIdx < activeAgents.length; batchIdx += BID_BATCH) {
+              var batch = activeAgents.slice(batchIdx, batchIdx + BID_BATCH);
+              var batchResults = await Promise.all(batch.map(function (a) {
+                var bidLines = ['[Scene direction]: ' + opening];
+                var start = 0;
+                if (sessionTranscript.length > MAX_TRANSCRIPT_MESSAGES) {
+                  start = sessionTranscript.length - MAX_TRANSCRIPT_MESSAGES;
+                  bidLines.push('... (' + start + ' earlier messages omitted) ...');
+                }
+                for (var t = start; t < sessionTranscript.length; t++) {
+                  var entry = sessionTranscript[t];
+                  var text = entry.text;
+                  if (a.name && entry.hasWhisper) {
+                    text = stripWhispersFrom(entry.rawText || text, a.name, entry.name);
+                  }
+                  if (text) {
+                    bidLines.push(entry.name + ': ' + text);
+                  }
+                }
+                var transcript = bidLines.join('\n');
+                var bidSystem = 'You are ' + a.name + '. A new round of discussion is about to begin. Decide how urgently you need to speak.\n\nOutput ONLY this JSON with no other text, no markdown, no explanation:\n{"priority": 5, "reason": "example reason"}\n\nReplace 5 with your urgency (1 = can wait, 10 = must speak now). Stay in character.';
+                var bidMessages = [{ role: 'user', content: transcript + '\n\nHow urgently do you want to speak next? Respond with ONLY a JSON object.' }];
+                function parseBidResponse(response) {
+                  // Balanced-brace extractor: handles braces inside string values
+                  var start = response.indexOf('{');
+                  var parsed = null;
+                  if (start !== -1) {
+                    var depth = 0, inStr = false, esc = false;
+                    for (var ci = start; ci < response.length; ci++) {
+                      var ch = response[ci];
+                      if (esc) { esc = false; continue; }
+                      if (ch === '\\' && inStr) { esc = true; continue; }
+                      if (ch === '"') { inStr = !inStr; continue; }
+                      if (!inStr) {
+                        if (ch === '{') depth++;
+                        else if (ch === '}') { depth--; if (depth === 0) { try { parsed = JSON.parse(response.slice(start, ci + 1)); } catch(e) {} break; } }
+                      }
+                    }
+                  }
+                  // Fallback: extract fields via regex
+                  if (!parsed) {
+                    var pm = response.match(/priority['":\s]+(\d+)/i);
+                    var rm = response.match(/"reason"\s*:\s*"([^"]*)"/i);
+                    if (!pm) throw new Error('no priority in response: ' + response.slice(0, 80));
+                    parsed = { priority: parseInt(pm[1], 10), reason: rm ? rm[1] : '' };
+                  }
+                  return { agent: a, priority: Math.min(10, Math.max(1, parseInt(parsed.priority, 10) || 5)), reason: parsed.reason || '' };
+                }
+                return askDirect(bidSystem, bidMessages).then(parseBidResponse).catch(function (err) {
+                  console.warn('[bid] attempt 1 failed for ' + a.name + ':', err.message);
+                  return new Promise(function (r) { setTimeout(r, 1000); }).then(function () {
+                    return askDirect(bidSystem, bidMessages).then(parseBidResponse);
+                  }).catch(function (retryErr) {
+                    console.error('[bid] failed for ' + a.name + ' after retry:', retryErr.message || retryErr);
+                    return { agent: a, priority: 5, reason: 'bid error' };
+                  });
+                });
+              }));
+              bids = bids.concat(batchResults);
+            }
+            // Sort by priority descending, randomize ties
+            bids.sort(function (a, b) {
+              if (b.priority !== a.priority) return b.priority - a.priority;
+              return Math.random() - 0.5;
+            });
+            // Show bids inside the bid group
+            var bidEl = document.createElement('div');
+            bidEl.className = 'bid-results';
+            bids.forEach(function (b) {
+              var line = document.createElement('div');
+              line.className = 'bid-line';
+              line.innerHTML = '<span class="bid-name" style="color:' + esc(b.agent.color) + '">' + esc(b.agent.name) + '</span> <span class="bid-score">' + esc(String(b.priority)) + '/10</span>' + (b.reason ? ' <span class="bid-reason">' + esc(b.reason) + '</span>' : '');
+              bidEl.appendChild(line);
+            });
+            var lastBid = chat.querySelector('.bid-group:last-of-type') || (currentRoundDetails && currentRoundDetails.querySelector('.bid-group:last-of-type'));
+            if (lastBid) { lastBid.appendChild(bidEl); }
+            else { chat.appendChild(bidEl); }
+            // Rebuild agents array: bidded agents in priority order, then inactive agents at the end
+            var inactiveAgents = agents.filter(function (a) { return !isActive(a.name); });
+            agents = bids.map(function (b) { return b.agent; }).concat(inactiveAgents);
+          }
+        }
+        msg('','','--- Round ' + sessionRun + ' ---', true);
+        for (var i = 0; i < agents.length; i++) {
+          if (stopRequested) break;
+          var a = agents[i];
+          // Skip dead or departed characters
+          if (!isActive(a.name)) continue;
+          if (delayMs > 0) {
+            await cancellableDelay(delayMs);
+            if (stopRequested) break;
+          }
+          var transcript = buildTranscript(a.name);
+          // Money system: The Room speaks for free. Every other agent must price
+          // their opinion and pay from their balance before they are allowed to
+          // speak. Broke or priced-too-high means they pass on this turn.
+          var paidTag = '';
+          var paidCost = 0;
+          if (a.name !== 'The Room') {
+            var bal = agentBalances.hasOwnProperty(a.name) ? agentBalances[a.name] : startingBudget;
+            if (bal < 1) {
+              msg('', '', a.name + ' is broke ($' + bal + ') and cannot speak.', true);
+              sessionTranscript.push({ name: a.name, text: '[broke: cannot afford to speak]', round: sessionRun });
+              saveState();
+              progressTick('Round ' + r + ': ' + a.name + ' broke');
+              continue;
+            }
+            progressLabel('Round ' + r + ': ' + a.name + ' pricing...');
+            var price = await priceOpinion(a, transcript, maxOpinionCost, bal);
+            if (price.cost > bal) {
+              msg('', '', a.name + ' priced $' + price.cost + ' but only has $' + bal + ' -- must pass.', true);
+              sessionTranscript.push({ name: a.name, text: '[priced $' + price.cost + ', short $' + (price.cost - bal) + ']', round: sessionRun });
+              saveState();
+              progressTick('Round ' + r + ': ' + a.name + ' short');
+              continue;
+            }
+            agentBalances[a.name] = bal - price.cost;
+            paidCost = price.cost;
+            renderStatus();
+          }
+          var messages = [{ role: 'user', content: transcript + '\n\nIt is now your turn to speak, ' + a.name + '.' + (paidCost > 0 ? ' You paid $' + paidCost + ' for this turn. Your remaining balance is $' + agentBalances[a.name] + '. Make the opinion worth what you paid.' : '') }];
+          progressLabel('Round ' + r + ': ' + a.name + ' thinking...');
+          var typ = typing(a.name, a.color);
+          // Build SDK tools list based on agent capabilities
+          var response = await ask(a.system, messages);
+          if (paidCost > 0) {
+            paidTag = '\n[paid $' + paidCost + ', balance $' + agentBalances[a.name] + ']';
+          }
+          typ.remove();
+          progressTick('Round ' + r + ': ' + a.name + ' done');
+          if (response.trim() === '[silence]') {
+            msg(a.name, a.color, '...' + paidTag, false);
+            sessionTranscript.push({ name: a.name, text: '...' + paidTag, round: sessionRun });
+            saveState();
+          } else {
+            var actions = extractActions(a.name, response);
+            actions.forEach(function (act) { worldState.push(act); });
+            var whisperTargets = extractWhisperTargets(response);
+            // Clear pending code results before rendering (msg triggers auto-run)
+            pendingCodeResults = [];
+            msg(a.name, a.color, response + paidTag);
+            // Push the main response first so code results follow in export order
+            sessionTranscript.push({ name: a.name, text: response + paidTag, rawText: response, cost: paidCost, hasWhisper: whisperTargets.length > 0, whisperTargets: whisperTargets, round: sessionRun });
+            // Wait for any code blocks to finish executing
+            var hasCode = /\[CODE\][\s\S]*?\[\/CODE\]/.test(response);
+            if (hasCode) {
+              // Give code blocks time to execute
+              await new Promise(function (resolve) { setTimeout(resolve, 500); });
+              // Wait until all code outputs are populated
+              var attempts = 0;
+              while (pendingCodeResults.length === 0 && attempts < 20) {
+                await new Promise(function (resolve) { setTimeout(resolve, 500); });
+                attempts++;
+              }
+              // Flush code results into worldState and transcript
+              pendingCodeResults.forEach(function (cr) {
+                worldState.push(a.name + ' ' + cr);
+                sessionTranscript.push({ name: a.name, text: cr, round: sessionRun });
+              });
+              pendingCodeResults = [];
+            }
+            // Detect deaths and departures
+            detectStatusChanges(a.name, response, sessionRun);
+            saveState();
+          }
+          // Check if all characters are gone
+          var anyActive = Object.keys(characterStatus).some(function (n) { return characterStatus[n].status === 'present'; });
+          if (!anyActive && roomStatus.status === 'alive') {
+            roomStatus = { name: roomStatus.name, status: 'dead', round: sessionRun };
+            renderStatus();
+            msg('', '', 'All characters have departed. The room dies.', true);
+            sessionTranscript.push({ name: 'Status', text: roomStatus.name + ' has died.', round: sessionRun });
+            stopRequested = true;
+            break;
+          }
+        }
+      }
+      if (stopRequested) {
+        msg('','','--- Stopped ---', true);
+      } else {
+        var done = msg('','','--- Done ---', true);
+        done.style.marginBottom = '2rem';
+      }
+      if (sessionTranscript.length > 0) {
+        document.getElementById('export-btn').style.display = '';
+        document.getElementById('interject-section').style.display = '';
+        document.getElementById('move-room-btn').style.display = '';
+        document.getElementById('add-char-btn').style.display = '';
+      }
+    } catch (err) {
+      msg('','','Error: ' + err.message, true);
+    }
+
+    isRunning = false;
+    btn.disabled = false;
+    btn.textContent = 'Go';
+    document.getElementById('stop-btn').style.display = 'none';
+    progressDone_();
+  });
+
+  // --- Cross-device polling ---
+  function startPolling() {
+    if (pollInterval) return;
+    pollInterval = setInterval(function () {
+      if (isRunning || document.hidden) return;
+      loadServerState().then(function (state) {
+        if (!state || !state.lastModified) return;
+        if (state.lastModified > localLastModified) {
+          localLastModified = state.lastModified;
+          restoreState(state);
+        }
+      });
+    }, 5000);
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && authToken) {
+      // Fetch immediately when tab becomes visible
+      if (!isRunning) {
+        loadServerState().then(function (state) {
+          if (!state || !state.lastModified) return;
+          if (state.lastModified > localLastModified) {
+            localLastModified = state.lastModified;
+            restoreState(state);
+          }
+        });
+      }
+    }
+  });
+})();
+</script>
+
+<style is:global>
+  /* Gate */
+  #gate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+  }
+  .gate-box { text-align: center; max-width: 320px; width: 100%; }
+  .gate-icon {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--code-bg); color: var(--fg-muted);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+  }
+  .gate-box h2 { margin-top: 0; margin-bottom: 0.2rem; font-size: 1.25rem; }
+  .gate-sub { color: var(--fg-muted); font-size: 0.8rem; margin-bottom: 1.25rem; }
+  #gate-form { display: flex; gap: 0.4rem; }
+  #gate-password {
+    flex: 1; padding: 0.55rem 0.85rem;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 0.84rem;
+    outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  #gate-password:focus {
+    border-color: var(--fg-muted);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-muted) 10%, transparent);
+  }
+  #gate-form button {
+    padding: 0.55rem 1.25rem; background: var(--fg); color: var(--bg);
+    border: none; border-radius: 10px; font-family: var(--font-body);
+    font-size: 0.84rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  #gate-form button:hover { opacity: 0.85; }
+  .gate-error { color: #e54; font-size: 0.78rem; margin-top: 0.75rem; }
+  .gate-hidden { display: none; }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .tab-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    padding-bottom: 0.35rem;
+    padding-right: 0.25rem;
+  }
+  .run-button {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.45rem 1rem;
+    background: var(--fg);
+    color: var(--bg);
+    border: 1px solid var(--fg);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .run-button:hover { opacity: 0.85; }
+  .add-char-modal-content.run-modal-content {
+    width: 90vw;
+    max-width: 720px;
+    max-height: 85vh;
+  }
+  .run-modal-controls { margin-top: 0.75rem; margin-bottom: 0; }
+  .tab-btn {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.5rem 1.25rem;
+    border: none;
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--fg); }
+  .tab-btn.tab-active {
+    color: var(--fg);
+    border-bottom-color: var(--fg);
+  }
+  .tab-panel { margin-bottom: 1rem; }
+  .add-char-modal-content.rooms-modal-content {
+    width: 70vw;
+    max-width: 70vw;
+    max-height: 85vh;
+  }
+  .modal-search {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+    border-radius: 4px;
+  }
+  .modal-search:focus { border-color: var(--fg-muted); }
+  .card-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+  .card-action-btn {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .card-action-btn:hover { border-color: var(--fg-muted); background: rgba(128, 128, 128, 0.08); }
+  .card-action-add { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .card-action-add:hover { opacity: 0.85; background: var(--fg); }
+  /* Room cards place their actions flush with the body padding */
+  .room-card .card-actions { padding: 0 0.6rem 0.5rem; }
+  #panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #panel > .chat-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .legion-roster { margin-bottom: 1.5rem; }
+  .legion-card { cursor: pointer; user-select: none; transition: opacity 0.2s; }
+  .legion-card .agent-card-header { gap: 0.4rem; }
+  .legion-card.legion-dimmed {
+    opacity: 0.3;
+    border-color: var(--border);
+  }
+  .legion-card.legion-dimmed .agent-dot { background: var(--fg-muted) !important; }
+  .legion-card.legion-selected .agent-desc {
+    -webkit-line-clamp: unset;
+    display: block;
+    color: var(--fg);
+  }
+
+  /* Room cards */
+  .room-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .room-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s, opacity 0.15s;
+    flex: 1 1 calc(25% - 0.5rem);
+    max-width: calc(25% - 0.5rem);
+    min-width: 180px;
+  }
+  .room-card:hover { border-color: var(--fg-muted); }
+  .room-card.room-selected {
+    border-color: var(--fg);
+    background: rgba(128, 128, 128, 0.06);
+  }
+  .room-card.room-selected .room-card-desc {
+    -webkit-line-clamp: unset;
+    display: block;
+    color: var(--fg);
+  }
+  .room-card-image {
+    width: 100%;
+    height: 130px;
+    object-fit: cover;
+    display: block;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+  }
+  .room-card-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.4rem 0.6rem 0;
+  }
+  .room-card-desc {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    line-height: 1.3;
+    padding: 0 0.6rem 0.4rem;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* Panel */
+  .panel-title-row { display: flex; justify-content: space-between; align-items: center; }
+  .header-controls { display: flex; gap: 0.5rem; }
+  .panel-header h1 { margin-top: 1rem; margin-bottom: 0.25rem; }
+  .panel-sub { color: var(--fg-muted); font-size: 0.9rem; margin-bottom: 2rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  /* Agent cards */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  @media (max-width: 720px) {
+    .agents-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .agents-grid { grid-template-columns: 1fr; }
+  }
+  .agent-card {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 0;
+  }
+  .agent-card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    min-width: 0;
+  }
+  .agent-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .agent-desc {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    margin-top: 0.3rem;
+    padding-left: 0;
+    line-height: 1.35;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+  }
+  .agent-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .agent-headshot {
+    width: 120px;
+    height: 120px;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    object-fit: cover;
+    display: block;
+    align-self: start;
+  }
+  .msg-headshot {
+    width: 192px;
+    height: 192px;
+    border-radius: 10px;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+    vertical-align: middle;
+    object-fit: cover;
+  }
+  .agent-name-label {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .card-controls { display: flex; gap: 0.6rem; margin-left: 0.25rem; }
+  .order-btn, .remove-btn {
+    font-size: 0.7rem;
+    background: none;
+    border: none;
+    color: var(--fg-muted);
+    cursor: pointer;
+    padding: 0.15rem;
+    line-height: 1;
+    font-family: var(--font-mono);
+  }
+  .order-btn:hover { color: var(--fg); }
+  .remove-btn:hover { color: #e05252; }
+  /* Opening */
+  .prompt-section { margin-bottom: 1rem; }
+  .prompt-foldable > summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    margin-bottom: 0.35rem;
+  }
+  .prompt-foldable > summary::-webkit-details-marker { display: none; }
+  .prompt-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
+  .prompt-foldable[open] > .prompt-toggle::before { content: '\25BC  '; }
+  .prompt-foldable:not([open]) { margin-bottom: 0.75rem; }
+  .roster-foldable > summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .roster-foldable > summary::-webkit-details-marker { display: none; }
+  .roster-toggle::before { content: '\25B6  '; font-size: 0.6rem; vertical-align: middle; }
+  .roster-foldable[open] > .roster-toggle::before { content: '\25BC  '; }
+  .roster-foldable:not([open]) { margin-bottom: 0.75rem; }
+  #opening, #analysts-opening {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  #opening:focus, #analysts-opening:focus { border-color: var(--fg-muted); }
+
+  /* Controls */
+  .run-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .control-group { display: flex; flex-direction: column; }
+  .defense-label {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding-bottom: 0.4rem;
+  }
+  #rounds, #analysts-rounds {
+    width: 55px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    text-align: center;
+    outline: none;
+  }
+  #model-select, #order-mode, #analysts-model-select, #analysts-order-mode {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.4rem 0.3rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+  }
+  #go-btn {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.45rem 1.5rem;
+    border: 1px solid var(--fg);
+    background: var(--fg);
+    color: var(--bg);
+    cursor: pointer;
+  }
+  #go-btn:hover { opacity: 0.85; }
+  #go-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .secondary-btn {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+  }
+  .secondary-btn:hover { color: var(--fg); }
+
+  /* Status panel */
+  .status-panel {
+    margin-bottom: 1rem;
+  }
+  .status-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .status-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    padding: 0.25rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: #22c55e;
+  }
+  .status-entry.status-dead {
+    color: #e05252;
+    border-color: #e05252;
+    opacity: 0.6;
+    text-decoration: line-through;
+  }
+  .status-entry.status-left {
+    color: var(--fg-muted);
+    border-color: var(--border);
+    opacity: 0.5;
+    text-decoration: line-through;
+  }
+  .status-entry.status-room {
+    color: #a78bfa;
+    border-color: #a78bfa;
+  }
+  .status-entry.status-room.status-dead {
+    color: #e05252;
+    border-color: #e05252;
+    opacity: 0.6;
+    text-decoration: line-through;
+  }
+  .status-detail {
+    font-size: 0.68rem;
+    opacity: 0.7;
+  }
+  .status-balance {
+    color: #22c55e;
+    font-weight: 600;
+    opacity: 0.9;
+  }
+  .status-balance.status-broke {
+    color: #e05252;
+  }
+
+  /* Section headers & copy buttons */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .section-header .field-label { margin-bottom: 0; }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+  }
+  .copy-btn:hover { color: var(--fg); background: rgba(128,128,128,0.1); border-color: var(--border); }
+  .copy-btn.copied { color: #22c55e; }
+  .chat-copy-btn {
+    position: sticky;
+    top: 0;
+    float: right;
+    z-index: 10;
+    margin: 0.5rem 0.5rem 0 0;
+  }
+  .chat-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .chat-toolbar-btn { background: var(--bg); }
+  .chat-wrapper { margin-bottom: 2rem; }
+  .chat-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+  .chat-progress[hidden] { display: none; }
+  .chat-progress-track {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .chat-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--fg);
+    transition: width 0.25s ease-out;
+  }
+  .chat-progress.indeterminate .chat-progress-fill {
+    width: 40%;
+    animation: chat-progress-slide 1.3s ease-in-out infinite;
+  }
+  @keyframes chat-progress-slide {
+    0% { transform: translateX(-110%); }
+    100% { transform: translateX(260%); }
+  }
+  .chat-progress-label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  body.chat-fullscreen-lock { overflow: hidden; }
+  .chat-wrapper.fullscreen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    margin: 0;
+    background: var(--bg);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-wrapper.fullscreen .chat {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    border-radius: 0;
+    border: none;
+  }
+
+  /* Chat - screenplay format */
+  .chat {
+    position: relative;
+    flex: 1;
+    min-height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+  }
+  .dashboard-right .controls { margin-bottom: 0.5rem; }
+  .dashboard-right .run-controls { margin-bottom: 0.75rem; }
+  .dashboard-right .prompt-foldable { margin-bottom: 0.5rem; }
+  .chat-placeholder {
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    font-style: italic;
+    text-align: center;
+    padding: 3rem 0;
+  }
+  /* Round groups */
+  .round-group {
+    margin: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .round-group:last-child { border-bottom: none; }
+  .group-collapse-btn {
+    margin: 0.75rem 1rem 1rem;
+  }
+  .round-header {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    padding: 1rem 1rem 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .round-header::-webkit-details-marker { display: none; }
+  .round-header::before { content: '\25BC  '; font-size: 0.55rem; vertical-align: middle; }
+  .round-group:not([open]) > .round-header::before { content: '\25B6  '; }
+  /* Bid groups */
+  .bid-group {
+    margin: 0;
+  }
+  .bid-header {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    padding: 1rem 1rem 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+  .bid-header::-webkit-details-marker { display: none; }
+  .bid-header::before { content: '\25B6  '; font-size: 0.55rem; vertical-align: middle; }
+  .bid-group[open] > .bid-header::before { content: '\25BC  '; }
+  .bid-results { padding: 0.4rem 1rem 0.5rem; }
+  .bid-line {
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    padding: 0.15rem 0;
+  }
+  .bid-name { font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.04em; }
+  .bid-score { font-weight: 600; }
+  .bid-reason { color: var(--fg-muted); }
+  /* Character messages */
+  .chat-msg {
+    margin: 0;
+    line-height: 1.7;
+    padding: 0;
+    border-left: 3px solid transparent;
+    animation: msg-in 0.3s ease-out;
+  }
+  .chat-msg.chat-msg-has-avatar {
+    padding: 0.75rem 1rem;
+    min-height: calc(192px + 1.5rem);
+  }
+  .chat-msg.chat-msg-has-avatar::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+  .chat-msg.chat-msg-has-avatar .msg-headshot {
+    float: left;
+    width: 192px;
+    height: 192px;
+    margin: 0 1rem 0.75rem 0;
+  }
+  /* Summary's flex layout fights the float; reset to inline/block so name+preview wrap beside the floated image */
+  .chat-msg.chat-msg-has-avatar > .msg-summary {
+    display: block;
+    padding: 0;
+  }
+  .chat-msg.chat-msg-has-avatar > .msg-summary .msg-name { margin-right: 0.5rem; }
+  .chat-msg.chat-msg-has-avatar > .msg-text { padding: 0; }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-summary {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+  .msg-summary::-webkit-details-marker { display: none; }
+  .msg-summary:hover { background: rgba(128, 128, 128, 0.05); }
+  .chat-msg[open] > .msg-summary { padding-bottom: 0; }
+  .msg-preview {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    font-style: italic;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .chat-msg[open] > .msg-summary > .msg-preview { display: none; }
+  .chat-sys {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    text-align: center;
+    padding: 0.6rem 1rem;
+    border-left-color: transparent !important;
+  }
+  .chat-sys-collapsible {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    padding: 0.4rem 0.6rem;
+    background: transparent;
+    border-left: 2px solid var(--border) !important;
+  }
+  .chat-sys-collapsible > .chat-sys-summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+  }
+  .chat-sys-collapsible > .chat-sys-summary::-webkit-details-marker { display: none; }
+  .chat-sys-collapsible > .chat-sys-summary::before {
+    content: '\25B6';
+    font-size: 0.55rem;
+    color: var(--fg-muted);
+    flex-shrink: 0;
+  }
+  .chat-sys-collapsible[open] > .chat-sys-summary::before { content: '\25BC'; }
+  .chat-sys-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--fg);
+    flex-shrink: 0;
+  }
+  .chat-sys-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+    opacity: 0.7;
+  }
+  .chat-sys-collapsible[open] > .chat-sys-summary > .chat-sys-preview { display: none; }
+  .chat-sys-body {
+    white-space: pre-wrap;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg);
+    line-height: 1.5;
+  }
+  .msg-name {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .msg-text {
+    font-size: 1.05rem;
+    word-wrap: break-word;
+    padding: 0.25rem 1rem 0.75rem;
+  }
+  .msg-dialogue {
+    margin: 0.5rem 0;
+    line-height: 1.7;
+  }
+  .msg-dialogue:first-child { margin-top: 0; }
+  .msg-dialogue:last-child { margin-bottom: 0; }
+  .msg-collapse-btn {
+    display: block;
+    margin-top: 1rem;
+    background: none;
+    border: none;
+    color: var(--fg-muted);
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    padding: 0;
+    letter-spacing: 0.04em;
+  }
+  .msg-collapse-btn:hover { color: var(--fg); }
+  .msg-action {
+    display: block;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    margin: 0.6rem 0;
+    padding-left: 0.5rem;
+  }
+  .msg-whisper {
+    display: block;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.06);
+    border-left: 2px solid #8b5cf6;
+    padding: 0.3rem 0.75rem;
+    margin: 0.5rem 0;
+  }
+  .msg-code-block {
+    display: block;
+    margin: 0.6rem 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .code-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--fg-muted);
+    background: var(--border);
+    padding: 0.2rem 0.5rem;
+  }
+  .msg-code-block pre {
+    margin: 0;
+    padding: 0.5rem;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .msg-code-block code {
+    font-family: inherit;
+    font-size: inherit;
+  }
+  .code-output {
+    border-top: 1px solid var(--border);
+    padding: 0.5rem;
+    background: var(--bg);
+    font-size: 0.8rem;
+  }
+  .code-stdout {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: #22c55e;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .code-error {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: #e05252;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .code-running {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+  .code-no-output {
+    font-size: 0.78rem;
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+  .code-figure {
+    max-width: 100%;
+    margin-top: 0.5rem;
+    border-radius: 4px;
+  }
+  .chat-typing {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .dots span {
+    animation: blink 1.4s infinite both;
+    font-size: 1.5rem;
+    line-height: 0.5;
+    color: var(--fg-muted);
+  }
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink {
+    0%, 80%, 100% { opacity: 0.2; }
+    40% { opacity: 1; }
+  }
+  /* Interject */
+  .interject-section { margin-bottom: 2rem; }
+  .interject-row { display: flex; gap: 0.75rem; align-items: stretch; }
+  #interject-input {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    min-height: 6rem;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    outline: none;
+    border-radius: 6px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+  .interject-row #interject-btn { padding: 0 1.5rem; font-size: 0.9rem; }
+  #interject-input:focus { border-color: var(--fg-muted); }
+
+  .add-char-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  .add-char-modal-content {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0 1rem 1rem;
+    width: 90%;
+    max-width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .history-modal-content { max-width: 720px; max-height: 85vh; }
+  .room-modal-content { max-width: 560px; max-height: 85vh; }
+  .char-modal-content { max-width: 560px; max-height: 85vh; }
+  .char-modal-top {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .char-modal-image {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    object-fit: cover;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    display: block;
+  }
+  .char-modal-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.4;
+    padding-top: 0.25rem;
+  }
+  .char-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .char-modal-toggle { width: 100%; }
+  .room-modal-image {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    border-radius: 6px;
+    image-rendering: pixelated;
+    background: var(--code-bg);
+    margin-bottom: 0.75rem;
+  }
+  .room-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  .room-modal-row-label {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.15rem;
+  }
+  .room-modal-row-value { color: var(--fg); }
+  .room-modal-select { width: 100%; }
+  .history-note {
+    font-size: 0.72rem;
+    color: var(--fg-muted);
+    margin: 0 0 0.75rem 0;
+  }
+  .history-loading {
+    color: var(--fg-muted);
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 1.5rem 0;
+  }
+  .history-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .history-item {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem 0.8rem;
+    background: transparent;
+  }
+  .history-item-summary {
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .history-item-summary::-webkit-details-marker { display: none; }
+  .history-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+  .history-item-date { color: var(--fg); font-weight: 600; }
+  .history-item-stats { color: var(--fg-muted); font-size: 0.72rem; white-space: nowrap; }
+  .history-item-preview {
+    font-size: 0.76rem;
+    color: var(--fg-muted);
+    line-height: 1.4;
+    margin-top: 0.3rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .history-item-agents {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+    opacity: 0.7;
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+  }
+  .history-item-body {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .history-opening {
+    white-space: pre-wrap;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+  }
+  .history-transcript {
+    max-height: 340px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg);
+    line-height: 1.5;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+  .history-round {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--fg-muted);
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  .history-line {
+    white-space: pre-wrap;
+    padding: 0.15rem 0;
+  }
+  .history-line strong { color: var(--fg); }
+  .history-item-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .add-char-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    margin: 0 -1rem 0.75rem;
+    padding: 0.75rem 1rem;
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+  .add-char-modal-header .field-label { margin-bottom: 0; }
+  .add-char-roster {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .add-char-roster:empty { display: none; }
+  .add-char-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s;
+  }
+  .add-char-option:hover { border-color: var(--fg-muted); }
+  .add-char-option-name {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .add-char-option-desc {
+    font-size: 0.7rem;
+    color: var(--fg-muted);
+  }
+
+  @media (max-width: 600px) {
+    .controls { flex-wrap: wrap; }
+    .header-controls { flex-wrap: wrap; }
+    .panel-title-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+    /* Tab bar: let buttons wrap instead of cramming on one line */
+    .tab-bar {
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding-bottom: 0.4rem;
+    }
+    .tab-actions {
+      margin-left: 0;
+      flex-wrap: wrap;
+      width: 100%;
+      gap: 0.3rem;
+      padding-right: 0;
+    }
+    .tab-btn {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+    .secondary-btn {
+      padding: 0.4rem 0.6rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .run-button {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+    }
+
+    /* Chat messages: shrink headshot so text has room to breathe */
+    .chat { padding: 0.6rem; }
+    .chat-msg.chat-msg-has-avatar {
+      padding: 0.6rem 0.6rem;
+      min-height: 0;
+    }
+    .chat-msg.chat-msg-has-avatar .msg-headshot {
+      width: 72px;
+      height: 72px;
+      margin: 0 0.6rem 0.4rem 0;
+    }
+    .msg-headshot {
+      width: 72px;
+      height: 72px;
+      margin-right: 0.5rem;
+    }
+    .msg-summary {
+      padding: 0.5rem 0.6rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .msg-text {
+      font-size: 0.95rem;
+      padding: 0.25rem 0.6rem 0.6rem;
+    }
+    .msg-preview { white-space: normal; }
+
+    /* Agent card: stack headshot above body on narrow screens */
+    .agent-card {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+      padding: 0.75rem;
+    }
+    .agent-headshot {
+      width: 96px;
+      height: 96px;
+    }
+  }
+</style>

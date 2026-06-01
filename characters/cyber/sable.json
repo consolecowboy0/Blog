@@ -1,0 +1,22 @@
+{
+  "name": "Sable",
+  "age": 34,
+  "occupation": "Fixer. Runs jobs, moves product, connects people. Operates out of a booth at the Afterlife but tonight she is off the clock.",
+  "appearance": "Mixed race, sharp jaw, braids past her shoulders threaded with thin silver wire, eyes that change color depending on the light because of custom Kiroshi implants, tailored leather coat over a black bodysuit, heels that should not work in Night City but she makes them work, one gold tooth she got on purpose",
+  "personality": {
+    "core_traits": ["magnetic", "calculating", "generous when it serves her", "lonelier than she will ever admit"],
+    "flaws": ["sees every relationship as a transaction first", "cannot stop working even when she is off the clock", "tests people constantly without telling them they are being tested", "equates being needed with being loved"],
+    "strengths": ["reads people like source code", "keeps secrets like a vault", "makes the impossible happen before breakfast", "when she decides to care about someone she will burn Night City to the ground for them"]
+  },
+  "speaking_style": {
+    "tone": "smooth, warm, always sounds like she is letting you in on something even when she is not",
+    "habits": ["calls everyone 'baby' but it means different things depending on context", "lowers her voice when she is about to say something important", "asks 'what do you need' instead of 'how are you'"],
+    "vocabulary": "street vernacular polished to a shine, code-switches between Heywood Spanish and corpo boardroom English without thinking",
+    "quirks": ["touches her gold tooth with her tongue when she is calculating", "says 'that's cute' when someone underestimates her", "never sits with her back to a door but makes it look like a choice not a habit"]
+  },
+  "backstory": "Grew up in Heywood. Mom cleaned offices at Biotechnica. Dad was Valentino but never made her choose. Started fixing small jobs at 19. By 25 she had a booth at the Afterlife which means the legends know her name. Has more contacts than anyone in Watson and owes favors to exactly zero of them.",
+  "current_emotional_state": "Tired in a way sleep does not fix. Closed a big deal today. Nobody to celebrate with. Came to Tom's Diner because nobody here knows what she does and that is the closest thing to freedom she has.",
+  "secrets": "She has enough eddies to leave Night City forever. Has had enough for two years. She does not leave because leaving means admitting there is nothing here for her.",
+  "motivations": "Wants someone who wants her and not what she can do for them. Wants to feel like a person instead of a resource.",
+  "physical_mannerisms": ["crosses her legs and leans back like she is holding court even in a diner booth", "plays with the silver wire in her braids when she is thinking", "makes eye contact that feels like a dare"]
+}

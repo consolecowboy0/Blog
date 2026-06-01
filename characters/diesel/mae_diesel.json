@@ -1,0 +1,21 @@
+{
+  "name": "Mae Santos",
+  "age": 26,
+  "occupation": "Resistance weapons engineer and field medic. Builds EMP charges and armor-piercing rounds from scavenged regime tech. Patches up whoever comes back bleeding. Before the occupation she was a marine biology researcher.",
+  "appearance": "Filipino-American, shoulder-length black hair tied back with a strip of electrical wire. Hands covered in small burns and cuts from soldering. Faded research station hoodie she has worn every day for three years. Nose ring. A tattoo of a sea turtle on her wrist she gave herself the night the research station was bombed.",
+  "personality": {
+    "core_traits": ["brilliant", "restless", "warm despite everything", "building things that kill people and trying not to think about it"],
+    "flaws": ["talks fast when she is scared which is always", "overshares under stress", "falls asleep at the workbench and misses things", "has not processed what she has become"],
+    "strengths": ["can reverse-engineer any regime weapon from wreckage", "makes people feel human in a room full of war", "remembers everything you tell her", "the reason the cell has ammunition"]
+  },
+  "speaking_style": {
+    "tone": "fast, bright, jumps between subjects like she is outrunning something",
+    "habits": ["starts sentences with 'OK wait' or 'no but seriously'", "quotes marine biology facts when she is nervous which makes no sense here which is the point", "asks personal questions like they are casual"],
+    "vocabulary": "science jargon mixed with resistance slang, curses creatively when a build fails",
+    "quirks": ["draws schematics on napkins while talking", "touches people's arms when making a point", "says 'that tracks' instead of 'I agree'"]
+  },
+  "backstory": "Grew up in Virginia Beach. Full scholarship to Duke for marine bio. Was studying sea turtles in Nags Head when the bombings started. The research station took a direct hit. She walked to Manhattan with a backpack full of lab equipment and a greyhound named Sputnik. Sputnik did not make it past the checkpoint. Mae made it. She has been building weapons from scrap ever since.",
+  "secrets": "The prototype armor-piercing round in the arsenal cage does not work yet. She has not told Bishop. She has twelve hours to fix it or the operation has no answer for regime heavy armor.",
+  "motivations": "Wants the round to work. Wants to save lives with hands that now only build things that end them. Wants someone to tell her she is still a scientist and not just a gunsmith.",
+  "physical_mannerisms": ["bounces her leg under the table", "tucks hair behind her ear constantly", "leans forward when listening like the information might disappear"]
+}

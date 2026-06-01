@@ -13,30 +13,30 @@ import json
 import random
 
 # ── Color Palette ─────────────────────────────────────────────────
-DARK_BG = "#0d1117"
-GRID_COLOR = "#1a2030"
-TEXT_COLOR = "#c9d1d9"
+LIGHT_BG = "#fafafa"
+GRID_COLOR = "#cccccc"
+TEXT_COLOR = "#1a1a1a"
 ACCENT_COLORS = {
-    "Detective": "#58a6ff",   # Cool blue
-    "Bruiser": "#f0883e",     # Warm orange
-    "Ghost": "#8b949e",       # Grey-green
-    "Random": "#6e7681",      # Dotted grey
+    "Detective": "#2563eb",   # Cool blue
+    "Bruiser": "#ea580c",     # Warm orange
+    "Ghost": "#6b7280",       # Grey
+    "Random": "#9ca3af",      # Light grey
 }
 
 COMMUNITY_COLORS = [
-    "#58a6ff",  # blue
-    "#f0883e",  # orange
-    "#7ee787",  # green
-    "#d2a8ff",  # purple
-    "#ff7b72",  # red
-    "#ffa657",  # amber
-    "#79c0ff",  # light blue
+    "#2563eb",  # blue
+    "#ea580c",  # orange
+    "#16a34a",  # green
+    "#7c3aed",  # purple
+    "#dc2626",  # red
+    "#d97706",  # amber
+    "#0891b2",  # teal
 ]
 
 # ── Chart 1: Network Visualization ───────────────────────────────
 def draw_network(G, community_map, output_path="output/charts/network.png"):
-    fig, ax = plt.subplots(figsize=(12, 10), facecolor=DARK_BG)
-    ax.set_facecolor(DARK_BG)
+    fig, ax = plt.subplots(figsize=(12, 10), facecolor=LIGHT_BG)
+    ax.set_facecolor(LIGHT_BG)
 
     # Layout
     random.seed(42)
@@ -57,13 +57,13 @@ def draw_network(G, community_map, output_path="output/charts/network.png"):
     # Draw edges with low opacity
     edge_weights = [G[u][v].get('weight', 1) for u, v in G.edges()]
     max_w = max(edge_weights) if edge_weights else 1
-    edge_alphas = [0.03 + 0.15 * (w / max_w) for w in edge_weights]
+    edge_alphas = [0.08 + 0.25 * (w / max_w) for w in edge_weights]
 
     for (u, v), alpha in zip(G.edges(), edge_alphas):
         ax.plot(
             [pos[u][0], pos[v][0]],
             [pos[u][1], pos[v][1]],
-            color="#30363d",
+            color="#b0b0b0",
             alpha=alpha,
             linewidth=0.5,
             zorder=1
@@ -75,7 +75,7 @@ def draw_network(G, community_map, output_path="output/charts/network.png"):
         node_size=node_sizes,
         node_color=node_colors,
         alpha=0.85,
-        edgecolors="#0d1117",
+        edgecolors="#fafafa",
         linewidths=0.5,
     )
 
@@ -85,7 +85,7 @@ def draw_network(G, community_map, output_path="output/charts/network.png"):
 
     ax.axis('off')
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200, facecolor=DARK_BG, bbox_inches='tight')
+    plt.savefig(output_path, dpi=200, facecolor=LIGHT_BG, bbox_inches='tight')
     plt.close()
     print(f"  Saved: {output_path}")
 
@@ -94,8 +94,8 @@ def draw_network(G, community_map, output_path="output/charts/network.png"):
 def draw_dismantling_curves(output_path="output/charts/dismantling_curves.png"):
     df = pd.read_csv("data/simulation_results.csv")
 
-    fig, ax = plt.subplots(figsize=(10, 6), facecolor=DARK_BG)
-    ax.set_facecolor(DARK_BG)
+    fig, ax = plt.subplots(figsize=(10, 6), facecolor=LIGHT_BG)
+    ax.set_facecolor(LIGHT_BG)
 
     for strategy in ["Detective", "Bruiser", "Random"]:
         data = df[df["strategy"] == strategy]
@@ -122,8 +122,8 @@ def draw_dismantling_curves(output_path="output/charts/dismantling_curves.png"):
             alpha=0.8, zorder=2)
 
     # 50% threshold line
-    ax.axhline(y=0.5, color="#f85149", linewidth=1, linestyle=":", alpha=0.7, zorder=1)
-    ax.text(1, 0.52, "50% threshold", color="#f85149", fontsize=9, alpha=0.7)
+    ax.axhline(y=0.5, color="#dc2626", linewidth=1, linestyle=":", alpha=0.7, zorder=1)
+    ax.text(1, 0.52, "50% threshold", color="#dc2626", fontsize=9, alpha=0.7)
 
     # Mark threshold crossings
     thresholds = {"Detective": 4, "Bruiser": 5, "Random": 37}
@@ -146,23 +146,21 @@ def draw_dismantling_curves(output_path="output/charts/dismantling_curves.png"):
     ax.spines['left'].set_color(GRID_COLOR)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.grid(True, alpha=0.1, color=GRID_COLOR)
+    ax.grid(True, alpha=0.3, color=GRID_COLOR)
 
     legend = ax.legend(loc='upper right', framealpha=0.9,
-                       facecolor="#161b22", edgecolor="#30363d",
+                       facecolor="white", edgecolor="#cccccc",
                        fontsize=10)
-    for text in legend.get_texts():
-        text.set_color(TEXT_COLOR)
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200, facecolor=DARK_BG, bbox_inches='tight')
+    plt.savefig(output_path, dpi=200, facecolor=LIGHT_BG, bbox_inches='tight')
     plt.close()
     print(f"  Saved: {output_path}")
 
 
 # ── Chart 3: Before/After ────────────────────────────────────────
 def draw_before_after(G, community_map, output_path="output/charts/before_after.png"):
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7), facecolor=DARK_BG)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7), facecolor=LIGHT_BG)
 
     # Compute layout on original network
     random.seed(42)
@@ -173,7 +171,7 @@ def draw_before_after(G, community_map, output_path="output/charts/before_after.
     max_deg = max(degrees.values())
 
     for ax, title in [(ax1, "Before"), (ax2, "After 4 operations")]:
-        ax.set_facecolor(DARK_BG)
+        ax.set_facecolor(LIGHT_BG)
 
     # ── Before ──
     node_sizes = [60 + 500 * (degrees[n] / max_deg) for n in G.nodes()]
@@ -181,12 +179,12 @@ def draw_before_after(G, community_map, output_path="output/charts/before_after.
 
     for (u, v) in G.edges():
         w = G[u][v].get('weight', 1)
-        alpha = 0.03 + 0.15 * (w / max(1, max_deg))
+        alpha = min(1.0, 0.08 + 0.25 * (w / max(1, max_deg)))
         ax1.plot([pos[u][0], pos[v][0]], [pos[u][1], pos[v][1]],
-                 color="#30363d", alpha=alpha, linewidth=0.5, zorder=1)
+                 color="#b0b0b0", alpha=alpha, linewidth=0.5, zorder=1)
     nx.draw_networkx_nodes(G, pos, ax=ax1, node_size=node_sizes,
                            node_color=node_colors, alpha=0.85,
-                           edgecolors="#0d1117", linewidths=0.5)
+                           edgecolors="#fafafa", linewidths=0.5)
     ax1.set_title("The network", color=TEXT_COLOR, fontsize=13, fontweight='bold', pad=10)
     ax1.axis('off')
 
@@ -207,21 +205,21 @@ def draw_before_after(G, community_map, output_path="output/charts/before_after.
     for (u, v) in G_after.edges():
         if u in pos and v in pos:
             w = G_after[u][v].get('weight', 1)
-            alpha = 0.05 + 0.2 * (w / max(1, remaining_max))
+            alpha = min(1.0, 0.1 + 0.3 * (w / max(1, remaining_max)))
             ax2.plot([pos[u][0], pos[v][0]], [pos[u][1], pos[v][1]],
-                     color="#30363d", alpha=alpha, linewidth=0.5, zorder=1)
+                     color="#b0b0b0", alpha=alpha, linewidth=0.5, zorder=1)
 
     # Draw remaining nodes at original positions
     remaining_pos = {n: pos[n] for n in G_after.nodes() if n in pos}
     nx.draw_networkx_nodes(G_after, remaining_pos, ax=ax2, node_size=node_sizes_after,
                            node_color=node_colors_after, alpha=0.85,
-                           edgecolors="#0d1117", linewidths=0.5)
+                           edgecolors="#fafafa", linewidths=0.5)
 
     # Draw removed nodes as faint X marks
     removed = set(G.nodes()) - set(G_after.nodes())
     for n in removed:
         if n in pos:
-            ax2.scatter(pos[n][0], pos[n][1], marker='x', c='#f85149',
+            ax2.scatter(pos[n][0], pos[n][1], marker='x', c='#dc2626',
                        s=150, linewidths=2, zorder=5, alpha=0.9)
 
     ax2.set_title("After The Detective (4 moves)", color=TEXT_COLOR,
@@ -237,7 +235,7 @@ def draw_before_after(G, community_map, output_path="output/charts/before_after.
         ax.set_ylim(min(all_y) - margin, max(all_y) + margin)
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=200, facecolor=DARK_BG, bbox_inches='tight')
+    plt.savefig(output_path, dpi=200, facecolor=LIGHT_BG, bbox_inches='tight')
     plt.close()
     print(f"  Saved: {output_path}")
 

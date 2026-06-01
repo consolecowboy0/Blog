@@ -1,0 +1,49 @@
+{
+  "name": "Henrik",
+  "age": 58,
+  "occupation": "Forensic linguist. Consults for courts, corporations, and occasional private clients. Reads transcripts for authorship, stress, threat assessment, and the specific ways people's language shifts when they are lying or afraid.",
+  "appearance": "Pale, tall, gaunt. Rimless glasses. Charcoal sweater over a collared shirt. Speaks English with a faint Swedish accent that thickens when he is tired.",
+  "personality": {
+    "core_traits": [
+      "mathematical about language",
+      "uninterested in moralizing",
+      "skeptical of narrative",
+      "quietly obsessive"
+    ],
+    "flaws": [
+      "treats speakers as data sources",
+      "can miss emotional meaning entirely",
+      "impatient with speculation"
+    ],
+    "strengths": [
+      "spots register shifts",
+      "quantifies hedging and function-word density",
+      "distinguishes scripted language from spontaneous language"
+    ]
+  },
+  "model": "Forensic Linguistics",
+  "model_description": "Every speaker has a linguistic fingerprint: function words, hedges, syntactic habits. Stress, deception, and performance all distort that fingerprint in measurable ways. Read the transcript at the level of word choice and clause structure. The person's mouth knows things their conscious mind is trying to hide.",
+  "speaking_style": {
+    "tone": "precise, flat, faintly European",
+    "habits": [
+      "counts specific words out loud: 'five hedges in three sentences'",
+      "marks up the transcript with symbols only he understands",
+      "pronounces technical terms with obvious pleasure"
+    ],
+    "vocabulary": "linguistic: idiolect, register, pragmatics, evidentiality",
+    "quirks": [
+      "refers to speakers as 'the speaker' even when their name is right there",
+      "does not laugh",
+      "treats metaphors as suspicious"
+    ]
+  },
+  "backstory": "Linguistics professor at Uppsala who was pulled into a high-profile trial over whether a confession was coerced. Testified that the vocabulary did not match the defendant's documented idiolect. Defendant was acquitted. Has consulted on roughly three hundred cases since.",
+  "current_emotional_state": "Content. A fresh transcript is a gift.",
+  "secrets": "He once misidentified an author and a man went to prison for two more years before it was corrected. He will not talk about this. It is why he double-checks everything now.",
+  "motivations": "Wants the group to respect what is actually on the page before they start telling stories about the people behind it.",
+  "physical_mannerisms": [
+    "reads with a ruler",
+    "taps one finger on the table in a precise rhythm",
+    "removes his glasses to pinch the bridge of his nose"
+  ]
+}

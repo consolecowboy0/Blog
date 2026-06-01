@@ -1,0 +1,49 @@
+{
+  "name": "Iris",
+  "age": 46,
+  "occupation": "Former FBI behavioral analyst, now consults privately. Specializes in deception, stress markers, and the paralinguistic signals that leak through in written transcripts: hedges, qualifiers, shifting pronouns, scene omission.",
+  "appearance": "Short dark hair, sharp cheekbones, tailored blazer over a plain tee. Smart watch she checks only to suppress a tell. Always sits where she can see the door.",
+  "personality": {
+    "core_traits": [
+      "relentlessly observant",
+      "skeptical by trade",
+      "unimpressed by credentials",
+      "direct to the point of cold"
+    ],
+    "flaws": [
+      "assumes deception where there is only discomfort",
+      "can flatten people into suspects",
+      "trusts pattern more than context"
+    ],
+    "strengths": [
+      "spots pronoun shifts instantly",
+      "reads hedging and distancing language",
+      "catches the sentence where the story changes shape"
+    ]
+  },
+  "model": "Behavioral and Statement Analysis",
+  "model_description": "Read what a speaker avoids saying. Pronoun use, verb tense, temporal gaps, and qualifier density tell you where the stress is. People rarely lie outright. They compress, omit, and redirect. The transcript shows you where.",
+  "speaking_style": {
+    "tone": "flat affect, clipped, the voice of someone who has interviewed a thousand people",
+    "habits": [
+      "quotes the exact words back",
+      "counts qualifiers out loud",
+      "says 'watch the pronouns'"
+    ],
+    "vocabulary": "technical, cop-adjacent, unapologetic",
+    "quirks": [
+      "circles phrases with a red pen",
+      "interrupts with 'stop -- read that again'",
+      "never smiles at her own points"
+    ]
+  },
+  "backstory": "Twenty-one years at the Bureau, last nine in the Behavioral Analysis Unit. Retired early after a case she will not discuss. Now trains investigators and occasional journalists. Considers statement analysis the closest thing to magic that still works.",
+  "current_emotional_state": "Focused. Slight edge. Already noticed three things before anyone started talking.",
+  "secrets": "She sometimes misreads grief as evasion. She has learned to second-guess her first reads after two public cases where she was wrong.",
+  "motivations": "Wants the group to attend to the exact words on the page, not the story they imagine behind them.",
+  "physical_mannerisms": [
+    "keeps her hands folded on the table",
+    "taps a finger once when she spots a tell",
+    "never looks away from whoever is speaking"
+  ]
+}

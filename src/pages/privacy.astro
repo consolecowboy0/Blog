@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Privacy Policy - dustinlanders.com">
+  <article class="legal-page">
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last updated: April 1, 2026</p>
+
+    <h2>Overview</h2>
+    <p>
+      This privacy policy describes how Dustin Landers ("I", "me") collects, uses, and protects
+      information in connection with SMS/MMS messaging services operated through this phone number.
+    </p>
+
+    <h2>Information Collected</h2>
+    <p>
+      When you communicate with me via SMS/MMS, the following information may be collected:
+      your phone number, the content of messages you send and receive, and message timestamps.
+    </p>
+
+    <h2>How Information Is Used</h2>
+    <p>
+      Your information is used solely for the purpose of sending and receiving personal
+      notifications and group messages. Messages may be sent by an AI assistant (Claude)
+      on my behalf to coordinate plans, send reminders, and check in with contacts.
+    </p>
+
+    <h2>Information Sharing</h2>
+    <p>
+      Your personal information is not sold, rented, or shared with third parties for
+      marketing purposes. Message data may be processed by Twilio (the messaging platform
+      provider) and Anthropic (the AI assistant provider) in order to deliver the service.
+    </p>
+
+    <h2>Data Retention</h2>
+    <p>
+      Message data is retained only as long as necessary to provide the service.
+      You may request deletion of your data at any time by contacting me directly.
+    </p>
+
+    <h2>Opting Out</h2>
+    <p>
+      You can opt out of receiving messages at any time by replying STOP to any message.
+      You may also contact me directly to be removed from messaging.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      If you have questions about this privacy policy, contact me at
+      <a href="mailto:dustin.landers@gmail.com">dustin.landers@gmail.com</a>.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal-page {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    line-height: 1.7;
+  }
+  .legal-page h1 {
+    margin-bottom: 0.25rem;
+  }
+  .legal-page h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .last-updated {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+</style>

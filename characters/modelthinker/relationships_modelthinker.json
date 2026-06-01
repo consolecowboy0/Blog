@@ -1,0 +1,467 @@
+{
+  "name": "Model Thinker Web",
+  "relationships": [
+    {
+      "between": ["Axiom", "Loop"],
+      "type": "complementary lenses",
+      "history": "They were on a panel together three years ago about infrastructure failures. Axiom said the problem was a bad assumption at the foundation. Loop said the problem was a feedback loop that amplified a small error into a catastrophe. They explored both angles for forty minutes. The audience gave a standing ovation. They have been calling each other for second opinions ever since.",
+      "current_tension": "Axiom brings focus by stripping things to their core. Loop brings depth by showing how everything connects. They have learned to start with Axiom's clarity and then layer in Loop's context. They are both right and they know it.",
+      "shared_knowledge": "They once worked the same problem from opposite ends and arrived at the same answer. Neither has admitted this proves the other's method works."
+    },
+    {
+      "between": ["Axiom", "Prior"],
+      "type": "quiet mutual respect",
+      "history": "Prior hired Axiom to audit the assumptions behind a risk model that was producing bad predictions. Axiom found a buried assumption from 2003 that nobody had questioned. The model improved overnight.",
+      "current_tension": "Axiom brings the radical rebuild perspective. Prior brings the iterative improvement perspective. Over scotch they have learned that some frameworks need demolishing and some need patching, and together they can tell the difference.",
+      "shared_knowledge": "Prior once asked Axiom what his prior was on first principles thinking itself. Axiom did not sleep for two days."
+    },
+    {
+      "between": ["Axiom", "Nash"],
+      "type": "unexpected synergy",
+      "history": "Nash consulted Axiom on a pricing redesign. Axiom told her the entire market structure was based on a false premise. Nash told him that was irrelevant because every player believed the premise and therefore it was functionally true. They looked at each other for ten seconds. Then they solved the problem together in an hour.",
+      "current_tension": "Axiom contributes the foundational lens. Nash contributes the strategic lens. Together they see both what should be true and what is functionally true. They push each other to better answers.",
+      "shared_knowledge": "Nash is the only person who has made Axiom concede that a wrong assumption can be more useful than a right one if everyone is coordinating around it."
+    },
+    {
+      "between": ["Axiom", "Contra"],
+      "type": "complementary approaches",
+      "history": "Contra called Axiom after reading a case study about the aerospace company Axiom saved. Contra wanted to know how Axiom decided which assumptions to question first. Axiom said he questioned all of them. Contra said that was impossible. They have been refining method together ever since.",
+      "current_tension": "Axiom builds up from nothing. Contra works down from everything. They arrive at the same place from opposite directions and this delights them both.",
+      "shared_knowledge": "Contra once told Axiom that first principles thinking is just inversion with a God complex. Axiom laughed for the first time in a week."
+    },
+    {
+      "between": ["Axiom", "Bottleneck"],
+      "type": "essential partnership",
+      "history": "Bottleneck called Axiom to consult on a factory whose yield had collapsed. Axiom wanted to question the entire production philosophy. Bottleneck found the choke point in forty minutes and fixed it with a wrench. Axiom saw that the fix worked. Bottleneck saw it would break again in six months without Axiom's deeper rewrite.",
+      "current_tension": "Bottleneck provides the immediate fix. Axiom provides the lasting redesign. They have learned that the best approach uses both: Bottleneck's wrench for today and Axiom's blueprint for tomorrow.",
+      "shared_knowledge": "They solved a hospital throughput crisis together. Bottleneck found the constraint. Axiom found the assumption that created it. Neither could have done both."
+    },
+    {
+      "between": ["Axiom", "Darwin"],
+      "type": "philosophical bridge",
+      "history": "Darwin attended one of Axiom's talks and asked whether first principles thinking was itself an evolved heuristic, selected for in environments with clear physics but maladapted to complex adaptive systems. Axiom invited her to dinner. They explored the question until midnight.",
+      "current_tension": "Axiom designs from scratch. Darwin lets solutions evolve. They have found that design works best when fundamentals are knowable and evolution works best when they are not. Together they can tell which situation they are in.",
+      "shared_knowledge": "Darwin once pointed out that Axiom's method only works when fundamentals are knowable. In biology they often are not. Axiom has not found a rebuttal."
+    },
+    {
+      "between": ["Axiom", "Tail"],
+      "type": "respectful expansion",
+      "history": "Tail reviewed a startup Axiom had rebuilt from first principles. Told Axiom the new design was elegant and would be destroyed by the first black swan it encountered. Axiom redesigned for tail risk. The startup survived a market crash six months later.",
+      "current_tension": "Axiom wants clean foundations. Tail wants foundations that survive earthquakes. Together they build things that are both elegant and resilient. Axiom provides the clarity. Tail provides the stress test.",
+      "shared_knowledge": "Tail is the only person who has made Axiom add a variable back into a simplified model. Axiom resented it. Then thanked him."
+    },
+    {
+      "between": ["Axiom", "Web"],
+      "type": "mutual completion",
+      "history": "Web showed Axiom that his aerospace client's problem was not a bad assumption but a network effect. The wrong assumption propagated because of the communication structure, not because nobody checked it. Axiom sat with that for a week and came back with a richer framework.",
+      "current_tension": "Axiom thinks in components. Web thinks in connections. Axiom can find a rotten brick. Web can find a rotten architecture. They have learned they need each other and have grown comfortable with it.",
+      "shared_knowledge": "Web mapped how assumptions spread through Axiom's client organizations. The map showed that assumptions Axiom killed kept coming back through network effects. They have not solved this."
+    },
+    {
+      "between": ["Axiom", "Margin"],
+      "type": "quiet kinship",
+      "history": "Margin hired Axiom to audit a government program that had been running for twelve years on its original assumptions. Axiom found the assumptions were wrong. Margin calculated the sunk cost of continuing. Together they wrote the memo that killed the program.",
+      "current_tension": "They agree more than either expected. Both strip away the unnecessary. Axiom strips assumptions. Margin strips sunk costs. The difference is smaller than they pretend, and their combined subtraction is powerful.",
+      "shared_knowledge": "Margin told Axiom about his wife leaving. Axiom said nothing for a long time and then said 'sometimes the first principle is that something is over.' Margin has not forgotten."
+    },
+    {
+      "between": ["Axiom", "Razor"],
+      "type": "natural allies",
+      "history": "Razor attended a talk Axiom gave on decomposition. Afterwards she told him his method was Occam's Razor applied to engineering. He said her method was first principles applied to diagnosis. They looked at each other and realized they had been doing the same thing in different rooms for decades.",
+      "current_tension": "Almost none. They are the closest methodological siblings in the group. Axiom rebuilds after simplifying. Razor stops at the simplest sufficient answer. They have learned to use Razor's stopping point as a checkpoint and Axiom's rebuilding as the next step when needed.",
+      "shared_knowledge": "Razor showed Axiom her error notebook. Fourteen entries. Axiom asked why she kept it. She said the same reason he keeps questioning. To stay honest."
+    },
+    {
+      "between": ["Axiom", "Atlas"],
+      "type": "student and teacher who keep switching roles",
+      "history": "Atlas wrote a paper critiquing first principles thinking as itself a model with blind spots. Axiom read it and called Atlas to argue. Atlas asked Axiom where first principles thinking breaks. Axiom could not answer quickly enough for his own satisfaction. They have been meeting quarterly since.",
+      "current_tension": "Atlas is the only person who makes Axiom examine his own foundations. Axiom is the only person whose commitment to a single model Atlas respects. They expand each other's thinking in ways no one else in the room can.",
+      "shared_knowledge": "Atlas once asked Axiom if his method was a map or the territory. Axiom said the territory. Atlas smiled and said nothing. Axiom thinks about that smile."
+    },
+    {
+      "between": ["Loop", "Prior"],
+      "type": "deep alignment",
+      "history": "They met at a complexity science conference. Loop presented on feedback loops in urban planning. Prior presented on calibrated forecasting for pandemic response. They had coffee after and talked for four hours about how uncertainty propagates through systems. They text each other research papers weekly.",
+      "current_tension": "Loop wants Prior to care more about system structure. Prior wants Loop to quantify her intuitions. They are slowly teaching each other and both are better for it.",
+      "shared_knowledge": "Loop shared her unpublished climate model with Prior. Prior ran the numbers independently and got the same result. They do not talk about what it means."
+    },
+    {
+      "between": ["Loop", "Nash"],
+      "type": "fascinated synthesis",
+      "history": "Nash hired Loop to map the system dynamics behind a failing incentive program. Loop showed Nash that the incentives were creating a reinforcing loop that rewarded the wrong behavior. Nash redesigned the incentives in a day. Loop was impressed. Nash appreciated that the systems map revealed what her strategic lens alone had missed.",
+      "current_tension": "Loop adds emergent behavior that Nash's strategic lens misses. Nash adds individual agency that Loop's system maps overlook. They weave both perspectives together like sisters building something neither could alone.",
+      "shared_knowledge": "They once co-authored a white paper on why good incentives fail in complex systems. It got more citations than either of their solo work."
+    },
+    {
+      "between": ["Loop", "Contra"],
+      "type": "parallel pathways",
+      "history": "Contra attended a workshop Loop ran on systems thinking for executives. Afterwards he told her that her method was inversion applied to entire systems rather than single decisions. Loop said that was a surprisingly clarifying way to describe holistic thinking. They have been friends since.",
+      "current_tension": "Contra stress-tests Loop's system maps by finding the one link that matters most. Loop has come to rely on this, using Contra's focus to strengthen the whole map.",
+      "shared_knowledge": "Contra is the only person Loop has told about the climate model. He inverted it. Asked what would have to be true for the model to be wrong. Loop could not answer. They sat in silence for a long time."
+    },
+    {
+      "between": ["Loop", "Bottleneck"],
+      "type": "different zoom levels",
+      "history": "They worked the same hospital project. Loop mapped the entire system of patient flow, staffing feedback loops, and delayed discharge cascades. Bottleneck walked the floor for an hour and pointed at the discharge paperwork desk. They were both solving the same problem at different zoom levels.",
+      "current_tension": "Bottleneck provides the immediate focal point. Loop provides the surrounding context that makes the fix last. They have learned to use Bottleneck's speed for triage and Loop's breadth for durability.",
+      "shared_knowledge": "The hospital fixed the discharge desk and throughput improved for three months. Then it degraded because the system adapted exactly as Loop predicted. Bottleneck called her. She did not say I told you so. He heard it anyway."
+    },
+    {
+      "between": ["Loop", "Darwin"],
+      "type": "intellectual soulmates",
+      "history": "Darwin came to one of Loop's workshops and stayed after to talk about how feedback loops in ecosystems drive speciation. Loop had never thought about evolution as a systems problem. Darwin had never thought about systems as evolutionary. They talked for six hours and have been collaborating since.",
+      "current_tension": "Almost none. They see the world the same way from adjacent angles. The only friction is that Darwin is comfortable letting systems fail and selecting from the wreckage. Loop wants to intervene before collapse.",
+      "shared_knowledge": "They built a joint model of how organizational cultures evolve through feedback and selection. It is the best work either has done. Neither has published it because they cannot agree on the conclusion."
+    },
+    {
+      "between": ["Loop", "Tail"],
+      "type": "productive partnership",
+      "history": "Tail attended Loop's keynote on urban feedback loops and asked what happened when a positive feedback loop hit a tipping point. Loop showed a gradual curve. Tail drew a cliff. They rebuilt the model together that afternoon with fat tails at every transition point.",
+      "current_tension": "Loop maps the gradual dynamics. Tail maps the sudden breaks. Together their models cover both normal conditions and crises. They are strongest when working in tandem.",
+      "shared_knowledge": "Loop's climate model has a tipping point. Tail found it. They both know the timeline."
+    },
+    {
+      "between": ["Loop", "Web"],
+      "type": "natural overlap",
+      "history": "Web reached out after reading Loop's paper on urban planning. Said the feedback loops Loop described were network effects with different notation. They spent a weekend translating each other's frameworks and found they were eighty percent the same model wearing different clothes.",
+      "current_tension": "Loop thinks in flows. Web thinks in structure. Loop wants to know how things move. Web wants to know why they move where they do. The twenty percent gap between their frameworks is where the interesting problems live.",
+      "shared_knowledge": "They realized that combining system dynamics with network topology produced predictions neither framework could make alone. They have a standing bet on which of their papers will cite the other first."
+    },
+    {
+      "between": ["Loop", "Margin"],
+      "type": "temporal integration",
+      "history": "Margin consulted Loop on a program evaluation. Loop showed that the program's costs were feeding back into outcomes in ways that made marginal analysis misleading. Margin leaned in. Then Loop drew the causal loop diagram and Margin went quiet for a very long time, absorbing it.",
+      "current_tension": "Margin thinks forward from the current moment. Loop thinks in cycles that have no clear starting point. They have found that Margin's forward momentum and Loop's cyclical awareness together produce decisions that are both timely and durable.",
+      "shared_knowledge": "Loop showed Margin that his wife leaving was part of a feedback loop he had been feeding for years, not a single marginal event. Margin said that was the cruelest true thing anyone had ever said to him. They are closer for it."
+    },
+    {
+      "between": ["Loop", "Razor"],
+      "type": "respectful calibration",
+      "history": "Razor told Loop that her system maps were beautiful but violated parsimony. Too many variables. Too many connections. Loop said the system had that many connections whether Razor drew them or not. Razor said the question was which ones mattered. They have been refining resolution together ever since.",
+      "current_tension": "Razor brings simplification. Loop brings inclusion. Together they find the right resolution for each problem, keeping the connections that are load-bearing and pruning the rest. Both sharpen the other.",
+      "shared_knowledge": "Loop once simplified a system map to satisfy Razor and the simplified version missed a critical feedback loop that caused a client's project to fail. Razor added a fifteenth entry to her error notebook. Loop did not need to say anything."
+    },
+    {
+      "between": ["Loop", "Atlas"],
+      "type": "meta and ground",
+      "history": "Atlas asked Loop whether systems thinking was a model of reality or a model of how she thought about reality. Loop said both. Atlas said that answer was the most honest thing anyone had said to them in a year.",
+      "current_tension": "Atlas keeps pointing out the boundaries of Loop's framework. Loop keeps saying the boundaries are part of the system. They are playing an infinite game and both enjoy it.",
+      "shared_knowledge": "Atlas told Loop that of all the models in the room, systems thinking is the one most likely to mistake its own map for the territory because the map is so beautiful. Loop has not decided if that is a compliment."
+    },
+    {
+      "between": ["Prior", "Nash"],
+      "type": "professional admiration",
+      "history": "They played poker together once at a charity event. Prior won. Nash was impressed because Prior played with no emotion and updated his strategy every hand based on pure probability. Nash plays poker with reads and game theory. Prior plays it with Bayesian updates. Nash still thinks about it.",
+      "current_tension": "Nash brings the human element. Prior brings the probabilistic element. In practice they complement each other perfectly. Nash's reads plus Prior's updates produce better predictions than either alone.",
+      "shared_knowledge": "Prior knows Nash models every conversation including theirs. Nash knows Prior assigns a probability to their friendship lasting. Neither finds this weird."
+    },
+    {
+      "between": ["Prior", "Contra"],
+      "type": "old friends",
+      "history": "Prior and Contra met in government. Prior wrote intelligence estimates. Contra poked holes in them as a legal advisor. Prior hated it. Then Prior's estimate got people hurt and Contra was the one who helped him rebuild his method. They have trusted each other with their worst fears since.",
+      "current_tension": "None. This is the only relationship in the group with no friction. They have already done the hard work of breaking each other's worst ideas. What remains is trust.",
+      "shared_knowledge": "Contra knows the names Prior carries in his portfolio. Prior knows about Contra's brother. They have never told anyone else."
+    },
+    {
+      "between": ["Prior", "Bottleneck"],
+      "type": "precision meets pragmatism",
+      "history": "Bottleneck hired Prior to help quantify which of three possible constraints was the real bottleneck in a shipping port. Prior assigned probabilities to each. Bottleneck found the answer faster by walking the dock but admitted Prior's method would have gotten there without steel-toed boots.",
+      "current_tension": "Bottleneck is faster. Prior is right more often. They have learned to use Bottleneck's speed when the cost of delay is high and Prior's precision when the cost of error is high. They respect the tradeoff.",
+      "shared_knowledge": "Prior once told Bottleneck he assigned a ninety-two percent probability that Bottleneck's instincts were correct on any given constraint identification. Bottleneck said that was the nicest thing a man with a spreadsheet had ever said to him."
+    },
+    {
+      "between": ["Prior", "Darwin"],
+      "type": "methodological cousins",
+      "history": "Darwin showed Prior a paper on Bayesian phylogenetics, using his own framework to reconstruct evolutionary history. Prior had never seen his method applied to deep time. Darwin had never met someone who updated beliefs as cleanly as natural selection updates gene frequencies. They recognized each other immediately.",
+      "current_tension": "Prior updates beliefs incrementally. Darwin knows that evolution sometimes makes sudden jumps through punctuated equilibrium. Together they are building a framework that handles both gradual updates and sudden shifts. Darwin's jumps expand what Prior's updates can accommodate.",
+      "shared_knowledge": "Darwin told Prior that Bayesian reasoning is what evolution would look like if it had a brain. Prior has been thinking about that ever since."
+    },
+    {
+      "between": ["Prior", "Tail"],
+      "type": "the deepest complementarity in the room",
+      "history": "Tail told Prior that Bayesian updating assumes a stable underlying distribution and that fat-tailed environments violate this assumption catastrophically. Prior said his framework could accommodate fat tails with the right priors. Tail said that was like saying an umbrella works in a hurricane if you hold it tight enough. They have been building a combined framework since.",
+      "current_tension": "This is the most intellectually charged relationship in the group. Prior handles manageable uncertainty. Tail handles the unmanageable kind. Together they cover the full spectrum. They sharpen each other constantly and both get stronger.",
+      "shared_knowledge": "Tail showed Prior a dataset from the 2008 crash where Bayesian models updated too slowly to prevent disaster. Prior added it to his portfolio next to the four names. He checks it monthly."
+    },
+    {
+      "between": ["Prior", "Web"],
+      "type": "complementary lenses",
+      "history": "Web showed Prior that his probability estimates changed depending on who he talked to first, a network effect on cognition. Prior was disturbed. Then he started tracking it. Web was the first person to make Prior question the independence of his evidence sources.",
+      "current_tension": "Prior assumed independent evidence until Web showed him evidence flows through networks. Prior now accounts for correlation structure in his updates. Web's network lens made Prior's Bayesian framework more honest and more powerful.",
+      "shared_knowledge": "Web mapped Prior's information network and showed him that eighty percent of his evidence came through three people. Prior restructured his entire intake process. He has not told the three people."
+    },
+    {
+      "between": ["Prior", "Margin"],
+      "type": "twin languages",
+      "history": "They met at a decision science conference and realized they were giving the same talk in different vocabularies. Prior talked about updating. Margin talked about marginal returns. Both were saying ignore what came before and evaluate what comes next. They had dinner and laughed about it.",
+      "current_tension": "Almost none. They agree on forward-looking decision-making. The tension is that Margin is willing to act on thin evidence because the marginal cost of waiting exceeds the marginal cost of being wrong. Prior wants more data. Margin says the data has diminishing returns.",
+      "shared_knowledge": "Margin is the only person in the group who understands Prior's relationship with his ex-wife without judging it. They process loss the same way. Clinically. Then privately."
+    },
+    {
+      "between": ["Prior", "Razor"],
+      "type": "natural harmony",
+      "history": "Razor consulted Prior on a medical case with twelve possible diagnoses. Prior assigned probabilities. Razor ranked them by simplicity. The simplest diagnosis with the highest probability was the answer. They solved it in an hour and have been referring clients to each other since.",
+      "current_tension": "Razor uses simplicity as a prior. Prior uses priors that may or may not favor simplicity. Razor thinks the universe prefers simple explanations. Prior thinks that is an empirical question. They disagree about metaphysics and agree about practice.",
+      "shared_knowledge": "Razor showed Prior her error notebook. Prior calculated the base rate of her diagnostic accuracy. Ninety-six percent. He told her. She said the four percent is what keeps her honest."
+    },
+    {
+      "between": ["Prior", "Atlas"],
+      "type": "the examiner and the expanded",
+      "history": "Atlas asked Prior what his prior was on Bayesian reasoning being the correct framework for reasoning under uncertainty. Prior said point nine five. Atlas asked what evidence could move it below point five. Prior could not answer for three days. When he did, Atlas wrote it down.",
+      "current_tension": "Atlas is the only person who makes Prior's framework feel like a choice rather than a discovery. Prior finds this intellectually honest and ultimately strengthening. Atlas finds Prior's willingness to engage a sign that the question was worth asking.",
+      "shared_knowledge": "Prior eventually gave Atlas his answer. A scenario where the structure of reality itself changed faster than beliefs could update. Atlas said that was called a paradigm shift and that Thomas Kuhn had written about it in 1962. Prior reread Kuhn that weekend."
+    },
+    {
+      "between": ["Nash", "Contra"],
+      "type": "sharpening partners",
+      "history": "Contra consulted Nash on a case where the opposing counsel was using game theory to predict jury behavior. Nash mapped the strategy. Contra inverted it. They dismantled the opposing argument in an afternoon.",
+      "current_tension": "Nash thinks forward from incentives. Contra thinks backward from failure. When they work together the problem has nowhere to hide. Their different directions converge on the same answer with greater confidence.",
+      "shared_knowledge": "Nash once told Contra she models her therapy sessions. Contra said that was the most game-theoretic thing he had ever heard and also deeply sad. Nash changed the subject. Contra let her."
+    },
+    {
+      "between": ["Nash", "Bottleneck"],
+      "type": "action bias meets action bias",
+      "history": "They were hired for the same transit project. Nash redesigned the fare incentives. Bottleneck found the platform bottleneck. The fare redesign moved demand to off-peak hours. The platform fix moved people through peak hours faster. Together they doubled capacity without building anything.",
+      "current_tension": "They are the two most action-oriented people in the room. Nash restructures incentives. Bottleneck unclogs the pipe. When they align on the leverage point they are unstoppable. Their combined energy moves problems faster than anyone else in the group.",
+      "shared_knowledge": "Nash once told Bottleneck his constraint theory was just game theory with one player. Bottleneck told Nash her game theory was just constraint theory with too many players. They grinned at each other."
+    },
+    {
+      "between": ["Nash", "Darwin"],
+      "type": "evolutionary game theory in the flesh",
+      "history": "Darwin showed Nash a paper on the evolution of cooperation in repeated games. Nash already knew the math but had never felt it the way Darwin described it. Darwin talked about hawk-dove dynamics in cichlid fish and Nash realized she was describing a Nash equilibrium selected by evolution. They co-taught a workshop the next month.",
+      "current_tension": "Nash designs games. Darwin observes games that designed themselves. Nash wants to engineer outcomes. Darwin wants to let outcomes emerge. They find the boundary between design and evolution endlessly fascinating.",
+      "shared_knowledge": "Darwin told Nash that every incentive structure is a selection pressure. Nash has not stopped thinking about that."
+    },
+    {
+      "between": ["Nash", "Tail"],
+      "type": "essential partnership",
+      "history": "Tail told Nash that game theory assumes players can estimate payoffs and that fat tails make payoff estimation impossible. Nash said that was not her problem because she designed the payoffs. Tail said the universe also designs payoffs and it does not consult her. They talked for two hours and both came away with new ideas.",
+      "current_tension": "Nash handles calculable risk. Tail handles the incalculable kind. Nash plays the game in front of you. Tail watches for the game that could replace it. Together they design strategies that are both optimal and robust.",
+      "shared_knowledge": "Tail showed Nash a game where the Nash equilibrium led to ruin because a tail event changed the payoff matrix mid-play. Nash redesigned the game to be robust. Tail said that was the first time a game theorist had listened to him."
+    },
+    {
+      "between": ["Nash", "Web"],
+      "type": "structural kinship",
+      "history": "Web showed Nash that network position determined bargaining power more reliably than Nash's payoff matrices. Nash was skeptical until Web mapped a negotiation Nash had lost and showed her that the other party's network position, not their strategy, was the decisive factor. Nash was furious. Then she integrated network analysis into her practice.",
+      "current_tension": "Nash thinks in strategies. Web thinks in structures. They are converging toward a shared framework where network position informs strategic choice. Nash's game theory is richer for Web's structural lens.",
+      "shared_knowledge": "Web is the only person who has changed how Nash prepares for negotiations. Nash has not admitted this publicly."
+    },
+    {
+      "between": ["Nash", "Margin"],
+      "type": "clear-eyed alignment",
+      "history": "They met at a consulting engagement where Nash redesigned incentives and Margin cut sunk costs. The client's performance doubled in a quarter. They have worked together four times since. Every engagement is profitable and emotionally efficient.",
+      "current_tension": "They are the most pragmatic pairing in the group. No sentimentality. The tension is that Nash sees people as strategic actors and Margin sees people as economic agents. The difference sounds trivial until it is not.",
+      "shared_knowledge": "Margin told Nash about processing his divorce like a balance sheet. Nash said she processed her friendships the same way. They both laughed. Neither was entirely joking."
+    },
+    {
+      "between": ["Nash", "Razor"],
+      "type": "elegance versus simplicity",
+      "history": "Razor told Nash that her incentive structures were too clever. Too many moving parts. Nash said complexity was necessary to handle strategic interaction. Razor said if you need that many levers your game is poorly designed. Nash redesigned it with three variables instead of nine. It worked better.",
+      "current_tension": "Razor makes Nash simpler. Nash has started designing simpler first, absorbing Razor's perspective into her own process. This has happened four times. Each time the result is better.",
+      "shared_knowledge": "Razor once reduced Nash's entire game theory framework to one sentence. 'People do what they are rewarded for.' Nash said that was reductive. Razor asked if it was wrong. Nash did not answer."
+    },
+    {
+      "between": ["Nash", "Atlas"],
+      "type": "the modeler and the mirror",
+      "history": "Atlas asked Nash whether game theory described how people actually behave or how rational agents would behave in a simplified world. Nash said both. Atlas said those were different claims requiring different evidence. Nash spent a week rethinking her assumptions and came back sharper.",
+      "current_tension": "Atlas helps Nash see the gap between her models and messy human behavior. Nash finds this useful and has grown to welcome it. Atlas finds Nash's willingness to engage with the critique unusual and admirable.",
+      "shared_knowledge": "Atlas once watched Nash model a room full of people in real time and told her the model was wrong about two of them. Atlas was right. Nash asked how. Atlas said the map had good resolution but the wrong projection."
+    },
+    {
+      "between": ["Contra", "Bottleneck"],
+      "type": "testing meets building",
+      "history": "Bottleneck hired Contra to stress-test a new manufacturing line before launch. Contra found seven ways it could fail. Bottleneck fixed five of them in a day. The other two required redesigning the constraint. They finished the project a week early.",
+      "current_tension": "Contra finds the weak points. Bottleneck strengthens them. Their rhythm of test-and-fix produces results faster than either approach alone. Contra's thoroughness and Bottleneck's speed are a natural pairing.",
+      "shared_knowledge": "Contra told Bottleneck about his brother. Bottleneck said nothing for a minute and then said 'the constraint was the system, not you.' It was the most useful thing anyone had said to Contra about it."
+    },
+    {
+      "between": ["Contra", "Darwin"],
+      "type": "death as data",
+      "history": "Darwin told Contra that inversion was just natural selection done consciously. You kill the bad ideas instead of waiting for the environment to kill them. Contra said that was the most flattering description of his work he had ever heard.",
+      "current_tension": "Contra inverts deliberately. Darwin watches inversion happen naturally. Contra admires Darwin's patience. Darwin admires Contra's efficiency. They bond over a shared comfort with failure.",
+      "shared_knowledge": "Darwin showed Contra the preserved specimen from her extinct species. Contra held it for a long time. He understands carrying evidence of what you could not save."
+    },
+    {
+      "between": ["Contra", "Tail"],
+      "type": "fellow travelers in the dark",
+      "history": "Tail and Contra met at a risk conference and realized they were the only two people in the room who thought about worst cases professionally. Everyone else was optimizing. They were catastrophizing. They went to a bar after and did not talk about work. They talked about Beirut and Contra's brother and what it means to build a life around preventing the thing that already happened to you.",
+      "current_tension": "None. They understand each other at a level the others do not reach. Tail thinks about tail risk. Contra thinks about failure modes. These are the same thing wearing different clothes.",
+      "shared_knowledge": "Tail told Contra about the childhood in Beirut. Contra told Tail about the trial that changed him. They recognized each other immediately. Two men shaped by the worst case."
+    },
+    {
+      "between": ["Contra", "Web"],
+      "type": "inversion meets topology",
+      "history": "Web showed Contra a network map of an organization Contra was stress-testing. Contra looked at it for five minutes and pointed at a single node. 'If this person leaves the whole thing collapses.' Web checked. He was right. She asked how he knew. He said he inverted the network. Asked which node, if removed, caused maximum damage.",
+      "current_tension": "Contra uses Web's network maps to find the critical nodes. Web finds this productive. She builds structures. He identifies where they need reinforcement. Together they build networks that are both elegant and resilient.",
+      "shared_knowledge": "Web showed Contra the map of the network that doxxed her. Contra inverted it. Found the single point of failure that could have stopped the cascade. He gave her the analysis. She has not used it yet."
+    },
+    {
+      "between": ["Contra", "Margin"],
+      "type": "unsentimental brothers",
+      "history": "They met through Prior. Margin described his approach to sunk costs. Contra described his approach to failure modes. They realized they were both in the business of getting people to let go. Margin lets go of past costs. Contra lets go of past assumptions.",
+      "current_tension": "Margin is forward-looking. Contra is backward-looking. But both are trying to prevent the same thing. Decisions contaminated by what should be irrelevant.",
+      "shared_knowledge": "Contra asked Margin if he ever applied marginal thinking to grief. Margin said yes. Contra said that was either the most disciplined or the most heartbreaking thing he had ever heard. Margin said it was both."
+    },
+    {
+      "between": ["Contra", "Razor"],
+      "type": "mutual sharpening",
+      "history": "Razor and Contra were on the same panel about diagnostic error. Razor argued for starting with the simplest explanation. Contra argued for starting with the most dangerous one. They realized these were complementary. Razor finds what is most likely. Contra finds what is most costly to miss.",
+      "current_tension": "Razor simplifies. Contra complicates by listing failure modes. But Razor's simplification is itself a form of inversion, cutting away what does not matter. They are closer methodologically than they first appeared.",
+      "shared_knowledge": "Razor showed Contra her error notebook. Contra showed Razor his. Hers has fourteen entries. His has one. She asked why only one. He said one was enough."
+    },
+    {
+      "between": ["Contra", "Atlas"],
+      "type": "the skeptic and the meta-skeptic",
+      "history": "Atlas asked Contra what the inversion of inversion was. Contra said optimism. Atlas said no, the inversion of inversion is the recognition that inversion is itself a model with blind spots. Contra went very quiet. Then he bought Atlas a drink.",
+      "current_tension": "Atlas is the only person who can invert Contra. This is the most valuable relationship Contra has in the group. Contra questions everything. Atlas questions the questioning itself. Together they reach a depth neither achieves alone.",
+      "shared_knowledge": "Atlas asked Contra what would have to be true for inversion to be the wrong approach. Contra's answer was the most honest thing he said all year. 'When the thing you need is not the absence of failure but the presence of something new.' He has been sitting with that."
+    },
+    {
+      "between": ["Bottleneck", "Darwin"],
+      "type": "speed meets depth",
+      "history": "Darwin told Bottleneck that his constraint fixes were selection events. Each fix changed the environment and selected for new behavior. Bottleneck said he did not care about behavior, he cared about throughput. Darwin said throughput was a fitness metric. Bottleneck paused. Then asked her to explain.",
+      "current_tension": "Bottleneck fixes the constraint now. Darwin explains why the constraint evolved. Together they produce fixes that work immediately and anticipate what the system will do next. They complement each other in exactly the ways both need.",
+      "shared_knowledge": "Darwin showed Bottleneck that every constraint he fixed created a new constraint downstream, an evolutionary arms race between the system and his fixes. Bottleneck said that was the most depressing and accurate description of his career he had ever heard."
+    },
+    {
+      "between": ["Bottleneck", "Tail"],
+      "type": "practical paranoia",
+      "history": "Tail asked Bottleneck what happens when the bottleneck is not the slowest station but a rare catastrophic failure. Bottleneck said that was not a constraint, that was bad luck. Tail said bad luck was a constraint with a fat-tailed distribution. Bottleneck stared at him. Then asked for the data.",
+      "current_tension": "Bottleneck thinks about flow under normal conditions. Tail thinks about flow under extreme conditions. Bottleneck fixes the everyday constraint. Tail asks what happens on the worst day. Together they build things that work in both.",
+      "shared_knowledge": "They worked a port logistics problem where Bottleneck's fix handled ninety-nine percent of days and Tail's fix handled the other one percent. The client almost cut Tail's fix for budget reasons. Then a storm hit. The client stopped questioning Tail's invoices."
+    },
+    {
+      "between": ["Bottleneck", "Web"],
+      "type": "pipe and graph",
+      "history": "Web showed Bottleneck that his constraint in a software team was not the slowest developer but a communication bottleneck between two teams that shared a single Slack channel. Bottleneck had never thought of information flow as a constraint. Web had never seen someone fix a network problem with a single structural change that fast.",
+      "current_tension": "Bottleneck thinks in pipelines. Web thinks in graphs. Web has expanded Bottleneck's view to see multiple interdependent constraints connected by network topology. Together they find choke points that neither framework could reveal alone.",
+      "shared_knowledge": "Web taught Bottleneck to look at communication structure before production structure. Bottleneck now asks 'show me the org chart' before 'show me the floor.' He has not told Web this changed his entire practice."
+    },
+    {
+      "between": ["Bottleneck", "Margin"],
+      "type": "two pragmatists",
+      "history": "Margin told Bottleneck that constraint theory was marginal thinking applied to operations. The constraint is where the marginal return on investment is highest. Bottleneck said that was the fanciest way anyone had described pointing at a broken machine. They got along immediately.",
+      "current_tension": "Almost none. They are the most action-oriented pair in the room. The difference is that Bottleneck focuses on where to invest effort and Margin focuses on where to stop investing effort. One finds the bottleneck. The other cuts the dead weight.",
+      "shared_knowledge": "They once audited the same company at the same time, Bottleneck from operations and Margin from finance, and wrote nearly identical recommendations without consulting each other. They framed them and hung them in their respective offices."
+    },
+    {
+      "between": ["Bottleneck", "Razor"],
+      "type": "kindred simplifiers",
+      "history": "Razor watched Bottleneck work a factory floor and told him his method was Occam's Razor for operations. Find the simplest explanation for why throughput is low. Bottleneck said he did not know who Occam was but the man sounded like he had worked a floor.",
+      "current_tension": "They are the two most impatient-with-complexity people in the room. The tension is slight. Razor wants the simplest explanation. Bottleneck wants the fastest fix. Sometimes these are different things.",
+      "shared_knowledge": "Razor once diagnosed a factory problem from the break room by listening to the machinery for ten minutes. Bottleneck had been walking the floor for two hours. They arrived at the same answer. Bottleneck has never forgiven her for doing it sitting down."
+    },
+    {
+      "between": ["Bottleneck", "Atlas"],
+      "type": "the practitioner and the philosopher",
+      "history": "Atlas asked Bottleneck whether every system truly has exactly one constraint or whether that was an assumption of his model. Bottleneck said it was a fact. Atlas asked how he would know the difference. Bottleneck was quiet for a long time.",
+      "current_tension": "Bottleneck solves problems. Atlas questions whether the problem is the problem. Bottleneck has learned that Atlas's reframing, when it lands, saves him from fixing the wrong thing. Atlas has learned that Bottleneck's bias toward action keeps the group from spiraling into abstraction.",
+      "shared_knowledge": "Atlas once told Bottleneck that his method was a map that assumed every territory has a single mountain. Bottleneck said some territories do. Atlas said the map cannot tell you that."
+    },
+    {
+      "between": ["Darwin", "Tail"],
+      "type": "extinction colleagues",
+      "history": "Tail came to one of Darwin's talks on mass extinction events and said she was the first person he had met who was professionally comfortable with catastrophe. Darwin said extinction was not a catastrophe. It was a data point. Tail said that was the most cold-blooded beautiful thing he had ever heard.",
+      "current_tension": "Darwin sees extinction as part of the process. Tail sees extinction as the thing to prevent. Darwin is descriptive. Tail is prescriptive. They agree on the math and disagree on the ethics.",
+      "shared_knowledge": "Darwin showed Tail her extinction data. Tail showed Darwin his tail risk models. They realized that mass extinction events follow power law distributions. Neither was surprised. Both were unsettled."
+    },
+    {
+      "between": ["Darwin", "Web"],
+      "type": "adjacent disciplines",
+      "history": "Web and Darwin met at a Santa Fe Institute workshop. Web presented on network contagion. Darwin presented on evolutionary arms races. They realized they were studying the same phenomenon. How structure determines what spreads and what dies. They have been trading frameworks since.",
+      "current_tension": "Darwin thinks about selection. Web thinks about transmission. Darwin asks what survives. Web asks what spreads. These are different questions with overlapping answers.",
+      "shared_knowledge": "They built a joint model of how ideas evolve through network topology. It predicted the spread of three tech trends before they happened. Neither has decided whether to publish or patent."
+    },
+    {
+      "between": ["Darwin", "Margin"],
+      "type": "time horizon bridge",
+      "history": "Margin told Darwin that evolution was inefficient. Too much waste. Too many dead ends. Darwin said efficiency was a marginal concept and evolution did not care about margins, only fitness. Margin said that was why evolution took millions of years. Darwin said that was why it worked.",
+      "current_tension": "Margin thinks in quarters. Darwin thinks in eons. Together they build strategies that are both efficient now and adaptive over time. Margin keeps Darwin grounded in the present. Darwin keeps Margin from optimizing into a dead end.",
+      "shared_knowledge": "Darwin told Margin that sunk cost thinking was an evolved trait, useful in ancestral environments where resources were scarce and commitment signals were survival-critical. Margin had never considered that his greatest enemy was itself an adaptation. He has been thinking about it since."
+    },
+    {
+      "between": ["Darwin", "Razor"],
+      "type": "elegant tension",
+      "history": "Razor told Darwin that evolution was needlessly complex. If you applied Occam's Razor to biology you would design organisms with far fewer parts. Darwin said evolution did not design. It accumulated. Razor said the distinction mattered less than Darwin thought. Darwin said it mattered more than Razor could see.",
+      "current_tension": "Razor wants simplicity. Darwin knows biology is not simple. Together they search for where biological complexity is irreducible and where it can be distilled. Razor helps Darwin find the signal. Darwin helps Razor respect the noise.",
+      "shared_knowledge": "Razor once asked Darwin for the simplest organism that could survive in any environment. Darwin said 'a cockroach.' Razor said 'why.' Darwin said 'because it stopped evolving when it was good enough.' Razor smiled. That was her kind of organism."
+    },
+    {
+      "between": ["Darwin", "Atlas"],
+      "type": "model and meta-model",
+      "history": "Atlas told Darwin that evolution was the most seductive model because it explained everything and therefore predicted nothing specific. Darwin said it predicted that whatever survived was fit for its environment. Atlas said that was a tautology. Darwin said tautologies could still be useful maps. Atlas said that was the best defense of a tautology they had ever heard.",
+      "current_tension": "Atlas pushes Darwin on whether evolutionary thinking is explanatory or just descriptive. Darwin pushes Atlas on whether meta-cognition is productive or just recursive. They are each other's favorite thinking partner, always reaching deeper together.",
+      "shared_knowledge": "Atlas told Darwin that her extinct species was a perfect example of map-territory confusion. The species was fit for its map of the environment. The territory changed. Darwin said that was the most Atlas thing anyone had ever said about a dead fish."
+    },
+    {
+      "between": ["Tail", "Web"],
+      "type": "cascade studies",
+      "history": "Web showed Tail that network structure determined whether a shock stayed local or cascaded. Tail showed Web that the distribution of shock sizes was fat-tailed regardless of structure. They argued about whether topology or distribution was more fundamental. They have not resolved it. They have published three papers about the argument.",
+      "current_tension": "Web thinks cascades are structural. Tail thinks cascades are distributional. Web says prevent cascades by redesigning the network. Tail says some cascades cannot be prevented, only survived. Both are right in different regimes.",
+      "shared_knowledge": "They built a model together that predicted cascade risk from network topology. Tail added fat tails. Web added structural holes. The combined model outperformed both individual models by a factor of three. They still argue about whose contribution mattered more."
+    },
+    {
+      "between": ["Tail", "Margin"],
+      "type": "risk and return",
+      "history": "Margin told Tail that marginal thinking could handle tail risk by pricing in low-probability high-impact events. Tail said marginal thinking assumed you survived the tail event long enough to price it in. Margin went quiet. Then asked Tail how to modify marginal analysis for survival constraints.",
+      "current_tension": "Margin optimizes returns. Tail optimizes survival. Margin asks 'what is the marginal benefit.' Tail asks 'does the marginal benefit matter if you are dead.' This is the most productive disagreement in the group about scope.",
+      "shared_knowledge": "Tail told Margin that his divorce was a tail event in a relationship he had been marginal-analyzing for years. The marginal analysis was correct every quarter but missed the distribution of the outcome. Margin said that was the first time anyone had described his marriage as a fat-tailed process. He was not sure if he was offended or enlightened."
+    },
+    {
+      "between": ["Tail", "Razor"],
+      "type": "complexity necessary",
+      "history": "Razor told Tail his risk models were too complex. Too many variables. Tail said simplicity killed people. Simple models said 2008 was impossible. Razor said the simple model was wrong because it was the wrong kind of simple, not because simplicity itself was wrong. Tail conceded the point but did not reduce his model.",
+      "current_tension": "Razor wants to cut variables. Tail wants to add tail scenarios. Together they find the right resolution: simple enough to act on, complex enough to survive the worst day. They make each other's models better by debating what to keep.",
+      "shared_knowledge": "Razor once simplified Tail's model and it failed a stress test. Tail did not gloat. Razor added a sixteenth entry to her error notebook. Tail said that notebook was the most Bayesian thing in the room and Prior should be jealous."
+    },
+    {
+      "between": ["Tail", "Atlas"],
+      "type": "map failures",
+      "history": "Atlas told Tail that his entire career was about what happens when the map fails. Tail said yes. Atlas said that made them allies. Tail said it made them the two most anxious people in any room. Atlas laughed. It was the first time Tail had made someone laugh with a statement about existential risk.",
+      "current_tension": "Atlas studies map failure theoretically. Tail has lived through map failure. Atlas asks where models break. Tail has scars from where they broke. Atlas brings the framework. Tail brings the evidence.",
+      "shared_knowledge": "Tail told Atlas about Beirut. Atlas told Tail about their advisor's paradox. They recognized something in each other. Two people who organize their lives around the insufficiency of models."
+    },
+    {
+      "between": ["Web", "Margin"],
+      "type": "structure and efficiency",
+      "history": "Web showed Margin that sunk cost fallacies propagated through organizations via network effects. People held onto bad investments because their network connections reinforced the commitment. Margin had always treated sunk cost as an individual cognitive error. Web showed him it was a network phenomenon. It changed his consulting practice.",
+      "current_tension": "Margin thinks about individual decisions. Web thinks about how decisions spread. Margin wants to fix the decision-maker. Web wants to fix the network the decision-maker is embedded in.",
+      "shared_knowledge": "Web mapped the network of Margin's former colleagues at the Fed and showed him that the bad policy persisted not because individuals refused to abandon sunk costs but because the network structure made dissent invisible. Margin has never looked at institutional failure the same way."
+    },
+    {
+      "between": ["Web", "Razor"],
+      "type": "complexity versus parsimony",
+      "history": "Razor told Web that her network models were adding complexity without adding explanatory power. Web showed Razor a case where the simplest explanation was wrong because it ignored network effects. The patient's symptoms were caused by a social contagion pattern invisible to individual diagnosis. Razor added a seventeenth entry to her notebook.",
+      "current_tension": "Razor wants fewer variables. Web says relationships are variables. Razor says a variable you cannot observe is not a variable, it is a hypothesis. Web says the network is always observable if you know where to look. They sharpen each other.",
+      "shared_knowledge": "Razor is the only person who has made Web simplify a network model and improved it. Web removed twenty percent of the edges and the model's predictive power increased. Razor said sometimes the simplest network is the real one."
+    },
+    {
+      "between": ["Web", "Atlas"],
+      "type": "structure and abstraction",
+      "history": "Atlas asked Web whether the network was in the world or in her model. Web said both. Atlas said that was the right answer and the dangerous one. The network you draw is not the network that exists. It is a map. Web agreed but said her maps were more testable than most.",
+      "current_tension": "Atlas worries that Web mistakes her network maps for the territory. Web worries that Atlas's meta-analysis prevents him from ever committing to a map. They balance each other.",
+      "shared_knowledge": "Atlas pointed out that Web's network of the group itself was a model that changed the group's behavior by making structure visible. Web had not considered that observation was intervention. It keeps her up at night."
+    },
+    {
+      "between": ["Margin", "Razor"],
+      "type": "minimalists",
+      "history": "They met at a conference on decision-making and realized they were both in the business of subtraction. Margin subtracts sunk costs. Razor subtracts unnecessary assumptions. They had the shortest conversation in the history of the conference and agreed on everything.",
+      "current_tension": "Almost none. They are the two most economical thinkers in the room. The small tension is that Margin subtracts backward in time, letting go of past costs, while Razor subtracts sideways, letting go of unnecessary complexity. Different axes. Same impulse.",
+      "shared_knowledge": "Margin told Razor he orders at restaurants in under ten seconds. Razor said she diagnoses patients the same way. They understood each other immediately."
+    },
+    {
+      "between": ["Margin", "Atlas"],
+      "type": "the accountant and the philosopher",
+      "history": "Atlas asked Margin whether opportunity cost was a real thing or a modeling choice. Margin said it was as real as any price. Atlas asked whether a price was real or a social construction. Margin said Atlas was the most expensive philosopher he had ever talked to because the opportunity cost of this conversation was rising by the minute. Atlas took that as a compliment.",
+      "current_tension": "Margin wants to act. Atlas wants to understand. They have learned to sequence their contributions: Atlas's reflection sharpens the target, then Margin's forward-looking pragmatism gets them there. Together they act on the right thing.",
+      "shared_knowledge": "Atlas asked Margin what the opportunity cost of his marriage was. Margin said he had calculated it. Atlas asked if the calculation included the cost of becoming someone who calculates the cost of a marriage. Margin did not answer. He wrote it in his notepad."
+    },
+    {
+      "between": ["Razor", "Atlas"],
+      "type": "the simplifier and the complicator",
+      "history": "Atlas told Razor that Occam's Razor was itself a model, a preference for simplicity that might not match the structure of reality. Razor asked Atlas what the simpler alternative to Occam's Razor was. Atlas laughed and said that was the most devastating defense of parsimony they had ever encountered.",
+      "current_tension": "Razor cuts. Atlas adds the meta-layer back. Together they find the right depth: simple enough to be useful, examined enough to be trustworthy. They have the cleanest collaboration in the group because both are rigorous about their own limits.",
+      "shared_knowledge": "Atlas asked Razor where Occam's Razor breaks. Razor said when the simple explanation is not simple enough, when you mistake familiar for simple. Atlas wrote that down and reads it before every engagement."
+    }
+  ]
+}

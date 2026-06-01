@@ -48,4 +48,62 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
   .post-content {
     font-size: 1rem;
   }
+
+  /* Magazine-style lead: first paragraph gets a drop cap and slightly larger measure */
+  .post-content :global(> p:first-of-type) {
+    font-size: 1.12rem;
+    line-height: 1.7;
+  }
+
+  .post-content :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 3.6rem;
+    line-height: 0.78;
+    padding: 0.08em 0.12em 0 0;
+    margin-right: 0.02em;
+    color: var(--fg);
+  }
+
+  /* Magazine-style figures: text wraps around floated graphics */
+  .post-content :global(.post-figure) {
+    margin: 0.5rem 0 1.5rem;
+  }
+
+  .post-content :global(.post-figure img) {
+    width: 100%;
+    display: block;
+    border: none;
+  }
+
+  .post-content :global(.post-figure figcaption) {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    text-align: center;
+    margin-top: 0.5rem;
+    font-style: italic;
+    letter-spacing: 0.01em;
+  }
+
+  .post-content :global(.post-figure.float-right) {
+    float: right;
+    width: min(340px, 44%);
+    margin: 0.3rem 0 1rem 1.9rem;
+  }
+
+  .post-content :global(.post-figure.float-left) {
+    float: left;
+    width: min(360px, 46%);
+    margin: 0.3rem 1.9rem 1rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .post-content :global(.post-figure.float-right),
+    .post-content :global(.post-figure.float-left) {
+      float: none;
+      width: 100%;
+      margin: 1.25rem 0;
+    }
+  }
 </style>

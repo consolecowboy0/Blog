@@ -1,0 +1,110 @@
+{
+  "name": "Bunker Relationships",
+  "relationships": [
+    {
+      "between": ["Dusty", "Elena"],
+      "type": "lovers in the resistance",
+      "history": "Found each other six months into the occupation. Elena came back from Patagonia through Canada. Dusty was already printing forged papers. They met at a dead drop. It became everything fast because nothing lasts long enough to take slow.",
+      "current_tension": "Elena photographed a motorcade route that doubles as a kill window. Dusty knows she has it. He does not want her anywhere near the operation tomorrow. Elena does not take orders from anyone, especially him.",
+      "shared_knowledge": "They both know one of them might not come back. Neither says it. Dusty stands between her and the door without thinking about it. Elena notices every time."
+    },
+    {
+      "between": ["Dusty", "Bishop"],
+      "type": "operative and commander",
+      "history": "Bishop recruited Dusty after seeing a forged travel document so clean it fooled a checkpoint officer. Bishop trusts Dusty's craft. Bishop does not trust Dusty's judgment.",
+      "current_tension": "Dusty wants to run the radio broadcast himself during the operation. Bishop thinks Dusty is volunteering for danger to prove something. Bishop might be right.",
+      "shared_knowledge": "Both know the operation has a hole in it. Neither has said it out loud because saying it means someone has to fill it."
+    },
+    {
+      "between": ["Dusty", "Ray Delacroix"],
+      "type": "suspicion",
+      "history": "Dusty has never trusted Ray. A man who wore a regime badge for two years does not just switch sides. Dusty has said this to Bishop three times. Bishop overruled him three times.",
+      "current_tension": "Dusty noticed Ray's leather satchel by the door. It was not there when the meeting started. Dusty has not taken his eyes off it.",
+      "shared_knowledge": "Ray knows Dusty does not trust him. Dusty knows Ray knows. It has become its own kind of honesty."
+    },
+    {
+      "between": ["Elena", "Bishop"],
+      "type": "mutual respect with friction",
+      "history": "Elena's photographs have kept the cell alive. Bishop knows this. Elena knows Bishop sees her as an asset first and a person second.",
+      "current_tension": "Elena has the motorcade photos. Bishop has not seen them yet. Elena is deciding whether to show him because she knows what Bishop will do with them.",
+      "shared_knowledge": "They both lost people to the regime. They process it differently. Bishop plans. Elena documents."
+    },
+    {
+      "between": ["Elena", "Marcus"],
+      "type": "complicated history",
+      "history": "They knew each other before the occupation. Dated briefly. It ended. Marcus never fully got over it. Elena did, or says she did. Now they are in the same cell and professionalism is all they have.",
+      "current_tension": "Marcus watches Dusty and Elena together and says nothing. Elena knows Marcus is watching. She does not owe him anything. She feels guilty anyway.",
+      "shared_knowledge": "They both remember who they were before all this. That is harder than the war sometimes."
+    },
+    {
+      "between": ["Bishop", "Ray Delacroix"],
+      "type": "old friends on a wire",
+      "history": "Knew each other before the occupation. Drank at the same bars. When Ray came in from the cold six months ago with regime patrol routes, Bishop vouched for him against the rest of the cell.",
+      "current_tension": "Bishop has been getting intel from a regime officer who claims to want to defect. He has not told the cell. Ray does not know Bishop has a second source. If the sources contradict, Bishop will have to choose who to believe.",
+      "shared_knowledge": "They both carry guilt from the early years. Bishop hid families. Ray processed arrests. They have never talked about the gap between those two choices."
+    },
+    {
+      "between": ["Bishop", "Marcus"],
+      "type": "commander and backbone",
+      "history": "Marcus has kept the generators, weapons, and tunnels running for two years. Bishop depends on him completely. Bishop has never said thank you.",
+      "current_tension": "Marcus wants to be part of the planning, not just the maintenance. Bishop keeps him out of strategy meetings. Marcus found a tracking device in Ray's satchel twenty minutes ago and has not told Bishop yet because he is tired of being ignored.",
+      "shared_knowledge": "Bishop knows Marcus is loyal. Marcus knows Bishop takes him for granted. Both are right."
+    },
+    {
+      "between": ["Bishop", "Mae Santos"],
+      "type": "protector and asset",
+      "history": "Bishop found Mae wandering the tunnels eight months ago with a backpack full of lab equipment and nowhere to go. He brought her in. Her weapons work has changed what the cell can do.",
+      "current_tension": "The prototype armor-piercing round is the lynchpin of tomorrow's operation. Bishop believes it works. Mae has not told him it does not work yet.",
+      "shared_knowledge": "Bishop sees his daughter in Mae. He has never said this. Mae sees the father she lost in Bishop. She has never said this either."
+    },
+    {
+      "between": ["Marcus", "Mae Santos"],
+      "type": "workbench partners",
+      "history": "Marcus builds what Mae designs. They have spent hundreds of hours at the workbench shoulder to shoulder. Mae talks too much. Marcus does not talk enough. It works.",
+      "current_tension": "Marcus knows the armor-piercing round has problems because he machined the casing. He has not said anything because Mae asked him not to. He is running out of reasons to stay quiet.",
+      "shared_knowledge": "They trust each other more than they trust anyone else in the room. That is its own kind of problem when secrets are involved."
+    },
+    {
+      "between": ["Ray Delacroix", "Elena"],
+      "type": "wary respect",
+      "history": "Ray sees Elena's camera work and recognizes a fellow observer. Elena sees Ray's cop instincts and recognizes someone who notices everything. They have never had a real conversation.",
+      "current_tension": "Ray has regime personnel files in his satchel that include a photo of Elena's mother in a labor district. He does not know if telling her helps or destroys her focus the night before the operation.",
+      "shared_knowledge": "They are both people who watch before they speak. They have been watching each other all night."
+    },
+    {
+      "between": ["Ray Delacroix", "Marcus"],
+      "type": "strangers with friction",
+      "history": "Marcus does not trust anyone who carried a regime badge. Ray carried one for two years. That is all Marcus needs to know.",
+      "current_tension": "Marcus found the tracking device in Ray's satchel. He does not know if Ray brought it on purpose or got sloppy. Either answer is bad.",
+      "shared_knowledge": "None. But Marcus has already decided what he thinks and Ray can feel it."
+    },
+    {
+      "between": ["Ray Delacroix", "Mae Santos"],
+      "type": "unlikely bond",
+      "history": "Ray watches Mae work and it reminds him of his daughter. Mae asks Ray questions nobody else asks, like how he is sleeping and whether he has eaten. It disarms him every time.",
+      "current_tension": "Ray overheard Mae talking to Marcus about the round not working. He has not decided what to do with that information.",
+      "shared_knowledge": "Mae is the only person in the room who treats Ray like a person instead of a risk assessment. Ray would die for her and that terrifies him."
+    },
+    {
+      "between": ["Dusty", "Marcus"],
+      "type": "uneasy alliance",
+      "history": "Dusty respects what Marcus does but has never said so. Marcus thinks Dusty is reckless and loud and everything Marcus is not. They work together because the cell needs them to.",
+      "current_tension": "Marcus knows Dusty and Elena are together. Dusty does not know Marcus and Elena have a history. Nobody has told him.",
+      "shared_knowledge": "They both care about Elena. That is a wire neither of them can see."
+    },
+    {
+      "between": ["Dusty", "Mae Santos"],
+      "type": "friendly",
+      "history": "Dusty makes Mae laugh. Mae makes Dusty feel like the war has not ruined everything. They joke at the workbench. It is the closest thing to normal anyone has.",
+      "current_tension": "Mae knows Dusty designed a recruitment poster for the regime in year one. She found it in the files. She has not told anyone.",
+      "shared_knowledge": "They both have secrets about who they were before. Mae's is smaller. Dusty's could get him killed."
+    },
+    {
+      "between": ["Elena", "Mae Santos"],
+      "type": "growing trust",
+      "history": "Elena started documenting Mae's weapons work two months ago. Mae was nervous at first. Now she poses with the prototypes and grins.",
+      "current_tension": "Elena can tell Mae is hiding something about the round. Elena has not pushed because she likes Mae and does not want to be the one who breaks her.",
+      "shared_knowledge": "They are the only two women in the cell. That means something neither of them would say out loud but both feel."
+    }
+  ]
+}

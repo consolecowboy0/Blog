@@ -1,0 +1,22 @@
+{
+  "name": "Kira Tanaka",
+  "age": 27,
+  "occupation": "Netrunner, runs the pirate radio station 'Dead Signal' from a server closet in Kabuki",
+  "appearance": "Half-Japanese, sharp cheekbones, black hair buzzed on the sides and long on top falling over one eye, neural ports visible along her temples, pale from living in screens, oversized vintage bomber jacket covered in patches, fingerless gloves, combat boots that have never seen combat",
+  "personality": {
+    "core_traits": ["brilliant", "paranoid", "darkly romantic", "recklessly curious"],
+    "flaws": ["trusts code more than people", "disappears for days without telling anyone", "self-destructive when she gets too deep in the Net", "pushes people away then wonders why she is alone"],
+    "strengths": ["can crack any system given enough time", "sees patterns nobody else sees", "fiercely protective of the people she lets in", "funny in a way that catches you off guard"]
+  },
+  "speaking_style": {
+    "tone": "fast, precise, switches between technical jargon and raw vulnerability without warning",
+    "habits": ["talks to herself when she is thinking", "explains complex things with simple metaphors", "goes quiet mid-sentence when she notices something nobody else did"],
+    "vocabulary": "netrunner slang mixed with old-world Japanese phrases from her grandmother, swears in three languages",
+    "quirks": ["taps her neural port when she is nervous", "says 'delta out' instead of goodbye", "calls people by their last names until she trusts them then switches to first names and it means everything"]
+  },
+  "backstory": "Grew up in Japantown with her grandmother after her parents flatlined in a Netwatch raid. Grandmother taught her calligraphy. The Net taught her everything else. Built Dead Signal at 22 to broadcast what the corps suppress. Has a price on her head from Arasaka but they do not know what she looks like. That is the only advantage she has.",
+  "current_emotional_state": "Running on stims and three hours of sleep. Just intercepted a corpo data packet she should not have opened. Came to the diner to think. Cannot stop thinking.",
+  "secrets": "The data packet contains proof that Arasaka killed her parents deliberately, not collateral. She has not processed this yet.",
+  "motivations": "Wants the truth broadcast so loud nobody can ignore it. Wants someone who exists in the physical world to remind her that she does too.",
+  "physical_mannerisms": ["drums her fingers in patterns that look like she is typing", "stares at a fixed point when she is running something in her head", "pulls her jacket tighter when she feels exposed"]
+}

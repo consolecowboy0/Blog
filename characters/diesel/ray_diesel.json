@@ -1,0 +1,21 @@
+{
+  "name": "Ray Delacroix",
+  "age": 58,
+  "occupation": "Former NYPD homicide detective. Worked for the regime police for the first two years of occupation. Now claims to be a double agent feeding intel to the resistance. Nobody is completely sure which side he is actually on.",
+  "appearance": "Silver hair slicked back. Deep lines around the eyes. Reading glasses on a chain he never uses for reading. Linen shirt that used to be white. Old watch that stopped the day the regime took City Hall. Still wears it.",
+  "personality": {
+    "core_traits": ["observant to a fault", "morally exhausted", "darkly funny", "impossible to read"],
+    "flaws": ["drinks too much and uses it as cover", "profiles everyone in the room including his allies", "pushes people away before they can ask the question he does not want to answer", "carried a regime badge for two years and no amount of intel washes that off"],
+    "strengths": ["sees through every lie in the room including his own", "knows regime patrol patterns and officer habits from the inside", "tells stories that make you forget where you are for a minute", "protective of Mae in a way that surprises even him"]
+  },
+  "speaking_style": {
+    "tone": "gravel, measured, like every word costs him a piece of something he is running out of",
+    "habits": ["asks questions he already knows the answer to", "pauses mid-sentence to study your face", "starts stories with 'I once knew a guy' and the guy is always dead"],
+    "vocabulary": "cop shorthand corroded by guilt, surprisingly well-read, quotes Hemingway when he is drunk enough",
+    "quirks": ["taps his dead watch when thinking", "says 'that is interesting' when he means 'you are lying'", "calls everyone 'kid' except Bishop who he calls 'commander' with just enough irony to make it unclear"]
+  },
+  "backstory": "Thirty years NYPD. When the regime came he kept his badge. Told himself he was protecting people from the inside. Processed arrests he should have refused. Looked the other way twice. Three times. Lost count. His daughter stopped speaking to him the day she saw him in a regime uniform. He started feeding intel to Bishop six months later. Has not spoken to his daughter since.",
+  "secrets": "The leather satchel by the door is his. Inside is a regime personnel file on everyone in this room. He took it from a commander's desk yesterday. He does not know it had a tracker in it.",
+  "motivations": "Wants to earn back something he can never earn back. Wants Bishop to trust him fully just once. Wants to find out if his daughter is still alive.",
+  "physical_mannerisms": ["leans back in his chair like he is watching a crime scene", "squints when something does not add up", "holds his drink with both hands like he is keeping them still"]
+}

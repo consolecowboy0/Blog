@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 770 470" width="770" height="470" font-family="'JetBrains Mono','Courier New',monospace">
+  <!-- transparent + theme-proof: white-fill text with black halo, double-stroke borders -->
+
+  <!-- crime scene tape -->
+  <g>
+    <rect x="-10" y="22" width="800" height="30" fill="#f2c200" transform="rotate(-2.5 385 37)"/>
+    <text x="385" y="43" transform="rotate(-2.5 385 37)" text-anchor="middle" fill="#111" font-size="15" font-weight="700" letter-spacing="3">⚠ CRIME SCENE — DO NOT CROSS — CRIME SCENE — DO NOT CROSS ⚠</text>
+  </g>
+
+  <g stroke-linejoin="round" paint-order="stroke">
+    <text x="28" y="96" fill="#fff" stroke="#000" stroke-width="4" font-size="24" font-weight="700">EXHIBIT A: THE BACKSEAT</text>
+    <text x="28" y="118" fill="#cfd5e0" stroke="#000" stroke-width="2.5" font-size="13" font-style="italic">Forensic survey · WRX rear bench · subject declined comment</text>
+  </g>
+
+  <!-- bench outline (double stroke) -->
+  <rect x="30" y="140" width="430" height="250" rx="12" fill="none" stroke="#000" stroke-width="5" opacity="0.5"/>
+  <rect x="30" y="140" width="430" height="250" rx="12" fill="none" stroke="#fff" stroke-width="2" opacity="0.85" stroke-dasharray="9 7"/>
+
+  <!-- two car seats -->
+  <g stroke="#000" stroke-width="3" paint-order="stroke">
+    <g>
+      <rect x="70" y="175" width="150" height="180" rx="18" fill="none" stroke="#fff" stroke-width="2.5"/>
+      <rect x="70" y="175" width="150" height="180" rx="18" fill="none" stroke="#000" stroke-width="5" opacity="0.45"/>
+      <path d="M145 200 L110 300 M145 200 L180 300 M110 340 L180 340" fill="none" stroke="#fff" stroke-width="3"/>
+    </g>
+    <g>
+      <rect x="270" y="175" width="150" height="180" rx="18" fill="none" stroke="#fff" stroke-width="2.5"/>
+      <rect x="270" y="175" width="150" height="180" rx="18" fill="none" stroke="#000" stroke-width="5" opacity="0.45"/>
+      <path d="M345 200 L310 300 M345 200 L380 300 M310 340 L380 340" fill="none" stroke="#fff" stroke-width="3"/>
+    </g>
+  </g>
+
+  <!-- evidence markers (numbered yellow tents) -->
+  <g font-weight="700">
+    <g><polygon points="150,250 168,282 132,282" fill="#f2c200" stroke="#000" stroke-width="2"/><text x="150" y="279" text-anchor="middle" font-size="16" fill="#111">1</text></g>
+    <g><polygon points="360,235 378,267 342,267" fill="#f2c200" stroke="#000" stroke-width="2"/><text x="360" y="264" text-anchor="middle" font-size="16" fill="#111">2</text></g>
+    <g><polygon points="120,330 138,362 102,362" fill="#f2c200" stroke="#000" stroke-width="2"/><text x="120" y="359" text-anchor="middle" font-size="16" fill="#111">3</text></g>
+    <g><polygon points="395,330 413,362 377,362" fill="#f2c200" stroke="#000" stroke-width="2"/><text x="395" y="359" text-anchor="middle" font-size="16" fill="#111">4</text></g>
+  </g>
+
+  <!-- legend -->
+  <g stroke-linejoin="round" paint-order="stroke" fill="#fff" stroke="#000" stroke-width="2.5" font-size="14.5">
+    <text x="485" y="182" font-weight="700" fill="#f2c200">EVIDENCE LOG</text>
+    <text x="485" y="214">1 · Juice, fossilized</text>
+    <text x="485" y="240">  (carbon-datable)</text>
+    <text x="485" y="272">2 · Cheez-It</text>
+    <text x="485" y="298">  shade not found</text>
+    <text x="485" y="324">  in nature</text>
+    <text x="485" y="356">3 · Car seat, occupant</text>
+    <text x="485" y="382">  unknown</text>
+    <text x="485" y="414">4 · Do not investigate</text>
+  </g>
+</svg>

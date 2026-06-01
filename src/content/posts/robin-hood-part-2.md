@@ -6,6 +6,11 @@ description: "I decided I was Robin Hood. Now I'm $455 in, with nothing to show 
 
 Somewhere in the last few weeks I decided I was Robin Hood. Not the stealing part- I just like the bow, the green tights, the general silhouette of a man who has decided, on purpose, to make strangers his problem. So I gave myself a quest: one day, go find people who need help, and help them. Keep a tally like it's XP.
 
+<figure class="post-figure float-right">
+  <img src="/images/robin-hood-quest-log.svg" alt="Robin Hood quest-complete screen: a fake video game stat card. Class: Suburban Vigilante. Weapon: Subaru WRX. Gold spent: $455. XP gained: 0. Charisma roll: NAT 20. Hugs received: 1. Wife calls ignored: 1. Genitals harvested: 0 (not for lack of offers). Achievement unlocked: That's My Daddy." />
+  <figcaption>End-of-day results screen. No respawns.</figcaption>
+</figure>
+
 The day ended. The bit did not (that's part 1). I'm now around, well exactly, $355 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife.
 
 This is really just entropy with a costume. Do random things. Run in a neighborhood that isn't yours. Let the day mutate. The rounded grooves of a normal life are exactly where nothing ever happens to you, and I have spent real effort making the opposite mistake.
@@ -19,6 +24,11 @@ Windows already down, I used the WRX's short wheelbase to high-rev a tight littl
 On the way I told him I'd pull him some cash once we got there, and that was all it took. He talked the rest of the way, and I promise I am not improving a word of it.
 
 "Man- this is a cool ass car- damn man- you know- no one has money on them but I appreciate you figuring out how to help me. So many white people man 'I don't have any money on me!' Man I know you guys got cards and money man- just no one wants to help!"
+
+<figure class="post-figure float-left">
+  <img src="/images/robin-hood-backseat-evidence.svg" alt="Forensic crime-scene diagram of the WRX backseat. Two car seats marked as evidence. Evidence log: 1, juice fossilized and carbon-datable. 2, Cheez-It a shade not found in nature. 3, car seat, occupant unknown. 4, do not investigate." />
+  <figcaption>Exhibit A. Recovered from the rear bench. Chain of custody unbroken.</figcaption>
+</figure>
 
 I nodded, deeply sympathetic, while privately noting that my backseat looks like a crime scene at a daycare: two car seats fossilized in dried juice and ground-in cheez-it, a shade not found in nature.
 

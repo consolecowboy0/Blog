@@ -52,6 +52,7 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     const counter = reader.querySelector<HTMLElement>('[data-counter]')!;
     const prev = reader.querySelector<HTMLButtonElement>('[data-prev]')!;
     const next = reader.querySelector<HTMLButtonElement>('[data-next]')!;
+    const nav = reader.querySelector<HTMLElement>('.post-reader-nav')!;
 
     let page = 0;
     let total = 1;
@@ -63,8 +64,15 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     }
 
     function layout() {
+      // Size the page to whatever vertical space is left in the viewport,
+      // so the nav (and Next) always stays on screen at any window size.
+      const top = track.getBoundingClientRect().top;
+      const reserve = nav.offsetHeight + 44; // nav margin-top (~24px) + breathing room
+      const avail = window.innerHeight - top - reserve;
+      const h = Math.max(150, Math.floor(avail));
+      track.style.height = h + 'px';
+
       const w = track.clientWidth;
-      const h = track.clientHeight;
       const g = gap();
 
       // Pass 1: collapse to a single normal column and measure true content height.
@@ -160,7 +168,8 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
   /* Paginated reader (opt-in per post via `paginate: true`) */
   .post-reader-track {
     overflow: hidden;
-    height: min(66vh, 720px);
+    /* Fallback height; JS resizes to fit the viewport so the nav stays visible. */
+    height: 60vh;
   }
 
   .post-reader-pages {

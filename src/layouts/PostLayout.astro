@@ -6,7 +6,7 @@ interface Props {
     title: string;
     date: string;
     description?: string;
-    columns?: boolean;
+    paginate?: boolean;
   };
 }
 
@@ -24,11 +24,101 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
       <time datetime={frontmatter.date}>{dateStr}</time>
       <h1>{frontmatter.title}</h1>
     </header>
-    <div class:list={['post-content', { 'post-columns': frontmatter.columns }]}>
-      <slot />
-    </div>
+    {frontmatter.paginate ? (
+      <div class="post-content post-reader" data-reader>
+        <div class="post-reader-track">
+          <div class="post-reader-pages">
+            <slot />
+          </div>
+        </div>
+        <nav class="post-reader-nav" aria-label="Page navigation">
+          <button type="button" data-prev aria-label="Previous page">&larr;</button>
+          <span class="post-reader-counter" data-counter>1 / 1</span>
+          <button type="button" data-next aria-label="Next page">Next &rarr;</button>
+        </nav>
+      </div>
+    ) : (
+      <div class="post-content">
+        <slot />
+      </div>
+    )}
   </article>
 </BaseLayout>
+
+<script>
+  function setupReader(reader: HTMLElement) {
+    const track = reader.querySelector<HTMLElement>('.post-reader-track')!;
+    const pages = reader.querySelector<HTMLElement>('.post-reader-pages')!;
+    const counter = reader.querySelector<HTMLElement>('[data-counter]')!;
+    const prev = reader.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = reader.querySelector<HTMLButtonElement>('[data-next]')!;
+
+    let page = 0;
+    let total = 1;
+    let step = 0;
+
+    function gap() {
+      const g = parseFloat(getComputedStyle(pages).columnGap);
+      return Number.isFinite(g) ? g : 0;
+    }
+
+    function layout() {
+      const w = track.clientWidth;
+      const h = track.clientHeight;
+      const g = gap();
+
+      // Pass 1: collapse to a single normal column and measure true content height.
+      pages.style.columnWidth = 'auto';
+      pages.style.width = w + 'px';
+      pages.style.height = 'auto';
+      const contentH = pages.scrollHeight;
+      total = Math.max(1, Math.ceil(contentH / h));
+
+      // Pass 2: lay out exactly `total` columns, each one page wide.
+      pages.style.columnWidth = w + 'px';
+      pages.style.height = h + 'px';
+      pages.style.width = total * w + (total - 1) * g + 'px';
+
+      step = w + g;
+      if (page > total - 1) page = total - 1;
+      render();
+    }
+
+    function render() {
+      pages.style.transform = 'translateX(' + -(page * step) + 'px)';
+      counter.textContent = page + 1 + ' / ' + total;
+      prev.disabled = page === 0;
+      next.disabled = page >= total - 1;
+    }
+
+    function go(delta: number) {
+      const target = Math.min(Math.max(page + delta, 0), total - 1);
+      if (target !== page) {
+        page = target;
+        render();
+      }
+    }
+
+    prev.addEventListener('click', () => go(-1));
+    next.addEventListener('click', () => go(1));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') go(-1);
+      if (e.key === 'ArrowRight') go(1);
+    });
+
+    let t: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(t);
+      t = setTimeout(layout, 150);
+    });
+
+    layout();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+    window.addEventListener('load', layout);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-reader]').forEach(setupReader);
+</script>
 
 <style>
   .post-header {
@@ -67,28 +157,74 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     color: var(--fg);
   }
 
-  /* Two-column magazine flow (opt-in per post via `columns: true`) */
-  .post-columns {
-    column-count: 2;
-    column-gap: 2.4rem;
-    column-rule: 1px solid var(--border, rgba(128, 128, 128, 0.18));
+  /* Paginated reader (opt-in per post via `paginate: true`) */
+  .post-reader-track {
+    overflow: hidden;
+    height: min(66vh, 720px);
   }
 
-  .post-columns :global(> p) {
-    margin-top: 0;
-    text-align: justify;
-    hyphens: auto;
+  .post-reader-pages {
+    column-gap: 3rem;
+    column-fill: auto;
+    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform;
   }
 
-  /* Lead paragraph spans both columns, sets up the drop cap */
-  .post-columns :global(> p:first-of-type) {
-    column-span: all;
+  /* Each page is one viewport-width column; drop cap still leads page one */
+  .post-reader-pages :global(> p:first-of-type) {
+    font-size: 1.12rem;
+    line-height: 1.7;
   }
 
-  @media (max-width: 720px) {
-    .post-columns {
-      column-count: 1;
-    }
+  .post-reader-pages :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 3.6rem;
+    line-height: 0.78;
+    padding: 0.08em 0.12em 0 0;
+    margin-right: 0.02em;
+    color: var(--fg);
+  }
+
+  .post-reader-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border, rgba(128, 128, 128, 0.18));
+  }
+
+  .post-reader-nav button {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border, rgba(128, 128, 128, 0.3));
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease;
+  }
+
+  .post-reader-nav button:hover:not(:disabled) {
+    background: var(--border, rgba(128, 128, 128, 0.12));
+  }
+
+  .post-reader-nav button:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .post-reader-counter {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+    letter-spacing: 0.04em;
   }
 
   /* Magazine-style figures: text wraps around floated graphics */

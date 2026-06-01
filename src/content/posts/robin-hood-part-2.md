@@ -2,7 +2,7 @@
 title: "Robin Hood, Part 2"
 date: "2026-05-31"
 description: "I decided I was Robin Hood. Now I'm $455 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife."
-columns: true
+paginate: true
 ---
 
 Somewhere in the last few weeks I decided I was Robin Hood. Not the stealing part- I just like the bow, the green tights, the general silhouette of a man who has decided, on purpose, to make strangers his problem. So I gave myself a quest: one day, go find people who need help, and help them. Keep a tally like it's XP.

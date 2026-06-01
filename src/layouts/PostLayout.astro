@@ -49,6 +49,23 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
     font-size: 1rem;
   }
 
+  /* Magazine-style lead: first paragraph gets a drop cap and slightly larger measure */
+  .post-content :global(> p:first-of-type) {
+    font-size: 1.12rem;
+    line-height: 1.7;
+  }
+
+  .post-content :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 3.6rem;
+    line-height: 0.78;
+    padding: 0.08em 0.12em 0 0;
+    margin-right: 0.02em;
+    color: var(--fg);
+  }
+
   /* Magazine-style figures: text wraps around floated graphics */
   .post-content :global(.post-figure) {
     margin: 0.5rem 0 1.5rem;

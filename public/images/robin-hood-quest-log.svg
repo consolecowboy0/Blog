@@ -11,7 +11,7 @@
   <circle cx="78" cy="36" r="6.5" fill="#27c93f" stroke="#000" stroke-width="1"/>
 
   <g stroke-linejoin="round" paint-order="stroke">
-    <text x="318" y="44" text-anchor="middle" fill="#34d171" stroke="#000" stroke-width="4" font-size="24" font-weight="700" letter-spacing="3">✦ QUEST COMPLETE ✦</text>
+    <text x="318" y="44" text-anchor="middle" fill="#34d171" stroke="#000" stroke-width="4" font-size="24" font-weight="700" letter-spacing="3">QUEST COMPLETE</text>
 
     <text x="310" y="102" text-anchor="middle" fill="#fff" stroke="#000" stroke-width="3.5" font-size="18" font-weight="700">ROBIN HOOD — DAY 1 (cont.)</text>
 
@@ -29,9 +29,9 @@
       <text x="40" y="360" fill="#fff">CHARISMA ROLL ·········· <tspan fill="#34d171" font-weight="700">NAT 20</tspan></text>
       <text x="40" y="394" fill="#fff">HUGS RECEIVED ·········· <tspan font-weight="700">1</tspan></text>
       <text x="40" y="428" fill="#fff">WIFE CALLS IGNORED ····· <tspan font-weight="700">1</tspan></text>
-      <text x="40" y="462" fill="#fff">GENITALS HARVESTED ····· <tspan font-weight="700">0*</tspan></text>
+      <text x="40" y="462" fill="#fff">OFFERS DECLINED ········ <tspan font-weight="700">1</tspan></text>
     </g>
-    <text x="40" y="486" fill="#cfd5e0" stroke="#000" stroke-width="2" font-size="13" font-style="italic">* not for lack of offers</text>
+    <text x="40" y="486" fill="#cfd5e0" stroke="#000" stroke-width="2" font-size="13" font-style="italic">subject left intact</text>
   </g>
 
   <!-- achievement box (double-stroke border) -->

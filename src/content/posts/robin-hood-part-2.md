@@ -6,11 +6,6 @@ description: "I decided I was Robin Hood. Now I'm $455 in, with nothing to show 
 
 Somewhere in the last few weeks I decided I was Robin Hood. Not the stealing part- I just like the bow, the green tights, the general silhouette of a man who has decided, on purpose, to make strangers his problem. So I gave myself a quest: one day, go find people who need help, and help them. Keep a tally like it's XP.
 
-<figure class="post-figure float-right">
-  <img src="/images/robin-hood-quest-log.svg" alt="Robin Hood quest-complete screen: a fake video game stat card. Class: Suburban Vigilante. Weapon: Subaru WRX. Gold spent: $455. XP gained: 0. Charisma roll: NAT 20. Hugs received: 1. Wife calls ignored: 1. Genitals harvested: 0 (not for lack of offers). Achievement unlocked: That's My Daddy." />
-  <figcaption>End-of-day results screen. No respawns.</figcaption>
-</figure>
-
 The day ended. The bit did not (that's part 1). I'm now around, well exactly, $355 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife.
 
 This is really just entropy with a costume. Do random things. Run in a neighborhood that isn't yours. Let the day mutate. The rounded grooves of a normal life are exactly where nothing ever happens to you, and I have spent real effort making the opposite mistake.
@@ -27,7 +22,7 @@ On the way I told him I'd pull him some cash once we got there, and that was all
 
 <figure class="post-figure float-left">
   <img src="/images/robin-hood-backseat-evidence.svg" alt="Forensic crime-scene diagram of the WRX backseat. Two car seats marked as evidence. Evidence log: 1, juice fossilized and carbon-datable. 2, Cheez-It a shade not found in nature. 3, car seat, occupant unknown. 4, do not investigate." />
-  <figcaption>Exhibit A. Recovered from the rear bench. Chain of custody unbroken.</figcaption>
+  <figcaption>Recovered from the rear bench.</figcaption>
 </figure>
 
 I nodded, deeply sympathetic, while privately noting that my backseat looks like a crime scene at a daycare: two car seats fossilized in dried juice and ground-in cheez-it, a shade not found in nature.
@@ -44,6 +39,11 @@ On cue, Ellen's face lit up the big iPad they bolt into every car now. I hit ign
 
 For a second he wasn't performing. It wasn't flattery. It was a guy looking at the life he didn't get, wishing somebody would hand him a do-over. It didn't last.
 
+<figure class="post-figure float-right">
+  <img src="/images/robin-hood-transcript.svg" alt="Deadpan transcript card titled TRANSCRIPT — VERBATIM, recorded in the WRX cabin. Subject Chicago, no edits made. The phrase 'riding around with all this big' is followed by three attempts: 'ding ding' struck out (attempt 1, withdrawn), 'bling bling' struck out (attempt 2, withdrawn), and 'ding ding' kept on the record. Final ruling: he meant both." />
+  <figcaption>Recorded in the cabin. He talked the whole way.</figcaption>
+</figure>
+
 "Haha, but I guess you couldn't mess with these hotties in Chicago though, because you got your girl. It's a shame though, because they would like you too, boy. Wooo. Pretty white boy like you, riding around with all this big ding ding, I mean bling bling, I mean, you do probably have a big ding ding too, man. I bet your dick is way bigger than mine. Shit, I'm mad, mine is small. I'm going to cut yours off and attach it to mine. Haha, that's a good one."
 
 He's right. It is a good one. There is no available response to a man calmly proposing to harvest and graft your genitals, so I clutched us into a parking spot and said nothing, the way you hold still for a bee.
@@ -55,6 +55,11 @@ I turned and handed him the five twenties.
 He went quiet for the first time all morning. Looked at the cash, looked at me, said "that's my daddy," and pulled me into a hug like it actually meant something. And here's the thing- it did. He was grateful and he was kind, and underneath all the cutting-off-and-reattaching he was just a guy having a good morning because somebody finally stopped.
 
 "Take care of yourself," I said. Which, I realized as I said it, is what you say to a coworker leaving for a marginally better job. It was all I had. I got in the car.
+
+<figure class="post-figure float-left">
+  <img src="/images/robin-hood-quest-log.svg" alt="A fake video-game results card titled QUEST COMPLETE, Robin Hood Day 1 continued. Class: Suburban Vigilante. Weapon: Subaru WRX, short wheelbase. Rations: Summer Red Bull, warm. Stats: Gold spent $455, XP gained 0, Charisma roll NAT 20, Hugs received 1, Wife calls ignored 1, Offers declined 1, subject left intact. Achievement unlocked: That's My Daddy." />
+  <figcaption>Final tally.</figcaption>
+</figure>
 
 $455 and counting. No XP bar. No glowing respect meter. Just me, driving home for the second time today, Red Bull gone warm, a little holier (I guess?) and a lot weirder than when I left.
 

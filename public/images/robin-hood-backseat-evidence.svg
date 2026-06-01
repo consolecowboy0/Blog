@@ -4,7 +4,7 @@
   <!-- crime scene tape -->
   <g>
     <rect x="-10" y="22" width="800" height="30" fill="#f2c200" transform="rotate(-2.5 385 37)"/>
-    <text x="385" y="43" transform="rotate(-2.5 385 37)" text-anchor="middle" fill="#111" font-size="15" font-weight="700" letter-spacing="3">⚠ CRIME SCENE — DO NOT CROSS — CRIME SCENE — DO NOT CROSS ⚠</text>
+    <text x="385" y="43" transform="rotate(-2.5 385 37)" text-anchor="middle" fill="#111" font-size="15" font-weight="700" letter-spacing="3">CRIME SCENE — DO NOT CROSS — CRIME SCENE — DO NOT CROSS</text>
   </g>
 
   <g stroke-linejoin="round" paint-order="stroke">

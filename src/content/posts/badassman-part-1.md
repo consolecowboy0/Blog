@@ -28,17 +28,9 @@ And right now Badassman is me, sitting here with a gut and a protein deficit. So
 
 ## I'm fat enough to cheat physics
 
-<figure class="post-figure float-right">
-  <img src="/images/badassman-part-1-soft-guy-stairs.svg" alt="Line drawing of a pudgy man in a t-shirt slumped and seated at the foot of a staircase, head bowed and winded with sweat drops, one arm reaching up to grip the railing, the steps rising away to the right." />
-</figure>
-
 That's the part that surprised me. When you're soft and untrained, you get to lose fat AND build muscle at the same time. Lean guys can't do this. Their bodies make them pick one. Mine is so out of shape it'll do both at once just to spite me.
 
 That window closes once Badassman gets good. So the next six to twelve months are the cheat code. I'm not wasting them.
-
-<figure class="post-figure float-left">
-  <img src="/images/badassman-part-1-protein-plate.svg" alt="Line drawing of a round plate holding a chicken breast and two eggs, beside a tall protein shaker bottle with a flip-top lid." />
-</figure>
 
 **The food.** Eat a little less than I burn. Bodyweight times 14, then knock 300 off the top. Protein is the whole game: roughly one gram per pound, every day. At 210 pounds that's 180 grams. Chicken, eggs, beef, Greek yogurt, a shake when I'm losing. Miss everything else, hit that. Lose one to two pounds a week. Slower than the movies. Doesn't quit on me in February.
 
@@ -50,10 +42,6 @@ That window closes once Badassman gets good. So the next six to twelve months ar
 
 ## And the punching?
 
-<figure class="post-figure float-right">
-  <img src="/images/badassman-part-1-boxing-gloves-hook.svg" alt="Line drawing of a pair of boxing gloves hanging side by side from a wall hook, suspended by their laces." />
-</figure>
-
 Christian Bale trained a fighting style called Keysi for Batman. Pattinson and Affleck boxed. Two, three hours a day. Full-time coaches, chefs, the works.
 
 I am not doing that. That's movie-prep math, and I have a job.
@@ -61,10 +49,6 @@ I am not doing that. That's movie-prep math, and I have a job.
 My version: one gym, two classes a week. Boxing or jiu-jitsu. That's it. Showing up twice a week makes me more Batman than every guy who ever bought the cowl and stayed on the couch.
 
 ## The honest timeline
-
-<figure class="post-figure float-left">
-  <img src="/images/badassman-part-1-monday-calendar.svg" alt="A minimal line drawing of a wall calendar page hanging from two binder rings. A grid of days is suggested by small dots, with one day in the middle row circled and a checkmark drawn inside the circle." />
-</figure>
 
 The before-and-afters lie to you. Those are three-month, full-time, chef-and-coach, maybe-some-pharmacology transformations. Mine is the slow one. The real one.
 

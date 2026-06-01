@@ -88,9 +88,11 @@ export async function POST({ request, clientAddress }) {
     const data = await res.json();
 
     if (!res.ok) {
+      console.error('[agent-chat] Anthropic API %d:', res.status, data.error?.message);
+      const status = res.status === 429 ? 429 : 502;
       return new Response(
-        JSON.stringify({ error: data.error?.message || "API error" }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: status === 429 ? "Rate limited by upstream" : "Upstream API error" }),
+        { status, headers: corsHeaders }
       );
     }
 
@@ -100,8 +102,9 @@ export async function POST({ request, clientAddress }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-chat]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Failed to call Anthropic API" }),
       { status: 500, headers: corsHeaders }
     );
   }

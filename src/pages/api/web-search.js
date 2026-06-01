@@ -58,10 +58,11 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API %d:', res.status, await res.text());
+      const status = res.status === 429 ? 429 : 502;
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
-        { status: res.status, headers: corsHeaders }
+        JSON.stringify({ error: status === 429 ? "Search rate limited" : "Search service error" }),
+        { status, headers: corsHeaders }
       );
     }
 
@@ -77,8 +78,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[web-search]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
+      JSON.stringify({ error: "Failed to call search service" }),
       { status: 500, headers: corsHeaders }
     );
   }

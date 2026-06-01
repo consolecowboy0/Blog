@@ -19,6 +19,13 @@ if (process.env.NODE_ENV !== 'production') {
   ALLOWED.add('http://127.0.0.1:4321');
 }
 
+const CREDENTIALED = new Set([
+  'https://dustinlanders.com',
+  'https://www.dustinlanders.com',
+  'http://localhost:4321',
+  'http://127.0.0.1:4321',
+]);
+
 export function corsHeadersFor(request, methods = 'GET, POST, OPTIONS') {
   const origin = request?.headers?.get?.('Origin') || '';
   const allow = ALLOWED.has(origin) ? origin : '';
@@ -29,7 +36,9 @@ export function corsHeadersFor(request, methods = 'GET, POST, OPTIONS') {
   };
   if (allow) {
     h['Access-Control-Allow-Origin'] = allow;
-    h['Access-Control-Allow-Credentials'] = 'true';
+    if (CREDENTIALED.has(origin)) {
+      h['Access-Control-Allow-Credentials'] = 'true';
+    }
   }
   return h;
 }

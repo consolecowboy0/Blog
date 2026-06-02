@@ -11,10 +11,19 @@ interface Props {
 }
 
 const { title, description = 'A blog.' } = Astro.props;
+
+const THEMES = ['rainbow', 'batman', 'bond', 'senna'] as const;
+const savedTheme = Astro.cookies.get('theme')?.value;
+const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme)
+  ? savedTheme
+  : THEMES[Math.floor(Math.random() * THEMES.length)];
+if (!savedTheme) {
+  Astro.cookies.set('theme', theme, { path: '/', sameSite: 'lax' });
+}
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme={theme}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,16 +32,6 @@ const { title, description = 'A blog.' } = Astro.props;
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
-    <script is:inline>
-      (function() {
-        var themes = ['rainbow', 'batman', 'bond', 'senna'];
-        var match = document.cookie.match(/(?:^|; )theme=([^;]*)/);
-        var saved = match ? decodeURIComponent(match[1]) : null;
-        var theme = saved && themes.indexOf(saved) !== -1 ? saved : themes[Math.floor(Math.random() * themes.length)];
-        if (!saved) document.cookie = 'theme=' + theme + '; path=/; SameSite=Lax';
-        document.documentElement.setAttribute('data-theme', theme);
-      })();
-    </script>
     <script is:inline>
       // First-party pageview beacon. Fire-and-forget, no cookies.
       (function() {

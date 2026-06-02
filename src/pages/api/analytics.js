@@ -42,7 +42,17 @@ export async function GET({ request }) {
   if (days > 90) days = 90;
   const includeOwner = url.searchParams.get('owner') === '1';
 
-  const since = Date.now() - days * 24 * 60 * 60 * 1000;
+  // Sub-day windows: ?hours=1|12|24 takes precedence over ?days and switches the
+  // trend chart to hourly buckets. Aggregates (channels/sources/geo/…) just key
+  // off `since`, so they need no special-casing.
+  let hours = parseInt(url.searchParams.get('hours') || '', 10);
+  if (!Number.isFinite(hours) || hours < 1) hours = null;
+  else if (hours > 48) hours = 48;
+  const hourly = hours != null;
+
+  const since = hourly
+    ? Date.now() - hours * 60 * 60 * 1000
+    : Date.now() - days * 24 * 60 * 60 * 1000;
 
   try {
     const db = getDb();
@@ -59,7 +69,7 @@ export async function GET({ request }) {
 
     let total = 0;
     const visitors = new Set();
-    const byDay = new Map();       // day -> { views, visitors:Set }   (all traffic)
+    const byDay = new Map();       // bucket -> { views, visitors:Set } (day, or hour when hourly)
     const byPath = new Map();      // path -> views                    (all traffic)
 
     const byChannel = new Map();   // channel -> { views, visitors:Set }
@@ -81,7 +91,10 @@ export async function GET({ request }) {
       if (d.vid) visitors.add(d.vid);
       if (!firstTs || d.ts < firstTs) firstTs = d.ts;
 
-      const day = d.day || new Date(d.ts).toISOString().slice(0, 10);
+      // Trend bucket: hour-resolution (YYYY-MM-DDTHH) for sub-day windows, else day.
+      const day = hourly
+        ? new Date(d.ts).toISOString().slice(0, 13)
+        : (d.day || new Date(d.ts).toISOString().slice(0, 10));
       let dd = byDay.get(day);
       if (!dd) { dd = { views: 0, visitors: new Set() }; byDay.set(day, dd); }
       dd.views++;
@@ -155,12 +168,16 @@ export async function GET({ request }) {
       }
     });
 
-    // Continuous day series so the chart has no gaps.
+    // Continuous bucket series so the chart has no gaps. Hourly windows step by
+    // hour (YYYY-MM-DDTHH keys); day windows step by day (YYYY-MM-DD).
     const series = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const key = new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10);
+    // +1 hourly bucket covers the partial leading hour (the window rarely starts
+    // exactly on the hour), so the chart doesn't drop views the totals still count.
+    const steps = hourly ? hours + 1 : days;
+    const stepMs = hourly ? 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+    const sliceLen = hourly ? 13 : 10;
+    for (let i = steps - 1; i >= 0; i--) {
+      const key = new Date(Date.now() - i * stepMs).toISOString().slice(0, sliceLen);
       const dd = byDay.get(key);
       series.push({
         day: key,
@@ -273,6 +290,8 @@ export async function GET({ request }) {
     return new Response(
       JSON.stringify({
         days,
+        hours: hourly ? hours : null,
+        bucket: hourly ? 'hour' : 'day',
         dataEpoch: DATA_EPOCH,
         firstTs,
         owner: includeOwner,

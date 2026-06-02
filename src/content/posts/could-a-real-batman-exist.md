@@ -11,9 +11,7 @@ draft: false
 
 I want to be Batman.
 
-Not the way an eight-year-old does. The way a 38-year-old with a mortgage, a Subaru, and too much free time does: seriously enough to open a spreadsheet about it.
-
-I am not in shape, I am not rich, and I have never thrown a real punch. So on paper this is a stupid idea. But I had a hunch, and I wanted to test it, because the hunch is the only thing that lets the idea survive contact with reality.
+I am 38. I have a mortgage, a Subaru, and too much free time. I am not in shape, I am not rich, and I have never thrown a real punch. So on paper this is a stupid idea, and I opened a spreadsheet about it anyway. But I had a hunch, and the hunch is the only thing that lets the idea survive contact with reality.
 
 Here is the hunch. The thing that makes Batman work is not the muscles, the gadgets, or the money. It is fear. "Criminals are a superstitious, cowardly lot." I do not think that is a character note, I think it is the engineering spec. So this is not really a piece about whether I can get strong enough or buy the right gear. It is a test of one specific idea: could a regular person fight crime by being frightening, and would that actually move anything?
 
@@ -45,7 +43,7 @@ $$
 
 Two a year. He is a thimble bailing an ocean. One body can be in one place, and one place is almost never where the crime is. This is the thing the comics quietly understood: a real Batman cannot win by being everywhere, because he cannot be everywhere. If the idea works at all, it has to work through something that does not require him to physically be there. That is the whole appeal of fear. Fear scales. A body does not.
 
-So the hunch is not crazy. It might be the only door left. The question is whether it actually opens.
+Fear might be the only door left. The question is whether it actually opens.
 
 ## Does fear actually scale?
 
@@ -73,11 +71,11 @@ $$
 
 The deterrent did roughly thirty times more work while absent than present. That is the sniper, measured. And the mechanism is specific: it runs on the perceived certainty that someone might be watching, not on the threat of a worse beating. You cannot credibly promise a harder punch. You can only be more possibly-there. Which is, I think, exactly what a costume in the dark is for.
 
-I want to be careful, because this is the easiest place in the whole piece to oversell. The floor, the six-to-twenty-four times, is measured and solid. The ceiling, the part where a legend terrifies a whole city, is an analogy I cannot put a real number on, so I will not. But the core of the hunch held: fear is the one thing that does more than a body can.
+I want to be careful, because this is the easiest place in the whole piece to oversell. The floor, the twelve to forty-eight, is measured and solid. The ceiling, the part where a legend terrifies a whole city, is an analogy I cannot put a real number on, so I will not. But the core of the hunch held. The hard part was never going to be whether it works. It was going to be what it costs to keep it true.
 
 ## The catch: a sniper who never fires is just a guy on a hill
 
-Then I asked what it costs to keep the fear true, and the good mood passed.
+Then I asked what it costs to keep the fear true.
 
 Fear decays. A threat nobody has watched act fades toward nothing, the way a decoy police car deters right up until everyone notices it is empty:
 

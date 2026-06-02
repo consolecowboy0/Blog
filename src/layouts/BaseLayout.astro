@@ -382,6 +382,22 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="bond"]) .icon-senna { display: block; }
   :global([data-theme="senna"]) .icon-rainbow { display: block; }
 
+  /* The bat preview flaps and lights up when you're about to summon Batman. */
+  #theme-toggle:hover .icon-bat {
+    filter: drop-shadow(0 0 6px rgba(255, 226, 122, 0.85));
+    animation: bat-flap 0.5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes bat-flap {
+    0%, 100% { transform: scaleX(1); }
+    50% { transform: scaleX(0.78); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #theme-toggle:hover .icon-bat { animation: none; }
+  }
+
   /* DM Chat Widget */
   #dm-chat-toggle {
     position: fixed;

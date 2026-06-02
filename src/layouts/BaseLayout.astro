@@ -26,7 +26,9 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         const themes = ['rainbow', 'batman', 'bond', 'senna'];
-        const theme = themes[Math.floor(Math.random() * themes.length)];
+        const saved = sessionStorage.getItem('theme');
+        const theme = saved && themes.includes(saved) ? saved : themes[Math.floor(Math.random() * themes.length)];
+        sessionStorage.setItem('theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
@@ -691,7 +693,7 @@ const { title, description = 'A blog.' } = Astro.props;
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];
     document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
+    sessionStorage.setItem('theme', next);
     broadcastThemeToEmbeds(next);
   });
 </script>

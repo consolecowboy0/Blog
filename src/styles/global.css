@@ -153,15 +153,38 @@
 }
 */
 
-/* Headings get the gradient treatment */
+/* Bifrost bridge sweep — gradient flows left → right like the bridge activating */
+@keyframes bifrost-sweep {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Header stripe breathes — slow opacity pulse like the bridge idling */
+@keyframes bifrost-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.9; }
+}
+
+/* Headings get the gradient treatment — animated sweep */
 [data-theme="rainbow"] h1,
 [data-theme="rainbow"] h2,
 [data-theme="rainbow"] .site-title {
   background: var(--rainbow-grad);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 10s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="rainbow"] h1,
+  [data-theme="rainbow"] h2,
+  [data-theme="rainbow"] .site-title {
+    animation: none;
+    background-size: 100% auto;
+  }
 }
 
 /* Links get a neon glow on hover */
@@ -191,7 +214,43 @@
   right: 0;
   height: 1px;
   background: var(--rainbow-grad);
-  opacity: 0.7;
+  animation: bifrost-pulse 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="rainbow"] header::after {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* Blockquotes: gold pillar glow — left border lights up like torchlight */
+[data-theme="rainbow"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(255, 204, 77, 0.25);
+}
+
+/* HR: Bifrost section divider with a gold rune star at center */
+[data-theme="rainbow"] hr {
+  border: none;
+  height: 1px;
+  background: var(--rainbow-grad);
+  opacity: 0.55;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="rainbow"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
 }
 
 /* Batman: headings and wordmark glow bat-signal yellow */

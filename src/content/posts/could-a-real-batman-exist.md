@@ -101,4 +101,64 @@ So here is the question I could not put back down, the one the rest of this is a
 
 **Why isn't he just a cop?**
 
-*(Part two, next: what police actually clear, what a badge can do that a cape cannot, and the one place left where the math says the man in the mask might still matter.)*
+## Part two: the badge and the cape
+
+I sat with that question longer than I want to admit, because the honest answer kept getting worse for me.
+
+Start with the case for the vigilante, which is real. The system catches shockingly little. Put together the share of crimes even reported and the share of reported crimes the police clear with an arrest:
+
+$$ P(\text{arrest} \mid \text{crime}) = P(\text{reported}) \cdot P(\text{cleared} \mid \text{reported}) $$
+
+The result is grim. Roughly twenty-two percent of violent crime and seven percent of property crime ever ends in an arrest. Put the other way: about four in five violent crimes, and nineteen in twenty property crimes, produce no arrest at all.
+
+<img class="chart-img" src="/images/charts/badassman-clearance-funnel.svg" alt="Funnel: of 100 violent crimes about 47 are reported and 22 end in arrest; of 100 property crimes about 35 are reported and 7 end in arrest." loading="lazy" />
+
+That is the gap a vigilante points at, and it is enormous: hundreds of thousands of violent crimes a year, millions of property crimes, no arrest, nobody coming. If you wanted a reason to put on a mask, it is right there in the data. So I went looking for what he could actually do with that gap, and that is where it fell apart, because finding the criminal turns out to be the easy part.
+
+## Finding him is one step of five
+
+What he wants to do, track offenders, target the worst, deter them with the certainty of getting caught, is not a fantasy. It exists, it works, and it has a name: focused deterrence. Boston's Operation Ceasefire is associated with a sixty-three percent drop in youth homicide. (Associated with. The evidence is strong but quasi-experimental, with no randomized trials, so I will not say caused.)
+
+But look at how focused deterrence actually runs, and the problem with our hero jumps out.
+
+<img class="chart-img" src="/images/charts/badassman-five-steps.svg" alt="Five boxes: find the offender (the only one a vigilante can do), then gather admissible evidence, make a lawful arrest, prosecute with a credible sanction, and provide an off-ramp, all of which require the institution." loading="lazy" />
+
+It is a five-agency machine. Find the offender, build admissible evidence, make a lawful arrest, hand it to a prosecutor who can threaten a real and certain punishment, and open a way out on the other side. Our guy can do exactly one of those five steps. He can find the offender. He owns none of the four steps that turn a name into a consequence, and the fear only works if a credible, lawful consequence is actually standing behind it. A threat with nothing behind it is the empty decoy car again.
+
+## His one real edge destroys itself
+
+He does have a single genuine advantage over the police, and it is a strange one. A private citizen is not bound by the Fourth Amendment. Evidence he gathers, even in a way that would get a cop's case thrown out, is generally admissible (Burdeau v. McDowell, 1921). A detective would envy that.
+
+It evaporates the moment he uses it. As soon as he coordinates with the police to actually get the guy off the street, the law treats him as an agent of the state (Skinner, 1989), and the Fourth Amendment snaps back. The edge and the goal are mutually exclusive: he can keep his admissible evidence, or he can have a partner who can make an arrest, but the instant he reaches for the second he loses the first. And a masked, anonymous man cannot stand up in court and authenticate anything anyway.
+
+## The asymmetry that should scare you
+
+Now the part that turned my stomach.
+
+A police officer who makes a reasonable mistake of fact is protected. A private citizen who grabs someone for a felony that did not actually happen is strictly liable: false imprisonment, assault, sometimes kidnapping. Being reasonably wrong is not a defense for him. And his primary tool, the thing he builds the whole case on, is eyewitness identification, which is the single largest contributor to wrongful convictions, present in roughly seven of ten DNA exonerations.
+
+So his method is the error-prone one, and his process strips out every safeguard built to catch the error. Even the formal system, with all of those safeguards running, gets it wrong. The most careful estimate we have, for death-row cases specifically, is that about four percent, one in twenty-five, of the condemned are likely innocent.
+
+$$ P(\text{wrong person}) \;\gtrsim\; \underbrace{4\%}_{\substack{\text{careful system,}\\ \text{every safeguard on}}} \;\longrightarrow\; \text{higher with none} $$
+
+A faster, safeguard-free process does not beat that number. It raises it. His one true advantage over the police is the freedom to be catastrophically wrong about an innocent person, with nobody to answer to.
+
+## So where does he actually belong?
+
+There is a real niche. It is just nowhere near a dark alley.
+
+It is investigation, and re-investigation, in the three places the institution genuinely fails: when it is itself the criminal (official misconduct appears in about fifty-four percent of all exonerations), when it has stopped looking (cold cases, where citizen-built genetic genealogy resolved more than six hundred by the end of 2023), and when it will not reopen a case that would indict it (roughly thirty-eight hundred exonerations since 1989). That is where an outside actor, free of the institution's blind spots and self-interest, genuinely matters.
+
+But look at who fills that niche and actually wins. The Innocence Project. The genetic-genealogy labs. They are accountable nonprofits that cooperate with the police and borrow the police's own labs and databases. The moment the outsider succeeds, he has quietly turned back into an institution: accountable, cooperating, leaning on the exact tools he supposedly transcends. And when someone tries it the pure way, unaccountable and alone, you get the cautionary tale that haunts this whole question. The same unsupervised method that has freed innocent people has also coerced a false confession and sprung a guilty one. The autonomous version manufactures the precise error it claims to fix.
+
+## The verdict
+
+So, why isn't he just a cop?
+
+Because being a cop is the only version that works. Strip the institution away and you do not get a faster, freer hero. You get a man who can find a suspect and then commit a crime against him, using the most error-prone method there is, with a higher chance of being wrong and nobody to stop him.
+
+The fear was real. That part of the hunch held: a credible threat scales where a body cannot, and it is the only thing in this whole project that beats the geometry. But the operator who has to wield that fear, the one who tracks and targets and shows up at night, can only become useful by acquiring the exact things that make him the police: warrants, a lab, a prosecutor, an arrest, an oath, and somebody he answers to. The cape is a deterrent with no courthouse behind it, and a deterrent with nothing behind it eventually gets called.
+
+So here is where I actually landed, a 38-year-old with a Subaru who started this wanting to be Batman. The honest version of that wish is not a vest and a bad night in an alley. It is a donation to the people who do the patient, accountable, institutional version of the work, and a gym membership, because the recomposition is genuinely good for me. It is a worse movie. I think it is the better answer.
+
+Although. There is still one job left, the one where the math says put the suit on anyway. And it is not crime.

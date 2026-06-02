@@ -250,13 +250,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 0.6rem 1rem;
   }
-  .chan-cell {
+  /* Channel cells, table rows, and geo rows are injected by client JS via
+     innerHTML, so they never receive Astro's scoping attribute and scoped
+     selectors silently miss them. Anchor each rule under the scoped .dash-body
+     wrapper and mark the dynamic part :global so it still applies to JS-built
+     nodes (without leaking these classes site-wide). */
+  .dash-body :global(.chan-cell) {
     border-left: 3px solid var(--c, var(--border)); padding: 0.1rem 0 0.1rem 0.6rem;
   }
-  .chan-cell .chan-top { display: flex; align-items: baseline; gap: 0.4rem; }
-  .chan-cell .chan-name { font-size: 0.82rem; font-weight: 600; }
-  .chan-cell .chan-pct { font-size: 0.82rem; font-weight: 800; font-family: var(--font-mono); }
-  .chan-cell .chan-count { font-size: 0.68rem; color: var(--fg-muted); font-family: var(--font-mono); }
+  .dash-body :global(.chan-cell .chan-top) {
+    display: flex; align-items: baseline; gap: 0.5rem; justify-content: space-between;
+  }
+  .dash-body :global(.chan-cell .chan-name) { font-size: 0.82rem; font-weight: 600; }
+  .dash-body :global(.chan-cell .chan-pct) { font-size: 0.82rem; font-weight: 800; font-family: var(--font-mono); }
+  .dash-body :global(.chan-cell .chan-count) { font-size: 0.68rem; color: var(--fg-muted); font-family: var(--font-mono); }
 
   .where-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
   @media (max-width: 760px) { .where-grid { grid-template-columns: 1fr; } }
@@ -266,43 +273,43 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em;
     color: var(--fg-muted); font-weight: 600; padding: 0 0.5rem 0.35rem; border-bottom: 1px solid var(--border);
   }
-  .lead-table th.num, .lead-table td.num { text-align: right; }
-  .lead-table td {
+  .dash-body :global(.lead-table th.num), .dash-body :global(.lead-table td.num) { text-align: right; }
+  .dash-body :global(.lead-table td) {
     padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--border);
     font-family: var(--font-mono); vertical-align: middle;
   }
-  .lead-table td.num { color: var(--fg-muted); white-space: nowrap; }
-  .lead-table td.muted { color: var(--fg-muted); }
-  .lead-table tr:last-child td { border-bottom: none; }
+  .dash-body :global(.lead-table td.num) { color: var(--fg-muted); white-space: nowrap; }
+  .dash-body :global(.lead-table td.muted) { color: var(--fg-muted); }
+  .dash-body :global(.lead-table tr:last-child td) { border-bottom: none; }
 
   /* In-row bar behind the source name. */
-  .bar-cell { position: relative; max-width: 0; width: 100%; }
-  .bar-cell .bar {
+  .dash-body :global(.bar-cell) { position: relative; max-width: 0; width: 100%; }
+  .dash-body :global(.bar-cell .bar) {
     position: absolute; left: 0; top: 3px; bottom: 3px; border-radius: 4px;
     opacity: 0.16; z-index: 0;
   }
-  .bar-cell .lead-label, .bar-cell .ch-chip { position: relative; z-index: 1; }
-  .bar-cell .lead-label {
+  .dash-body :global(.bar-cell .lead-label), .dash-body :global(.bar-cell .ch-chip) { position: relative; z-index: 1; }
+  .dash-body :global(.bar-cell .lead-label) {
     display: inline-block; max-width: calc(100% - 4.5rem); overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;
   }
-  .ch-chip {
+  .dash-body :global(.ch-chip) {
     display: inline-block; margin-left: 0.4rem; padding: 0.02rem 0.4rem; border-radius: 6px;
     font-size: 0.6rem; font-weight: 700; color: #fff; text-transform: uppercase;
     letter-spacing: 0.03em; vertical-align: middle; font-family: var(--font-body);
   }
-  .row-other td { color: var(--fg-muted); font-style: italic; }
+  .dash-body :global(.row-other td) { color: var(--fg-muted); font-style: italic; }
 
   /* Geography ranked bar list. */
   .geo-list { display: flex; flex-direction: column; gap: 0.45rem; }
-  .geo-row { display: grid; grid-template-columns: 1.4rem 1fr 2.6rem; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
-  .geo-flag { font-size: 1rem; line-height: 1; }
-  .geo-mid { min-width: 0; }
-  .geo-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.2rem; }
-  .geo-track { height: 0.5rem; border-radius: 4px; background: var(--border); overflow: hidden; }
-  .geo-bar { height: 100%; border-radius: 4px; background: var(--ch-referral); }
-  .geo-count { text-align: right; font-family: var(--font-mono); color: var(--fg-muted); font-size: 0.78rem; }
-  .geo-row.muted .geo-name { color: var(--fg-muted); font-style: italic; }
+  .dash-body :global(.geo-row) { display: grid; grid-template-columns: 1.4rem 1fr 2.6rem; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
+  .dash-body :global(.geo-flag) { font-size: 1rem; line-height: 1; }
+  .dash-body :global(.geo-mid) { min-width: 0; }
+  .dash-body :global(.geo-name) { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 0.2rem; }
+  .dash-body :global(.geo-track) { height: 0.5rem; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .dash-body :global(.geo-bar) { height: 100%; border-radius: 4px; background: var(--ch-referral); }
+  .dash-body :global(.geo-count) { text-align: right; font-family: var(--font-mono); color: var(--fg-muted); font-size: 0.78rem; }
+  .dash-body :global(.geo-row.muted .geo-name) { color: var(--fg-muted); font-style: italic; }
   .region-wrap { margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed var(--border); }
   .region-wrap h3 { font-size: 0.82rem; margin-bottom: 0.6rem; color: var(--fg-muted); }
 

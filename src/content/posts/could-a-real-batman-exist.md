@@ -41,7 +41,7 @@ $$
 \mathbb{E}[\text{crimes stopped / yr}] = \lambda \cdot p_{\text{reach}} \cdot p_{\text{win}} \cdot 365 \approx 2
 $$
 
-<img class="chart-img" src="/images/charts/badassman-reach-thimble.svg" alt="Scale map of Richmond with a tiny half-mile interception diamond around one patrolling vigilante; the reach covers under one percent of the city." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-reach-thimble.svg?v=2" alt="Scale map of Richmond with a tiny half-mile interception diamond around one patrolling vigilante; the reach covers under one percent of the city." loading="lazy" />
 
 Two a year. He is a thimble bailing an ocean. One body can be in one place, and one place is almost never where the crime is. This is the thing the comics quietly understood: a real Batman cannot win by being everywhere, because he cannot be everywhere. If the idea works at all, it has to work through something that does not require him to physically be there. That is the whole appeal of fear. Fear scales. A body does not.
 
@@ -69,7 +69,7 @@ $$
 m_{\text{fear}} \approx \frac{1}{1 - 0.97} \approx 33
 $$
 
-<img class="chart-img" src="/images/charts/badassman-two-channels.svg" alt="Log-scale bars: punching stops about two crimes a year; deterrence by presence prevents twelve to forty-eight at the measured floor, with a much larger but softer analogy ceiling." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-two-channels.svg?v=2" alt="Log-scale bars: punching stops about two crimes a year; deterrence by presence prevents twelve to forty-eight at the measured floor, with a much larger but softer analogy ceiling." loading="lazy" />
 
 The deterrent did roughly thirty times more work while absent than present. That is the sniper, measured. And the mechanism is specific: it runs on the perceived certainty that someone might be watching, not on the threat of a worse beating. You cannot credibly promise a harder punch. You can only be more possibly-there. Which is, I think, exactly what a costume in the dark is for.
 
@@ -85,7 +85,7 @@ $$
 D(t) = D_0\, e^{-t/\tau}, \qquad \tau \approx 1\text{ to }2\ \text{weeks}
 $$
 
-<img class="chart-img" src="/images/charts/badassman-decay-sawtooth.svg" alt="A sawtooth: deterrence spikes with each visible act then decays; frequent validation stays above the threshold where it bites, sparse validation falls below it." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-decay-sawtooth.svg?v=2" alt="A sawtooth: deterrence spikes with each visible act then decays; frequent validation stays above the threshold where it bites, sparse validation falls below it." loading="lazy" />
 
 So to keep the rumor alive he has to recharge it, faster than it decays, by actually showing up and doing something real and dangerous. The gear is not what stops him. Stripped of the Batcave, the kit is a $160 vest and a gym membership, and against the value a safety agency puts on a life it is a rounding error:
 
@@ -99,7 +99,7 @@ $$
 P(\text{alive after } Y\text{ yr}) = (1 - p_d)^{\,r Y}, \qquad Y^\star = \frac{\ln 0.5}{\,r\,\ln(1 - p_d)\,} \approx 11
 $$
 
-<img class="chart-img" src="/images/charts/badassman-legend-vs-man.svg" alt="Survival curves: the probability the hero is still alive craters over the years, while the deterrent he provides stays a flat, ageless line." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-legend-vs-man.svg?v=2" alt="Survival curves: the probability the hero is still alive craters over the years, while the deterrent he provides stays a flat, ageless line." loading="lazy" />
 
 A coin flip he is dead inside eleven years, while the deterrent he provides does not age a day. That is a real cost, and I will come back to it. But it is not the thing that actually stopped me. The thing that stopped me was simpler, and I should have seen it at the start.
 
@@ -113,7 +113,7 @@ $$
 \text{prevented}_{\text{targeted}} = N \cdot \lambda_{\text{offender}} \cdot (1 - r)
 $$
 
-<img class="chart-img" src="/images/charts/badassman-three-ways.svg" alt="Log-scale comparison: random patrol prevents about two a year, camping the worst places about five, removing the few highest-rate offenders about thirty." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-three-ways.svg?v=2" alt="Log-scale comparison: random patrol prevents about two a year, camping the worst places about five, removing the few highest-rate offenders about thirty." loading="lazy" />
 
 So the only version of this that is not insane is targeted. He watches crime during the day. He works out who is actually doing it. He builds something like a case. Then he goes out at night and spends the fear on the guilty, on purpose. He is not a brawler with a hunch. He is a detective with a grudge and a schedule.
 
@@ -137,7 +137,7 @@ $$
 
 The result is grim. Roughly twenty-two percent of violent crime and seven percent of property crime ever ends in an arrest. Put the other way: about four in five violent crimes, and nineteen in twenty property crimes, produce no arrest at all.
 
-<img class="chart-img" src="/images/charts/badassman-clearance-funnel.svg" alt="Funnel: of 100 violent crimes about 47 are reported and 22 end in arrest; of 100 property crimes about 35 are reported and 7 end in arrest." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-clearance-funnel.svg?v=2" alt="Funnel: of 100 violent crimes about 47 are reported and 22 end in arrest; of 100 property crimes about 35 are reported and 7 end in arrest." loading="lazy" />
 
 That is the gap a vigilante points at, and it is enormous: hundreds of thousands of violent crimes a year, millions of property crimes, no arrest, nobody coming. If you wanted a reason to put on a mask, it is right there in the data. So I went looking for what he could actually do with that gap, and that is where it fell apart, because finding the criminal turns out to be the easy part.
 
@@ -147,7 +147,7 @@ What he wants to do, track offenders, target the worst, deter them with the cert
 
 But look at how focused deterrence actually runs, and the problem with our hero jumps out.
 
-<img class="chart-img" src="/images/charts/badassman-five-steps.svg" alt="Five boxes: find the offender (the only one a vigilante can do), then gather admissible evidence, make a lawful arrest, prosecute with a credible sanction, and provide an off-ramp, all of which require the institution." loading="lazy" />
+<img class="chart-img" src="/images/charts/badassman-five-steps.svg?v=2" alt="Five boxes: find the offender (the only one a vigilante can do), then gather admissible evidence, make a lawful arrest, prosecute with a credible sanction, and provide an off-ramp, all of which require the institution." loading="lazy" />
 
 It is a five-agency machine. Find the offender, build admissible evidence, make a lawful arrest, hand it to a prosecutor who can threaten a real and certain punishment, and open a way out on the other side. Our guy can do exactly one of those five steps. He can find the offender. He owns none of the four steps that turn a name into a consequence, and the fear only works if a credible, lawful consequence is actually standing behind it. A threat with nothing behind it is the empty decoy car again.
 

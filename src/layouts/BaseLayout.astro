@@ -85,10 +85,12 @@ const { title, description = 'A blog.' } = Astro.props;
           <a href="/library">Library</a>
           <a href="/dm">DM</a>
           <button id="theme-toggle" aria-label="Cycle theme (asgard / batman / 007)">
-            <!-- Label names the CURRENT theme; the icon below previews the NEXT one. -->
+            <!-- Reads "current → next": the name is the CURRENT theme; the arrow
+                 points to the icon, which previews the NEXT theme (what a click switches to). -->
             <span class="theme-name theme-name-rainbow">asgard</span>
             <span class="theme-name theme-name-batman">batman</span>
             <span class="theme-name theme-name-bond">007</span>
+            <span class="theme-arrow" aria-hidden="true">→</span>
             <svg class="icon-rainbow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <defs>
                 <!-- Variation E (Asgard / Bifrost). Prior stops — D: #ff3b2f/#ffd23f/#ff2e8a/#2ad4ff,
@@ -350,6 +352,13 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="rainbow"]) .theme-name-rainbow { display: inline; }
   :global([data-theme="batman"]) .theme-name-batman { display: inline; }
   :global([data-theme="bond"]) .theme-name-bond { display: inline; }
+
+  /* Arrow linking the current-theme name to the next-theme icon. */
+  .theme-arrow {
+    font-size: 0.7rem;
+    opacity: 0.55;
+    line-height: 1;
+  }
 
   /* Icon shown = the NEXT theme (what clicking will switch to). */
   /* Asgard→Batman: bat. Batman→007: gun barrel. 007→Asgard: rainbow. */

@@ -49,10 +49,12 @@ const libraryItems = (await getCollection('library'))
       </div>
     </div>
     <div class="hero-portrait">
-      <picture>
-        <source srcset="/images/headshot.webp" type="image/webp" />
-        <img src="/images/headshot.png" alt="Dustin Landers" width="512" height="768" fetchpriority="high" decoding="async" />
-      </picture>
+      <div class="portrait-clip">
+        <picture>
+          <source srcset="/images/headshot.webp" type="image/webp" />
+          <img src="/images/headshot.png" alt="Dustin Landers" width="512" height="768" fetchpriority="high" decoding="async" />
+        </picture>
+      </div>
     </div>
   </section>
 
@@ -266,12 +268,21 @@ const libraryItems = (await getCollection('library'))
 
   .hero-portrait {
     flex-shrink: 0;
+    position: relative;
     width: 220px;
     height: 220px;
-    overflow: hidden;
     border-radius: 50%;
     border: 2px solid var(--border);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Inner element does the circular crop, so the outer frame can let the 007
+     crosshairs spill past the edge without clipping the photo. */
+  .portrait-clip {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
   }
 
   [data-theme="dark"] .hero-portrait {
@@ -293,6 +304,33 @@ const libraryItems = (await getCollection('library'))
       0 0 0 36px var(--bg),
       0 0 0 38px rgba(244, 242, 236, 0.4),
       0 10px 34px rgba(0, 0, 0, 0.6);
+  }
+
+  /* 007: sniper-scope crosshairs straight through the middle, extending past the
+     rings. Drawn on the (unclipped) outer frame so they overshoot the circle. */
+  :global([data-theme="bond"]) .hero-portrait::before,
+  :global([data-theme="bond"]) .hero-portrait::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bond-red-bright);
+    box-shadow: 0 0 7px rgba(225, 29, 58, 0.6);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* vertical */
+  :global([data-theme="bond"]) .hero-portrait::before {
+    width: 3px;
+    height: calc(100% + 90px);
+  }
+
+  /* horizontal */
+  :global([data-theme="bond"]) .hero-portrait::after {
+    width: calc(100% + 90px);
+    height: 3px;
   }
 
   .hero-portrait img {

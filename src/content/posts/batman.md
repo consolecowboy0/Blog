@@ -2,7 +2,7 @@
 title: "I Want to Be Batman. So I Did the Math."
 date: "2026-05-31"
 description: "The thing that makes Batman work is not the muscles, the gadgets, or the money. It is fear. I went in skeptical of my own hunch. Here is where it held, and where it broke."
-draft: true
+draft: false
 ---
 
 I want to be Batman.

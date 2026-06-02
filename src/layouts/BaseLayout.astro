@@ -11,14 +11,10 @@ interface Props {
 }
 
 const { title, description = 'A blog.' } = Astro.props;
-
-const THEMES = ['rainbow', 'batman', 'bond', 'senna'] as const;
-const savedTheme = Astro.cookies.get('theme')?.value;
-const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme) ? savedTheme : 'rainbow';
 ---
 
 <!doctype html>
-<html lang="en" data-theme={theme}>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,6 +23,13 @@ const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme) ?
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      (function() {
+        var saved = localStorage.getItem('theme');
+        var valid = saved === 'batman' || saved === 'bond' || saved === 'senna' ? saved : 'rainbow';
+        document.documentElement.setAttribute('data-theme', valid);
+      })();
+    </script>
     <script is:inline>
       // First-party pageview beacon. Fire-and-forget, no cookies.
       (function() {
@@ -688,7 +691,7 @@ const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme) ?
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];
     document.documentElement.setAttribute('data-theme', next);
-    document.cookie = 'theme=' + next + '; path=/; SameSite=Lax; max-age=31536000';
+    localStorage.setItem('theme', next);
     broadcastThemeToEmbeds(next);
   });
 </script>

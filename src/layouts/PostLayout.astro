@@ -30,6 +30,15 @@ const dateStr = new Date(frontmatter.date).toLocaleDateString('en-US', {
 </BaseLayout>
 
 <style>
+  /* Constrain the post to a magazine reading measure and center it within the
+     wider page shell. Body text gets a comfortable line length and graphics
+     (.chart-img, full-width figures) fill this column instead of floating as
+     small islands in an over-wide measure. */
+  article {
+    max-width: 42rem;
+    margin: 0 auto;
+  }
+
   .post-header {
     margin-bottom: 2.5rem;
   }

@@ -4,7 +4,7 @@ date: "2026-03-12"
 description: "I analyzed nearly 2,000 overtakes across four seasons of F1 data and found the mathematical balance that made wheel-to-wheel racing possible- and the regulation change that shattered it."
 ---
 
-import LibraryEmbed from '../../components/LibraryEmbed.astro';
+import LibraryLink from '../../components/LibraryLink.astro';
 
 ## The Worst Cars Ever Made
 
@@ -110,9 +110,10 @@ The L/R ratio explains the geometry. But geometry alone didn't produce the racin
 
 Dig into the full dataset yourself- every corner, every circuit, every overtake across four seasons. Filter by track, toggle DRS, and watch the L/R ratio do its thing:
 
-<LibraryEmbed
-  src="/embeds/f1-explorer/index.html"
+<LibraryLink
+  id="f1-explorer"
   title="F1 Overtaking Explorer"
+  description="Filter by track, toggle DRS, and watch the L/R ratio do its thing across four seasons of data."
 />
 
 ---
@@ -155,9 +156,10 @@ But the deepest problem isn't speed differentials or battery depletion. It's tha
 
 See for yourself how the 2026 energy systems interact. This simulator lets you run two cars through a circuit with the new Overtake Mode, active aero, and battery depletion- watch the phantom slipstream in action:
 
-<LibraryEmbed
-  src="/embeds/f1-circuit-viz/index.html"
+<LibraryLink
+  id="f1-circuit-viz"
   title="F1 2026 Simulator"
+  description="Run two cars through a circuit with Overtake Mode, active aero, and battery depletion- watch the phantom slipstream in action."
 />
 
 ---

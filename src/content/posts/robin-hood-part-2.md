@@ -1,5 +1,5 @@
 ---
-title: "Robin Hood, Part 2"
+title: "I. Am. Robin Hood."
 date: "2026-05-31"
 description: "I decided I was Robin Hood. Now I'm $455 in, with nothing to show for it but a string of encounters I cannot fully explain to my wife."
 ---

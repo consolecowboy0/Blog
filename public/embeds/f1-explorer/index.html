@@ -12,25 +12,16 @@
     </style>
     <script>
       (function(){
+  // Two themes only, matching the site: rainbow (Asgard) and batman. This is a bundled
+  // app whose base CSS :root is light, so we always set an explicit data-theme.
   function applyTheme(t){
-    if (t === 'dark' || t === 'rainbow') {
-      document.documentElement.setAttribute('data-theme', t);
-    } else if (t === 'light') {
-      document.documentElement.removeAttribute('data-theme');
-    }
+    document.documentElement.setAttribute('data-theme', t === 'batman' ? 'batman' : 'rainbow');
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
-  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow') {
+  if (urlTheme) {
     applyTheme(urlTheme);
   } else {
-    var saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'rainbow') {
-      applyTheme(saved);
-    } else if (saved === 'light') {
-      // explicit user choice — leave default (no attribute)
-    } else {
-      applyTheme('rainbow');
-    }
+    applyTheme(localStorage.getItem('theme') === 'batman' ? 'batman' : 'rainbow');
   }
   window.addEventListener('message', function(e){
     if (e && e.data && e.data.type === 'parent-theme') {
@@ -56,65 +47,61 @@
       #theme-toggle-btn:hover { color: var(--text-primary, #1a1a1a); }
       #theme-toggle-btn svg { width: 16px; height: 16px; }
       /* Icon shown = the NEXT theme in the cycle (matches site header).
-         light → moon, dark → rainbow, rainbow → sun. */
-      .icon-sun { display: none; }
+         rainbow (Asgard) → bat, batman → rainbow. */
       .icon-rainbow { display: none; }
-      [data-theme="dark"] .icon-moon { display: none; }
-      [data-theme="dark"] .icon-rainbow { display: block; }
-      [data-theme="rainbow"] .icon-moon { display: none; }
-      [data-theme="rainbow"] .icon-sun { display: block; }
-
-      [data-theme="dark"] {
-        --bg-primary: #0a0a0f !important;
-        --bg-secondary: #0d0d14 !important;
-        --bg-card: #0d0d14 !important;
-        --bg-card-hover: #14141f !important;
-        --border: #1e1e2e !important;
-        --border-light: #2a2a3a !important;
-        --text-primary: #e5e5e5 !important;
-        --text-secondary: #999 !important;
-        --text-muted: #666 !important;
-        --accent-red: #e5e5e5 !important;
-        --chart-grid: #1e1e2e !important;
-      }
+      .icon-bat { display: block; }
+      [data-theme="batman"] .icon-bat { display: none; }
+      [data-theme="batman"] .icon-rainbow { display: block; }
 
       [data-theme="rainbow"] {
-        --bg-primary: #1b0e3a !important;
-        --bg-secondary: #15082b !important;
-        --bg-card: #1b0e3a !important;
-        --bg-card-hover: #2a1659 !important;
-        --border: #5a2ea0 !important;
-        --border-light: #7c4ad0 !important;
-        --text-primary: #e8f7ff !important;
-        --text-secondary: #ffb3e6 !important;
-        --text-muted: #c787c0 !important;
-        --accent-red: #ff2a92 !important;
+        --bg-primary: #0b1338 !important;
+        --bg-secondary: #070d28 !important;
+        --bg-card: #142a66 !important;
+        --bg-card-hover: #1d3a85 !important;
+        --border: #2e447f !important;
+        --border-light: #3f5aa0 !important;
+        --text-primary: #fdf4e3 !important;
+        --text-secondary: #c9b78a !important;
+        --text-muted: #8b95bd !important;
+        --accent-red: #ff5e7e !important;
         --accent-blue: #4ad9ff !important;
-        --accent-green: #00e5d5 !important;
-        --accent-gold: #ffd166 !important;
-        --accent-orange: #ff6ec7 !important;
-        --accent-purple: #a85aff !important;
-        --chart-grid: #5a2ea0 !important;
+        --accent-green: #4ade80 !important;
+        --accent-gold: #ffcc4d !important;
+        --accent-orange: #ff9e5c !important;
+        --accent-purple: #c084fc !important;
+        --chart-grid: #2e447f !important;
+      }
+
+      [data-theme="batman"] {
+        --bg-primary: #10151e !important;
+        --bg-secondary: #0b0f16 !important;
+        --bg-card: #1a212e !important;
+        --bg-card-hover: #232c3d !important;
+        --border: #283040 !important;
+        --border-light: #3a455a !important;
+        --text-primary: #c3cbd6 !important;
+        --text-secondary: #93a0b3 !important;
+        --text-muted: #6e7888 !important;
+        --accent-red: #d6736f !important;
+        --accent-blue: #5aa9d6 !important;
+        --accent-green: #7fb98a !important;
+        --accent-gold: #c9a648 !important;
+        --accent-orange: #d98a5a !important;
+        --accent-purple: #9a86c4 !important;
+        --chart-grid: #283040 !important;
       }
     </style>
   </head>
   <body>
     <div id="root"></div>
     <button id="theme-toggle-btn" aria-label="Toggle theme">
-      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg>
-      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-f1" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff6ec7"/><stop offset="0.25" stop-color="#ff2a92"/><stop offset="0.5" stop-color="#a85aff"/><stop offset="0.75" stop-color="#4ad9ff"/><stop offset="1" stop-color="#00e5d5"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-f1)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-f1)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-f1)" opacity="0.4"/></svg>
+      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-f1" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-f1)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-f1)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-f1)" opacity="0.4"/></svg>
+      <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
     </button>
     <script>
       document.getElementById('theme-toggle-btn').addEventListener('click', function() {
-        var current = document.documentElement.getAttribute('data-theme') || 'light';
-        var cycle = { light: 'dark', dark: 'rainbow', rainbow: 'light' };
-        var next = cycle[current] || 'dark';
-        if (next === 'light') {
-          document.documentElement.removeAttribute('data-theme');
-        } else {
-          document.documentElement.setAttribute('data-theme', next);
-        }
+        var next = document.documentElement.getAttribute('data-theme') === 'batman' ? 'rainbow' : 'batman';
+        document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
       });
       // Move toggle into React-rendered header once it mounts

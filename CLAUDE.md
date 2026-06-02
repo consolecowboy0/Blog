@@ -5,9 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Style (highest priority)
 
 - Never use em dashes.
-- Use short, 3-6 word sentences.
+- Be terse. Short sentences. No filler, no preamble.
 - Run tools first, show result, then stop. Do not narrate.
-- Drop articles ("Me fix code" not "I will fix the code").
 
 ## Commands
 

@@ -1,0 +1,129 @@
+---
+title: "I Want to Be Batman. So I Did the Math."
+date: "2026-05-31"
+description: "The thing that makes Batman work is not the muscles, the gadgets, or the money. It is fear. I went in skeptical of my own hunch. Here is where it held, and where it broke."
+draft: true
+---
+
+I want to be Batman.
+
+I am 38- well like really soon. I have a mortgage on a house in a yuppie city neighborhood (it is, I mean I'll admit it- I couldn't buy a house here now if I was three levels above my pay grade now) with a brand new kitchen and thousand square foot renovation I can kinda-sorta afford, and a shockingly small amount of free time (I'm very resourceful though- *wink wink*). I am not in Jason Statham shape but I could probably kick your ass. I am not rich but see above bit about resourceful- I could definitely convince someone to give me money for some dumb shit like a concept Batmobile. I can be batman. Sure.
+
+Just give me, you know, like a billion dollars, a manor conveniently close to the city but also super private with a (yet another convenient) cave system below it (with yet another convenient) waterfall with a natural rock road from the come-at-me-bro-defensible cave to a dirt road leading to, I dunno, like an on-ramp for I-95.
+
+But I had a hunch, and the hunch is the only thing that lets the idea survive contact with reality.
+
+Here is the hunch. The thing that makes Batman work is not the muscles, the gadgets, or the money. It is fear. (One gadget turns out to matter. Not the one you think, and not for the reason you think. Hold that.) "Criminals are a superstitious, cowardly lot." I do not think that is a character note, I think it is the engineering spec. So the test is not whether I can get strong or buy the right gear. It is one specific idea: could a regular guy (or ya know- probably above average for sure- in some things more than others... shut up you grosso)- just a regular ole schmo with some talents- could that person fight crime by being frightening, and would that actually move anything?
+
+I went in skeptical of my own hunch. Here is where it held, and where it broke.
+
+## Why a strong guy on patrol is hopeless
+
+Start with the version that is just fit, not frightening: a guy who patrols and punches. The problem is geometry, and it is unforgiving.
+
+A mugging takes about two minutes. At a generous fifteen miles an hour through real streets, that sets how far he can get before it is over:
+
+$$R = v \cdot t = 15\ \tfrac{\text{mi}}{\text{hr}} \times \tfrac{2}{60}\ \text{hr} = 0.5\ \text{mi}$$
+
+Half a mile of reach, on a city of sixty square miles. The slice he can cover at any instant is under one percent. Fold in the crimes per night, the odds he is close enough, and the odds he then wins, and the patrolling strongman stops about two crimes a year.
+
+Two a year. He is a thimble bailing an ocean. One body can be in one place, and one place is almost never where the crime is. This is the thing the comics quietly understood: a real Batman cannot win by being everywhere, because he cannot be everywhere. If the idea works at all, it has to work through something that does not require him to physically be there. That is the whole appeal of fear. Fear scales. A body does not.
+
+Fear might be the only door left. The question is whether it actually opens.
+
+## Does fear actually scale?
+
+The cleanest way I can describe the mechanism is a sniper. One sniper does not clear a valley by hitting everyone in it. He hits one person, and a thousand others crawl for a week, because any of them could be next and none of them knows where he is. He holds a hilltop the size of a towel and denies a square mile. That ratio, area believed over area held, is the whole idea. For a guy throwing punches it is about one. For a credible threat it can be enormous. So the right model is not crimes reached. It is the deterrent effect, spread across his footprint and multiplied by that ratio, minus what it costs to stay credible. I expected this to be where the hunch fell apart, vague fear-talk with no numbers under it. It mostly did not.
+
+The firmest number in policing: a visible, credible presence on a hot spot drops crime there about twenty-four percent. On a corner running fifty to two hundred crimes a year, that is twelve to forty-eight prevented, against the two from punching. And the cleanest experiment we have, randomized fifteen-minute patrols in the London Underground, found that ninety-seven percent of the drop happened while no officer was actually present:
+
+$$m_{\text{fear}} \approx \frac{1}{1 - 0.97} \approx 33$$
+
+The deterrent did roughly thirty times more work while absent than present. That is the sniper, measured. The mechanism is specific: it runs on the perceived certainty that someone might be watching, not on the threat of a worse beating. You cannot credibly promise a harder punch. You can only be more possibly-there. Which is, I think, exactly what a costume in the dark is for.
+
+The floor, the twelve to forty-eight, is solid. The ceiling, a legend that terrifies a whole city, is an analogy I will not fake a number for. But the hunch held. Fear scales. A body does not. The hard part was never whether it works. It was what it costs to keep it true.
+
+## The catch: a sniper who never fires is just a guy on a hill
+
+Then I asked what it costs to keep the fear true.
+
+Fear decays. A threat nobody has watched act fades toward nothing, the way a decoy police car deters right up until everyone notices it is empty:
+
+$$D(t) = D_0\, e^{-t/\tau}, \qquad \tau \approx 1\text{ to }2\ \text{weeks}$$
+
+So to keep the rumor alive he has to recharge it, faster than it decays, by showing up and doing something real and dangerous. The gear is not what stops him. Stripped of the Batcave, the kit is a $160 vest and a gym membership, about $2,300 a year. Society prices a single life near $13 million. The gear is a rounding error. And here is the gadget. Not the vest. The vest just gets you punched. The buy that matters is the case he builds, the notebook and the long lens and the boring stack of who-did-what. That one is cheaper still. He priced the first and skipped the second. Both round to nothing. Money was never what stood in the way. He is.
+
+Run those appearances through the odds of a real fight, every couple of weeks, and the number is brutal:
+
+$$P(\text{alive after } Y\text{ yr}) = (1 - p_d)^{\,r Y}, \qquad Y^\star = \frac{\ln 0.5}{\,r\,\ln(1 - p_d)\,} \approx 11$$
+
+Coin flip, he is dead in eleven years. The legend he built does not age a day. Remember that. It still was not the thing that stopped me, though. What stopped me was simpler, and I should have seen it from the start.
+
+## He cannot do it at random
+
+Look again at what "show up and do something real" has to mean. It cannot be punching strangers in alleys. A man who attacks people at random in the dark is not Batman, he is the reason you need a Batman. Random violence does not make you frightening to criminals specifically. It makes you frightening to everybody, which is both useless and a felony.
+
+For the fear to land on the people it is supposed to land on, he has to hit the right ones, which means he has to know who they are. And crime cooperates here, because it is concentrated: a small share of people and places carry most of it. Wander at random and you stop about two a year. Camp the worst corners and it is maybe four. Take the few highest-rate offenders off the board and it is closer to thirty.
+
+So the only version of this that is not insane is targeted. He watches crime during the day. He works out who is actually doing it. He builds something like a case. Then he goes out at night and spends the fear on the guilty, on purpose. He is not a brawler with a hunch. He is a detective with a grudge and a schedule. I kept writing it down, and it kept sounding less like a superpower and more like a shift.
+
+And the moment I wrote that down, the whole thing turned over on me, because I had just described a job that already exists.
+
+If the only Batman that works is a patient, intelligence-led operation that identifies specific offenders and builds cases against them before it ever throws a punch, then I have not designed a superhero. I have designed a worse, less accountable police department with one employee.
+
+So here is the question I could not put back down, the one the rest of this is about:
+
+**Why isn't he just a cop?**
+
+## So when is he actually useful?
+
+The honest answer is a bummer. Let me get the grim part over fast, then have some fun.
+
+The grim part: in the ordinary case, a vigilante is just a worse cop. The system already catches shockingly little. Multiply the share of crimes even reported by the share the police then clear, and you land at about twenty-two percent of violent crime and seven percent of property crime ending in an arrest. Four in five violent crimes, nineteen in twenty property crimes: nobody is coming.
+
+Enormous gap, great reason to put on a mask. Except finding the criminal was never the hard part. The thing that actually works, tracking the worst offenders and deterring them with the certainty of consequences, is called focused deterrence, and it is a five-step machine: find the offender, build admissible evidence, make a lawful arrest, get a prosecutor to threaten a real punishment, offer a way out. Our guy can do step one. The case file is cheap, in dollars at least. What it does not buy is a warrant. That is the real price he skips: the one document that makes the evidence admissible and the arrest lawful. The other four are the institution, and the fear only bites if a real consequence is standing behind it. He is one-fifth of a police department, and the expensive four-fifths is the part that matters.
+
+And here is the real danger, the reason you do not want your neighbor doing this. Out in the normal world, he is *guessing.* He sees a guy who looks wrong, and acts. Guess about who is a criminal from a dark rooftop and sooner or later you have tackled a dad walking to his car. The entire apparatus of warrants and trials is just society's very expensive machine for not punching the wrong person.
+
+So a real Batman, dropped into real crime, is a worse cop who occasionally maims an innocent. Cool. Cool cool cool.
+
+## But now the fun part
+
+Look at what is doing the damage in that story. Two things, and only two:
+
+1. He is **not sure** the person is guilty, so he risks the innocent.
+2. The system **could** have handled it, so he is just a less careful redundancy.
+
+Now flip both. What if he is *certain*, and the system *cannot* act?
+
+That is the entire Batman premise, and it turns out to be the one rigorous answer. Picture a villain, a Joker, who is not some stranger on a rooftop. Batman has caught him in the act eleven times. The odds that this specific, theatrical, monogrammed-calling-card lunatic is up to something are not a guess. They round to one:
+
+$$P(\text{guilty} \mid \text{it's the Joker}) \approx 0.999$$
+
+Round to one. That single number deletes the first problem. Vigilantes are dangerous because they might be wrong. That is the (1 − *p*) term, the chance you ruin someone innocent. Drive the prior to near-certainty and it collapses toward zero. You can act, hard, precisely because you are not guessing.
+
+Which is the whole point of the gadget. Fear does not pick a target. Point it at a dark rooftop and it maims whoever is standing there, dad-to-his-car included. The case file is what aims it. It does not make the fear bigger. It just drags *p* off a coin toward that 0.999, and the inequality tips. In the general case you build *p* the hard way, the legwork, the watching, the pattern. The Joker built it for you. He signs his work. You do not drive *p* to one against him. He drove it there himself.
+
+Now the second problem. In the comics the Joker does not walk because of bad luck. He walks because the system is *captured*: a bought DA, a terrified jury, an Arkham with a revolving door, one honest cop in a rotten building. The machine that turns guilt into consequence is jammed on purpose. Call the system's odds of actually acting *s*, and against a protected villain *s* is near zero. Weigh the harm of acting on a possible innocent against the harm of letting a known monster keep going:
+
+$$(1 - p)\,H_{\text{innocent}} \;<\; p\,(1 - s)\,H_{\text{future harm}}$$
+
+Read it left to right. Push the prior *p* toward one and the left side, the cost of being wrong, goes to zero. Push the system's odds *s* toward zero and the right side, the harm nobody is preventing, goes to its maximum. The inequality is not close. It is a blowout. Acting is not merely defensible, it is the only sane move on the board.
+
+Almost everywhere on that map the answer is "call the police," or "hold a trial," or "for the love of god do not let an amateur guess." There is exactly one square where a masked man with no badge and no warrant is genuinely, uniquely the right tool: you are *certain*, and the law *cannot.* The Batman Zone.
+
+And here is the part that made me laugh after all the spreadsheets. The comics have been parked in that corner the whole time. Batman almost never fights a guy he is unsure about. He fights the Joker, Two-Face, the Penguin, named recurring villains he has personally caught a dozen times, in a city written to be exactly corrupt enough that the courts can't hold them. The writers did not stumble into that. It is the only setup where the hero is justified, and a century of them found it by instinct.
+
+## The verdict
+
+Can a real Batman exist, and would he be any use? Against crime in general, no. The geometry says so, the law says so, and out here he is guessing. A real Batman fighting real crime is a bad and slightly horrifying idea.
+
+But drop him into his actual job, a known villain he is genuinely sure of, in a system too captured to act, and he snaps into focus. Extraordinary certainty plus a broken courthouse is the one cell on the whole grid where the fear, the obsession, and the willingness to operate outside the system stop being liabilities and become the only thing that works.
+
+Remember the eleven years. A man who keeps validating the fear is on a clock that kills him. But the Joker is not a patrol, he is a target. He aims himself, which is the only reason the fear ever lands where it should. You do not need a decade against him. You need a handful of decisive acts before the odds catch up. The doomed career only pays for itself in this one corner.
+
+Against a Joker, the body was never the point. The fear was. It scales. He does not.
+
+There is just one catch, and it is the funniest result in the entire investigation. The spec was fear the whole time, and fear is useless until there is exactly one person worth being feared by. So to make a real Batman worth it, you do not need a better Batman.
+
+You need a Joker.

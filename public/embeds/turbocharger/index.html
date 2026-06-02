@@ -12,10 +12,11 @@
   </style>
   <script>
   (function(){
-    // Three themes, matching the site: rainbow (Asgard) lives in :root, batman and bond (007) are overrides.
+    // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, bond (007) and senna are overrides.
     function applyTheme(t){
       if (t === 'batman') document.documentElement.setAttribute('data-theme', 'batman');
       else if (t === 'bond') document.documentElement.setAttribute('data-theme', 'bond');
+      else if (t === 'senna') document.documentElement.setAttribute('data-theme', 'senna');
       else document.documentElement.removeAttribute('data-theme');
     }
     var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -49,6 +50,11 @@
       --bg: #060607; --bg-card: #100e0e; --border: #221e1d;
       --text: #f1eee7; --text-secondary: #b8b2a8; --text-muted: #857f77;
       --hot: #e11d3a; --cold: #7d8a99; --shaft: #9aa3ad;
+    }
+    [data-theme="senna"] {
+      --bg: #0b0b0c; --bg-card: #15140e; --border: #2a2614;
+      --text: #f4f3ee; --text-secondary: #d8cfa0; --text-muted: #c9b24a;
+      --hot: #ffd300; --cold: #1f6fd0; --shaft: #1faf5a;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 17px; }

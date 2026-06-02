@@ -79,19 +79,23 @@ const { title, description = 'A blog.' } = Astro.props;
   <body>
     <header>
       <nav>
-        <a href="/" class="site-title">dustinlanders.com</a>
+        <div class="nav-brand">
+          <a href="/" class="site-title">dustinlanders.com</a>
+          <!-- Subtle current-theme readout. Names toggle via data-theme; the toggle
+               button itself stays icon-only. -->
+          <span class="theme-indicator">theme
+            <span class="theme-name theme-name-rainbow">asgard</span>
+            <span class="theme-name theme-name-batman">batman</span>
+            <span class="theme-name theme-name-bond">007</span>
+            <span class="theme-name theme-name-senna">senna</span>
+          </span>
+        </div>
         <div class="nav-links">
           <a href="/posts">Writing</a>
           <a href="/library">Library</a>
           <a href="/dm">DM</a>
           <button id="theme-toggle" aria-label="Cycle theme (asgard / batman / 007 / senna)">
-            <!-- Reads "current → next": the name is the CURRENT theme; the arrow
-                 points to the icon, which previews the NEXT theme (what a click switches to). -->
-            <span class="theme-name theme-name-rainbow">asgard</span>
-            <span class="theme-name theme-name-batman">batman</span>
-            <span class="theme-name theme-name-bond">007</span>
-            <span class="theme-name theme-name-senna">senna</span>
-            <span class="theme-arrow" aria-hidden="true">→</span>
+            <!-- Icon only (previews the NEXT theme). Current theme name is shown in the header. -->
             <svg class="icon-rainbow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <defs>
                 <!-- Variation E (Asgard / Bifrost). Prior stops — D: #ff3b2f/#ffd23f/#ff2e8a/#2ad4ff,
@@ -340,7 +344,6 @@ const { title, description = 'A blog.' } = Astro.props;
     padding: 0.25rem;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
     transition: color 0.2s;
   }
 
@@ -348,25 +351,26 @@ const { title, description = 'A blog.' } = Astro.props;
     color: var(--fg);
   }
 
-  /* Subtle label naming the CURRENT theme; matches the nav links but quieter. */
-  .theme-name {
-    display: none;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+  /* Brand cluster: wordmark + a subtle "theme <name>" readout to its right. */
+  .nav-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
   }
+
+  /* Quiet, lowercase current-theme readout beside the wordmark. */
+  .theme-indicator {
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-muted);
+    opacity: 0.7;
+  }
+
+  .theme-name { display: none; }
   :global([data-theme="rainbow"]) .theme-name-rainbow { display: inline; }
   :global([data-theme="batman"]) .theme-name-batman { display: inline; }
   :global([data-theme="bond"]) .theme-name-bond { display: inline; }
   :global([data-theme="senna"]) .theme-name-senna { display: inline; }
-
-  /* Arrow linking the current-theme name to the next-theme icon. */
-  .theme-arrow {
-    font-size: 0.7rem;
-    opacity: 0.55;
-    line-height: 1;
-  }
 
   /* Icon shown = the NEXT theme (what clicking will switch to). */
   /* Asgard→Batman: bat. Batman→007: gun barrel. 007→Senna: helmet. Senna→Asgard: rainbow. */

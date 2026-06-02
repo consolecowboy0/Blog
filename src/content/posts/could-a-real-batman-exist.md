@@ -5,6 +5,10 @@ description: "A 38-year-old with a Subaru tests one idea: that the secret to bei
 draft: false
 ---
 
+<style>
+.katex-display { text-align: center; overflow-x: auto; overflow-y: hidden; padding: 0.2rem 0; }
+</style>
+
 I want to be Batman.
 
 Not the way an eight-year-old does. The way a 38-year-old with a mortgage, a Subaru, and too much free time does: seriously enough to open a spreadsheet about it.
@@ -21,15 +25,21 @@ Start with the version that is just fit, not frightening: a guy who patrols and 
 
 A mugging takes about two minutes. At a generous fifteen miles an hour through real streets, that sets how far he can get before it is over:
 
-$$ R = v \cdot t = 15\ \tfrac{\text{mi}}{\text{hr}} \times \tfrac{2}{60}\ \text{hr} = 0.5\ \text{mi} $$
+$$
+R = v \cdot t = 15\ \tfrac{\text{mi}}{\text{hr}} \times \tfrac{2}{60}\ \text{hr} = 0.5\ \text{mi}
+$$
 
 Half a mile of reach, on a city of sixty square miles. The fraction he can cover at any instant is tiny:
 
-$$ p_{\text{reach}} = \frac{2R^2}{A} = \frac{2(0.5)^2}{60} \approx 0.008 $$
+$$
+p_{\text{reach}} = \frac{2R^2}{A} = \frac{2(0.5)^2}{60} \approx 0.008
+$$
 
 Put together the crimes per night, the odds he is close enough, and the odds he then wins:
 
-$$ \mathbb{E}[\text{crimes stopped / yr}] = \lambda \cdot p_{\text{reach}} \cdot p_{\text{win}} \cdot 365 \approx 2 $$
+$$
+\mathbb{E}[\text{crimes stopped / yr}] = \lambda \cdot p_{\text{reach}} \cdot p_{\text{win}} \cdot 365 \approx 2
+$$
 
 <img class="chart-img" src="/images/charts/badassman-reach-thimble.svg" alt="Scale map of Richmond with a tiny half-mile interception diamond around one patrolling vigilante; the reach covers under one percent of the city." loading="lazy" />
 
@@ -41,17 +51,23 @@ So the hunch is not crazy. It might be the only door left. The question is wheth
 
 The cleanest way I can describe the mechanism is a sniper. One sniper does not clear a valley by hitting everyone in it. He hits one person, and a thousand others crawl for a week, because any of them could be next and none of them knows where he is. He occupies a hilltop the size of a towel and denies a square mile. The ratio of those two areas is the entire idea:
 
-$$ m_{\text{fear}} = \frac{\text{area denied by belief}}{\text{area actually occupied}} $$
+$$
+m_{\text{fear}} = \frac{\text{area denied by belief}}{\text{area actually occupied}}
+$$
 
 For a guy throwing punches, that ratio is about one. For a credible threat, it can be huge. So the right model for a fear-based crime-fighter is not "crimes reached," it is:
 
-$$ \text{prevented} = e \cdot \big( A_{\text{footprint}} \cdot m_{\text{fear}} \big) \;-\; c_{\text{credibility}} $$
+$$
+\text{prevented} = e \cdot \big( A_{\text{footprint}} \cdot m_{\text{fear}} \big) \;-\; c_{\text{credibility}}
+$$
 
-where $e$ is the deterrent effect and $c$ is what it costs to stay credible. I expected this to be where my hunch fell apart, vague fear-talk with no numbers under it. It mostly did not.
+where *e* is the deterrent effect and *c* is what it costs to stay credible. I expected this to be where my hunch fell apart, vague fear-talk with no numbers under it. It mostly did not.
 
 The firmest number in policing: a visible, credible presence on a hot spot drops crime there about twenty-four percent. On a corner running fifty to two hundred crimes a year, that is twelve to forty-eight prevented, against the two from punching. And the cleanest experiment we have, randomized fifteen-minute patrols in the London Underground, found that ninety-seven percent of the drop happened while no officer was actually present:
 
-$$ m_{\text{fear}} \approx \frac{1}{1 - 0.97} \approx 33 $$
+$$
+m_{\text{fear}} \approx \frac{1}{1 - 0.97} \approx 33
+$$
 
 <img class="chart-img" src="/images/charts/badassman-two-channels.svg" alt="Log-scale bars: punching stops about two crimes a year; deterrence by presence prevents twelve to forty-eight at the measured floor, with a much larger but softer analogy ceiling." loading="lazy" />
 
@@ -65,17 +81,23 @@ Then I asked what it costs to keep the fear true, and the good mood passed.
 
 Fear decays. A threat nobody has watched act fades toward nothing, the way a decoy police car deters right up until everyone notices it is empty:
 
-$$ D(t) = D_0\, e^{-t/\tau}, \qquad \tau \approx 1\text{ to }2\ \text{weeks} $$
+$$
+D(t) = D_0\, e^{-t/\tau}, \qquad \tau \approx 1\text{ to }2\ \text{weeks}
+$$
 
 <img class="chart-img" src="/images/charts/badassman-decay-sawtooth.svg" alt="A sawtooth: deterrence spikes with each visible act then decays; frequent validation stays above the threshold where it bites, sparse validation falls below it." loading="lazy" />
 
 So to keep the rumor alive he has to recharge it, faster than it decays, by actually showing up and doing something real and dangerous. The gear is not what stops him. Stripped of the Batcave, the kit is a $160 vest and a gym membership, and against the value a safety agency puts on a life it is a rounding error:
 
-$$ \frac{\text{cost}}{\text{life saved}} \approx \frac{\$2{,}330\,/\text{yr}}{0.38\ \text{lives}/\text{yr}} \approx \$6{,}100 \;\lll\; \$13\text{M (VSL)} $$
+$$
+\frac{\text{cost}}{\text{life saved}} \approx \frac{\$2{,}330\,/\text{yr}}{0.38\ \text{lives}/\text{yr}} \approx \$6{,}100 \;\lll\; \$13\text{M (VSL)}
+$$
 
 Money was never the thing in the way. He is. Run those validating appearances through the odds of a real fight, every couple of weeks, and the survival math is grim:
 
-$$ P(\text{alive after } Y\text{ yr}) = (1 - p_d)^{\,r Y}, \qquad Y^\star = \frac{\ln 0.5}{\,r\,\ln(1 - p_d)\,} \approx 11 $$
+$$
+P(\text{alive after } Y\text{ yr}) = (1 - p_d)^{\,r Y}, \qquad Y^\star = \frac{\ln 0.5}{\,r\,\ln(1 - p_d)\,} \approx 11
+$$
 
 <img class="chart-img" src="/images/charts/badassman-legend-vs-man.svg" alt="Survival curves: the probability the hero is still alive craters over the years, while the deterrent he provides stays a flat, ageless line." loading="lazy" />
 
@@ -87,7 +109,9 @@ Look again at what "show up and do something real" has to mean. It cannot be pun
 
 For the fear to land on the people it is supposed to land on, he has to hit the right ones, which means he has to know who they are. And crime cooperates here, because it is concentrated: a small share of people and places carry most of it.
 
-$$ \text{prevented}_{\text{targeted}} = N \cdot \lambda_{\text{offender}} \cdot (1 - r) $$
+$$
+\text{prevented}_{\text{targeted}} = N \cdot \lambda_{\text{offender}} \cdot (1 - r)
+$$
 
 <img class="chart-img" src="/images/charts/badassman-three-ways.svg" alt="Log-scale comparison: random patrol prevents about two a year, camping the worst places about five, removing the few highest-rate offenders about thirty." loading="lazy" />
 
@@ -107,7 +131,9 @@ I sat with that question longer than I want to admit, because the honest answer 
 
 Start with the case for the vigilante, which is real. The system catches shockingly little. Put together the share of crimes even reported and the share of reported crimes the police clear with an arrest:
 
-$$ P(\text{arrest} \mid \text{crime}) = P(\text{reported}) \cdot P(\text{cleared} \mid \text{reported}) $$
+$$
+P(\text{arrest} \mid \text{crime}) = P(\text{reported}) \cdot P(\text{cleared} \mid \text{reported})
+$$
 
 The result is grim. Roughly twenty-two percent of violent crime and seven percent of property crime ever ends in an arrest. Put the other way: about four in five violent crimes, and nineteen in twenty property crimes, produce no arrest at all.
 
@@ -139,7 +165,9 @@ A police officer who makes a reasonable mistake of fact is protected. A private 
 
 So his method is the error-prone one, and his process strips out every safeguard built to catch the error. Even the formal system, with all of those safeguards running, gets it wrong. The most careful estimate we have, for death-row cases specifically, is that about four percent, one in twenty-five, of the condemned are likely innocent.
 
-$$ P(\text{wrong person}) \;\gtrsim\; \underbrace{4\%}_{\substack{\text{careful system,}\\ \text{every safeguard on}}} \;\longrightarrow\; \text{higher with none} $$
+$$
+P(\text{wrong person}) \;\gtrsim\; \underbrace{4\%}_{\substack{\text{careful system,}\\ \text{every safeguard on}}} \;\longrightarrow\; \text{higher with none}
+$$
 
 A faster, safeguard-free process does not beat that number. It raises it. His one true advantage over the police is the freedom to be catastrophically wrong about an innocent person, with nobody to answer to.
 

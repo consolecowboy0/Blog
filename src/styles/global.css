@@ -414,6 +414,8 @@ th {
   margin: 1.5rem auto;
 }
 [data-theme="dark"] .chart-img,
-[data-theme="rainbow"] .chart-img {
+[data-theme="rainbow"] .chart-img,
+[data-theme="batman"] .chart-img,
+[data-theme="bond"] .chart-img {
   filter: invert(1) hue-rotate(180deg);
 }

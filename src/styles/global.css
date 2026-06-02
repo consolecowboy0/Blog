@@ -309,10 +309,10 @@
 [data-theme="batman"] header::before {
   content: '';
   position: absolute;
-  top: -40px;
-  right: 6%;
-  width: 150px;
-  height: 150px;
+  top: -52px;
+  right: 0.5rem;
+  width: 124px;
+  height: 124px;
   z-index: 0;
   pointer-events: none;
   background:
@@ -330,6 +330,12 @@
   [data-theme="batman"] header::before { animation: none; opacity: 0.8; }
 }
 
+/* On narrow screens the nav wraps and the brand text reaches the right edge,
+   so retire the projected bat-signal to avoid colliding with the wordmark. */
+@media (max-width: 720px) {
+  [data-theme="batman"] header::before { display: none; }
+}
+
 /* Bat-gold rule under the header, brightest in the middle like a beam */
 [data-theme="batman"] header::after {
   content: '';
@@ -341,25 +347,6 @@
   z-index: 1;
   background: linear-gradient(90deg, transparent 0%, var(--bat-gold) 50%, transparent 100%);
   opacity: 0.9;
-}
-
-/* Little bat perched on the center of every horizontal rule */
-[data-theme="batman"] hr {
-  position: relative;
-  overflow: visible;
-}
-
-[data-theme="batman"] hr::after {
-  content: '🦇';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg);
-  padding: 0 0.6rem;
-  font-size: 0.8rem;
-  line-height: 1;
-  filter: grayscale(0.2);
 }
 
 /* 007: headings and wordmark are tuxedo silver-white (no gold — that's batman) */

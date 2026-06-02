@@ -12,14 +12,15 @@
   </style>
   <script>
   (function(){
-    // Two themes only, matching the site: rainbow (Asgard) lives in :root, batman is the override.
+    // Three themes, matching the site: rainbow (Asgard) lives in :root, batman and bond (007) are overrides.
     function applyTheme(t){
       if (t === 'batman') document.documentElement.setAttribute('data-theme', 'batman');
+      else if (t === 'bond') document.documentElement.setAttribute('data-theme', 'bond');
       else document.documentElement.removeAttribute('data-theme');
     }
     var urlTheme = new URLSearchParams(location.search).get('theme');
     if (urlTheme) applyTheme(urlTheme);
-    else applyTheme(localStorage.getItem('theme') === 'batman' ? 'batman' : 'rainbow');
+    else applyTheme(localStorage.getItem('theme') || 'rainbow');
     window.addEventListener('message', function(e){
       if (e && e.data && e.data.type === 'parent-theme') applyTheme(e.data.theme);
     });
@@ -43,6 +44,11 @@
       --bg: #10151e; --bg-card: #1a212e; --border: #283040;
       --text: #c3cbd6; --text-secondary: #93a0b3; --text-muted: #6e7888;
       --hot: #d6736f; --cold: #5aa9d6; --shaft: #c9a648;
+    }
+    [data-theme="bond"] {
+      --bg: #060607; --bg-card: #100e0e; --border: #221e1d;
+      --text: #f1eee7; --text-secondary: #b8b2a8; --text-muted: #857f77;
+      --hot: #e11d3a; --cold: #7d8a99; --shaft: #9aa3ad;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 17px; }

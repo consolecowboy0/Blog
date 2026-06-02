@@ -12,10 +12,12 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Two themes only, matching the site: rainbow (Asgard) lives in :root, batman is the override.
+  // Three themes, matching the site: rainbow (Asgard) lives in :root, batman and bond (007) are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
+    } else if (t === 'bond') {
+      document.documentElement.setAttribute('data-theme', 'bond');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -24,7 +26,7 @@
   if (urlTheme) {
     applyTheme(urlTheme);
   } else {
-    applyTheme(localStorage.getItem('theme') === 'batman' ? 'batman' : 'rainbow');
+    applyTheme(localStorage.getItem('theme') || 'rainbow');
   }
   window.addEventListener('message', function(e){
     if (e && e.data && e.data.type === 'parent-theme') {
@@ -67,6 +69,24 @@
       --accent-blue: #5aa9d6;
       --accent-green: #7fb98a;
       --accent-gold: #c9a648;
+    }
+
+    /* 007 / bond: black tuxedo background, cream/silver text, one blood-red accent,
+       cool steel secondaries. No gold. */
+    [data-theme="bond"] {
+      --bg: #060607;
+      --bg-card: #100e0e;
+      --bg-card-hover: #1a1614;
+      --bg-track: #020202;
+      --border: #221e1d;
+      --border-light: #3a3330;
+      --text: #f1eee7;
+      --text-secondary: #b8b2a8;
+      --text-muted: #857f77;
+      --accent-red: #c8102e;
+      --accent-blue: #7d8a99;
+      --accent-green: #9aa3ad;
+      --accent-gold: #b8b2a8;
     }
 
 
@@ -392,11 +412,15 @@
     .theme-toggle:hover { color: var(--text); }
     .theme-toggle svg { width: 16px; height: 16px; }
     /* Icon shown = the NEXT theme in the cycle (matches site header).
-       rainbow (Asgard) → bat, batman → rainbow. */
+       rainbow (Asgard) → bat, batman → bond, bond → rainbow. */
     .icon-rainbow { display: none; }
+    .icon-bond { display: none; }
     .icon-bat { display: block; }
     [data-theme="batman"] .icon-bat { display: none; }
-    [data-theme="batman"] .icon-rainbow { display: block; }
+    [data-theme="batman"] .icon-bond { display: block; }
+    [data-theme="bond"] .icon-bat { display: none; }
+    [data-theme="bond"] .icon-bond { display: none; }
+    [data-theme="bond"] .icon-rainbow { display: block; }
   </style>
 </head>
 <body>
@@ -408,6 +432,7 @@
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
       <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-hero" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-hero)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-hero)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-hero)" opacity="0.4"/></svg>
       <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
+      <svg class="icon-bond" viewBox="0 0 24 24" fill="none" stroke="#c8102e" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3" fill="#c8102e" stroke="none"/></svg>
     </button>
   </div>
 
@@ -497,6 +522,20 @@
       random:    { color: '#6e7681', label: 'The Random' },
     };
 
+    // Node stroke color = the active background, so nodes read as cut out of the canvas.
+    // One entry per theme (rainbow / batman / bond).
+    const nodeStrokeByTheme = {
+      rainbow: '#0b1338',
+      batman:  '#10151e',
+      bond:    '#060607',
+    };
+    function currentTheme() {
+      return document.documentElement.getAttribute('data-theme') || 'rainbow';
+    }
+    function nodeStrokeColor() {
+      return nodeStrokeByTheme[currentTheme()] || nodeStrokeByTheme.rainbow;
+    }
+
     // --- Load & Init ---
     d3.json('data.json').then(raw => {
       data = raw;
@@ -544,7 +583,7 @@
         .join('circle')
         .attr('r', d => rScale(d.degree))
         .attr('fill', d => communityColors[d.community] || '#999')
-        .attr('stroke', document.documentElement.getAttribute('data-theme') === 'batman' ? '#10151e' : '#0b1338')
+        .attr('stroke', nodeStrokeColor())
         .attr('stroke-width', 1.2)
         .attr('cursor', 'pointer');
 
@@ -895,14 +934,16 @@
       updateMiniChart();
     }
 
-    // Theme toggle
+    // Theme toggle: cycle rainbow → batman → bond → rainbow.
+    var themeCycle = { rainbow: 'batman', batman: 'bond', bond: 'rainbow' };
     document.getElementById('theme-toggle').addEventListener('click', function() {
-      var next = document.documentElement.getAttribute('data-theme') === 'batman' ? 'rainbow' : 'batman';
-      if (next === 'batman') { document.documentElement.setAttribute('data-theme', 'batman'); } else { document.documentElement.removeAttribute('data-theme'); }
+      var cur = document.documentElement.getAttribute('data-theme') || 'rainbow';
+      var next = themeCycle[cur] || 'rainbow';
+      if (next === 'rainbow') { document.documentElement.removeAttribute('data-theme'); }
+      else { document.documentElement.setAttribute('data-theme', next); }
       localStorage.setItem('theme', next);
       // Update node strokes to match the active background
-      var strokeColor = next === 'batman' ? '#10151e' : '#0b1338';
-      d3.selectAll('.nodes circle').attr('stroke', strokeColor);
+      d3.selectAll('.nodes circle').attr('stroke', nodeStrokeColor());
     });
   </script>
 </body>

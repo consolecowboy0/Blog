@@ -258,8 +258,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .dash-body :global(.chan-cell) {
     border-left: 3px solid var(--c, var(--border)); padding: 0.1rem 0 0.1rem 0.6rem;
   }
+  /* Percent hugs right after the channel name (default flex-start + the 0.5rem
+     gap), not flung to the far column edge where it reads as disconnected. */
   .dash-body :global(.chan-cell .chan-top) {
-    display: flex; align-items: baseline; gap: 0.5rem; justify-content: space-between;
+    display: flex; align-items: baseline; gap: 0.5rem;
   }
   .dash-body :global(.chan-cell .chan-name) { font-size: 0.82rem; font-weight: 600; }
   .dash-body :global(.chan-cell .chan-pct) { font-size: 0.82rem; font-weight: 800; font-family: var(--font-mono); }

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Batman Zone</title>
+  <style>
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 800; font-display: swap; src: url('/fonts/inter-latin-800-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
+  </style>
+  <script>
+  (function(){
+    // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, bond (007) and senna are overrides.
+    function applyTheme(t){
+      if (t === 'batman') document.documentElement.setAttribute('data-theme', 'batman');
+      else if (t === 'bond') document.documentElement.setAttribute('data-theme', 'bond');
+      else if (t === 'senna') document.documentElement.setAttribute('data-theme', 'senna');
+      else document.documentElement.removeAttribute('data-theme');
+      if (window.__redraw) window.__redraw();
+    }
+    var urlTheme = new URLSearchParams(location.search).get('theme');
+    if (urlTheme) applyTheme(urlTheme);
+    else applyTheme(localStorage.getItem('theme') || 'rainbow');
+    window.addEventListener('message', function(e){
+      if (e && e.data && e.data.type === 'parent-theme') applyTheme(e.data.theme);
+    });
+  })();
+  </script>
+  <style>
+    :root {
+      --bg: #0b1338;
+      --bg-card: #142a66;
+      --border: #2e447f;
+      --text: #fdf4e3;
+      --text-secondary: #c9b78a;
+      --text-muted: #8b95bd;
+      --act: #f0a93c;       /* the Batman Zone — act */
+      --hold: #5ac8ff;      /* call the cops / hold a trial */
+      --danger: #ff5b52;    /* the cost of being wrong */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    [data-theme="batman"] {
+      --bg: #10151e; --bg-card: #1a212e; --border: #283040;
+      --text: #c3cbd6; --text-secondary: #93a0b3; --text-muted: #6e7888;
+      --act: #c9a648; --hold: #5aa9d6; --danger: #d6736f;
+    }
+    [data-theme="bond"] {
+      --bg: #060607; --bg-card: #100e0e; --border: #221e1d;
+      --text: #f1eee7; --text-secondary: #b8b2a8; --text-muted: #857f77;
+      --act: #c9a35a; --hold: #7d8a99; --danger: #e11d3a;
+    }
+    [data-theme="senna"] {
+      --bg: #0b0b0c; --bg-card: #15140e; --border: #2a2614;
+      --text: #f4f3ee; --text-secondary: #d8cfa0; --text-muted: #c9b24a;
+      --act: #ffd300; --hold: #1f6fd0; --danger: #e2473a;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 17px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 820px; margin: 0 auto; padding: 28px 24px 48px; }
+    h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sub { font-size: 0.85rem; color: var(--text-secondary); margin-top: 6px; }
+
+    .stage {
+      margin-top: 22px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-card);
+      padding: 16px 16px 12px;
+    }
+    .map-row { display: flex; gap: 14px; align-items: stretch; }
+    .yaxis {
+      writing-mode: vertical-rl; transform: rotate(180deg);
+      text-align: center; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
+      padding: 6px 0;
+    }
+    .map-col { flex: 1; min-width: 0; }
+    canvas { width: 100%; height: auto; display: block; border: 1px solid var(--border); border-radius: 4px; cursor: crosshair; touch-action: none; }
+    .xaxis {
+      text-align: center; font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);
+      margin-top: 8px;
+    }
+
+    .verdict {
+      margin-top: 16px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); padding: 14px 16px;
+    }
+    .verdict-tag {
+      display: inline-block; font-family: var(--font-mono); font-size: 0.7rem;
+      font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0.2em 0.6em; border-radius: 3px; color: #0b0b0c;
+    }
+    .verdict-tag.act { background: var(--act); }
+    .verdict-tag.hold { background: var(--hold); }
+    .verdict-line { font-size: 1.02rem; font-weight: 700; margin-top: 10px; color: var(--text); }
+    .verdict-why { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    .ineq {
+      margin-top: 14px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center;
+    }
+    .term { border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; background: var(--bg-card); text-align: center; }
+    .term-cap { font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-secondary); }
+    .term-val { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 800; line-height: 1.2; margin-top: 4px; transition: color 0.15s; }
+    .term-form { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; }
+    .term.left .term-val { color: var(--danger); }
+    .term.right .term-val { color: var(--act); }
+    .ineq-op { font-family: var(--font-mono); font-size: 1.6rem; font-weight: 800; color: var(--text); text-align: center; }
+
+    .controls { margin-top: 22px; display: grid; gap: 16px; }
+    .ctl label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+    .ctl label .val { font-family: var(--font-mono); color: var(--text); }
+    input[type=range] { width: 100%; margin-top: 7px; accent-color: var(--act); }
+    .ctl-note { font-size: 0.74rem; color: var(--text-muted); margin-top: 3px; }
+
+    .legend { margin-top: 18px; display: flex; gap: 22px; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-secondary); }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .swatch { width: 13px; height: 13px; border-radius: 3px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>The Batman Zone</h1>
+    <p class="sub">A masked man with no badge is almost never the right tool. Two dials decide the one corner where he is: how <b>certain</b> he is, and whether the <b>system can act</b>. Drag them and watch the inequality tip.</p>
+
+    <div class="stage">
+      <div class="map-row">
+        <div class="yaxis">certainty&nbsp;p&nbsp;&rarr;</div>
+        <div class="map-col">
+          <canvas id="map" width="640" height="460" role="img" aria-label="Decision map of certainty versus the system's ability to act"></canvas>
+          <div class="xaxis">&larr;&nbsp;system can act&nbsp;(s)&nbsp;&rarr;</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="verdict">
+      <span class="verdict-tag" id="vtag">—</span>
+      <div class="verdict-line" id="vline">—</div>
+      <div class="verdict-why" id="vwhy">—</div>
+
+      <div class="ineq">
+        <div class="term left">
+          <div class="term-cap">cost of being wrong</div>
+          <div class="term-val" id="leftVal">—</div>
+          <div class="term-form">(1 &minus; p) · H<sub>innocent</sub></div>
+        </div>
+        <div class="ineq-op" id="op">?</div>
+        <div class="term right">
+          <div class="term-cap">harm if he does nothing</div>
+          <div class="term-val" id="rightVal">—</div>
+          <div class="term-form">p · (1 &minus; s) · H<sub>future</sub></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="ctl">
+        <label for="p">Certainty he's guilty <span class="val" id="pOut">0.50</span></label>
+        <input id="p" type="range" min="0" max="1" step="0.001" value="0.5" />
+        <div class="ctl-note" id="pNote">a coin-flip hunch from a dark rooftop</div>
+      </div>
+      <div class="ctl">
+        <label for="s">System's odds of acting <span class="val" id="sOut">0.50</span></label>
+        <input id="s" type="range" min="0" max="1" step="0.001" value="0.5" />
+        <div class="ctl-note" id="sNote">courts work about half the time</div>
+      </div>
+      <div class="ctl">
+        <label for="k">How dangerous the villain is <span class="val" id="kOut">50&times;</span></label>
+        <input id="k" type="range" min="1" max="200" step="1" value="50" />
+        <div class="ctl-note">future harm of a free monster, measured in ruined innocents (H<sub>future</sub> / H<sub>innocent</sub>)</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--act)"></i> Acting is justified — the Batman Zone</span>
+      <span><i class="swatch" style="background:var(--hold)"></i> Stand down — call the cops, hold a trial</span>
+    </div>
+  </div>
+
+  <script>
+    var pEl = document.getElementById('p');
+    var sEl = document.getElementById('s');
+    var kEl = document.getElementById('k');
+    var pOut = document.getElementById('pOut'), sOut = document.getElementById('sOut'), kOut = document.getElementById('kOut');
+    var pNote = document.getElementById('pNote'), sNote = document.getElementById('sNote');
+    var leftVal = document.getElementById('leftVal'), rightVal = document.getElementById('rightVal'), op = document.getElementById('op');
+    var vtag = document.getElementById('vtag'), vline = document.getElementById('vline'), vwhy = document.getElementById('vwhy');
+    var canvas = document.getElementById('map');
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height, PAD = 1;
+
+    function cssVar(name) {
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+    // parse #rgb / #rrggbb to [r,g,b]
+    function hex2rgb(h) {
+      h = h.replace('#', '');
+      if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+      return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+    }
+    function mix(a, b, t) { return [Math.round(a[0]+(b[0]-a[0])*t), Math.round(a[1]+(b[1]-a[1])*t), Math.round(a[2]+(b[2]-a[2])*t)]; }
+
+    // margin > 0  => acting justified.  margin = p(1-s)k - (1-p)
+    function margin(p, s, k) { return p * (1 - s) * k - (1 - p); }
+
+    function drawMap() {
+      var k = +kEl.value;
+      var actRGB = hex2rgb(cssVar('--act') || '#f0a93c');
+      var holdRGB = hex2rgb(cssVar('--hold') || '#5ac8ff');
+      var bgRGB = hex2rgb(cssVar('--bg-card') || '#142a66');
+      var img = ctx.createImageData(W, H);
+      var d = img.data;
+      for (var py = 0; py < H; py++) {
+        // top of canvas = high certainty
+        var p = 1 - py / (H - 1);
+        for (var px = 0; px < W; px++) {
+          var s = px / (W - 1);
+          var m = margin(p, s, k);
+          // squash margin into 0..1 confidence for color intensity
+          var mag = Math.min(1, Math.abs(m) / Math.max(1, k * 0.35));
+          var base;
+          if (m >= 0) base = mix(bgRGB, actRGB, 0.25 + 0.75 * mag);
+          else base = mix(bgRGB, holdRGB, 0.18 + 0.55 * mag);
+          var i = (py * W + px) * 4;
+          d[i] = base[0]; d[i+1] = base[1]; d[i+2] = base[2]; d[i+3] = 255;
+        }
+      }
+      ctx.putImageData(img, 0, 0);
+
+      // boundary curve: where margin == 0  =>  s = 1 - (1-p)/(p*k)
+      ctx.beginPath();
+      var started = false;
+      for (var yy = 0; yy < H; yy++) {
+        var pp = 1 - yy / (H - 1);
+        var ss = 1 - (1 - pp) / (pp * k);
+        if (ss < 0 || ss > 1 || !isFinite(ss)) { started = false; continue; }
+        var xx = ss * (W - 1);
+        if (!started) { ctx.moveTo(xx, yy); started = true; } else ctx.lineTo(xx, yy);
+      }
+      ctx.strokeStyle = cssVar('--text') || '#fff';
+      ctx.globalAlpha = 0.55;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      drawMarker();
+    }
+
+    function drawMarker() {
+      var p = +pEl.value, s = +sEl.value;
+      var x = s * (W - 1);
+      var y = (1 - p) * (H - 1);
+      var act = margin(p, s, +kEl.value) >= 0;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, 9, 0, Math.PI * 2);
+      ctx.fillStyle = act ? (cssVar('--act') || '#f0a93c') : (cssVar('--hold') || '#5ac8ff');
+      ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = cssVar('--bg') || '#000';
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function pPhrase(p) {
+      if (p >= 0.97) return 'near-certain — he signs his work (the Joker)';
+      if (p >= 0.8) return 'strong case, real evidence';
+      if (p >= 0.6) return 'leaning guilty, but still a guess';
+      if (p >= 0.4) return 'a coin-flip hunch from a dark rooftop';
+      if (p >= 0.2) return 'mostly a vibe';
+      return 'he basically just looks wrong';
+    }
+    function sPhrase(s) {
+      if (s >= 0.85) return 'courts, cops, prosecutors all working';
+      if (s >= 0.6) return 'the system mostly handles it';
+      if (s >= 0.4) return 'courts work about half the time';
+      if (s >= 0.15) return 'captured: bought DA, revolving-door Arkham';
+      return 'the machine is jammed on purpose';
+    }
+
+    function update() {
+      var p = +pEl.value, s = +sEl.value, k = +kEl.value;
+      pOut.textContent = p.toFixed(2);
+      sOut.textContent = s.toFixed(2);
+      kOut.textContent = k + '×';
+      pNote.textContent = pPhrase(p);
+      sNote.textContent = sPhrase(s);
+
+      var left = (1 - p) * 1;        // H_innocent normalized to 1
+      var right = p * (1 - s) * k;   // H_future = k innocents
+      leftVal.textContent = left.toFixed(2);
+      rightVal.textContent = right.toFixed(2);
+
+      var act = right > left;
+      op.textContent = Math.abs(right - left) < 0.005 ? '=' : (act ? '<' : '>');
+
+      if (act) {
+        vtag.className = 'verdict-tag act';
+        vtag.textContent = 'Batman Zone';
+        vline.textContent = 'Act. The mask is the right tool here.';
+        vwhy.textContent = 'The harm of doing nothing about a near-certain monster the courts can’t touch outweighs the risk of being wrong. This is the one corner of the map where no badge beats a badge.';
+      } else {
+        vtag.className = 'verdict-tag hold';
+        vtag.textContent = 'Stand down';
+        if (s >= 0.55) {
+          vline.textContent = 'Call the cops. You don’t need a mask.';
+          vwhy.textContent = 'The system can act, so a vigilante is just a less accountable redundancy — a worse cop.';
+        } else {
+          vline.textContent = 'Don’t guess. Hold a trial.';
+          vwhy.textContent = 'You aren’t sure enough. Acting on a hunch from a rooftop is how an innocent gets hurt — that’s the (1−p) cost society spends warrants and trials to avoid.';
+        }
+      }
+      drawMap();
+    }
+
+    window.__redraw = update;  // theme changes re-read CSS vars and repaint
+
+    // click / drag on the map to set p and s
+    function pointFromEvent(e) {
+      var r = canvas.getBoundingClientRect();
+      var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+      var cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+      var s = Math.max(0, Math.min(1, cx / r.width));
+      var p = Math.max(0, Math.min(1, 1 - cy / r.height));
+      sEl.value = s; pEl.value = p;
+      update();
+    }
+    var dragging = false;
+    canvas.addEventListener('pointerdown', function(e){ dragging = true; pointFromEvent(e); canvas.setPointerCapture(e.pointerId); });
+    canvas.addEventListener('pointermove', function(e){ if (dragging) pointFromEvent(e); });
+    canvas.addEventListener('pointerup', function(){ dragging = false; });
+
+    pEl.addEventListener('input', update);
+    sEl.addEventListener('input', update);
+    kEl.addEventListener('input', update);
+
+    update();
+  </script>
+</body>
+</html>

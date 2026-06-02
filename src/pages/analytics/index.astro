@@ -138,6 +138,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </section>
       </div>
 
+      <!-- Subscribers (editable) -->
+      <section class="block" id="subs-block">
+        <div class="block-head"><h2>Subscribers</h2><span class="block-sub" id="subs-sub"></span></div>
+        <form id="subs-add-form" class="subs-add">
+          <input type="email" id="subs-add-email" placeholder="name@example.com" autocomplete="off" />
+          <button type="submit" class="secondary-btn">Add</button>
+        </form>
+        <p id="subs-error" class="subs-error gate-hidden"></p>
+        <div id="subs-loading" class="dash-note">Loading…</div>
+        <table class="lead-table" id="subs-table">
+          <thead><tr><th>Email</th><th>Source</th><th class="num">Joined</th><th class="num">Actions</th></tr></thead>
+          <tbody id="subs-body"></tbody>
+        </table>
+        <p id="subs-empty" class="dash-note gate-hidden">No subscribers yet.</p>
+      </section>
+
     </div>
   </section>
 </BaseLayout>
@@ -323,6 +339,30 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
   }
+
+  /* Subscribers block */
+  .subs-add { display: flex; gap: 0.4rem; margin-bottom: 0.6rem; }
+  .subs-add input {
+    flex: 1; padding: 0.45rem 0.7rem; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 0.8rem; outline: none;
+    transition: border-color 0.15s;
+  }
+  .subs-add input:focus { border-color: var(--fg-muted); }
+  .subs-error { color: #e54; font-size: 0.76rem; margin: 0 0 0.6rem; }
+  .subs-actions { display: flex; gap: 0.35rem; justify-content: flex-end; }
+  .subs-btn {
+    padding: 0.2rem 0.55rem; background: transparent; color: var(--fg-muted);
+    border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-body);
+    font-size: 0.72rem; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .subs-btn:hover { background: var(--bg); color: var(--fg); }
+  .subs-btn.danger:hover { color: #e54; border-color: #e54; }
+  .subs-edit-input {
+    width: 100%; padding: 0.25rem 0.4rem; border: 1px solid var(--fg-muted);
+    border-radius: 6px; background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 0.8rem; outline: none;
+  }
 </style>
 
 <script>
@@ -354,6 +394,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     gate!.style.display = 'none';
     panel!.style.display = 'block';
     loadData();
+    loadSubscribers();
   }
 
   async function tryToken() {
@@ -752,6 +793,151 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   // Re-render charts when the site theme changes so palette stays in sync.
   new MutationObserver(() => { if (lastData && panel!.style.display !== 'none') render(lastData); })
     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  // --- Subscribers ---------------------------------------------------------
+  const SUB_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  let subscribers: any[] = [];
+
+  function authHeaders() { return { Authorization: `Bearer ${authToken}` }; }
+
+  function setSubError(msg: string) {
+    const el = document.getElementById('subs-error')!;
+    el.textContent = msg;
+    el.classList.remove('gate-hidden');
+  }
+  function clearSubError() { document.getElementById('subs-error')!.classList.add('gate-hidden'); }
+
+  function fmtDate(ms: number) {
+    if (!ms) return '—';
+    return new Date(ms).toISOString().slice(0, 10);
+  }
+
+  async function loadSubscribers() {
+    const loading = document.getElementById('subs-loading')!;
+    loading.textContent = 'Loading…';
+    loading.classList.remove('gate-hidden');
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribers`, { headers: authHeaders() });
+      if (res.status === 401) { signOut(); return; }
+      if (!res.ok) throw new Error('Request failed (' + res.status + ')');
+      const data = await res.json();
+      subscribers = data.subscribers || [];
+      renderSubscribers();
+    } catch (err: any) {
+      loading.textContent = 'Could not load subscribers: ' + (err?.message || err);
+    }
+  }
+
+  function renderSubscribers() {
+    const loading = document.getElementById('subs-loading')!;
+    const empty = document.getElementById('subs-empty')!;
+    const body = document.getElementById('subs-body')!;
+    const sub = document.getElementById('subs-sub')!;
+    loading.classList.add('gate-hidden');
+    sub.textContent = subscribers.length ? `${fmt(subscribers.length)} total` : '';
+    if (!subscribers.length) {
+      body.innerHTML = '';
+      empty.classList.remove('gate-hidden');
+      return;
+    }
+    empty.classList.add('gate-hidden');
+    body.innerHTML = subscribers.map((s: any) => `
+      <tr data-id="${escapeHtml(s.id)}">
+        <td class="bar-cell"><span class="lead-label" title="${escapeHtml(s.email)}">${escapeHtml(s.email)}</span></td>
+        <td class="muted">${escapeHtml(s.source || '—')}</td>
+        <td class="num muted">${fmtDate(s.created)}</td>
+        <td class="num"><div class="subs-actions">
+          <button type="button" class="subs-btn sub-edit">Edit</button>
+          <button type="button" class="subs-btn danger sub-del">Delete</button>
+        </div></td>
+      </tr>`).join('');
+  }
+
+  function startEdit(tr: HTMLElement, id: string) {
+    const s = subscribers.find((x: any) => x.id === id);
+    if (!s) return;
+    const emailCell = tr.querySelector('td')!;
+    emailCell.innerHTML = `<input class="subs-edit-input" type="email" value="${escapeHtml(s.email)}" />`;
+    const actions = tr.querySelector('.subs-actions')!;
+    actions.innerHTML =
+      `<button type="button" class="subs-btn sub-save">Save</button>` +
+      `<button type="button" class="subs-btn sub-cancel">Cancel</button>`;
+    const input = emailCell.querySelector('input') as HTMLInputElement;
+    input.focus();
+    input.select();
+    input.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') { e.preventDefault(); saveEdit(id, input.value); }
+      else if (e.key === 'Escape') { renderSubscribers(); }
+    });
+  }
+
+  async function saveEdit(id: string, raw: string) {
+    const email = raw.trim().toLowerCase();
+    if (!SUB_EMAIL_RE.test(email)) { setSubError('Invalid email'); return; }
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribers`, {
+        method: 'PATCH',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, email }),
+      });
+      if (res.status === 401) { signOut(); return; }
+      const data = await res.json();
+      if (!res.ok) { setSubError(data.error || 'Could not save'); return; }
+      clearSubError();
+      await loadSubscribers();
+    } catch { setSubError('Could not save'); }
+  }
+
+  async function deleteSubscriber(id: string) {
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribers?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+      if (res.status === 401) { signOut(); return; }
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setSubError(d.error || 'Could not delete'); return; }
+      clearSubError();
+      await loadSubscribers();
+    } catch { setSubError('Could not delete'); }
+  }
+
+  document.getElementById('subs-body')!.addEventListener('click', (e: Event) => {
+    const target = e.target as HTMLElement;
+    const tr = target.closest('tr') as HTMLElement | null;
+    if (!tr) return;
+    const id = tr.getAttribute('data-id') || '';
+    if (target.classList.contains('sub-del')) {
+      const s = subscribers.find((x: any) => x.id === id);
+      if (confirm(`Remove ${s?.email || 'this subscriber'} from the list?`)) deleteSubscriber(id);
+    } else if (target.classList.contains('sub-edit')) {
+      startEdit(tr, id);
+    } else if (target.classList.contains('sub-save')) {
+      const input = tr.querySelector('.subs-edit-input') as HTMLInputElement;
+      saveEdit(id, input.value);
+    } else if (target.classList.contains('sub-cancel')) {
+      renderSubscribers();
+    }
+  });
+
+  document.getElementById('subs-add-form')!.addEventListener('submit', async (e: Event) => {
+    e.preventDefault();
+    const input = document.getElementById('subs-add-email') as HTMLInputElement;
+    const email = input.value.trim().toLowerCase();
+    if (!SUB_EMAIL_RE.test(email)) { setSubError('Invalid email'); return; }
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribers`, {
+        method: 'POST',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (res.status === 401) { signOut(); return; }
+      const data = await res.json();
+      if (!res.ok) { setSubError(data.error || 'Could not add'); return; }
+      clearSubError();
+      input.value = '';
+      await loadSubscribers();
+    } catch { setSubError('Could not add'); }
+  });
 
   tryToken();
 </script>

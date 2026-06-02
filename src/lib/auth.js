@@ -27,6 +27,7 @@ function safeEqualHex(a, b) {
 }
 
 export function verifyPassword(password, scope) {
+  if (typeof password !== 'string' || password.length === 0 || password.length > 1000) return false;
   const hash = HASHES[scope];
   if (!hash) return false;
   const attempt = createHash('sha256').update(password).digest('hex');

@@ -29,8 +29,15 @@ export async function POST({ request }) {
 
   const { system, messages, model, agentConfig } = body;
 
-  if (!system || !messages) {
-    return new Response(JSON.stringify({ error: "Missing system or messages" }), {
+  if (!system || typeof system !== 'string' || system.length > 10000) {
+    return new Response(JSON.stringify({ error: "Invalid system prompt" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+    return new Response(JSON.stringify({ error: "Invalid messages" }), {
       status: 400,
       headers: corsHeaders,
     });
@@ -103,15 +110,16 @@ export async function POST({ request }) {
     });
   } catch (err) {
     const message = err.message || '';
+    console.error('[agent-sdk-chat] error:', message);
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return new Response(
-        JSON.stringify({ error: "Agent SDK requires Claude Code CLI installed on the server." }),
+        JSON.stringify({ error: "Agent SDK not available" }),
         { status: 501, headers: corsHeaders }
       );
     }
     return new Response(
-      JSON.stringify({ error: message || "Failed to call Agent SDK" }),
-      { status: 500, headers: corsHeaders }
+      JSON.stringify({ error: "Agent service unavailable" }),
+      { status: 503, headers: corsHeaders }
     );
   } finally {
     if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;

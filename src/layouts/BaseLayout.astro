@@ -25,10 +25,11 @@ const { title, description = 'A blog.' } = Astro.props;
     <link rel="preload" href="/fonts/inter-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
     <script is:inline>
       (function() {
-        const themes = ['rainbow', 'batman', 'bond', 'senna'];
-        const saved = sessionStorage.getItem('theme');
-        const theme = saved && themes.includes(saved) ? saved : themes[Math.floor(Math.random() * themes.length)];
-        sessionStorage.setItem('theme', theme);
+        var themes = ['rainbow', 'batman', 'bond', 'senna'];
+        var match = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+        var saved = match ? decodeURIComponent(match[1]) : null;
+        var theme = saved && themes.indexOf(saved) !== -1 ? saved : themes[Math.floor(Math.random() * themes.length)];
+        if (!saved) document.cookie = 'theme=' + theme + '; path=/; SameSite=Lax';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
@@ -693,7 +694,7 @@ const { title, description = 'A blog.' } = Astro.props;
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];
     document.documentElement.setAttribute('data-theme', next);
-    sessionStorage.setItem('theme', next);
+    document.cookie = 'theme=' + next + '; path=/; SameSite=Lax';
     broadcastThemeToEmbeds(next);
   });
 </script>

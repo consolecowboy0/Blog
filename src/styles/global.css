@@ -50,6 +50,25 @@
   --bond-header-to: #0c0a0a;
 }
 
+/* Senna mode — Ayrton Senna's helmet: carbon-black base with Senna yellow as the
+   lone loud accent, plus a Brazil-green band and a thin blue thread as the helmet
+   detail (used in the header rule). All palette colors are vars so the structural
+   rules below stay generic. */
+[data-theme="senna"] {
+  --bg: #0b0b0c;
+  --fg: #f4f3ee;
+  --fg-muted: #c9b24a;
+  --accent: #ffd300;
+  --border: #2a2614;
+  --code-bg: #050505;
+  --senna-yellow: #ffd300;
+  --senna-green: #1faf5a;
+  --senna-blue: #1f6fd0;
+  --senna-glow: 0 0 4px rgba(255, 211, 0, 0.75), 0 0 16px rgba(255, 211, 0, 0.4);
+  --senna-header-from: #0b0b0c;
+  --senna-header-to: #14110a;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -269,6 +288,58 @@
   z-index: 1;
   background: linear-gradient(90deg, transparent 0%, var(--bond-red) 50%, transparent 100%);
   opacity: 0.9;
+}
+
+/* Senna: headings and wordmark in helmet yellow */
+[data-theme="senna"] h1,
+[data-theme="senna"] h2,
+[data-theme="senna"] .site-title {
+  color: var(--accent);
+}
+
+/* Links bleed Senna yellow on hover, with a soft floodlight glow */
+[data-theme="senna"] a:hover {
+  color: var(--senna-yellow);
+  border-color: var(--senna-yellow);
+  text-shadow: var(--senna-glow);
+}
+
+/* Wordmark lights up like the helmet under floodlights on hover */
+[data-theme="senna"] .site-title {
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+[data-theme="senna"] .site-title:hover {
+  color: #fff06a;
+  text-shadow: var(--senna-glow);
+}
+
+/* Code blocks edged in yellow */
+[data-theme="senna"] pre,
+[data-theme="senna"] code {
+  border-color: var(--senna-yellow);
+}
+
+/* Carbon header with the helmet band as the bottom rule */
+[data-theme="senna"] header {
+  background: linear-gradient(180deg, var(--senna-header-from) 0%, var(--senna-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Helmet band: Brazil green, Senna yellow, then a thin blue thread, left → right */
+[data-theme="senna"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--senna-green) 0%, var(--senna-green) 30%,
+    var(--senna-yellow) 30%, var(--senna-yellow) 82%,
+    var(--senna-blue) 82%, var(--senna-blue) 100%);
+  opacity: 0.95;
 }
 
 * {

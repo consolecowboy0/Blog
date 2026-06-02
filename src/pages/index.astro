@@ -278,6 +278,23 @@ const libraryItems = (await getCollection('library'))
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
 
+  /* 007: gun-barrel bullseye around the head. box-shadow rings aren't clipped by
+     overflow:hidden and follow the border-radius, so they ring the circle cleanly.
+     Order is innermost-first; the var(--bg) layers are the dark gaps between rings. */
+  :global([data-theme="bond"]) .hero-portrait {
+    border-color: rgba(244, 242, 236, 0.95);
+    box-shadow:
+      0 0 0 4px var(--bg),
+      0 0 0 10px var(--bond-red),
+      0 0 0 15px var(--bg),
+      0 0 0 20px rgba(244, 242, 236, 0.9),
+      0 0 0 25px var(--bg),
+      0 0 0 31px var(--bond-red-bright),
+      0 0 0 36px var(--bg),
+      0 0 0 38px rgba(244, 242, 236, 0.4),
+      0 10px 34px rgba(0, 0, 0, 0.6);
+  }
+
   .hero-portrait img {
     width: 100%;
     height: 100%;

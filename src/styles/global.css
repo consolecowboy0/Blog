@@ -31,6 +31,25 @@
   --code-bg: #0b0f16;
 }
 
+/* 007 mode — gun barrel: pure tuxedo monochrome (ink black + crisp white) with a
+   single blood-red signature. Deliberately NO gold, so it reads nothing like
+   batman's blue-steel-and-gold. Headings are tuxedo silver-white; red is the lone
+   accent (links, rules, the barrel iris). All palette colors are vars. */
+[data-theme="bond"] {
+  --bg: #060607;
+  --fg: #f1eee7;
+  --fg-muted: #857f77;
+  --accent: #c8102e;
+  --border: #221e1d;
+  --code-bg: #010101;
+  --bond-silver: #f4f2ec;
+  --bond-red: #c8102e;
+  --bond-red-bright: #e11d3a;
+  --bond-glow: 0 0 4px rgba(200, 16, 46, 0.75), 0 0 16px rgba(200, 16, 46, 0.45);
+  --bond-header-from: #060607;
+  --bond-header-to: #0c0a0a;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -183,6 +202,73 @@
 /* Thin bat-yellow rule under the header */
 [data-theme="batman"] header {
   border-bottom-color: var(--accent);
+}
+
+/* 007: headings and wordmark are tuxedo silver-white (no gold — that's batman) */
+[data-theme="bond"] h1,
+[data-theme="bond"] h2,
+[data-theme="bond"] .site-title {
+  color: var(--bond-silver);
+}
+
+/* Links bleed gun-barrel red on hover */
+[data-theme="bond"] a:hover {
+  color: var(--bond-red-bright);
+  border-color: var(--bond-red);
+  text-shadow: var(--bond-glow);
+}
+
+/* Wordmark fires the gun-barrel sequence on hover: white → blood red */
+[data-theme="bond"] .site-title {
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+[data-theme="bond"] .site-title:hover {
+  color: var(--bond-red-bright);
+  text-shadow: var(--bond-glow);
+}
+
+/* Code blocks edged in red */
+[data-theme="bond"] pre,
+[data-theme="bond"] code {
+  border-color: var(--bond-red);
+}
+
+/* Tuxedo header. nav sits above the rifling so text stays crisp. */
+[data-theme="bond"] header {
+  background: linear-gradient(180deg, var(--bond-header-from) 0%, var(--bond-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="bond"] header nav {
+  position: relative;
+  z-index: 1;
+}
+
+/* Gun-barrel rifling: faint concentric rings sweeping in from the left, like
+   looking down a rifled bore. Pure-CSS, sits behind the nav. */
+[data-theme="bond"] header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-radial-gradient(circle at -4% 50%, transparent 0 22px, rgba(244, 242, 236, 0.05) 22px 23px);
+}
+
+/* Single blood-red rule under the header, like the barrel iris closing shut */
+[data-theme="bond"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 1;
+  background: linear-gradient(90deg, transparent 0%, var(--bond-red) 50%, transparent 100%);
+  opacity: 0.9;
 }
 
 * {

@@ -688,7 +688,7 @@ const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme) ?
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];
     document.documentElement.setAttribute('data-theme', next);
-    document.cookie = 'theme=' + next + '; path=/; SameSite=Lax';
+    document.cookie = 'theme=' + next + '; path=/; SameSite=Lax; max-age=31536000';
     broadcastThemeToEmbeds(next);
   });
 </script>

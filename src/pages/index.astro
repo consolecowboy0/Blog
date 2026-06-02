@@ -293,17 +293,15 @@ const libraryItems = (await getCollection('library'))
      overflow:hidden and follow the border-radius, so they ring the circle cleanly.
      Order is innermost-first; the var(--bg) layers are the dark gaps between rings. */
   :global([data-theme="bond"]) .hero-portrait {
-    border-color: rgba(244, 242, 236, 0.95);
+    border-color: rgba(244, 242, 236, 0.35);
     box-shadow:
-      0 0 0 4px var(--bg),
-      0 0 0 10px var(--bond-red),
+      0 0 0 3px var(--bg),
+      0 0 0 4px rgba(200, 16, 46, 0.5),
+      0 0 0 9px var(--bg),
+      0 0 0 10px rgba(244, 242, 236, 0.22),
       0 0 0 15px var(--bg),
-      0 0 0 20px rgba(244, 242, 236, 0.9),
-      0 0 0 25px var(--bg),
-      0 0 0 31px var(--bond-red-bright),
-      0 0 0 36px var(--bg),
-      0 0 0 38px rgba(244, 242, 236, 0.4),
-      0 10px 34px rgba(0, 0, 0, 0.6);
+      0 0 0 16px rgba(200, 16, 46, 0.38),
+      0 8px 26px rgba(0, 0, 0, 0.5);
   }
 
   /* 007: sniper-scope crosshairs straight through the middle, extending past the
@@ -315,22 +313,21 @@ const libraryItems = (await getCollection('library'))
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: var(--bond-red-bright);
-    box-shadow: 0 0 7px rgba(225, 29, 58, 0.6);
+    background: rgba(200, 16, 46, 0.5);
     z-index: 2;
     pointer-events: none;
   }
 
   /* vertical */
   :global([data-theme="bond"]) .hero-portrait::before {
-    width: 3px;
-    height: calc(100% + 90px);
+    width: 1px;
+    height: calc(100% + 40px);
   }
 
   /* horizontal */
   :global([data-theme="bond"]) .hero-portrait::after {
-    width: calc(100% + 90px);
-    height: 3px;
+    width: calc(100% + 40px);
+    height: 1px;
   }
 
   .hero-portrait img {

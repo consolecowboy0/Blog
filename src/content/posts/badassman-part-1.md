@@ -4,27 +4,19 @@ date: "2026-05-31"
 description: "Building a superhero from scratch with real numbers. Part one: a soft guy with a protein deficit versus a flight of stairs."
 draft: true
 ---
-## Could a real Batman exist?
+I have decided I am going to become Batman. Not the outfit. The actual job. I want to stress that I currently lose fights to a flight of stairs.
 
-Not the cape and the brooding. The job. One regular person who uses money, gear, training, and raw nerve to go stop crime at night. Could that actually work?
-
-That's the question. I want to chase it down with real numbers. The cost of the gear. The hours of training. The odds of getting shot. We will get philosophical. We will get dumb.
-
-This is part one of a series. You and me, we are going to build a superhero from scratch. Start as some ordinary person who decides to suit up. Then change one thing at a time until the plan stops getting them killed.
-
-Then we have our story.
-
-This is the science-geeked mythbusters-wannabe's approach to a comic book. We will test the silly premise like it owes us money.
+Real numbers. Real training schedule. Let's build Badassman from scratch.
 
 ## Sick, I'm in.
 
-Let's call our superhero: Badassman. Badassman must first of all, be badass. I'm not interested AT ALL in making some legit like states attorney or some shit like that ok? I know those people can help people probably a lot more than Badassman can, but Badassman gets soaked into the mythological fabric of who we are as our people. Look at Batman, how many times can we watch Bruce Wayne's parents get shot? But we are ok with it. Why?
+Let's call our superhero: Badassman. Badassman must first of all, be badass. Not a states attorney, not a nonprofit founder- Badassman. The guy who gets soaked into the mythological fabric of who we are as a people. Look at Batman: how many times can we watch Bruce Wayne's parents get shot? And we are ok with it every time. Why?
 
 Because it's literally American mythology.
 
 Ok, so Badassman fights crime. With his hands. At night. That's the job.
 
-And right now Badassman is me, sitting here with a gut and a protein deficit. So before he fights anybody, he has to stop losing fights to a flight of stairs.
+And right now Badassman is me, sitting here with a gut and a protein deficit.
 
 ## I'm fat enough to cheat physics
 

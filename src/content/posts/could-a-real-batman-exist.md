@@ -125,68 +125,71 @@ So here is the question I could not put back down, the one the rest of this is a
 
 **Why isn't he just a cop?**
 
-## Part two: the badge and the cape
+## Part two: so when is he actually useful?
 
-I sat with that question longer than I want to admit, because the honest answer kept getting worse for me.
+My first pass at this answer was a real bummer, so let me get the grim part over with fast and then have some fun.
 
-Start with the case for the vigilante, which is real. The system catches shockingly little. Put together the share of crimes even reported and the share of reported crimes the police clear with an arrest:
+The grim part: in the ordinary case, a vigilante is just a worse cop. The system already catches shockingly little. Multiply the share of crimes even reported by the share of those the police clear:
 
 $$
 P(\text{arrest} \mid \text{crime}) = P(\text{reported}) \cdot P(\text{cleared} \mid \text{reported})
 $$
 
-The result is grim. Roughly twenty-two percent of violent crime and seven percent of property crime ever ends in an arrest. Put the other way: about four in five violent crimes, and nineteen in twenty property crimes, produce no arrest at all.
+and you land at about twenty-two percent of violent crime and seven percent of property crime ending in an arrest. Four in five violent crimes, nineteen in twenty property crimes: nobody is coming.
 
 <img class="chart-img" src="/images/charts/badassman-clearance-funnel.svg?v=2" alt="Funnel: of 100 violent crimes about 47 are reported and 22 end in arrest; of 100 property crimes about 35 are reported and 7 end in arrest." loading="lazy" />
 
-That is the gap a vigilante points at, and it is enormous: hundreds of thousands of violent crimes a year, millions of property crimes, no arrest, nobody coming. If you wanted a reason to put on a mask, it is right there in the data. So I went looking for what he could actually do with that gap, and that is where it fell apart, because finding the criminal turns out to be the easy part.
-
-## Finding him is one step of five
-
-What he wants to do, track offenders, target the worst, deter them with the certainty of getting caught, is not a fantasy. It exists, it works, and it has a name: focused deterrence. Boston's Operation Ceasefire is associated with a sixty-three percent drop in youth homicide. (Associated with. The evidence is strong but quasi-experimental, with no randomized trials, so I will not say caused.)
-
-But look at how focused deterrence actually runs, and the problem with our hero jumps out.
+Enormous gap, great reason to put on a mask. Except finding the criminal was never the hard part. The thing that actually works, tracking the worst offenders and deterring them with the certainty of consequences, is called focused deterrence, and it is a five-agency machine:
 
 <img class="chart-img" src="/images/charts/badassman-five-steps.svg?v=2" alt="Five boxes: find the offender (the only one a vigilante can do), then gather admissible evidence, make a lawful arrest, prosecute with a credible sanction, and provide an off-ramp, all of which require the institution." loading="lazy" />
 
-It is a five-agency machine. Find the offender, build admissible evidence, make a lawful arrest, hand it to a prosecutor who can threaten a real and certain punishment, and open a way out on the other side. Our guy can do exactly one of those five steps. He can find the offender. He owns none of the four steps that turn a name into a consequence, and the fear only works if a credible, lawful consequence is actually standing behind it. A threat with nothing behind it is the empty decoy car again.
+Find the offender, build admissible evidence, make a lawful arrest, get a prosecutor to threaten a real punishment, offer a way out. Our guy can do step one. The other four are the institution, and the fear only bites if a real consequence is standing behind it. He is one-fifth of a police department, and the expensive four-fifths is the part that matters.
 
-## His one real edge destroys itself
+And here is the real danger, the reason you do not want your neighbor doing this. Out in the normal world, he is *guessing.* He sees a guy who looks wrong, and acts. Guess about who is a criminal from a dark rooftop and sooner or later you have tackled a dad walking to his car. The entire apparatus of warrants and trials is just society's very expensive machine for not punching the wrong person.
 
-He does have a single genuine advantage over the police, and it is a strange one. A private citizen is not bound by the Fourth Amendment. Evidence he gathers, even in a way that would get a cop's case thrown out, is generally admissible (Burdeau v. McDowell, 1921). A detective would envy that.
+So a real Batman, dropped into real crime, is a worse cop who occasionally maims an innocent. Cool. Cool cool cool.
 
-It evaporates the moment he uses it. As soon as he coordinates with the police to actually get the guy off the street, the law treats him as an agent of the state (Skinner, 1989), and the Fourth Amendment snaps back. The edge and the goal are mutually exclusive: he can keep his admissible evidence, or he can have a partner who can make an arrest, but the instant he reaches for the second he loses the first. And a masked, anonymous man cannot stand up in court and authenticate anything anyway.
+## But now the fun part
 
-## The asymmetry that should scare you
+Look at what is doing the damage in that story. Two things, and only two:
 
-Now the part that turned my stomach.
+1. He is **not sure** the person is guilty, so he risks the innocent.
+2. The system **could** have handled it, so he is just a less careful redundancy.
 
-A police officer who makes a reasonable mistake of fact is protected. A private citizen who grabs someone for a felony that did not actually happen is strictly liable: false imprisonment, assault, sometimes kidnapping. Being reasonably wrong is not a defense for him. And his primary tool, the thing he builds the whole case on, is eyewitness identification, which is the single largest contributor to wrongful convictions, present in roughly seven of ten DNA exonerations.
+Now flip both. What if he is *certain*, and the system *cannot* act?
 
-So his method is the error-prone one, and his process strips out every safeguard built to catch the error. Even the formal system, with all of those safeguards running, gets it wrong. The most careful estimate we have, for death-row cases specifically, is that about four percent, one in twenty-five, of the condemned are likely innocent.
+That is the entire Batman premise, and it turns out to be the one rigorous answer. Picture a villain, a Joker, who is not some stranger on a rooftop. Batman has caught him in the act eleven times. The odds that this specific, theatrical, monogrammed-calling-card lunatic is up to something are not a guess. They round to one:
 
 $$
-P(\text{wrong person}) \;\gtrsim\; \underbrace{4\%}_{\substack{\text{careful system,}\\ \text{every safeguard on}}} \;\longrightarrow\; \text{higher with none}
+P(\text{guilty} \mid \text{it's the Joker}) \approx 0.999
 $$
 
-A faster, safeguard-free process does not beat that number. It raises it. His one true advantage over the police is the freedom to be catastrophically wrong about an innocent person, with nobody to answer to.
+That single number deletes the first problem. The reason vigilantes are dangerous is the chance they are wrong, the (1 − *p*) term. Drive the prior to near-certainty and the odds of ruining an innocent collapse toward zero. You can act, hard, precisely because you are not guessing.
 
-## So where does he actually belong?
+Now the second problem. In the comics the Joker does not walk because of bad luck. He walks because the system is *captured*: a bought DA, a terrified jury, an Arkham with a revolving door, one honest cop in a rotten building. The machine that turns guilt into consequence is jammed on purpose. Call the system's odds of actually acting *s*, and against a protected villain *s* is near zero. Weigh the harm of acting on a possible innocent against the harm of letting a known monster keep going:
 
-There is a real niche. It is just nowhere near a dark alley.
+$$
+\underbrace{(1 - p)\,H_{\text{innocent}}}_{\text{risk of acting}} \;<\; \underbrace{p\,(1 - s)\,H_{\text{future harm}}}_{\text{cost of doing nothing}}
+$$
 
-It is investigation, and re-investigation, in the three places the institution genuinely fails: when it is itself the criminal (official misconduct appears in about fifty-four percent of all exonerations), when it has stopped looking (cold cases, where citizen-built genetic genealogy resolved more than six hundred by the end of 2023), and when it will not reopen a case that would indict it (roughly thirty-eight hundred exonerations since 1989). That is where an outside actor, free of the institution's blind spots and self-interest, genuinely matters.
+Read it left to right. Push the prior *p* toward one and the left side, the cost of being wrong, goes to zero. Push the system's odds *s* toward zero and the right side, the harm nobody is preventing, goes to its maximum. The inequality is not close. It is a blowout. Acting is not merely defensible, it is the only sane move on the board.
 
-But look at who fills that niche and actually wins. The Innocence Project. The genetic-genealogy labs. They are accountable nonprofits that cooperate with the police and borrow the police's own labs and databases. The moment the outsider succeeds, he has quietly turned back into an institution: accountable, cooperating, leaning on the exact tools he supposedly transcends. And when someone tries it the pure way, unaccountable and alone, you get the cautionary tale that haunts this whole question. The same unsupervised method that has freed innocent people has also coerced a false confession and sprung a guilty one. The autonomous version manufactures the precise error it claims to fix.
+Put those two dials on a chart and the whole question collapses into one little corner:
+
+<img class="chart-img" src="/images/charts/badassman-joker-zone.svg?v=2" alt="A quadrant of prior certainty of guilt versus whether the justice system can act. Most squares say call the cops, hold a trial, or do not let an amateur guess. Only the corner with extraordinary certainty and a system that cannot act is the Batman Zone." loading="lazy" />
+
+Almost everywhere on that map the answer is "call the police," or "hold a trial," or "for the love of god do not let an amateur guess." There is exactly one square where a masked man with no badge and no warrant is genuinely, uniquely the right tool: you are *certain*, and the law *cannot.* The Batman Zone.
+
+And here is the part that made me laugh after all the spreadsheets. The comics have been parked in that corner the whole time. Batman almost never fights a guy he is unsure about. He fights the Joker, Two-Face, the Penguin, named recurring villains he has personally caught a dozen times, in a city written to be exactly corrupt enough that the courts can't hold them. The writers did not stumble into that. It is the only setup where the hero is justified, and a century of them found it by instinct.
 
 ## The verdict
 
-So, why isn't he just a cop?
+So, can a real Batman exist, and would he be any use?
 
-Because being a cop is the only version that works. Strip the institution away and you do not get a faster, freer hero. You get a man who can find a suspect and then commit a crime against him, using the most error-prone method there is, with a higher chance of being wrong and nobody to stop him.
+Against crime in general, no. He cannot lower the crime rate, the geometry says so. He cannot out-cop the cops, the law says so, and if he tries he is mostly a hazard to innocent people, because out here he is guessing. A real Batman fighting real crime is a bad and slightly horrifying idea.
 
-The fear was real. That part of the hunch held: a credible threat scales where a body cannot, and it is the only thing in this whole project that beats the geometry. But the operator who has to wield that fear, the one who tracks and targets and shows up at night, can only become useful by acquiring the exact things that make him the police: warrants, a lab, a prosecutor, an arrest, an oath, and somebody he answers to. The cape is a deterrent with no courthouse behind it, and a deterrent with nothing behind it eventually gets called.
+But drop him into his actual job, a known villain he is genuinely sure of, in a system too captured to act, and he snaps into focus. Extraordinary certainty plus a broken courthouse is the one cell on the whole grid where the fear, the obsession, and the willingness to operate outside the system stop being liabilities and become the only thing that works.
 
-So here is where I actually landed, a 38-year-old with a Subaru who started this wanting to be Batman. The honest version of that wish is not a vest and a bad night in an alley. It is a donation to the people who do the patient, accountable, institutional version of the work, and a gym membership, because the recomposition is genuinely good for me. It is a worse movie. I think it is the better answer.
+There is just one catch, and it is the funniest result in the entire investigation. To make a real Batman worth it, you do not need a better Batman.
 
-Although. There is still one job left, the one where the math says put the suit on anyway. And it is not crime.
+You need a Joker.

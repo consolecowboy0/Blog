@@ -14,12 +14,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
 const THEMES = ['rainbow', 'batman', 'bond', 'senna'] as const;
 const savedTheme = Astro.cookies.get('theme')?.value;
-const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme)
-  ? savedTheme
-  : THEMES[Math.floor(Math.random() * THEMES.length)];
-if (!savedTheme) {
-  Astro.cookies.set('theme', theme, { path: '/', sameSite: 'lax' });
-}
+const theme = savedTheme && (THEMES as readonly string[]).includes(savedTheme) ? savedTheme : 'rainbow';
 ---
 
 <!doctype html>

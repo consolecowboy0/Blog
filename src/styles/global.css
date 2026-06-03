@@ -178,6 +178,30 @@
 }
 [data-theme="batman"] .batman-sigil {
   display: inline-block;
+  color: var(--bat-gold);
+  opacity: 1;
+  animation: bat-sigil-glow 4s ease-in-out infinite;
+}
+
+/* Bat sigil breathes a gold bat-signal glow over Gotham. */
+@keyframes bat-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(201, 166, 72, 0.55))
+      drop-shadow(0 0 8px rgba(201, 166, 72, 0.35));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(255, 226, 122, 0.85))
+      drop-shadow(0 0 14px rgba(201, 166, 72, 0.55));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="batman"] .batman-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(201, 166, 72, 0.6));
+  }
 }
 
 /* Bifrost bridge sweep — gradient flows left → right like the bridge activating */
@@ -294,23 +318,13 @@
   text-shadow: var(--bat-glow);
 }
 
-/* Wordmark glows bat-gold and slowly breathes like a beacon over Gotham,
-   then flares brighter on hover. */
+/* Wordmark sits plain — the glow lives on the bat sigil now. */
 [data-theme="batman"] .site-title {
-  transition: color 0.25s ease, text-shadow 0.25s ease;
-  text-shadow:
-    0 0 6px rgba(201, 166, 72, 0.45),
-    0 0 16px rgba(201, 166, 72, 0.3);
-  animation: bat-signal-pulse 4s ease-in-out infinite;
+  transition: color 0.25s ease;
 }
 
 [data-theme="batman"] .site-title:hover {
   color: var(--bat-gold-bright);
-  animation: none;
-  text-shadow:
-    0 0 4px rgba(255, 226, 122, 0.85),
-    0 0 12px rgba(201, 166, 72, 0.7),
-    0 0 28px rgba(201, 166, 72, 0.5);
 }
 
 /* Code blocks edged in bat-gold */
@@ -332,22 +346,6 @@
   z-index: 1;
 }
 
-@keyframes bat-signal-pulse {
-  0%, 100% {
-    text-shadow:
-      0 0 6px rgba(201, 166, 72, 0.4),
-      0 0 14px rgba(201, 166, 72, 0.25);
-  }
-  50% {
-    text-shadow:
-      0 0 10px rgba(255, 226, 122, 0.7),
-      0 0 26px rgba(201, 166, 72, 0.45);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="batman"] .site-title { animation: none; }
-}
 
 /* Bat-gold rule under the header, brightest in the middle like a beam */
 [data-theme="batman"] header::after {

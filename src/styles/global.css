@@ -164,6 +164,17 @@
   display: inline-block;
 }
 
+/* Batman bat sigil — hidden by default, shown only in Batman theme */
+.batman-sigil {
+  display: none;
+  color: var(--accent);
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+[data-theme="batman"] .batman-sigil {
+  display: inline-block;
+}
+
 /* Bifrost bridge sweep — gradient flows left → right like the bridge activating */
 @keyframes bifrost-sweep {
   0%   { background-position: 0% center; }

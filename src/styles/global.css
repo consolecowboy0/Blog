@@ -238,38 +238,20 @@
   }
 }
 
-/* Bifrost bridge sweep — gradient flows left → right like the bridge activating */
-@keyframes bifrost-sweep {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-/* Header stripe breathes — slow opacity pulse like the bridge idling */
-@keyframes bifrost-pulse {
-  0%, 100% { opacity: 0.45; }
-  50%       { opacity: 0.9; }
-}
-
-/* Headings get the gradient treatment — animated sweep */
+/* Headings: solid gold regalia. Calm, no animated rainbow text. */
 [data-theme="rainbow"] h1,
-[data-theme="rainbow"] h2,
+[data-theme="rainbow"] h2 {
+  color: var(--accent);
+}
+
+/* Only the site title keeps the Bifrost gradient, and it sits still. */
 [data-theme="rainbow"] .site-title {
   background: var(--rainbow-grad);
-  background-size: 200% auto;
+  background-size: 100% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: bifrost-sweep 10s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="rainbow"] h1,
-  [data-theme="rainbow"] h2,
-  [data-theme="rainbow"] .site-title {
-    animation: none;
-    background-size: 100% auto;
-  }
 }
 
 /* Links get a neon glow on hover */
@@ -291,21 +273,28 @@
   position: relative;
 }
 
+/* Header stripe: subtle Bifrost color sweep drifting left → right */
+@keyframes bifrost-sweep {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 [data-theme="rainbow"] header::after {
   content: '';
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 2px;
   background: var(--rainbow-grad);
-  animation: bifrost-pulse 4s ease-in-out infinite;
+  background-size: 200% auto;
+  opacity: 0.5;
+  animation: bifrost-sweep 18s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   [data-theme="rainbow"] header::after {
     animation: none;
-    opacity: 0.7;
   }
 }
 

@@ -50,7 +50,8 @@ export async function GET({ request }) {
       .sort((a, b) => b.created - a.created || (a.email < b.email ? -1 : 1));
     return json({ subscribers, total: subscribers.length }, 200, corsHeaders);
   } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+    console.error('[subscribers]', err);
+    return json({ error: 'Internal error' }, 500, corsHeaders);
   }
 }
 
@@ -72,7 +73,8 @@ export async function POST({ request }) {
     await ref.set({ email, created: now, source: 'manual' });
     return json({ ok: true, subscriber: { id: ref.id, email, created: now, source: 'manual' } }, 200, corsHeaders);
   } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+    console.error('[subscribers]', err);
+    return json({ error: 'Internal error' }, 500, corsHeaders);
   }
 }
 
@@ -110,7 +112,8 @@ export async function PATCH({ request }) {
     await oldRef.delete();
     return json({ ok: true, subscriber: { id: newId, email, created: prev.created || 0, source: prev.source || '' } }, 200, corsHeaders);
   } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+    console.error('[subscribers]', err);
+    return json({ error: 'Internal error' }, 500, corsHeaders);
   }
 }
 
@@ -120,13 +123,17 @@ export async function DELETE({ request }) {
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);
+  if (id.includes('/') || id.includes('..') || id.length > 300) {
+    return json({ error: 'Invalid id' }, 400, corsHeaders);
+  }
 
   try {
     const db = getDb();
     await db.collection('subscribers').doc(id).delete();
     return json({ ok: true }, 200, corsHeaders);
   } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+    console.error('[subscribers]', err);
+    return json({ error: 'Internal error' }, 500, corsHeaders);
   }
 }
 

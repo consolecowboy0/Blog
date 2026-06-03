@@ -2,14 +2,24 @@ export const prerender = false;
 
 import { requireAuth } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
   if (!requireAuth(request, 'legion')) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`web-search:${ip}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
 
@@ -25,7 +35,7 @@ export async function POST({ request }) {
 
   const apiKey = process.env.BRAVE_SEARCH_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: "No Brave Search API key configured" }), {
+    return new Response(JSON.stringify({ error: "Search service not available" }), {
       status: 500,
       headers: corsHeaders,
     });
@@ -58,9 +68,9 @@ export async function POST({ request }) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
+      console.error('[web-search] Brave API error', res.status, await res.text());
       return new Response(
-        JSON.stringify({ error: `Brave Search error (${res.status}): ${err}` }),
+        JSON.stringify({ error: "Search service error" }),
         { status: res.status, headers: corsHeaders }
       );
     }
@@ -77,8 +87,9 @@ export async function POST({ request }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[web-search]', err);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Brave Search" }),
+      JSON.stringify({ error: "Failed to call search service" }),
       { status: 500, headers: corsHeaders }
     );
   }

@@ -55,7 +55,7 @@ export async function POST({ request, clientAddress }) {
     status: 200,
     headers: {
       ...corsHeaders,
-      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`,
     },
   });
 }

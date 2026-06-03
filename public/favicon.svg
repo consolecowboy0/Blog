@@ -6,8 +6,15 @@
       <stop offset="1" stop-color="#2ad0ff"/>
     </linearGradient>
   </defs>
-  <g fill="none" stroke="url(#g)" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M16 28 V6"/>
-    <path d="M7 13 L16 4 L25 13"/>
+  <!-- enclosing ring -->
+  <circle cx="16" cy="16" r="14.2" fill="none" stroke="url(#g)" stroke-width="1.6" opacity="0.55"/>
+  <!-- stag antler sigil (matches the Asgard nav ornament), centered in the ring -->
+  <g transform="translate(0,5.5)" fill="none" stroke="url(#g)" stroke-linecap="round">
+    <path d="M16 21 C14 16 11 12 9 8 C8 5.5 8.5 3 10.5 2" stroke-width="1.9"/>
+    <path d="M9.8 9.5 L7 7.5" stroke-width="1.5"/>
+    <path d="M10.8 13.5 L8 12.5" stroke-width="1.5"/>
+    <path d="M16 21 C18 16 21 12 23 8 C24 5.5 23.5 3 21.5 2" stroke-width="1.9"/>
+    <path d="M22.2 9.5 L25 7.5" stroke-width="1.5"/>
+    <path d="M21.2 13.5 L24 12.5" stroke-width="1.5"/>
   </g>
 </svg>

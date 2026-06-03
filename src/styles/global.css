@@ -254,8 +254,9 @@
   color: transparent;
 }
 
-/* Links: simple gold underline on hover, no neon glow */
+/* Links get a neon glow on hover */
 [data-theme="rainbow"] a:hover {
+  text-shadow: var(--rainbow-glow);
   border-color: var(--accent);
 }
 
@@ -272,6 +273,12 @@
   position: relative;
 }
 
+/* Header stripe: subtle Bifrost color sweep drifting left → right */
+@keyframes bifrost-sweep {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 [data-theme="rainbow"] header::after {
   content: '';
   position: absolute;
@@ -280,12 +287,21 @@
   right: 0;
   height: 2px;
   background: var(--rainbow-grad);
+  background-size: 200% auto;
   opacity: 0.5;
+  animation: bifrost-sweep 18s linear infinite;
 }
 
-/* Blockquotes: simple gold left border, no torchlight glow */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="rainbow"] header::after {
+    animation: none;
+  }
+}
+
+/* Blockquotes: gold pillar glow — left border lights up like torchlight */
 [data-theme="rainbow"] blockquote {
   border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(212, 160, 23, 0.25);
 }
 
 /* HR: Bifrost section divider with a gold rune star at center */

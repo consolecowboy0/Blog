@@ -27,7 +27,7 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         var saved = localStorage.getItem('theme');
-        var valid = saved === 'batman' || saved === 'senna' ? saved : 'rainbow';
+        var valid = saved === 'batman' ? saved : 'rainbow';
         document.documentElement.setAttribute('data-theme', valid);
       })();
     </script>
@@ -112,7 +112,7 @@ const { title, description = 'A blog.' } = Astro.props;
           <a href="/posts">Writing</a>
           <a href="/library">Library</a>
           <a href="/dm">DM</a>
-          <button id="theme-toggle" aria-label="Cycle theme (asgard / batman / senna)">
+          <button id="theme-toggle" aria-label="Cycle theme (asgard / batman)">
             <!-- Icon only (previews the NEXT theme). Current theme name is shown in the header. -->
             <!-- Asgard preview: the stag antler sigil (matches the nav-brand ornament). -->
             <svg class="icon-rainbow" width="20" height="14" viewBox="0 0 32 22" fill="none" aria-hidden="true">
@@ -385,13 +385,13 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="senna"]) .theme-name-senna { display: inline; }
 
   /* Icon shown = the NEXT theme (what clicking will switch to). */
-  /* Asgard→Batman: bat. Batman→Senna: helmet. Senna→Asgard: rainbow. (007 retired for now.) */
+  /* Asgard→Batman: bat. Batman→Asgard: rainbow. (007 and senna retired for now.) */
   .icon-rainbow { display: none; }
   .icon-bat { display: none; }
   .icon-bond { display: none; }
   .icon-senna { display: none; }
   :global([data-theme="rainbow"]) .icon-bat { display: block; }
-  :global([data-theme="batman"]) .icon-senna { display: block; }
+  :global([data-theme="batman"]) .icon-rainbow { display: block; }
   :global([data-theme="bond"]) .icon-senna { display: block; }
   :global([data-theme="senna"]) .icon-rainbow { display: block; }
 
@@ -715,7 +715,7 @@ const { title, description = 'A blog.' } = Astro.props;
   }
 
   document.getElementById('theme-toggle')?.addEventListener('click', () => {
-    const order = ['rainbow', 'batman', 'senna'];
+    const order = ['rainbow', 'batman'];
     const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];

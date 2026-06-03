@@ -29,6 +29,11 @@
   --accent: #c9a648;
   --border: #283040;
   --code-bg: #0b0f16;
+  --bat-gold: #c9a648;
+  --bat-gold-bright: #ffe27a;
+  --bat-glow: 0 0 4px rgba(255, 226, 122, 0.8), 0 0 16px rgba(201, 166, 72, 0.55);
+  --bat-header-from: #10151e;
+  --bat-header-to: #0a0e16;
 }
 
 /* 007 mode — gun barrel: pure tuxedo monochrome (ink black + crisp white) with a
@@ -260,26 +265,79 @@
   color: var(--accent);
 }
 
+/* Links bleed bat-gold on hover, with a searchlight glow */
 [data-theme="batman"] a:hover {
+  color: var(--bat-gold-bright);
   border-color: var(--accent);
+  text-shadow: var(--bat-glow);
 }
 
-/* Wordmark lights up like the bat-signal on hover */
+/* Wordmark glows bat-gold and slowly breathes like a beacon over Gotham,
+   then flares brighter on hover. */
 [data-theme="batman"] .site-title {
   transition: color 0.25s ease, text-shadow 0.25s ease;
+  text-shadow:
+    0 0 6px rgba(201, 166, 72, 0.45),
+    0 0 16px rgba(201, 166, 72, 0.3);
+  animation: bat-signal-pulse 4s ease-in-out infinite;
 }
 
 [data-theme="batman"] .site-title:hover {
-  color: #ffe27a;
+  color: var(--bat-gold-bright);
+  animation: none;
   text-shadow:
-    0 0 4px rgba(255, 226, 122, 0.8),
+    0 0 4px rgba(255, 226, 122, 0.85),
     0 0 12px rgba(201, 166, 72, 0.7),
     0 0 28px rgba(201, 166, 72, 0.5);
 }
 
-/* Thin bat-yellow rule under the header */
+/* Code blocks edged in bat-gold */
+[data-theme="batman"] pre,
+[data-theme="batman"] code {
+  border-color: var(--bat-gold);
+}
+
+/* Gotham-night header with a bat-gold beam rule beneath the nav. */
 [data-theme="batman"] header {
-  border-bottom-color: var(--accent);
+  background: linear-gradient(180deg, var(--bat-header-from) 0%, var(--bat-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="batman"] header nav {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes bat-signal-pulse {
+  0%, 100% {
+    text-shadow:
+      0 0 6px rgba(201, 166, 72, 0.4),
+      0 0 14px rgba(201, 166, 72, 0.25);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(255, 226, 122, 0.7),
+      0 0 26px rgba(201, 166, 72, 0.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="batman"] .site-title { animation: none; }
+}
+
+/* Bat-gold rule under the header, brightest in the middle like a beam */
+[data-theme="batman"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  z-index: 1;
+  background: linear-gradient(90deg, transparent 0%, var(--bat-gold) 50%, transparent 100%);
+  opacity: 0.9;
 }
 
 /* 007: headings and wordmark are tuxedo silver-white (no gold — that's batman) */

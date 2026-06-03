@@ -78,13 +78,13 @@
 [data-theme="rainbow"] {
   --bg: #0b1338;
   --fg: #fdf4e3;
-  --fg-muted: #e8b84b;
-  --accent: #ffcc4d;
-  --border: #6b5320;
+  --fg-muted: #c9a23f;
+  --accent: #d4a017;
+  --border: #1e3a72;
   --code-bg: #070d28;
   --rainbow-grad: linear-gradient(90deg, #ff5e7e 0%, #ffb347 18%, #ffe14d 35%, #4ade80 52%, #38bdf8 70%, #6366f1 86%, #c084fc 100%);
-  --rainbow-glow: 0 0 14px rgba(255, 204, 77, 0.5), 0 0 28px rgba(99, 102, 241, 0.35);
-  --rainbow-border-bright: #ffcc4d;
+  --rainbow-glow: 0 0 14px rgba(212, 160, 23, 0.5), 0 0 28px rgba(99, 102, 241, 0.35);
+  --rainbow-border-bright: #d4a017;
   --rainbow-header-from: #0b1338;
   --rainbow-header-to: #142a66;
 }
@@ -153,6 +153,17 @@
 }
 */
 
+/* Asgard stag sigil — hidden by default, shown only in Asgard theme */
+.asgard-sigil {
+  display: none;
+  color: var(--accent);
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+[data-theme="rainbow"] .asgard-sigil {
+  display: inline-block;
+}
+
 /* Bifrost bridge sweep — gradient flows left → right like the bridge activating */
 @keyframes bifrost-sweep {
   0%   { background-position: 0% center; }
@@ -212,7 +223,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: 3px;
   background: var(--rainbow-grad);
   animation: bifrost-pulse 4s ease-in-out infinite;
 }
@@ -227,7 +238,7 @@
 /* Blockquotes: gold pillar glow — left border lights up like torchlight */
 [data-theme="rainbow"] blockquote {
   border-left-color: var(--accent);
-  box-shadow: -4px 0 14px rgba(255, 204, 77, 0.25);
+  box-shadow: -4px 0 14px rgba(212, 160, 23, 0.25);
 }
 
 /* HR: Bifrost section divider with a gold rune star at center */

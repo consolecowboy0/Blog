@@ -19,6 +19,23 @@
   --code-bg: #0d0d14;
 }
 
+/* Vanaheim mode — realm of the Vanir: the daylight Norse theme. Warm parchment
+   ground, deep forest ink, verdant green regalia with a gold thread of growth.
+   Shares Asgard's antler sigil (the permanent brand mark). All palette colors
+   are vars so the structural rules below stay generic. */
+[data-theme="vanaheim"] {
+  --bg: #f5f3ea;
+  --fg: #1c2b22;
+  --fg-muted: #5c6b5c;
+  --accent: #2f7d4f;
+  --border: #d6d8c8;
+  --code-bg: #ece9da;
+  --van-grad: linear-gradient(90deg, #2f7d4f 0%, #6aa84f 35%, #c9a227 70%, #d9b44a 100%);
+  --van-glow: 0 0 10px rgba(47, 125, 79, 0.3), 0 0 22px rgba(201, 162, 39, 0.2);
+  --van-header-from: #f5f3ea;
+  --van-header-to: #ece9da;
+}
+
 /* Batman mode — Dark Knight: cold gunmetal blue-steel + muted bat-gold.
    Classic comic values (swap in for pitch-black + bright yellow):
    --bg #0a0a0c; --fg #e8e8ea; --fg-muted #8a8a92; --accent #ffdf1b; --border #26262c; --code-bg #050506; */
@@ -34,44 +51,6 @@
   --bat-glow: 0 0 4px rgba(255, 226, 122, 0.8), 0 0 16px rgba(201, 166, 72, 0.55);
   --bat-header-from: #10151e;
   --bat-header-to: #0a0e16;
-}
-
-/* 007 mode — gun barrel: pure tuxedo monochrome (ink black + crisp white) with a
-   single blood-red signature. Deliberately NO gold, so it reads nothing like
-   batman's blue-steel-and-gold. Headings are tuxedo silver-white; red is the lone
-   accent (links, rules, the barrel iris). All palette colors are vars. */
-[data-theme="bond"] {
-  --bg: #060607;
-  --fg: #f1eee7;
-  --fg-muted: #857f77;
-  --accent: #c8102e;
-  --border: #221e1d;
-  --code-bg: #010101;
-  --bond-silver: #f4f2ec;
-  --bond-red: #c8102e;
-  --bond-red-bright: #e11d3a;
-  --bond-glow: 0 0 4px rgba(200, 16, 46, 0.75), 0 0 16px rgba(200, 16, 46, 0.45);
-  --bond-header-from: #060607;
-  --bond-header-to: #0c0a0a;
-}
-
-/* Senna mode — Ayrton Senna's helmet: carbon-black base with Senna yellow as the
-   lone loud accent, plus a Brazil-green band and a thin blue thread as the helmet
-   detail (used in the header rule). All palette colors are vars so the structural
-   rules below stay generic. */
-[data-theme="senna"] {
-  --bg: #0b0b0c;
-  --fg: #f4f3ee;
-  --fg-muted: #c9b24a;
-  --accent: #ffd300;
-  --border: #2a2614;
-  --code-bg: #050505;
-  --senna-yellow: #ffd300;
-  --senna-green: #1faf5a;
-  --senna-blue: #1f6fd0;
-  --senna-glow: 0 0 4px rgba(255, 211, 0, 0.75), 0 0 16px rgba(255, 211, 0, 0.4);
-  --senna-header-from: #0b0b0c;
-  --senna-header-to: #14110a;
 }
 
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
@@ -165,7 +144,8 @@
   opacity: 0.75;
   flex-shrink: 0;
 }
-[data-theme="rainbow"] .asgard-sigil {
+[data-theme="rainbow"] .asgard-sigil,
+[data-theme="vanaheim"] .asgard-sigil {
   display: inline-block;
 }
 
@@ -201,40 +181,6 @@
   [data-theme="batman"] .batman-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(201, 166, 72, 0.6));
-  }
-}
-
-/* Senna racing-S sigil — hidden by default, shown only in Senna theme */
-.senna-sigil {
-  display: none;
-  color: var(--senna-yellow);
-  opacity: 0.9;
-  flex-shrink: 0;
-}
-[data-theme="senna"] .senna-sigil {
-  display: inline-block;
-  opacity: 1;
-  animation: senna-sigil-glow 3s ease-in-out infinite;
-}
-
-/* The S pulses a hot yellow glow, like a helmet under track lights. */
-@keyframes senna-sigil-glow {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 3px rgba(255, 211, 0, 0.55))
-      drop-shadow(0 0 8px rgba(255, 211, 0, 0.3));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 5px rgba(255, 232, 120, 0.9))
-      drop-shadow(0 0 14px rgba(255, 211, 0, 0.5));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="senna"] .senna-sigil {
-    animation: none;
-    filter: drop-shadow(0 0 4px rgba(255, 211, 0, 0.6));
   }
 }
 
@@ -327,6 +273,79 @@
   line-height: 1;
 }
 
+/* Vanaheim: daylight Norse. Headings in forest ink; only the wordmark carries
+   the green→gold growth gradient. Mirrors Asgard's structure, lit for daytime. */
+[data-theme="vanaheim"] h1,
+[data-theme="vanaheim"] h2 {
+  color: var(--fg);
+}
+
+[data-theme="vanaheim"] .site-title {
+  background: var(--van-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="vanaheim"] a:hover {
+  text-shadow: var(--van-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="vanaheim"] pre,
+[data-theme="vanaheim"] code {
+  border-color: var(--accent);
+}
+
+[data-theme="vanaheim"] header {
+  background: linear-gradient(180deg, var(--van-header-from) 0%, var(--van-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: a calm green→gold growth band (no animation — daylight is still). */
+[data-theme="vanaheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--van-grad);
+  opacity: 0.55;
+}
+
+/* Blockquotes: green vine glow on the left rule. */
+[data-theme="vanaheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(47, 125, 79, 0.18);
+}
+
+/* HR: growth divider with a gold rune star at center. */
+[data-theme="vanaheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--van-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="vanaheim"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
 /* Batman: headings and wordmark glow bat-signal yellow */
 [data-theme="batman"] h1,
 [data-theme="batman"] h2,
@@ -381,125 +400,6 @@
   z-index: 1;
   background: linear-gradient(90deg, transparent 0%, var(--bat-gold) 50%, transparent 100%);
   opacity: 0.9;
-}
-
-/* 007: headings and wordmark are tuxedo silver-white (no gold — that's batman) */
-[data-theme="bond"] h1,
-[data-theme="bond"] h2,
-[data-theme="bond"] .site-title {
-  color: var(--bond-silver);
-}
-
-/* Links bleed gun-barrel red on hover */
-[data-theme="bond"] a:hover {
-  color: var(--bond-red-bright);
-  border-color: var(--bond-red);
-  text-shadow: var(--bond-glow);
-}
-
-/* Wordmark fires the gun-barrel sequence on hover: white → blood red */
-[data-theme="bond"] .site-title {
-  transition: color 0.25s ease, text-shadow 0.25s ease;
-}
-
-[data-theme="bond"] .site-title:hover {
-  color: var(--bond-red-bright);
-  text-shadow: var(--bond-glow);
-}
-
-/* Code blocks edged in red */
-[data-theme="bond"] pre,
-[data-theme="bond"] code {
-  border-color: var(--bond-red);
-}
-
-/* Tuxedo header. nav sits above the rifling so text stays crisp. */
-[data-theme="bond"] header {
-  background: linear-gradient(180deg, var(--bond-header-from) 0%, var(--bond-header-to) 100%);
-  border-bottom-color: transparent;
-  position: relative;
-  overflow: hidden;
-}
-
-[data-theme="bond"] header nav {
-  position: relative;
-  z-index: 1;
-}
-
-/* Gun-barrel rifling: faint concentric rings sweeping in from the left, like
-   looking down a rifled bore. Pure-CSS, sits behind the nav. */
-[data-theme="bond"] header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background: repeating-radial-gradient(circle at -4% 50%, transparent 0 22px, rgba(244, 242, 236, 0.05) 22px 23px);
-}
-
-/* Single blood-red rule under the header, like the barrel iris closing shut */
-[data-theme="bond"] header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  z-index: 1;
-  background: linear-gradient(90deg, transparent 0%, var(--bond-red) 50%, transparent 100%);
-  opacity: 0.9;
-}
-
-/* Senna: headings and wordmark in helmet yellow */
-[data-theme="senna"] h1,
-[data-theme="senna"] h2,
-[data-theme="senna"] .site-title {
-  color: var(--accent);
-}
-
-/* Links bleed Senna yellow on hover, with a soft floodlight glow */
-[data-theme="senna"] a:hover {
-  color: var(--senna-yellow);
-  border-color: var(--senna-yellow);
-  text-shadow: var(--senna-glow);
-}
-
-/* Wordmark lights up like the helmet under floodlights on hover */
-[data-theme="senna"] .site-title {
-  transition: color 0.25s ease, text-shadow 0.25s ease;
-}
-
-[data-theme="senna"] .site-title:hover {
-  color: #fff06a;
-  text-shadow: var(--senna-glow);
-}
-
-/* Code blocks edged in yellow */
-[data-theme="senna"] pre,
-[data-theme="senna"] code {
-  border-color: var(--senna-yellow);
-}
-
-/* Carbon header with the helmet band as the bottom rule */
-[data-theme="senna"] header {
-  background: linear-gradient(180deg, var(--senna-header-from) 0%, var(--senna-header-to) 100%);
-  border-bottom-color: transparent;
-  position: relative;
-}
-
-/* Helmet band: Brazil green, Senna yellow, then a thin blue thread, left → right */
-[data-theme="senna"] header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg,
-    var(--senna-green) 0%, var(--senna-green) 30%,
-    var(--senna-yellow) 30%, var(--senna-yellow) 82%,
-    var(--senna-blue) 82%, var(--senna-blue) 100%);
-  opacity: 0.95;
 }
 
 * {
@@ -646,7 +546,6 @@ th {
 }
 [data-theme="dark"] .chart-img,
 [data-theme="rainbow"] .chart-img,
-[data-theme="batman"] .chart-img,
-[data-theme="bond"] .chart-img {
+[data-theme="batman"] .chart-img {
   filter: invert(1) hue-rotate(180deg);
 }

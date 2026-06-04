@@ -361,14 +361,13 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="vanaheim"]) .theme-name-vanaheim { display: inline; }
   :global([data-theme="batman"]) .theme-name-batman { display: inline; }
 
-  /* The contrast circle nudges on hover to invite a switch. */
-  #theme-toggle:hover svg {
-    transform: rotate(45deg);
+  /* A quick half-turn spin each time you switch themes (set inline in JS). */
+  #theme-toggle svg {
     transition: transform 0.3s ease;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #theme-toggle:hover svg { transform: none; }
+    #theme-toggle svg { transition: none; transform: none !important; }
   }
 
   /* DM Chat Widget */
@@ -674,7 +673,8 @@ const { title, description = 'A blog.' } = Astro.props;
     });
   }
 
-  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+  let themeSpin = 0;
+  document.getElementById('theme-toggle')?.addEventListener('click', (e) => {
     const order = ['rainbow', 'vanaheim', 'batman'];
     const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
     const idx = order.indexOf(current);
@@ -682,6 +682,10 @@ const { title, description = 'A blog.' } = Astro.props;
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
     broadcastThemeToEmbeds(next);
+    // Accumulate a half-turn per press so the icon spins fresh and never sticks tilted.
+    themeSpin += 180;
+    const svg = (e.currentTarget as HTMLElement).querySelector('svg');
+    if (svg) svg.style.transform = 'rotate(' + themeSpin + 'deg)';
   });
 </script>
 

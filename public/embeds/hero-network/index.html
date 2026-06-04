@@ -419,31 +419,6 @@
       min-height: 1.2em;
     }
 
-    .theme-toggle {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      transition: color 0.15s;
-    }
-    .theme-toggle:hover { color: var(--text); }
-    .theme-toggle svg { width: 16px; height: 16px; }
-    /* Icon shown = the NEXT theme in the cycle (matches site header).
-       rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
-    .icon-rainbow { display: none; }
-    .icon-vanaheim { display: none; }
-    .icon-muspelheim { display: none; }
-    .icon-bat { display: block; }
-    [data-theme="batman"] .icon-bat { display: none; }
-    [data-theme="batman"] .icon-vanaheim { display: block; }
-    [data-theme="vanaheim"] .icon-bat { display: none; }
-    [data-theme="vanaheim"] .icon-vanaheim { display: none; }
-    [data-theme="vanaheim"] .icon-muspelheim { display: block; }
-    [data-theme="muspelheim"] .icon-bat { display: none; }
-    [data-theme="muspelheim"] .icon-rainbow { display: block; }
   </style>
 </head>
 <body>
@@ -452,12 +427,6 @@
       <h1>Superhero Network Simulator</h1>
       <span class="subtitle">Project Caviar &mdash; 110 nodes, 205 edges</span>
     </div>
-    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-      <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-hero" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-hero)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-hero)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-hero)" opacity="0.4"/></svg>
-      <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
-      <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" stroke="#2f7d4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11"/><path d="M12 13C12 9 9 6 5 6C5 10 8 13 12 13Z" fill="#2f7d4f" stroke="none"/><path d="M12 11C12 7 15 4 19 4C19 8 16 11 12 11Z" fill="#c9a227" stroke="none"/></svg>
-      <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2C12 6 8 7 8 12C8 16 10 18 10 18C9 17 9 14 11 13C11 16 14 16 14 19C16 18 17 15 16 12C18 13 18 16 18 16C19 14 19 11 17 8C16 10 15 9 15 7C13 8 13 5 12 2Z" fill="#ff6a1f"/></svg>
-    </button>
   </div>
 
   <div class="main-content">
@@ -958,18 +927,6 @@
       initGraph();
       updateMiniChart();
     }
-
-    // Theme toggle: cycle rainbow → batman → vanaheim → muspelheim → rainbow.
-    var themeCycle = { rainbow: 'batman', batman: 'vanaheim', vanaheim: 'muspelheim', muspelheim: 'rainbow' };
-    document.getElementById('theme-toggle').addEventListener('click', function() {
-      var cur = document.documentElement.getAttribute('data-theme') || 'rainbow';
-      var next = themeCycle[cur] || 'rainbow';
-      if (next === 'rainbow') { document.documentElement.removeAttribute('data-theme'); }
-      else { document.documentElement.setAttribute('data-theme', next); }
-      localStorage.setItem('theme', next);
-      // Update node strokes to match the active background
-      d3.selectAll('.nodes circle').attr('stroke', nodeStrokeColor());
-    });
   </script>
 </body>
 </html>

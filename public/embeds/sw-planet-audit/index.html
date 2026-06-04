@@ -72,26 +72,6 @@ body {
   font-family: var(--font-mono);
   margin: 0;
 }
-.theme-btn {
-  background: none; border: none; color: var(--fg-muted);
-  cursor: pointer; padding: 4px; display: flex; align-items: center;
-  transition: color 0.15s; flex-shrink: 0; margin-top: 4px;
-}
-.theme-btn:hover { color: var(--fg); }
-.theme-btn svg { width: 16px; height: 16px; }
-/* Icon shown = the NEXT theme in the cycle (matches site header).
-   rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
-.icon-rainbow { display: none; }
-.icon-vanaheim { display: none; }
-.icon-muspelheim { display: none; }
-.icon-bat { display: block; }
-[data-theme="batman"] .icon-bat { display: none; }
-[data-theme="batman"] .icon-vanaheim { display: block; }
-[data-theme="vanaheim"] .icon-bat { display: none; }
-[data-theme="vanaheim"] .icon-muspelheim { display: block; }
-[data-theme="muspelheim"] .icon-bat { display: none; }
-[data-theme="muspelheim"] .icon-rainbow { display: block; }
-
 /* stat row */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; border: 1px solid var(--border); margin-bottom: 3rem; }
 .stat { padding: 1.25rem 1.5rem; background: var(--card-bg); }
@@ -197,12 +177,6 @@ body {
         <h1>The Lore Gap</h1>
         <p class="sub">A data audit of 120 Star Wars planets — what we know, and what we don't</p>
       </div>
-      <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">
-        <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-swpa" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-swpa)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-swpa)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-swpa)" opacity="0.4"/></svg>
-        <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
-        <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21c0-5 0-7 0-10" stroke="#2f7d4f" stroke-width="2" stroke-linecap="round"/><path d="M12 11c-1-3-4-4-6-4 0 3 2 5 6 5z" fill="#2f7d4f"/><path d="M12 8c1-3 4-4 6-4 0 3-2 5-6 4z" fill="#c9a227"/></svg>
-        <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3c2 3 1 5 0 6 1-1 3-1 4 1 2 3 0 8-4 8-4 0-6-4-4-8 1 2 2 1 2-1-1-2 0-4 2-6z" fill="#ff6a1f"/><path d="M12 11c1 1 1 3 0 4-1-1-1-3 0-4z" fill="#ffb300"/></svg>
-      </button>
     </div>
   </div>
 
@@ -235,17 +209,6 @@ body {
 </div>
 
 <script>
-document.getElementById('theme-btn').addEventListener('click', function() {
-  var cur = document.documentElement.getAttribute('data-theme');
-  // Cycle: rainbow -> batman -> vanaheim -> muspelheim -> rainbow
-  var next = cur === 'batman' ? 'vanaheim' : (cur === 'vanaheim' ? 'muspelheim' : (cur === 'muspelheim' ? 'rainbow' : 'batman'));
-  if (next === 'batman') { document.documentElement.setAttribute('data-theme', 'batman'); }
-  else if (next === 'vanaheim') { document.documentElement.setAttribute('data-theme', 'vanaheim'); }
-  else if (next === 'muspelheim') { document.documentElement.setAttribute('data-theme', 'muspelheim'); }
-  else { document.documentElement.removeAttribute('data-theme'); }
-  localStorage.setItem('theme', next);
-});
-
 const ERA_COLORS = {
   'Original Trilogy':   '#f59e0b',
   'Both Trilogies':     '#f59e0b',

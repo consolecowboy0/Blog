@@ -172,21 +172,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
 .info-path .path-planet { color: var(--text); font-weight: 600; }
 .info-path .path-arrow { color: var(--text-muted); margin: 0 2px; }
 .tooltip { position: fixed; pointer-events: none; background: var(--text); color: var(--bg); font-size: 0.65rem; font-family: var(--font-mono); padding: 5px 10px; border-radius: 3px; opacity: 0; transition: opacity 0.12s; z-index: 100; border: 1px solid var(--border); white-space: nowrap; }
-.theme-toggle { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center; transition: color 0.15s; }
-.theme-toggle:hover { color: var(--text); }
-.theme-toggle svg { width: 16px; height: 16px; }
-/* Icon shown = the NEXT theme in the cycle (matches site header).
-   rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
-.icon-rainbow { display: none; }
-.icon-bat { display: block; }
-.icon-vanaheim { display: none; }
-.icon-muspelheim { display: none; }
-[data-theme="batman"] .icon-bat { display: none; }
-[data-theme="batman"] .icon-vanaheim { display: block; }
-[data-theme="vanaheim"] .icon-bat { display: none; }
-[data-theme="vanaheim"] .icon-muspelheim { display: block; }
-[data-theme="muspelheim"] .icon-bat { display: none; }
-[data-theme="muspelheim"] .icon-rainbow { display: block; }
 </style>
 </head>
 <body>
@@ -196,12 +181,6 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-sans);
         <h1>Star Wars Galaxy Network</h1>
         <span class="subtitle" id="subtitle">Loading...</span>
       </div>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-        <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-sw" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-sw)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-sw)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-sw)" opacity="0.4"/></svg>
-        <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
-        <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#2f7d4f" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="#c9a227"/></svg>
-        <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2C12 6 15 7 15 11C16 9.5 16.5 8 16.5 8C18 10 19 12.5 19 15C19 18.9 15.9 22 12 22C8.1 22 5 18.9 5 15C5 11 8 8 9 4C9.5 6.5 11 7 12 8C12 5 12 3.5 12 2Z" fill="#ff6a1f"/><path d="M12 13C12 15 13.5 15.5 13.5 17.5C13.5 19.4 12.9 20.5 12 20.5C11.1 20.5 10.5 19.4 10.5 17.5C10.5 16 11.5 15 12 13Z" fill="#ffb300"/></svg>
-      </button>
     </div>
     <div class="main">
       <div class="graph-panel" id="graph"></div>
@@ -820,19 +799,6 @@ document.getElementById('search').addEventListener('input', (e) => {
       searchMatches.add(i);
     }
   });
-  render();
-});
-
-// ── Theme toggle ────────────────────────────────────────────────
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  // Cycle through all four site themes: rainbow → batman → vanaheim → muspelheim → rainbow.
-  const cur = document.documentElement.getAttribute('data-theme');
-  const next = cur === 'batman' ? 'vanaheim' : cur === 'vanaheim' ? 'muspelheim' : cur === 'muspelheim' ? 'rainbow' : 'batman';
-  if (next === 'batman') { document.documentElement.setAttribute('data-theme', 'batman'); }
-  else if (next === 'vanaheim') { document.documentElement.setAttribute('data-theme', 'vanaheim'); }
-  else if (next === 'muspelheim') { document.documentElement.setAttribute('data-theme', 'muspelheim'); }
-  else { document.documentElement.removeAttribute('data-theme'); }
-  localStorage.setItem('theme', next);
   render();
 });
 

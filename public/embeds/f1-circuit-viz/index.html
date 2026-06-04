@@ -12,7 +12,7 @@
   </style>
   <script src="./d3-slim.js"></script>
   <script>    (function(){
-  // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim and muspelheim are overrides.
+  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -20,6 +20,8 @@
       document.documentElement.setAttribute('data-theme', 'vanaheim');
     } else if (t === 'muspelheim') {
       document.documentElement.setAttribute('data-theme', 'muspelheim');
+    } else if (t === 'alfheim') {
+      document.documentElement.setAttribute('data-theme', 'alfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -105,6 +107,23 @@
       --accent-blue: #d98a3a;
       --accent-green: #ff6a1f;
       --accent-gold: #ffb300;
+    }
+
+    /* alfheim: light dawn-white bg, deep violet text, with amethyst/gold/rose accents. */
+    [data-theme="alfheim"] {
+      --bg: #f7f4fb;
+      --bg-card: #efeaf6;
+      --bg-card-hover: #e6def0;
+      --bg-track: #e6def0;
+      --border: #e6def0;
+      --border-light: #d6c8e0;
+      --text: #2a2540;
+      --text-secondary: #4a3a60;
+      --text-muted: #877a9e;
+      --accent-red: #c9547a;
+      --accent-blue: #7a6ba5;
+      --accent-green: #8b5cc4;
+      --accent-gold: #c79a3f;
     }
 
 
@@ -696,17 +715,20 @@
     .theme-toggle:hover { color: var(--text); }
     .theme-toggle svg { width: 16px; height: 16px; }
     /* Icon shown = the NEXT theme in the cycle (matches site header).
-       rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
+       rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → alfheim, alfheim → rainbow. */
     .icon-rainbow { display: none; }
     .icon-vanaheim { display: none; }
     .icon-muspelheim { display: none; }
+    .icon-alfheim { display: none; }
     .icon-bat { display: block; }
     [data-theme="batman"] .icon-bat { display: none; }
     [data-theme="batman"] .icon-vanaheim { display: block; }
     [data-theme="vanaheim"] .icon-bat { display: none; }
     [data-theme="vanaheim"] .icon-muspelheim { display: block; }
     [data-theme="muspelheim"] .icon-bat { display: none; }
-    [data-theme="muspelheim"] .icon-rainbow { display: block; }
+    [data-theme="muspelheim"] .icon-alfheim { display: block; }
+    [data-theme="alfheim"] .icon-bat { display: none; }
+    [data-theme="alfheim"] .icon-rainbow { display: block; }
   </style>
 </head>
 <body>
@@ -721,6 +743,7 @@
     <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
     <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#2f7d4f" stroke-width="2"/><circle cx="12" cy="12" r="3.2" fill="#c9a227"/></svg>
     <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5C7 3.5 4 7 4 12C4 16 7 20 12 20.5C17 20 20 16 20 12C20 7 17 3.5 12 3.5Z" fill="#ffb300"/><path d="M5.8 8C7.8 6 9.8 5.2 12 5.2C14.2 5.2 16.2 6 18.2 8" stroke="#ff3d00" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="6.4" y="10.6" width="11.2" height="3.2" rx="1.6" fill="#140a07"/></svg>
+    <svg class="icon-alfheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.2 6.2L20 10l-5.8 1.8L12 18l-2.2-6.2L4 10l5.8-1.8L12 2z" fill="#8b5cc4"/></svg>
   </button>
 </div>
 
@@ -1806,13 +1829,14 @@
   updateUI();
   logEvent('Ready -- press Play or Space to start', '');
 
-  // Theme toggle: cycle rainbow → batman → vanaheim → muspelheim → rainbow (matches site header).
+  // Theme toggle: cycle rainbow → batman → vanaheim → muspelheim → alfheim → rainbow (matches site header).
   document.getElementById('theme-toggle').addEventListener('click', function() {
     var cur = document.documentElement.getAttribute('data-theme');
-    var next = cur === 'batman' ? 'vanaheim' : (cur === 'vanaheim' ? 'muspelheim' : (cur === 'muspelheim' ? 'rainbow' : 'batman'));
+    var next = cur === 'batman' ? 'vanaheim' : (cur === 'vanaheim' ? 'muspelheim' : (cur === 'muspelheim' ? 'alfheim' : (cur === 'alfheim' ? 'rainbow' : 'batman')));
     if (next === 'batman') { document.documentElement.setAttribute('data-theme', 'batman'); }
     else if (next === 'vanaheim') { document.documentElement.setAttribute('data-theme', 'vanaheim'); }
     else if (next === 'muspelheim') { document.documentElement.setAttribute('data-theme', 'muspelheim'); }
+    else if (next === 'alfheim') { document.documentElement.setAttribute('data-theme', 'alfheim'); }
     else { document.documentElement.removeAttribute('data-theme'); }
     localStorage.setItem('theme', next);
     updateThemeColors();

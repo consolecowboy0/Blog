@@ -168,25 +168,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   @media (max-width: 760px) { .setup-grid { grid-template-columns: 1fr; } }
 
   .char-list { display: flex; flex-direction: column; gap: 0.75rem; }
-  .char-card { border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--bg); }
-  .char-card-top { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
-  .char-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-  .char-name {
+  /* char rows are built at runtime via JS, so Astro's scoping skips them -- use :global */
+  :global(.char-card) { border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--bg); }
+  :global(.char-card-top) { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  :global(.char-dot) { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  :global(.char-name) {
     flex: 1; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 8px;
     background: var(--bg); color: var(--fg); font-family: var(--font-body);
     font-size: 0.85rem; font-weight: 600; outline: none;
   }
-  .char-del {
+  :global(.char-del) {
     padding: 0.3rem 0.5rem; background: transparent; color: var(--fg-muted);
     border: 1px solid var(--border); border-radius: 7px; font-size: 0.72rem; cursor: pointer;
   }
-  .char-del:hover { color: #e54; border-color: #e54; }
-  .char-desc, .setting-input {
+  :global(.char-del:hover) { color: #e54; border-color: #e54; }
+  :global(.char-desc), .setting-input {
     width: 100%; padding: 0.5rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
     background: var(--bg); color: var(--fg); font-family: var(--font-body);
     font-size: 0.82rem; line-height: 1.5; outline: none; resize: vertical;
   }
-  .char-desc:focus, .setting-input:focus, .char-name:focus { border-color: var(--fg-muted); }
+  :global(.char-desc:focus), .setting-input:focus, :global(.char-name:focus) { border-color: var(--fg-muted); }
 
   .run-block { background: var(--bg); }
   .run-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.85rem; }
@@ -206,13 +207,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   .scene-actions { display: flex; gap: 0.4rem; }
   .transcript { display: flex; flex-direction: column; gap: 0.85rem; }
-  .beat { padding-left: 0.75rem; border-left: 3px solid var(--c, var(--border)); }
-  .beat-name { font-size: 0.78rem; font-weight: 700; color: var(--c, var(--fg)); margin-bottom: 0.15rem; }
-  .beat-text { font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
-  .beat.director { border-left-style: dashed; }
-  .beat.director .beat-name { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.68rem; }
-  .beat.director .beat-text { color: var(--fg-muted); font-style: italic; }
-  .beat.thinking .beat-text { color: var(--fg-muted); font-style: italic; }
+  :global(.beat) { padding-left: 0.75rem; border-left: 3px solid var(--c, var(--border)); }
+  :global(.beat-name) { font-size: 0.78rem; font-weight: 700; color: var(--c, var(--fg)); margin-bottom: 0.15rem; }
+  :global(.beat-text) { font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
+  :global(.beat.director) { border-left-style: dashed; }
+  :global(.beat.director .beat-name) { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.68rem; }
+  :global(.beat.director .beat-text) { color: var(--fg-muted); font-style: italic; }
+  :global(.beat.thinking .beat-text) { color: var(--fg-muted); font-style: italic; }
 </style>
 
 <script is:inline>

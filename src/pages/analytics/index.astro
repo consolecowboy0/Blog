@@ -312,6 +312,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .dash-body :global(.geo-bar) { height: 100%; border-radius: 4px; background: var(--ch-referral); }
   .dash-body :global(.geo-count) { text-align: right; font-family: var(--font-mono); color: var(--fg-muted); font-size: 0.78rem; }
   .dash-body :global(.geo-row.muted .geo-name) { color: var(--fg-muted); font-style: italic; }
+  .dash-body :global(.geo-sub) { color: var(--fg-muted); font-weight: 400; }
   .region-wrap { margin-top: 1rem; padding-top: 0.85rem; border-top: 1px dashed var(--border); }
   .region-wrap h3 { font-size: 0.82rem; margin-bottom: 0.6rem; color: var(--fg-muted); }
 
@@ -671,10 +672,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const max = cities[0].visitors || 1;
       cityList.innerHTML = cities.map((c: any) => {
         const w = Math.max(2, Math.round((c.visitors / max) * 100));
-        const title = c.country ? `${c.city}, ${c.country}` : c.city;
+        const tail = [c.region, c.country].filter(Boolean).join(', ');
+        const label = tail ? `${c.city}, ${tail}` : c.city;
         return `<div class="geo-row">
           <span class="geo-flag">${escapeHtml(c.flag || '🌐')}</span>
-          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(title)}">${escapeHtml(c.city)}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
+          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(label)}">${escapeHtml(c.city)}${tail ? `<span class="geo-sub">, ${escapeHtml(tail)}</span>` : ''}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
           <span class="geo-count">${fmt(c.visitors)}</span>
         </div>`;
       }).join('');

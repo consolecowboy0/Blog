@@ -153,7 +153,9 @@ export async function GET({ request }) {
         if (d.city) {
           const ck = `${d.co}|${d.city}`;
           let cym = byCity.get(ck);
-          if (!cym) { cym = { co: d.co, city: d.city, country: d.con || CC_NAME[d.co] || d.co, views: 0, visitors: new Set() }; byCity.set(ck, cym); }
+          if (!cym) { cym = { co: d.co, city: d.city, country: d.con || CC_NAME[d.co] || d.co, reg: d.reg || '', regn: d.regn || '', views: 0, visitors: new Set() }; byCity.set(ck, cym); }
+          if (!cym.reg && d.reg) cym.reg = d.reg;
+          if (!cym.regn && d.regn) cym.regn = d.regn;
           cym.views++;
           if (d.vid) cym.visitors.add(d.vid);
         }
@@ -260,7 +262,7 @@ export async function GET({ request }) {
     // Cities across all countries, ranked by unique visitors.
     const cities = [...byCity.values()]
       .map((c) => ({
-        city: c.city, code: c.co, country: c.country, flag: flagEmoji(c.co),
+        city: c.city, code: c.co, country: c.country, region: regionLabel(c.co, c.reg, c.regn), flag: flagEmoji(c.co),
         views: c.views, visitors: c.visitors.size,
       }))
       .sort((a, b) => b.visitors - a.visitors || b.views - a.views || (a.city < b.city ? -1 : 1))

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { shouldRerender, trackingState } from '../src/lib/dm-polling.js';
+import { shouldRerender, trackingState } from '../src/lib/mimir-polling.js';
 
 describe('shouldRerender', () => {
   it('returns false when server and local are both empty', () => {

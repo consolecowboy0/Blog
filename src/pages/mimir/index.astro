@@ -3,16 +3,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Mimir">
-  <div class="dm-page">
-    <div class="dm-header-section">
-      <div class="dm-header-icon">
+  <div class="mimir-page">
+    <div class="mimir-header-section">
+      <div class="mimir-header-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
         </svg>
       </div>
       <div>
         <h1>Mimir</h1>
-        <p class="dm-desc">Dustin's AI assistant. Mimir answers and gets back to you. Private and encrypted. Save your ID to resume later.</p>
+        <p class="mimir-desc">Dustin's AI assistant. Mimir answers and gets back to you. Private and encrypted. Save your ID to resume later.</p>
       </div>
     </div>
 
@@ -64,20 +64,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <style>
-  .dm-page {
+  .mimir-page {
     max-width: 520px;
     margin: 0 auto;
   }
 
   /* Header section */
-  .dm-header-section {
+  .mimir-header-section {
     display: flex;
     align-items: flex-start;
     gap: 0.85rem;
     margin-bottom: 1.75rem;
   }
 
-  .dm-header-icon {
+  .mimir-header-icon {
     width: 44px;
     height: 44px;
     border-radius: 12px;
@@ -96,7 +96,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     line-height: 1.2;
   }
 
-  .dm-desc {
+  .mimir-desc {
     color: var(--fg-muted);
     font-size: 0.8rem;
     margin: 0.2rem 0 0 0;
@@ -420,7 +420,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   @media (max-width: 480px) {
-    .dm-page {
+    .mimir-page {
       margin: 0;
     }
 
@@ -445,7 +445,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </style>
 
 <script>
-  const API = '/api/dm';
+  const API = '/api/mimir';
 
   function djb2(str: string): string {
     let hash = 5381;
@@ -469,8 +469,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   const fingerprint = getFingerprint();
-  let visitorId = localStorage.getItem('dm_visitor_id') || djb2(fingerprint);
-  localStorage.setItem('dm_visitor_id', visitorId);
+  // Fall back to the legacy key so returning visitors keep their existing thread.
+  let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id') || djb2(fingerprint);
+  localStorage.setItem('mimir_visitor_id', visitorId);
 
   const idEl = document.getElementById('visitor-id')!;
   const copyBtn = document.getElementById('copy-id')!;
@@ -505,7 +506,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const newId = resumeInput.value.trim();
     if (!newId) return;
     visitorId = newId;
-    localStorage.setItem('dm_visitor_id', visitorId);
+    localStorage.setItem('mimir_visitor_id', visitorId);
     idEl.textContent = visitorId;
     resumeForm.classList.add('resume-hidden');
     resumeInput.value = '';

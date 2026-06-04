@@ -36,7 +36,7 @@ const { title, description = 'A blog.' } = Astro.props;
       (function() {
         try {
           var p = location.pathname;
-          if (/^\/(analytics|story|dm)(\/|$)/.test(p)) return;
+          if (/^\/(analytics|story|mimir)(\/|$)/.test(p)) return;
 
           // UTM: only on the first pageview of a session, so refreshes and deep
           // navigation don't re-credit a campaign for the whole visit.
@@ -107,7 +107,7 @@ const { title, description = 'A blog.' } = Astro.props;
         <div class="nav-links">
           <a href="/posts">Writing</a>
           <a href="/library">Library</a>
-          <a href="/dm">Mimir</a>
+          <a href="/mimir">Mimir</a>
           <button id="theme-toggle" aria-label="Switch theme">
             <!-- Generic theme-switch symbol (contrast circle). The brand sigils
                  live by the wordmark; this button stays theme-neutral. -->
@@ -152,47 +152,47 @@ const { title, description = 'A blog.' } = Astro.props;
       </div>
     </footer>
 
-    <!-- DM Chat Widget -->
-    <button id="dm-chat-toggle" aria-label="Send a message">
+    <!-- Mimir Chat Widget -->
+    <button id="mimir-chat-toggle" aria-label="Send a message">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
       </svg>
     </button>
 
-    <div id="dm-chat-panel">
-      <div class="dm-header">
-        <div class="dm-header-left">
-          <div class="dm-header-avatar">
+    <div id="mimir-chat-panel">
+      <div class="mimir-header">
+        <div class="mimir-header-left">
+          <div class="mimir-header-avatar">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
             </svg>
           </div>
           <div>
-            <span class="dm-title">Mimir</span>
-            <span class="dm-visitor-id" id="dm-visitor-id"></span>
+            <span class="mimir-title">Mimir</span>
+            <span class="mimir-visitor-id" id="mimir-visitor-id"></span>
           </div>
         </div>
-        <button id="dm-chat-close" aria-label="Close chat">
+        <button id="mimir-chat-close" aria-label="Close chat">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
-      <div class="dm-messages" id="dm-messages">
-        <div class="dm-empty-state">
-          <div class="dm-empty-icon">
+      <div class="mimir-messages" id="mimir-messages">
+        <div class="mimir-empty-state">
+          <div class="mimir-empty-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path>
             </svg>
           </div>
-          <p class="dm-empty-title">No messages yet</p>
-          <p class="dm-empty-sub">Say hello. Mimir will get back to you.</p>
+          <p class="mimir-empty-title">No messages yet</p>
+          <p class="mimir-empty-sub">Say hello. Mimir will get back to you.</p>
         </div>
       </div>
-      <div class="dm-input-area">
-        <textarea id="dm-input" rows="1" placeholder="Write something..."></textarea>
-        <button id="dm-send" title="Send" disabled>
+      <div class="mimir-input-area">
+        <textarea id="mimir-input" rows="1" placeholder="Write something..."></textarea>
+        <button id="mimir-send" title="Send" disabled>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"></line>
             <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -379,8 +379,8 @@ const { title, description = 'A blog.' } = Astro.props;
     #theme-toggle svg { transition: none; transform: none !important; }
   }
 
-  /* DM Chat Widget */
-  #dm-chat-toggle {
+  /* Mimir Chat Widget */
+  #mimir-chat-toggle {
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
@@ -399,16 +399,16 @@ const { title, description = 'A blog.' } = Astro.props;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
-  #dm-chat-toggle:hover {
+  #mimir-chat-toggle:hover {
     transform: scale(1.08);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18), 0 8px 28px rgba(0, 0, 0, 0.1);
   }
 
-  #dm-chat-toggle:active {
+  #mimir-chat-toggle:active {
     transform: scale(0.96);
   }
 
-  #dm-chat-panel {
+  #mimir-chat-panel {
     position: fixed;
     bottom: 5rem;
     right: 1.5rem;
@@ -428,13 +428,13 @@ const { title, description = 'A blog.' } = Astro.props;
     transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
-  #dm-chat-panel.dm-open {
+  #mimir-chat-panel.mimir-open {
     opacity: 1;
     transform: translateY(0) scale(1);
     pointer-events: auto;
   }
 
-  .dm-header {
+  .mimir-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -443,13 +443,13 @@ const { title, description = 'A blog.' } = Astro.props;
     background: var(--bg);
   }
 
-  .dm-header-left {
+  .mimir-header-left {
     display: flex;
     align-items: center;
     gap: 0.55rem;
   }
 
-  .dm-header-avatar {
+  .mimir-header-avatar {
     width: 28px;
     height: 28px;
     border-radius: 8px;
@@ -461,7 +461,7 @@ const { title, description = 'A blog.' } = Astro.props;
     flex-shrink: 0;
   }
 
-  .dm-title {
+  .mimir-title {
     font-family: var(--font-body);
     font-size: 0.8rem;
     font-weight: 600;
@@ -470,7 +470,7 @@ const { title, description = 'A blog.' } = Astro.props;
     line-height: 1.2;
   }
 
-  .dm-visitor-id {
+  .mimir-visitor-id {
     display: block;
     font-family: var(--font-mono);
     font-size: 0.55rem;
@@ -479,7 +479,7 @@ const { title, description = 'A blog.' } = Astro.props;
     opacity: 0.6;
   }
 
-  #dm-chat-close {
+  #mimir-chat-close {
     background: none;
     border: none;
     cursor: pointer;
@@ -492,12 +492,12 @@ const { title, description = 'A blog.' } = Astro.props;
     transition: color 0.15s, background 0.15s;
   }
 
-  #dm-chat-close:hover {
+  #mimir-chat-close:hover {
     color: var(--fg);
     background: var(--code-bg);
   }
 
-  .dm-messages {
+  .mimir-messages {
     flex: 1;
     overflow-y: auto;
     padding: 0.75rem 0.75rem 0.5rem;
@@ -512,7 +512,7 @@ const { title, description = 'A blog.' } = Astro.props;
       radial-gradient(ellipse at 85% 80%, color-mix(in srgb, var(--code-bg) 25%, transparent) 0%, transparent 55%);
   }
 
-  :global(.dm-empty-state) {
+  :global(.mimir-empty-state) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -523,7 +523,7 @@ const { title, description = 'A blog.' } = Astro.props;
     flex: 1;
   }
 
-  :global(.dm-empty-icon) {
+  :global(.mimir-empty-icon) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -536,21 +536,21 @@ const { title, description = 'A blog.' } = Astro.props;
     opacity: 0.45;
   }
 
-  :global(.dm-empty-title) {
+  :global(.mimir-empty-title) {
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--fg-muted);
     margin: 0;
   }
 
-  :global(.dm-empty-sub) {
+  :global(.mimir-empty-sub) {
     font-size: 0.68rem;
     color: var(--fg-muted);
     margin: 0;
     opacity: 0.55;
   }
 
-  :global(.dm-msg) {
+  :global(.mimir-msg) {
     max-width: 82%;
     animation: dmMsgIn 0.2s ease-out;
   }
@@ -560,17 +560,17 @@ const { title, description = 'A blog.' } = Astro.props;
     to { opacity: 1; transform: translateY(0); }
   }
 
-  :global(.dm-msg-visitor) {
+  :global(.mimir-msg-visitor) {
     margin-left: auto;
     text-align: right;
   }
 
-  :global(.dm-msg-admin) {
+  :global(.mimir-msg-admin) {
     margin-right: auto;
     text-align: left;
   }
 
-  :global(.dm-msg-text) {
+  :global(.mimir-msg-text) {
     display: inline-block;
     padding: 0.4rem 0.7rem;
     font-size: 0.78rem;
@@ -580,20 +580,20 @@ const { title, description = 'A blog.' } = Astro.props;
     white-space: pre-wrap;
   }
 
-  :global(.dm-msg-visitor .dm-msg-text) {
+  :global(.mimir-msg-visitor .mimir-msg-text) {
     background: var(--fg);
     color: var(--bg);
     border-radius: 14px 14px 4px 14px;
   }
 
-  :global(.dm-msg-admin .dm-msg-text) {
+  :global(.mimir-msg-admin .mimir-msg-text) {
     background: var(--bg);
     color: var(--fg);
     border: 1px solid var(--border);
     border-radius: 14px 14px 14px 4px;
   }
 
-  :global(.dm-msg-time) {
+  :global(.mimir-msg-time) {
     display: block;
     font-size: 0.5rem;
     color: var(--fg-muted);
@@ -603,7 +603,7 @@ const { title, description = 'A blog.' } = Astro.props;
     padding: 0 0.15rem;
   }
 
-  .dm-input-area {
+  .mimir-input-area {
     display: flex;
     align-items: flex-end;
     gap: 0.4rem;
@@ -612,7 +612,7 @@ const { title, description = 'A blog.' } = Astro.props;
     background: var(--bg);
   }
 
-  #dm-input {
+  #mimir-input {
     flex: 1;
     resize: none;
     border: 1px solid var(--border);
@@ -628,12 +628,12 @@ const { title, description = 'A blog.' } = Astro.props;
     line-height: 1.45;
   }
 
-  #dm-input:focus {
+  #mimir-input:focus {
     border-color: var(--fg-muted);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--fg-muted) 8%, transparent);
   }
 
-  #dm-send {
+  #mimir-send {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -648,23 +648,23 @@ const { title, description = 'A blog.' } = Astro.props;
     transition: opacity 0.15s, transform 0.1s;
   }
 
-  #dm-send:hover:not(:disabled) {
+  #mimir-send:hover:not(:disabled) {
     opacity: 0.85;
     transform: scale(1.06);
   }
 
-  #dm-send:active:not(:disabled) {
+  #mimir-send:active:not(:disabled) {
     transform: scale(0.94);
   }
 
-  #dm-send:disabled {
+  #mimir-send:disabled {
     opacity: 0.2;
     cursor: default;
     transform: none;
   }
 
   @media (max-width: 480px) {
-    #dm-chat-panel {
+    #mimir-chat-panel {
       width: calc(100% - 2rem);
       right: 1rem;
       left: 1rem;
@@ -703,10 +703,10 @@ const { title, description = 'A blog.' } = Astro.props;
 
 <script>
   (function () {
-    // Hide widget on DM pages
-    if (window.location.pathname === '/dm' || window.location.pathname === '/dm/') {
-      const toggle = document.getElementById('dm-chat-toggle');
-      const panel = document.getElementById('dm-chat-panel');
+    // Hide widget on Mimir pages
+    if (window.location.pathname === '/mimir' || window.location.pathname === '/mimir/') {
+      const toggle = document.getElementById('mimir-chat-toggle');
+      const panel = document.getElementById('mimir-chat-panel');
       if (toggle) toggle.style.display = 'none';
       if (panel) panel.style.display = 'none';
       return;
@@ -723,21 +723,22 @@ const { title, description = 'A blog.' } = Astro.props;
     // server as metadata for spam/abuse triage, but is no longer used for identity.
     // Migrate any legacy fingerprint-hash IDs (8 hex chars) by regenerating.
     const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-    let visitorId = localStorage.getItem('dm_visitor_id');
+    // Adopt the legacy key so returning visitors keep their existing thread.
+    let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id');
     if (!visitorId || !uuidRe.test(visitorId)) {
       visitorId = crypto.randomUUID();
-      localStorage.setItem('dm_visitor_id', visitorId);
     }
+    localStorage.setItem('mimir_visitor_id', visitorId);
 
-    const idDisplay = document.getElementById('dm-visitor-id');
+    const idDisplay = document.getElementById('mimir-visitor-id');
     if (idDisplay) idDisplay.textContent = 'ID: ' + visitorId.slice(0, 8);
 
-    const toggleBtn = document.getElementById('dm-chat-toggle');
-    const panel = document.getElementById('dm-chat-panel');
-    const closeBtn = document.getElementById('dm-chat-close');
-    const messagesDiv = document.getElementById('dm-messages');
-    const input = document.getElementById('dm-input') as HTMLTextAreaElement | null;
-    const sendBtn = document.getElementById('dm-send');
+    const toggleBtn = document.getElementById('mimir-chat-toggle');
+    const panel = document.getElementById('mimir-chat-panel');
+    const closeBtn = document.getElementById('mimir-chat-close');
+    const messagesDiv = document.getElementById('mimir-messages');
+    const input = document.getElementById('mimir-input') as HTMLTextAreaElement | null;
+    const sendBtn = document.getElementById('mimir-send');
 
     let isOpen = false;
     let pollInterval: ReturnType<typeof setInterval> | null = null;
@@ -747,14 +748,14 @@ const { title, description = 'A blog.' } = Astro.props;
 
     toggleBtn?.addEventListener('click', () => {
       isOpen = !isOpen;
-      panel?.classList.toggle('dm-open', isOpen);
+      panel?.classList.toggle('mimir-open', isOpen);
       if (isOpen) { pollMessages(); startPolling(); }
       else { stopPolling(); }
     });
 
     closeBtn?.addEventListener('click', () => {
       isOpen = false;
-      panel?.classList.remove('dm-open');
+      panel?.classList.remove('mimir-open');
       stopPolling();
     });
 
@@ -790,8 +791,8 @@ const { title, description = 'A blog.' } = Astro.props;
     }
 
     function makeBubble(msg: { from: string; text: string; time: number }): string {
-      const cls = msg.from === 'admin' ? 'dm-msg-admin' : 'dm-msg-visitor';
-      return `<div class="dm-msg ${cls}"><span class="dm-msg-text">${escapeHtml(msg.text)}</span><span class="dm-msg-time">${fmtTime(msg.time)}</span></div>`;
+      const cls = msg.from === 'admin' ? 'mimir-msg-admin' : 'mimir-msg-visitor';
+      return `<div class="mimir-msg ${cls}"><span class="mimir-msg-text">${escapeHtml(msg.text)}</span><span class="mimir-msg-time">${fmtTime(msg.time)}</span></div>`;
     }
 
     // Optimistic send
@@ -808,7 +809,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
       // Fire to server
       try {
-        await fetch('/api/dm', {
+        await fetch('/api/mimir', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint: fp }),
@@ -819,7 +820,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
     function appendLocal(text: string, from: string) {
       if (!messagesDiv) return;
-      const empty = messagesDiv.querySelector('.dm-empty-state');
+      const empty = messagesDiv.querySelector('.mimir-empty-state');
       if (empty) empty.remove();
       const now = Date.now();
       const div = document.createElement('div');
@@ -832,7 +833,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
     async function pollMessages() {
       try {
-        const res = await fetch('/api/dm', {
+        const res = await fetch('/api/mimir', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'poll', visitor_id: visitorId }),
@@ -851,7 +852,7 @@ const { title, description = 'A blog.' } = Astro.props;
     function renderAll(messages: Array<{ text: string; from: string; time: number }>) {
       if (!messagesDiv) return;
       if (!messages.length) {
-        messagesDiv.innerHTML = '<div class="dm-empty-state"><div class="dm-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path></svg></div><p class="dm-empty-title">No messages yet</p><p class="dm-empty-sub">Say hello below.</p></div>';
+        messagesDiv.innerHTML = '<div class="mimir-empty-state"><div class="mimir-empty-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H6l-4 4V6c0-1.1.9-2 2-2z"></path></svg></div><p class="mimir-empty-title">No messages yet</p><p class="mimir-empty-sub">Say hello. Mimir will get back to you.</p></div>';
         lastMsgCount = 0;
         lastMsgTime = 0;
         return;

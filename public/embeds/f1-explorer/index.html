@@ -12,13 +12,13 @@
     </style>
     <script>
       (function(){
-  // Four themes, matching the site: rainbow (Asgard, default), batman, bond (007), and senna.
+  // Four themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), and muspelheim.
   // This is a bundled app whose base CSS :root is light, so we always set an explicit
-  // data-theme. Bond and senna must not fall through to rainbow.
+  // data-theme. Vanaheim and muspelheim must not fall through to rainbow.
   function applyTheme(t){
     document.documentElement.setAttribute(
       'data-theme',
-      t === 'batman' ? 'batman' : t === 'bond' ? 'bond' : t === 'senna' ? 'senna' : 'rainbow'
+      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : 'rainbow'
     );
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -51,17 +51,17 @@
       #theme-toggle-btn:hover { color: var(--text-primary, #1a1a1a); }
       #theme-toggle-btn svg { width: 16px; height: 16px; }
       /* Icon shown = the NEXT theme in the cycle (matches site header).
-         rainbow (Asgard) → bat, batman → bond, bond → senna, senna → rainbow. */
+         rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
       .icon-rainbow { display: none; }
       .icon-bat { display: block; }
-      .icon-bond { display: none; }
-      .icon-senna { display: none; }
+      .icon-vanaheim { display: none; }
+      .icon-muspelheim { display: none; }
       [data-theme="batman"] .icon-bat { display: none; }
-      [data-theme="batman"] .icon-bond { display: block; }
-      [data-theme="bond"] .icon-bat { display: none; }
-      [data-theme="bond"] .icon-senna { display: block; }
-      [data-theme="senna"] .icon-bat { display: none; }
-      [data-theme="senna"] .icon-rainbow { display: block; }
+      [data-theme="batman"] .icon-vanaheim { display: block; }
+      [data-theme="vanaheim"] .icon-bat { display: none; }
+      [data-theme="vanaheim"] .icon-muspelheim { display: block; }
+      [data-theme="muspelheim"] .icon-bat { display: none; }
+      [data-theme="muspelheim"] .icon-rainbow { display: block; }
 
       [data-theme="rainbow"] {
         --bg-primary: #0b1338 !important;
@@ -101,49 +101,48 @@
         --chart-grid: #283040 !important;
       }
 
-      /* Bond (007): tuxedo black, cream/silver text, blood-red as the ONE accent.
-         No gold. Secondary data marks are cool desaturated steel so red stays the
-         standout, all tuned for high contrast on the near-black background. */
-      [data-theme="bond"] {
-        --bg-primary: #060607 !important;
-        --bg-secondary: #020202 !important;
-        --bg-card: #100e0e !important;
-        --bg-card-hover: #1a1614 !important;
-        --border: #221e1d !important;
-        --border-light: #3a3330 !important;
-        --text-primary: #f1eee7 !important;
-        --text-secondary: #b8b2a8 !important;
-        --text-muted: #857f77 !important;
-        --accent-red: #e11d3a !important;
-        --accent-blue: #7d8a99 !important;
-        --accent-green: #8fae9b !important;
-        --accent-gold: #c9c2b6 !important;
-        --accent-orange: #c08a72 !important;
-        --accent-purple: #9aa3ad !important;
-        --chart-grid: #221e1d !important;
+      /* Vanaheim: LIGHT parchment background, dark green text, with forest-green and
+         gold accents. Cards and tracks are light; text is dark. Distinct from the
+         dark rainbow and batman palettes. */
+      [data-theme="vanaheim"] {
+        --bg-primary: #f5f3ea !important;
+        --bg-secondary: #ece9da !important;
+        --bg-card: #ece9da !important;
+        --bg-card-hover: #e2dfcd !important;
+        --border: #d6d8c8 !important;
+        --border-light: #c4c7b2 !important;
+        --text-primary: #1c2b22 !important;
+        --text-secondary: #3a4a3a !important;
+        --text-muted: #5c6b5c !important;
+        --accent-red: #b5532e !important;
+        --accent-blue: #4a7a8c !important;
+        --accent-green: #2f7d4f !important;
+        --accent-gold: #c9a227 !important;
+        --accent-orange: #b5532e !important;
+        --accent-purple: #4a7a8c !important;
+        --chart-grid: #dedbca !important;
       }
 
-      /* Senna (Ayrton Senna's helmet): near-black background, off-white text, VIVID
-         yellow (#ffd300) as the ONE standout accent, with Brazil-green (#1faf5a) and
-         helmet-blue (#1f6fd0) as secondary data marks. Brighter and more saturated
-         than batman's muted gold, all tuned for high contrast on near-black. */
-      [data-theme="senna"] {
-        --bg-primary: #0b0b0c !important;
-        --bg-secondary: #050505 !important;
-        --bg-card: #15140e !important;
-        --bg-card-hover: #1f1c10 !important;
-        --border: #2a2614 !important;
-        --border-light: #463f1f !important;
-        --text-primary: #f4f3ee !important;
-        --text-secondary: #d8cfa0 !important;
-        --text-muted: #c9b24a !important;
-        --accent-red: #ffd300 !important;
-        --accent-blue: #1f6fd0 !important;
-        --accent-green: #1faf5a !important;
-        --accent-gold: #ffd300 !important;
-        --accent-orange: #1faf5a !important;
-        --accent-purple: #1f6fd0 !important;
-        --chart-grid: #2a2614 !important;
+      /* Muspelheim: DARK charred background, warm off-white text, with molten-orange,
+         red, and amber accents. Distinct from the cool dark rainbow and batman
+         palettes. */
+      [data-theme="muspelheim"] {
+        --bg-primary: #140a07 !important;
+        --bg-secondary: #1f0f09 !important;
+        --bg-card: #1f0f09 !important;
+        --bg-card-hover: #2a140b !important;
+        --border: #3a1d12 !important;
+        --border-light: #5a2e1c !important;
+        --text-primary: #f3ddc9 !important;
+        --text-secondary: #c9a079 !important;
+        --text-muted: #9a7a63 !important;
+        --accent-red: #ff3d00 !important;
+        --accent-blue: #d98a3a !important;
+        --accent-green: #ff6a1f !important;
+        --accent-gold: #ffb300 !important;
+        --accent-orange: #ff6a1f !important;
+        --accent-purple: #d98a3a !important;
+        --chart-grid: #0d0604 !important;
       }
     </style>
   </head>
@@ -152,14 +151,14 @@
     <button id="theme-toggle-btn" aria-label="Toggle theme">
       <svg class="icon-rainbow" viewBox="0 0 24 24" fill="none" stroke-width="2"><defs><linearGradient id="rb-grad-f1" x1="0" y1="0" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ff5e7e"/><stop offset="0.33" stop-color="#ffe14d"/><stop offset="0.66" stop-color="#38bdf8"/><stop offset="1" stop-color="#c084fc"/></linearGradient></defs><path d="M2 18a10 10 0 0120 0" stroke="url(#rb-grad-f1)"/><path d="M5 18a7 7 0 0114 0" stroke="url(#rb-grad-f1)" opacity="0.7"/><path d="M8 18a4 4 0 018 0" stroke="url(#rb-grad-f1)" opacity="0.4"/></svg>
       <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
-      <svg class="icon-bond" viewBox="0 0 24 24" fill="none" stroke="#e11d3a" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="#e11d3a" stroke="none"/></svg>
-      <svg class="icon-senna" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5C7 3.5 4 7 4 12C4 16 7 20 12 20.5C17 20 20 16 20 12C20 7 17 3.5 12 3.5Z" fill="#ffd300"/><path d="M5.8 8C7.8 6 9.8 5.2 12 5.2C14.2 5.2 16.2 6 18.2 8" stroke="#1faf5a" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="6.4" y="10.6" width="11.2" height="3.2" rx="1.6" fill="#0b0b0c"/></svg>
+      <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" stroke="#2f7d4f" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="#c9a227" stroke="none"/></svg>
+      <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3.5C7 3.5 4 7 4 12C4 16 7 20 12 20.5C17 20 20 16 20 12C20 7 17 3.5 12 3.5Z" fill="#ff6a1f"/><path d="M5.8 8C7.8 6 9.8 5.2 12 5.2C14.2 5.2 16.2 6 18.2 8" stroke="#ffb300" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="6.4" y="10.6" width="11.2" height="3.2" rx="1.6" fill="#140a07"/></svg>
     </button>
     <script>
       document.getElementById('theme-toggle-btn').addEventListener('click', function() {
-        // Cycle: rainbow → batman → bond → senna → rainbow (matches site header).
+        // Cycle: rainbow → batman → vanaheim → muspelheim → rainbow (matches site header).
         var cur = document.documentElement.getAttribute('data-theme');
-        var next = cur === 'batman' ? 'bond' : cur === 'bond' ? 'senna' : cur === 'senna' ? 'rainbow' : 'batman';
+        var next = cur === 'batman' ? 'vanaheim' : cur === 'vanaheim' ? 'muspelheim' : cur === 'muspelheim' ? 'rainbow' : 'batman';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
       });

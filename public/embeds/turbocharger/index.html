@@ -12,11 +12,11 @@
   </style>
   <script>
   (function(){
-    // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, bond (007) and senna are overrides.
+    // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim and muspelheim are overrides.
     function applyTheme(t){
       if (t === 'batman') document.documentElement.setAttribute('data-theme', 'batman');
-      else if (t === 'bond') document.documentElement.setAttribute('data-theme', 'bond');
-      else if (t === 'senna') document.documentElement.setAttribute('data-theme', 'senna');
+      else if (t === 'vanaheim') document.documentElement.setAttribute('data-theme', 'vanaheim');
+      else if (t === 'muspelheim') document.documentElement.setAttribute('data-theme', 'muspelheim');
       else document.documentElement.removeAttribute('data-theme');
     }
     var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -46,15 +46,15 @@
       --text: #c3cbd6; --text-secondary: #93a0b3; --text-muted: #6e7888;
       --hot: #d6736f; --cold: #5aa9d6; --shaft: #c9a648;
     }
-    [data-theme="bond"] {
-      --bg: #060607; --bg-card: #100e0e; --border: #221e1d;
-      --text: #f1eee7; --text-secondary: #b8b2a8; --text-muted: #857f77;
-      --hot: #e11d3a; --cold: #7d8a99; --shaft: #9aa3ad;
+    [data-theme="vanaheim"] {
+      --bg: #f5f3ea; --bg-card: #ece9da; --border: #d6d8c8;
+      --text: #1c2b22; --text-secondary: #3a4a3a; --text-muted: #5c6b5c;
+      --hot: #2f7d4f; --cold: #4a7a8c; --shaft: #c9a227;
     }
-    [data-theme="senna"] {
-      --bg: #0b0b0c; --bg-card: #15140e; --border: #2a2614;
-      --text: #f4f3ee; --text-secondary: #d8cfa0; --text-muted: #c9b24a;
-      --hot: #ffd300; --cold: #1f6fd0; --shaft: #1faf5a;
+    [data-theme="muspelheim"] {
+      --bg: #140a07; --bg-card: #1f0f09; --border: #3a1d12;
+      --text: #f3ddc9; --text-secondary: #c9a079; --text-muted: #9a7a63;
+      --hot: #ff6a1f; --cold: #ffb300; --shaft: #ff3d00;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 17px; }

@@ -289,47 +289,6 @@ const libraryItems = (await getCollection('library'))
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
 
-  /* 007: gun-barrel bullseye around the head. box-shadow rings aren't clipped by
-     overflow:hidden and follow the border-radius, so they ring the circle cleanly.
-     Order is innermost-first; the var(--bg) layers are the dark gaps between rings. */
-  :global([data-theme="bond"]) .hero-portrait {
-    border-color: rgba(244, 242, 236, 0.35);
-    box-shadow:
-      0 0 0 3px var(--bg),
-      0 0 0 4px rgba(200, 16, 46, 0.5),
-      0 0 0 9px var(--bg),
-      0 0 0 10px rgba(244, 242, 236, 0.22),
-      0 0 0 15px var(--bg),
-      0 0 0 16px rgba(200, 16, 46, 0.38),
-      0 8px 26px rgba(0, 0, 0, 0.5);
-  }
-
-  /* 007: sniper-scope crosshairs straight through the middle, extending past the
-     rings. Drawn on the (unclipped) outer frame so they overshoot the circle. */
-  :global([data-theme="bond"]) .hero-portrait::before,
-  :global([data-theme="bond"]) .hero-portrait::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(200, 16, 46, 0.5);
-    z-index: 2;
-    pointer-events: none;
-  }
-
-  /* vertical */
-  :global([data-theme="bond"]) .hero-portrait::before {
-    width: 1px;
-    height: calc(100% + 40px);
-  }
-
-  /* horizontal */
-  :global([data-theme="bond"]) .hero-portrait::after {
-    width: calc(100% + 40px);
-    height: 1px;
-  }
-
   .hero-portrait img {
     width: 100%;
     height: 100%;

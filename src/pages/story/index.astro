@@ -529,7 +529,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       var res = await fetch(API_BASE + '/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pw, scope: 'analytics' }),
+        body: JSON.stringify({ password: pw, scope: 'legion' }),
       });
       var data = await res.json();
       if (res.ok && data.token) {

@@ -3,6 +3,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.js';
 import chatRoutes from './routes/agent-sdk-chat.js';
+import storyRoutes from './routes/story-chat.js';
 import pixelRoutes from './routes/pixellab.js';
 import searchRoutes from './routes/web-search.js';
 
@@ -49,6 +50,7 @@ app.use(express.json({ limit: '1mb' }));
 // Routes
 app.use(authRoutes);
 app.use(chatRoutes);
+app.use(storyRoutes);
 app.use(pixelRoutes);
 app.use(searchRoutes);
 

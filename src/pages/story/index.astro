@@ -25,7 +25,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     <div class="story-header">
       <div>
         <h1>Story Studio</h1>
-        <p class="story-tagline">Write characters in text. Drop them into a place. Watch the scene play out.</p>
+        <p class="story-tagline">Write characters in text. Drop them into a place. Watch them trade lines, comic-book tight.</p>
       </div>
       <button id="sign-out" class="secondary-btn">Sign Out</button>
     </div>
@@ -59,13 +59,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </select>
         </label>
         <label class="ctl">Rounds
-          <input id="rounds" type="number" min="1" max="20" value="2" />
+          <input id="rounds" type="number" min="1" max="20" value="4" />
+        </label>
+        <label class="ctl">Format
+          <select id="format-select">
+            <option value="screenplay" selected>Screenplay</option>
+            <option value="comic">Comic</option>
+          </select>
         </label>
         <label class="ctl">Beat length
           <select id="length-select">
-            <option value="300">Short</option>
-            <option value="600" selected>Medium</option>
-            <option value="1000">Long</option>
+            <option value="120" selected>Tight</option>
+            <option value="240">Short</option>
+            <option value="450">Long</option>
           </select>
         </label>
         <label class="ctl">Order
@@ -214,6 +220,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   :global(.beat.director .beat-name) { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.68rem; }
   :global(.beat.director .beat-text) { color: var(--fg-muted); font-style: italic; }
   :global(.beat.thinking .beat-text) { color: var(--fg-muted); font-style: italic; }
+
+  /* Screenplay: name in caps over tight dialogue */
+  :global(.beat.screenplay .beat-name) { text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.72rem; }
+
+  /* Comic: name as a caption, dialogue in a bubble */
+  :global(.beat.comic) { border-left: none; padding-left: 0; }
+  :global(.beat.comic .beat-name) { text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; margin-bottom: 0.3rem; }
+  :global(.beat.comic .beat-text) {
+    display: inline-block; background: var(--bg);
+    border: 2px solid var(--c, var(--fg)); border-radius: 14px;
+    padding: 0.5rem 0.85rem; font-size: 0.92rem; max-width: 90%;
+  }
 </style>
 
 <script is:inline>
@@ -317,7 +335,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       el.className = 'beat director';
       el.innerHTML = '<div class="beat-name">Director</div><div class="beat-text">' + escapeHtml(b.text) + '</div>';
     } else {
-      el.className = 'beat';
+      el.className = 'beat ' + (b.format || 'screenplay');
       var color = colorFor(charIndex(b.name));
       el.style.setProperty('--c', color);
       el.innerHTML = '<div class="beat-name">' + escapeHtml(b.name) + '</div><div class="beat-text">' + escapeHtml(b.text) + '</div>';
@@ -352,6 +370,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function systemFor(char) {
+    var format = document.getElementById('format-select').value;
     var others = state.chars
       .filter(function (c) { return c.id !== char.id && c.name.trim(); })
       .map(function (c) { return c.name; });
@@ -360,10 +379,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     s += (char.desc || 'No description given. Invent a consistent, vivid persona.') + '\n\n';
     if (state.setting.trim()) s += 'SETTING:\n' + state.setting.trim() + '\n\n';
     if (others.length) s += 'OTHER CHARACTERS PRESENT: ' + others.join(', ') + '\n\n';
-    s += 'Write ' + (char.name || 'your character') + "'s next beat: what they say and/or do, reacting naturally to what just happened. ";
-    s += 'Use vivid but economical prose with a distinct voice. ';
+
+    if (format === 'comic') {
+      s += 'FORMAT: comic book panel. Write your beat as ONE punchy line of dialogue, the kind that fits in a speech bubble. You may add at most one short action caption in [brackets]. One panel only. Make it land.\n\n';
+    } else {
+      s += 'FORMAT: screenplay. Write your beat as tight spoken dialogue, mostly what they say out loud. Put any action in a brief stage direction in (parentheses), and only when it matters. One to three lines, never a paragraph.\n\n';
+    }
+
+    s += 'Write ' + (char.name || 'your character') + "'s next beat, reacting to what just happened. ";
+    s += 'Keep it SHORT and conversational. Trade lines fast, like a real back-and-forth, and leave room for the others to answer. ';
     s += 'Write ONLY your own dialogue and actions. Never speak or act for the other characters. Do not narrate from an omniscient view. ';
-    s += 'Do not prefix your reply with your name or any label. Keep it to a short beat.';
+    s += 'Do not prefix your reply with your name or any label.';
     return s;
   }
 
@@ -436,6 +462,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
     var rounds = Math.min(20, Math.max(1, parseInt(document.getElementById('rounds').value, 10) || 1));
     var order = document.getElementById('order-select').value;
+    var format = document.getElementById('format-select').value;
     stopRequested = false;
     setRunning(true);
 
@@ -444,7 +471,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var lineup = order === 'random' ? shuffle(active) : active;
         for (var i = 0; i < lineup.length && !stopRequested; i++) {
           var char = lineup[i];
-          var thinking = addBeat({ kind: 'thinking', name: char.name || 'Unnamed', text: '...' });
+          var thinking = addBeat({ kind: 'thinking', name: char.name || 'Unnamed', text: '...', format: format });
           thinking.classList.add('thinking');
           // thinking beat is visual only; remove from state so it is not persisted
           state.transcript.pop();
@@ -457,7 +484,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           }
           thinking.remove();
           text = stripLabel(text, char.name);
-          if (text) addBeat({ kind: 'char', name: char.name || 'Unnamed', text: text });
+          if (text) addBeat({ kind: 'char', name: char.name || 'Unnamed', text: text, format: format });
         }
       }
     } catch (e) {

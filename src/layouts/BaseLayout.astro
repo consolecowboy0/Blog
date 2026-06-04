@@ -677,7 +677,10 @@ const { title, description = 'A blog.' } = Astro.props;
 
   let themeSpin = 0;
   document.getElementById('theme-toggle')?.addEventListener('click', (e) => {
-    const order = ['rainbow', 'vanaheim', 'muspelheim', 'batman'];
+    // Batman is always forced last, regardless of where it sits in this list.
+    const order = ['rainbow', 'vanaheim', 'muspelheim', 'batman']
+      .filter((t) => t !== 'batman')
+      .concat('batman');
     const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];

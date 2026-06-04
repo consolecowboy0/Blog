@@ -70,6 +70,25 @@
   --musp-header-to: #0d0604;
 }
 
+/* Alfheim mode — home of the light elves: the luminous daylight realm, kept
+   deliberately distinct from Vanaheim's earthy parchment-and-green. Cool
+   dawn-on-snow ground, deep violet ink, an amethyst accent (a hue no other realm
+   uses — Asgard/Vanaheim/Batman own gold, Muspelheim owns orange) and a prismatic
+   dawn gradient (gold → peach → rose → lilac). Shares Asgard's antler sigil, here
+   haloed like light through morning mist. */
+[data-theme="alfheim"] {
+  --bg: #f7f4fb;
+  --fg: #2a2540;
+  --fg-muted: #877a9e;
+  --accent: #8b5cc4;
+  --border: #e6def0;
+  --code-bg: #efeaf6;
+  --alf-grad: linear-gradient(90deg, #e8b04f 0%, #f3c79e 28%, #f0a6c4 55%, #c79ae8 80%, #9b6fd4 100%);
+  --alf-glow: 0 0 10px rgba(139, 92, 196, 0.32), 0 0 22px rgba(216, 184, 232, 0.28);
+  --alf-header-from: #f7f4fb;
+  --alf-header-to: #efeaf6;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -164,6 +183,32 @@
 [data-theme="rainbow"] .asgard-sigil,
 [data-theme="vanaheim"] .asgard-sigil {
   display: inline-block;
+}
+/* Alfheim: the antler sigil glows amethyst, like light caught in morning mist. */
+[data-theme="alfheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: alf-sigil-glow 5s ease-in-out infinite;
+}
+
+@keyframes alf-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(139, 92, 196, 0.45))
+      drop-shadow(0 0 8px rgba(216, 184, 232, 0.35));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(155, 111, 212, 0.7))
+      drop-shadow(0 0 14px rgba(216, 184, 232, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="alfheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(139, 92, 196, 0.5));
+  }
 }
 /* Muspelheim: the antler sigil glows like an ember pulled from the forge. */
 [data-theme="muspelheim"] .asgard-sigil {
@@ -456,6 +501,79 @@
 }
 
 [data-theme="vanaheim"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Alfheim: luminous daylight. Headings in violet ink; only the wordmark carries
+   the prismatic dawn gradient. Mirrors Vanaheim's structure, lit cooler. */
+[data-theme="alfheim"] h1,
+[data-theme="alfheim"] h2 {
+  color: var(--fg);
+}
+
+[data-theme="alfheim"] .site-title {
+  background: var(--alf-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="alfheim"] a:hover {
+  text-shadow: var(--alf-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="alfheim"] pre,
+[data-theme="alfheim"] code {
+  border-color: var(--accent);
+}
+
+[data-theme="alfheim"] header {
+  background: linear-gradient(180deg, var(--alf-header-from) 0%, var(--alf-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: a calm prismatic dawn band (no animation — daylight is still). */
+[data-theme="alfheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--alf-grad);
+  opacity: 0.6;
+}
+
+/* Blockquotes: amethyst glow on the left rule. */
+[data-theme="alfheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(139, 92, 196, 0.18);
+}
+
+/* HR: dawn divider with a rune star at center. */
+[data-theme="alfheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--alf-grad);
+  opacity: 0.65;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="alfheim"] hr::after {
   content: '✦';
   position: absolute;
   top: 50%;

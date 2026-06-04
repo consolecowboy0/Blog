@@ -53,6 +53,23 @@
   --bat-header-to: #0a0e16;
 }
 
+/* Muspelheim mode — Surtr's fire realm: charred near-black ground, molten
+   orange regalia, an ember-to-gold gradient like coals catching flame. The
+   dark fire counterpart to Vanaheim's daylight. Shares Asgard's antler sigil,
+   here lit like a brand pulled from the forge. */
+[data-theme="muspelheim"] {
+  --bg: #140a07;
+  --fg: #f3ddc9;
+  --fg-muted: #9a7a63;
+  --accent: #ff6a1f;
+  --border: #3a1d12;
+  --code-bg: #0d0604;
+  --musp-grad: linear-gradient(90deg, #ff3d00 0%, #ff7a18 40%, #ffb300 75%, #ffd24a 100%);
+  --musp-glow: 0 0 6px rgba(255, 90, 20, 0.6), 0 0 18px rgba(255, 140, 30, 0.4);
+  --musp-header-from: #140a07;
+  --musp-header-to: #0d0604;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -147,6 +164,32 @@
 [data-theme="rainbow"] .asgard-sigil,
 [data-theme="vanaheim"] .asgard-sigil {
   display: inline-block;
+}
+/* Muspelheim: the antler sigil glows like an ember pulled from the forge. */
+[data-theme="muspelheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: musp-sigil-glow 4s ease-in-out infinite;
+}
+
+@keyframes musp-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(255, 90, 20, 0.6))
+      drop-shadow(0 0 8px rgba(255, 60, 0, 0.4));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(255, 180, 60, 0.9))
+      drop-shadow(0 0 16px rgba(255, 90, 20, 0.55));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="muspelheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(255, 90, 20, 0.6));
+  }
 }
 
 /* Batman bat sigil — hidden by default, shown only in Batman theme */
@@ -261,6 +304,85 @@
 }
 
 [data-theme="rainbow"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Muspelheim: fire realm. Headings in molten orange; the wordmark catches the
+   ember→gold gradient. Mirrors Asgard's structure, lit like forge-light. */
+[data-theme="muspelheim"] h1,
+[data-theme="muspelheim"] h2 {
+  color: var(--accent);
+}
+
+[data-theme="muspelheim"] .site-title {
+  background: var(--musp-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="muspelheim"] a:hover {
+  text-shadow: var(--musp-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="muspelheim"] pre,
+[data-theme="muspelheim"] code {
+  border-color: var(--border);
+}
+
+[data-theme="muspelheim"] header {
+  background: linear-gradient(180deg, var(--musp-header-from) 0%, var(--musp-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header stripe: embers drifting across the coals, reusing the sweep keyframes. */
+[data-theme="muspelheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--musp-grad);
+  background-size: 200% auto;
+  opacity: 0.6;
+  animation: bifrost-sweep 14s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="muspelheim"] header::after {
+    animation: none;
+  }
+}
+
+[data-theme="muspelheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(255, 90, 20, 0.28);
+}
+
+[data-theme="muspelheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--musp-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="muspelheim"] hr::after {
   content: '✦';
   position: absolute;
   top: 50%;

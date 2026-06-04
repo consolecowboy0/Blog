@@ -372,6 +372,26 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     border-radius: 6px; background: var(--bg); color: var(--fg);
     font-family: var(--font-mono); font-size: 0.8rem; outline: none;
   }
+
+  /* Phones: two 150px channel cells don't fit, so names wrap and the percent
+     floats off. Drop to one column, tighten chrome, let controls fill width. */
+  @media (max-width: 560px) {
+    .block { padding: 1rem 1rem; }
+    .dash-header h1 { font-size: 1.3rem; }
+    .dash-controls { width: 100%; }
+    .owner-toggle { order: 3; }
+    #range-select { flex: 1; }
+    #sign-out { margin-left: auto; }
+
+    .chan-strip { grid-template-columns: 1fr; gap: 0.55rem; }
+    .dash-body :global(.chan-cell .chan-top) { justify-content: space-between; }
+
+    .stat-cards { grid-template-columns: 1fr; }
+    .owner-card { grid-column: auto; }
+
+    /* Subscribers table is dense: hide the Source column on narrow screens. */
+    #subs-table th:nth-child(2), #subs-table td:nth-child(2) { display: none; }
+  }
 </style>
 
 <script>

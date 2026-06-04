@@ -36,7 +36,7 @@ const { title, description = 'A blog.' } = Astro.props;
       (function() {
         try {
           var p = location.pathname;
-          if (/^\/(analytics|backend|legion|story|dm)(\/|$)/.test(p)) return;
+          if (/^\/(analytics|story|dm)(\/|$)/.test(p)) return;
 
           // UTM: only on the first pageview of a session, so refreshes and deep
           // navigation don't re-credit a campaign for the whole visit.

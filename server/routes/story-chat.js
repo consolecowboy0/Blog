@@ -3,22 +3,23 @@ import { requireAuth } from '../lib/auth.js';
 
 const router = Router();
 
-router.post('/api/agent-sdk-chat', async (req, res) => {
+router.post('/api/story-chat', async (req, res) => {
   if (!requireAuth(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const { system, messages, model, agentConfig } = req.body || {};
+  const { system, messages, model } = req.body || {};
 
   if (!system || !messages) {
     return res.status(400).json({ error: 'Missing system or messages' });
   }
 
   try {
+    // Never use an API key -- run on the server's Claude Code subscription auth.
     delete process.env.ANTHROPIC_API_KEY;
 
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
-    console.log('[agent-sdk-chat] Starting query');
+    console.log('[story-chat] Starting query');
 
     const userPrompt = messages[messages.length - 1]?.content || '';
 
@@ -29,13 +30,9 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     const options = {
       model: sdkModel,
       systemPrompt: system,
-      maxTurns: 4,
+      maxTurns: 1,
       permissionMode: 'auto',
     };
-
-    if (agentConfig && Object.keys(agentConfig).length > 0) {
-      options.agents = agentConfig;
-    }
 
     let result = '';
     for await (const message of query({ prompt: userPrompt, options })) {
@@ -52,7 +49,7 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
       }
     }
 
-    console.log('[agent-sdk-chat] Complete, result length=%d', result.length);
+    console.log('[story-chat] Complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key'))) {
       return res.status(401).json({ error: 'Agent SDK auth error: ' + result });
@@ -64,7 +61,7 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return res.status(501).json({ error: 'Agent SDK requires Claude Code CLI installed on the server.' });
     }
-    console.error('[agent-sdk-chat] Error:', message);
+    console.error('[story-chat] Error:', message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

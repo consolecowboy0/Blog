@@ -6,8 +6,6 @@ if (!SECRET) {
 }
 
 const HASHES = {
-  legion: process.env.AUTH_HASH_LEGION,
-  backend: process.env.AUTH_HASH_BACKEND,
   analytics: process.env.AUTH_HASH_ANALYTICS,
 };
 

@@ -9,7 +9,7 @@ router.post('/api/auth', (req, res) => {
   if (!password || !scope) {
     return res.status(400).json({ error: 'Missing password or scope' });
   }
-  if (!['legion', 'dev'].includes(scope)) {
+  if (!['analytics'].includes(scope)) {
     return res.status(400).json({ error: 'Invalid scope' });
   }
   if (!verifyPassword(password, scope)) {

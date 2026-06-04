@@ -672,10 +672,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const max = cities[0].visitors || 1;
       cityList.innerHTML = cities.map((c: any) => {
         const w = Math.max(2, Math.round((c.visitors / max) * 100));
-        const label = c.country ? `${c.city}, ${c.country}` : c.city;
+        const tail = [c.region, c.country].filter(Boolean).join(', ');
+        const label = tail ? `${c.city}, ${tail}` : c.city;
         return `<div class="geo-row">
           <span class="geo-flag">${escapeHtml(c.flag || '🌐')}</span>
-          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(label)}">${escapeHtml(c.city)}${c.country ? `<span class="geo-sub">, ${escapeHtml(c.country)}</span>` : ''}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
+          <span class="geo-mid"><span class="geo-name" title="${escapeHtml(label)}">${escapeHtml(c.city)}${tail ? `<span class="geo-sub">, ${escapeHtml(tail)}</span>` : ''}</span><span class="geo-track"><span class="geo-bar" style="width:${w}%"></span></span></span>
           <span class="geo-count">${fmt(c.visitors)}</span>
         </div>`;
       }).join('');

@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim and muspelheim are overrides.
+  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -20,6 +20,8 @@
       document.documentElement.setAttribute('data-theme', 'vanaheim');
     } else if (t === 'muspelheim') {
       document.documentElement.setAttribute('data-theme', 'muspelheim');
+    } else if (t === 'alfheim') {
+      document.documentElement.setAttribute('data-theme', 'alfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -107,6 +109,25 @@
       --accent-blue: #d98a3a;
       --accent-green: #ff6a1f;
       --accent-gold: #ffb300;
+    }
+
+    /* alfheim: cool dawn-white background, deep violet-ink text, luminous
+       amethyst and dawn-gold accents, rose and alt-purple secondaries.
+       Light cards, dark text (structurally like vanaheim). */
+    [data-theme="alfheim"] {
+      --bg: #f7f4fb;
+      --bg-card: #efeaf6;
+      --bg-card-hover: #e6def0;
+      --bg-track: #e6def0;
+      --border: #e6def0;
+      --border-light: #d6c8e0;
+      --text: #2a2540;
+      --text-secondary: #4a3a60;
+      --text-muted: #877a9e;
+      --accent-red: #c9547a;
+      --accent-blue: #7a6ba5;
+      --accent-green: #8b5cc4;
+      --accent-gold: #c79a3f;
     }
 
 
@@ -432,10 +453,11 @@
     .theme-toggle:hover { color: var(--text); }
     .theme-toggle svg { width: 16px; height: 16px; }
     /* Icon shown = the NEXT theme in the cycle (matches site header).
-       rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → rainbow. */
+       rainbow (Asgard) → bat, batman → vanaheim, vanaheim → muspelheim, muspelheim → alfheim, alfheim → rainbow. */
     .icon-rainbow { display: none; }
     .icon-vanaheim { display: none; }
     .icon-muspelheim { display: none; }
+    .icon-alfheim { display: none; }
     .icon-bat { display: block; }
     [data-theme="batman"] .icon-bat { display: none; }
     [data-theme="batman"] .icon-vanaheim { display: block; }
@@ -443,7 +465,9 @@
     [data-theme="vanaheim"] .icon-vanaheim { display: none; }
     [data-theme="vanaheim"] .icon-muspelheim { display: block; }
     [data-theme="muspelheim"] .icon-bat { display: none; }
-    [data-theme="muspelheim"] .icon-rainbow { display: block; }
+    [data-theme="muspelheim"] .icon-alfheim { display: block; }
+    [data-theme="alfheim"] .icon-bat { display: none; }
+    [data-theme="alfheim"] .icon-rainbow { display: block; }
   </style>
 </head>
 <body>
@@ -457,6 +481,7 @@
       <svg class="icon-bat" viewBox="0 0 24 24" fill="#c9a23f" stroke="none" aria-hidden="true"><path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/></svg>
       <svg class="icon-vanaheim" viewBox="0 0 24 24" fill="none" stroke="#2f7d4f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V11"/><path d="M12 13C12 9 9 6 5 6C5 10 8 13 12 13Z" fill="#2f7d4f" stroke="none"/><path d="M12 11C12 7 15 4 19 4C19 8 16 11 12 11Z" fill="#c9a227" stroke="none"/></svg>
       <svg class="icon-muspelheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2C12 6 8 7 8 12C8 16 10 18 10 18C9 17 9 14 11 13C11 16 14 16 14 19C16 18 17 15 16 12C18 13 18 16 18 16C19 14 19 11 17 8C16 10 15 9 15 7C13 8 13 5 12 2Z" fill="#ff6a1f"/></svg>
+      <svg class="icon-alfheim" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.2 6.2L20 10l-5.8 1.8L12 18l-2.2-6.2L4 10l5.8-1.8L12 2z" fill="#8b5cc4"/></svg>
     </button>
   </div>
 
@@ -547,12 +572,13 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
       vanaheim:   '#f5f3ea',
       muspelheim: '#140a07',
+      alfheim:    '#f7f4fb',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';
@@ -959,8 +985,8 @@
       updateMiniChart();
     }
 
-    // Theme toggle: cycle rainbow → batman → vanaheim → muspelheim → rainbow.
-    var themeCycle = { rainbow: 'batman', batman: 'vanaheim', vanaheim: 'muspelheim', muspelheim: 'rainbow' };
+    // Theme toggle: cycle rainbow → batman → vanaheim → muspelheim → alfheim → rainbow.
+    var themeCycle = { rainbow: 'batman', batman: 'vanaheim', vanaheim: 'muspelheim', muspelheim: 'alfheim', alfheim: 'rainbow' };
     document.getElementById('theme-toggle').addEventListener('click', function() {
       var cur = document.documentElement.getAttribute('data-theme') || 'rainbow';
       var next = themeCycle[cur] || 'rainbow';

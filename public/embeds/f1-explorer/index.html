@@ -12,13 +12,13 @@
     </style>
     <script>
       (function(){
-  // Four themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), and muspelheim.
+  // Five themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, and alfheim.
   // This is a bundled app whose base CSS :root is light, so we always set an explicit
-  // data-theme. Vanaheim and muspelheim must not fall through to rainbow.
+  // data-theme. Vanaheim, muspelheim, and alfheim must not fall through to rainbow.
   function applyTheme(t){
     document.documentElement.setAttribute(
       'data-theme',
-      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : 'rainbow'
+      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : 'rainbow'
     );
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -118,6 +118,28 @@
         --accent-orange: #ff6a1f !important;
         --accent-purple: #d98a3a !important;
         --chart-grid: #0d0604 !important;
+      }
+
+      /* Alfheim: LIGHT cool dawn-white background, dark violet text, with luminous
+         amethyst, dawn-gold, and rose accents. Light theme like vanaheim, distinct
+         from the dark rainbow, batman, and muspelheim palettes. */
+      [data-theme="alfheim"] {
+        --bg-primary: #f7f4fb !important;
+        --bg-secondary: #efeaf6 !important;
+        --bg-card: #efeaf6 !important;
+        --bg-card-hover: #e6def0 !important;
+        --border: #e6def0 !important;
+        --border-light: #d6c8e0 !important;
+        --text-primary: #2a2540 !important;
+        --text-secondary: #4a3a60 !important;
+        --text-muted: #877a9e !important;
+        --accent-red: #c9547a !important;
+        --accent-blue: #7a6ba5 !important;
+        --accent-green: #8b5cc4 !important;
+        --accent-gold: #c79a3f !important;
+        --accent-orange: #c79a3f !important;
+        --accent-purple: #8b5cc4 !important;
+        --chart-grid: #d6c8e0 !important;
       }
     </style>
   </head>

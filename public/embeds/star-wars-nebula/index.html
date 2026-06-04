@@ -12,7 +12,7 @@
   @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
 </style>
 <script>    (function(){
-  // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim and muspelheim are overrides.
+  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -20,6 +20,8 @@
       document.documentElement.setAttribute('data-theme', 'vanaheim');
     } else if (t === 'muspelheim') {
       document.documentElement.setAttribute('data-theme', 'muspelheim');
+    } else if (t === 'alfheim') {
+      document.documentElement.setAttribute('data-theme', 'alfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -136,6 +138,30 @@
   --accent-blue: #ffb300;
   --accent-green: #ff6a1f;
   --accent-gold: #ffb300;
+}
+[data-theme="alfheim"] {
+  /* Light realm of the light elves: luminous amethyst/violet on a cool dawn-white background. */
+  --bg: #f7f4fb;
+  --bg-card: #efeaf6;
+  --bg-card-hover: #e6def0;
+  --bg-track: #f7f4fb;
+  --bg-panel: #efeaf6;
+  --bg-panel-hover: #e6def0;
+  --card-bg: #efeaf6;
+  --null: #f7f4fb;
+  --input-bg: #efeaf6;
+  --border: #e6def0;
+  --border-light: #d6c8e0;
+  --text: #2a2540;
+  --text-secondary: #4a3a60;
+  --text-sec: #4a3a60;
+  --text-muted: #877a9e;
+  --fg: #2a2540;
+  --fg-muted: #877a9e;
+  --accent-red: #c9547a;
+  --accent-blue: #8b5cc4;
+  --accent-green: #7a6ba5;
+  --accent-gold: #c79a3f;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -314,11 +340,12 @@ const themeColors = {
   rainbow: { bg: '#0b1338', edge: 'rgba(120,150,255,0.22)', edgeRoute: 'rgba(255,204,77,0.45)', label: '#c9b78a', glow: 'rgba(60,90,200,0.22)' },
   batman: { bg: '#10151e', edge: 'rgba(80,95,130,0.28)', edgeRoute: 'rgba(201,166,72,0.45)', label: '#93a0b3', glow: 'rgba(40,55,90,0.35)' },
   vanaheim: { bg: '#16241c', edge: 'rgba(47,125,79,0.30)', edgeRoute: 'rgba(201,162,39,0.55)', label: '#c9a227', glow: 'rgba(47,125,79,0.22)' },
-  muspelheim: { bg: '#0d0604', edge: 'rgba(255,106,31,0.28)', edgeRoute: 'rgba(255,61,0,0.60)', label: '#ffb300', glow: 'rgba(255,106,31,0.25)' }
+  muspelheim: { bg: '#0d0604', edge: 'rgba(255,106,31,0.28)', edgeRoute: 'rgba(255,61,0,0.60)', label: '#ffb300', glow: 'rgba(255,106,31,0.25)' },
+  alfheim: { bg: '#f7f4fb', edge: 'rgba(139,92,196,0.30)', edgeRoute: 'rgba(199,154,63,0.55)', label: '#8b5cc4', glow: 'rgba(139,92,196,0.22)' }
 };
 function currentTheme() {
   const t = document.documentElement.getAttribute('data-theme');
-  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim') ? t : 'rainbow';
+  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim' || t === 'alfheim') ? t : 'rainbow';
 }
 function isDark() { return true; }
 function T() { return themeColors[currentTheme()]; }
@@ -801,6 +828,7 @@ document.getElementById('search').addEventListener('input', (e) => {
   });
   render();
 });
+
 
 // ── Subtitle ────────────────────────────────────────────────────
 document.getElementById('subtitle').textContent = `${nodes.length} systems \u00b7 ${E.length} lanes \u00b7 ${Object.keys(ROUTES).length} trade routes`;

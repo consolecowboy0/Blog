@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Four themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim and muspelheim are overrides.
+  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -20,6 +20,8 @@
       document.documentElement.setAttribute('data-theme', 'vanaheim');
     } else if (t === 'muspelheim') {
       document.documentElement.setAttribute('data-theme', 'muspelheim');
+    } else if (t === 'alfheim') {
+      document.documentElement.setAttribute('data-theme', 'alfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -107,6 +109,25 @@
       --accent-blue: #d98a3a;
       --accent-green: #ff6a1f;
       --accent-gold: #ffb300;
+    }
+
+    /* alfheim: cool dawn-white background, deep violet-ink text, luminous
+       amethyst and dawn-gold accents, rose and alt-purple secondaries.
+       Light cards, dark text (structurally like vanaheim). */
+    [data-theme="alfheim"] {
+      --bg: #f7f4fb;
+      --bg-card: #efeaf6;
+      --bg-card-hover: #e6def0;
+      --bg-track: #e6def0;
+      --border: #e6def0;
+      --border-light: #d6c8e0;
+      --text: #2a2540;
+      --text-secondary: #4a3a60;
+      --text-muted: #877a9e;
+      --accent-red: #c9547a;
+      --accent-blue: #7a6ba5;
+      --accent-green: #8b5cc4;
+      --accent-gold: #c79a3f;
     }
 
 
@@ -516,12 +537,13 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
       vanaheim:   '#f5f3ea',
       muspelheim: '#140a07',
+      alfheim:    '#f7f4fb',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';
@@ -927,6 +949,7 @@
       initGraph();
       updateMiniChart();
     }
+
   </script>
 </body>
 </html>

@@ -10,13 +10,18 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
 
   const { system, messages, model, agentConfig } = req.body || {};
 
-  if (!system || !messages) {
-    return res.status(400).json({ error: 'Missing system or messages' });
+  if (!system || typeof system !== 'string' || system.length > 10000) {
+    return res.status(400).json({ error: 'Invalid system prompt' });
   }
 
-  try {
-    delete process.env.ANTHROPIC_API_KEY;
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 50) {
+    return res.status(400).json({ error: 'Invalid messages' });
+  }
 
+  const savedApiKey = process.env.ANTHROPIC_API_KEY;
+  delete process.env.ANTHROPIC_API_KEY;
+
+  try {
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[agent-sdk-chat] Starting query');
 
@@ -55,17 +60,19 @@ router.post('/api/agent-sdk-chat', async (req, res) => {
     console.log('[agent-sdk-chat] Complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key'))) {
-      return res.status(401).json({ error: 'Agent SDK auth error: ' + result });
+      return res.status(401).json({ error: 'Agent SDK authentication failed' });
     }
 
     res.json({ text: result });
   } catch (err) {
-    const message = err.message || '';
-    if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
+    const msg = err.message || '';
+    if (msg.includes('MODULE_NOT_FOUND') || msg.includes('Cannot find') || msg.includes('not found')) {
       return res.status(501).json({ error: 'Agent SDK requires Claude Code CLI installed on the server.' });
     }
-    console.error('[agent-sdk-chat] Error:', message);
+    console.error('[agent-sdk-chat] Error:', msg);
     res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    if (savedApiKey !== undefined) process.env.ANTHROPIC_API_KEY = savedApiKey;
   }
 });
 

@@ -100,8 +100,9 @@ export async function POST({ request, clientAddress }) {
       headers: corsHeaders,
     });
   } catch (err) {
+    console.error('[agent-chat] Error:', err.message);
     return new Response(
-      JSON.stringify({ error: err.message || "Failed to call Anthropic API" }),
+      JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: corsHeaders }
     );
   }

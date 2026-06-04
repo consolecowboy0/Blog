@@ -323,19 +323,22 @@ const { title, description = 'A blog.' } = Astro.props;
     opacity: 1;
   }
 
+  /* Carries each theme's signature color (asgard gold, vanaheim green,
+     batman bat-gold) via --accent, so the switch tints with the theme. */
   #theme-toggle {
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--fg-muted);
+    color: var(--accent);
+    opacity: 0.7;
     padding: 0.25rem;
     display: flex;
     align-items: center;
-    transition: color 0.2s;
+    transition: color 0.2s, opacity 0.2s;
   }
 
   #theme-toggle:hover {
-    color: var(--fg);
+    opacity: 1;
   }
 
   /* Brand cluster: wordmark + a subtle "theme <name>" readout to its right. */

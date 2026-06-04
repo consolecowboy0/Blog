@@ -38,7 +38,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <button id="add-char" type="button" class="secondary-btn">+ Add</button>
         </div>
         <div id="char-list" class="char-list"></div>
-        <p class="hint">Give each one a name and a description: voice, temperament, history, what they want. The more specific, the sharper the scene.</p>
+        <p class="hint">Name and describe each one (voice, temperament, history), then give a private goal: one small, scene-sized thing they want right now. Goals stay secret; characters chase them through subtext, which is what gives a scene friction instead of small talk.</p>
       </section>
 
       <!-- Setting -->
@@ -79,6 +79,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <option value="fixed">In order</option>
             <option value="random">Shuffle</option>
           </select>
+        </label>
+        <label class="ctl ctl-check" title="Feed the real wall-clock into the scene so time-based goals (catch the last train, leave before midnight) actually bite. Turn off for timeless or period scenes.">Real time
+          <input id="use-time" type="checkbox" checked />
         </label>
         <button id="run-btn" type="button" class="primary-btn">Run scene</button>
         <button id="stop-btn" type="button" class="secondary-btn gate-hidden">Stop</button>
@@ -194,6 +197,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     font-size: 0.82rem; line-height: 1.5; outline: none; resize: vertical;
   }
   :global(.char-desc:focus), .setting-input:focus, :global(.char-name:focus) { border-color: var(--fg-muted); }
+  :global(.char-goal) {
+    width: 100%; margin-top: 0.5rem; padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border); border-left: 3px solid var(--c, var(--fg-muted));
+    border-radius: 8px; background: var(--bg); color: var(--fg);
+    font-family: var(--font-mono); font-size: 0.76rem; outline: none;
+  }
+  :global(.char-goal::placeholder) { font-family: var(--font-body); }
+  :global(.char-goal:focus) { border-color: var(--fg-muted); }
 
   .run-block { background: var(--bg); }
   .run-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.85rem; }
@@ -203,6 +214,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     background: var(--code-bg); color: var(--fg); font-family: var(--font-body); font-size: 0.82rem;
   }
   .ctl input[type="number"] { width: 4.5rem; }
+  .ctl-check { flex-direction: row; align-items: center; gap: 0.4rem; padding-bottom: 0.45rem; }
+  .ctl-check input[type="checkbox"] { width: auto; cursor: pointer; accent-color: var(--fg); }
   .nudge-row { display: flex; gap: 0.5rem; margin-top: 0.9rem; }
   .nudge-row input {
     flex: 1; padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
@@ -267,7 +280,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     } catch (e) {}
     if (state.chars.length === 0) {
-      state.chars = [{ id: uid(), name: '', desc: '' }, { id: uid(), name: '', desc: '' }];
+      state.chars = [{ id: uid(), name: '', desc: '', goal: '' }, { id: uid(), name: '', desc: '', goal: '' }];
     }
   }
 
@@ -276,6 +289,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function colorFor(idx) { return COLORS[idx % COLORS.length]; }
+
+  function nowString() {
+    try {
+      var d = new Date();
+      var day = d.toLocaleDateString(undefined, { weekday: 'long' });
+      var t = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      return day + ', ' + t;
+    } catch (e) { return new Date().toLocaleTimeString(); }
+  }
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -289,17 +311,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     state.chars.forEach(function (c, idx) {
       var card = document.createElement('div');
       card.className = 'char-card';
+      card.style.setProperty('--c', colorFor(idx));
       card.innerHTML =
         '<div class="char-card-top">' +
           '<span class="char-dot" style="background:' + colorFor(idx) + '"></span>' +
           '<input class="char-name" type="text" placeholder="Name" value="' + escapeHtml(c.name) + '" />' +
           '<button type="button" class="char-del">Remove</button>' +
         '</div>' +
-        '<textarea class="char-desc" rows="4" placeholder="Who are they? Voice, mood, wants, history...">' + escapeHtml(c.desc) + '</textarea>';
+        '<textarea class="char-desc" rows="4" placeholder="Who are they? Voice, mood, wants, history...">' + escapeHtml(c.desc) + '</textarea>' +
+        '<input class="char-goal" type="text" placeholder="Goal (private): one small thing they want in this scene. e.g. get the briefcase before the train leaves" value="' + escapeHtml(c.goal || '') + '" />';
       var nameInput = card.querySelector('.char-name');
       var descInput = card.querySelector('.char-desc');
+      var goalInput = card.querySelector('.char-goal');
       nameInput.addEventListener('input', function () { c.name = nameInput.value; save(); });
       descInput.addEventListener('input', function () { c.desc = descInput.value; save(); });
+      goalInput.addEventListener('input', function () { c.goal = goalInput.value; save(); });
       card.querySelector('.char-del').addEventListener('click', function () {
         state.chars = state.chars.filter(function (x) { return x.id !== c.id; });
         renderChars(); save();
@@ -309,7 +335,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   document.getElementById('add-char').addEventListener('click', function () {
-    state.chars.push({ id: uid(), name: '', desc: '' });
+    state.chars.push({ id: uid(), name: '', desc: '', goal: '' });
     renderChars(); save();
   });
 
@@ -377,6 +403,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var s = 'You are writing one character in a collaborative fiction scene, for a creative-writing tool. Stay fully in character at all times.\n\n';
     s += 'YOUR CHARACTER: ' + (char.name || 'Unnamed') + '\n';
     s += (char.desc || 'No description given. Invent a consistent, vivid persona.') + '\n\n';
+    if ((char.goal || '').trim()) {
+      s += 'WHAT YOU WANT (your private objective; drive toward it, do not announce it): ' + char.goal.trim() + '\n';
+      s += 'Pursue it through tactics: charm, stall, probe, lie, change the subject. You may only state it outright if you are cornered. Let it shape every choice without saying it.\n\n';
+    }
     if (state.setting.trim()) s += 'SETTING:\n' + state.setting.trim() + '\n\n';
     if (others.length) s += 'OTHER CHARACTERS PRESENT: ' + others.join(', ') + '\n\n';
 
@@ -393,7 +423,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return s;
   }
 
-  function messagesFor(char) {
+  function messagesFor(char, r, rounds) {
     var scene = sceneSoFar();
     var content;
     if (scene) {
@@ -401,6 +431,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     } else {
       content = 'The scene is just opening. Write ' + (char.name || 'your character') + "'s first beat to set it in motion.";
     }
+
+    // Arc position: tell the model where we are so scenes build and land instead of idling in the middle forever.
+    if (typeof r === 'number' && typeof rounds === 'number') {
+      var phase = (rounds <= 1 || r === 0) ? 'open' : (r >= rounds - 1) ? 'final' : 'mid';
+      if (phase === 'open') content += '\n\nThis is the opening: establish what you want and stake your ground. Do not resolve anything yet.';
+      else if (phase === 'final') content += '\n\nThis is the FINAL exchange of the scene: push toward a turn, a decision, or a breaking point. Do not open new threads or leave it dangling.';
+      else content += '\n\nThe scene is building: raise the stakes, force the issue, do not reset to small talk.';
+    }
+
+    // Live real-world clock on the user turn, so the minute visibly advances and deadlines bite. Muteable for timeless scenes.
+    var timeEl = document.getElementById('use-time');
+    if (!timeEl || timeEl.checked) {
+      content += '\n\nIt is ' + nowString() + ' right now, in the real world and in this scene. Time is moving; let it press on what you do.';
+    }
+
     return [{ role: 'user', content: content }];
   }
 
@@ -477,7 +522,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           state.transcript.pop();
           var text;
           try {
-            text = await ask(systemFor(char), messagesFor(char));
+            text = await ask(systemFor(char), messagesFor(char, r, rounds));
           } catch (e) {
             thinking.remove();
             throw e;

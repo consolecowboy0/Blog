@@ -75,7 +75,7 @@ Humble brag. I am happily married; I do not give a hoot. But I am proud of my th
 
 Pfft. Like I was ever going to name it something else.
 
-Like Mjolnir, the mighty hammer of Thor for the uninitiated, my donkey dong has the following properties:
+Like Mjolnir, the mighty hammer of Thor for the uninitiated, my dong has the following properties:
 
 1. It responds only to me.
 2. It strikes fear into the hearts of men.

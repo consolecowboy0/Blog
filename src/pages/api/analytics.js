@@ -78,6 +78,7 @@ export async function GET({ request }) {
     const byCountry = new Map();   // co -> { views, visitors:Set, name }
     const byRegion = new Map();    // `${co}|${reg}` -> { co, reg, name, views, visitors:Set }
     const byCity = new Map();      // `${co}|${city}` -> { co, city, country, views, visitors:Set }
+    const bySourceCity = new Map(); // source label -> Map(`${co}|${city}` -> { co, city, country, reg, regn, views, visitors:Set })
     const byCampaign = new Map();  // campaign -> { views, visitors:Set, source, medium }
     const channelSeriesMap = new Map(); // day -> Map(channel -> Set vid)
 
@@ -158,6 +159,16 @@ export async function GET({ request }) {
           if (!cym.regn && d.regn) cym.regn = d.regn;
           cym.views++;
           if (d.vid) cym.visitors.add(d.vid);
+
+          // Source -> city cross-tab: where did each source's visitors sit?
+          let scm = bySourceCity.get(label);
+          if (!scm) { scm = new Map(); bySourceCity.set(label, scm); }
+          let scc = scm.get(ck);
+          if (!scc) { scc = { co: d.co, city: d.city, country: d.con || CC_NAME[d.co] || d.co, reg: d.reg || '', regn: d.regn || '', views: 0, visitors: new Set() }; scm.set(ck, scc); }
+          if (!scc.reg && d.reg) scc.reg = d.reg;
+          if (!scc.regn && d.regn) scc.regn = d.regn;
+          scc.views++;
+          if (d.vid) scc.visitors.add(d.vid);
         }
       }
 
@@ -268,6 +279,21 @@ export async function GET({ request }) {
       .sort((a, b) => b.visitors - a.visitors || b.views - a.views || (a.city < b.city ? -1 : 1))
       .slice(0, 15);
 
+    // Source -> city cross-tab. Keyed by source label, each with its top 8
+    // cities by unique visitors. Only sources with located views appear. Lets
+    // the dashboard answer "which city did this source's traffic come from?".
+    const sourceCities = {};
+    for (const [label, scm] of bySourceCity) {
+      sourceCities[label] = [...scm.values()]
+        .map((c) => ({
+          city: c.city, code: c.co, country: c.country,
+          region: regionLabel(c.co, c.reg, c.regn), flag: flagEmoji(c.co),
+          views: c.views, visitors: c.visitors.size,
+        }))
+        .sort((a, b) => b.visitors - a.visitors || b.views - a.views || (a.city < b.city ? -1 : 1))
+        .slice(0, 8);
+    }
+
     // Campaigns: top 15 by unique visitors.
     const topCampaigns = [...byCampaign.entries()]
       .map(([campaign, v]) => ({
@@ -311,6 +337,7 @@ export async function GET({ request }) {
         geo,
         regions,
         cities,
+        sourceCities,
 
         topCampaigns,
         hasCampaigns: topCampaigns.length > 0,

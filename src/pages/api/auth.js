@@ -35,15 +35,8 @@ export async function POST({ request, clientAddress }) {
     });
   }
 
-  if (!['analytics'].includes(scope)) {
-    return new Response(JSON.stringify({ error: 'Invalid scope' }), {
-      status: 400,
-      headers: corsHeaders,
-    });
-  }
-
-  if (!verifyPassword(password, scope)) {
-    return new Response(JSON.stringify({ error: 'Wrong password' }), {
+  if (!['analytics'].includes(scope) || !verifyPassword(password, scope)) {
+    return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
       status: 401,
       headers: corsHeaders,
     });

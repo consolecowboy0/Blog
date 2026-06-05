@@ -36,23 +36,6 @@
   --van-header-to: #ece9da;
 }
 
-/* Batman mode — Dark Knight: cold gunmetal blue-steel + muted bat-gold.
-   Classic comic values (swap in for pitch-black + bright yellow):
-   --bg #0a0a0c; --fg #e8e8ea; --fg-muted #8a8a92; --accent #ffdf1b; --border #26262c; --code-bg #050506; */
-[data-theme="batman"] {
-  --bg: #10151e;
-  --fg: #c3cbd6;
-  --fg-muted: #6e7888;
-  --accent: #c9a648;
-  --border: #283040;
-  --code-bg: #0b0f16;
-  --bat-gold: #c9a648;
-  --bat-gold-bright: #ffe27a;
-  --bat-glow: 0 0 4px rgba(255, 226, 122, 0.8), 0 0 16px rgba(201, 166, 72, 0.55);
-  --bat-header-from: #10151e;
-  --bat-header-to: #0a0e16;
-}
-
 /* Muspelheim mode — Surtr's fire realm: charred near-black ground, molten
    orange regalia, an ember-to-gold gradient like coals catching flame. The
    dark fire counterpart to Vanaheim's daylight. Shares Asgard's antler sigil,
@@ -73,7 +56,7 @@
 /* Alfheim mode — home of the light elves: the luminous daylight realm, kept
    deliberately distinct from Vanaheim's earthy parchment-and-green. Cool
    dawn-on-snow ground, deep violet ink, an amethyst accent (a hue no other realm
-   uses — Asgard/Vanaheim/Batman own gold, Muspelheim owns orange) and a prismatic
+   uses — Asgard/Vanaheim own gold, Muspelheim owns orange) and a prismatic
    dawn gradient (gold → peach → rose → lilac). Shares Asgard's antler sigil, here
    haloed like light through morning mist. */
 [data-theme="alfheim"] {
@@ -279,41 +262,6 @@
   [data-theme="niflheim"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(92, 200, 224, 0.6));
-  }
-}
-
-/* Batman bat sigil — hidden by default, shown only in Batman theme */
-.batman-sigil {
-  display: none;
-  color: var(--accent);
-  opacity: 0.85;
-  flex-shrink: 0;
-}
-[data-theme="batman"] .batman-sigil {
-  display: inline-block;
-  color: var(--bat-gold);
-  opacity: 1;
-  animation: bat-sigil-glow 4s ease-in-out infinite;
-}
-
-/* Bat sigil breathes a gold bat-signal glow over Gotham. */
-@keyframes bat-sigil-glow {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 3px rgba(201, 166, 72, 0.55))
-      drop-shadow(0 0 8px rgba(201, 166, 72, 0.35));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 5px rgba(255, 226, 122, 0.85))
-      drop-shadow(0 0 14px rgba(201, 166, 72, 0.55));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-theme="batman"] .batman-sigil {
-    animation: none;
-    filter: drop-shadow(0 0 4px rgba(201, 166, 72, 0.6));
   }
 }
 
@@ -710,62 +658,6 @@
   line-height: 1;
 }
 
-/* Batman: headings and wordmark glow bat-signal yellow */
-[data-theme="batman"] h1,
-[data-theme="batman"] h2,
-[data-theme="batman"] .site-title {
-  color: var(--accent);
-}
-
-/* Links bleed bat-gold on hover, with a searchlight glow */
-[data-theme="batman"] a:hover {
-  color: var(--bat-gold-bright);
-  border-color: var(--accent);
-  text-shadow: var(--bat-glow);
-}
-
-/* Wordmark sits plain — the glow lives on the bat sigil now. */
-[data-theme="batman"] .site-title {
-  transition: color 0.25s ease;
-}
-
-[data-theme="batman"] .site-title:hover {
-  color: var(--bat-gold-bright);
-}
-
-/* Code blocks edged in bat-gold */
-[data-theme="batman"] pre,
-[data-theme="batman"] code {
-  border-color: var(--bat-gold);
-}
-
-/* Gotham-night header with a bat-gold beam rule beneath the nav. */
-[data-theme="batman"] header {
-  background: linear-gradient(180deg, var(--bat-header-from) 0%, var(--bat-header-to) 100%);
-  border-bottom-color: transparent;
-  position: relative;
-  overflow: hidden;
-}
-
-[data-theme="batman"] header nav {
-  position: relative;
-  z-index: 1;
-}
-
-
-/* Bat-gold rule under the header, brightest in the middle like a beam */
-[data-theme="batman"] header::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  z-index: 1;
-  background: linear-gradient(90deg, transparent 0%, var(--bat-gold) 50%, transparent 100%);
-  opacity: 0.9;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -909,7 +801,6 @@ th {
   margin: 1.5rem auto;
 }
 [data-theme="dark"] .chart-img,
-[data-theme="rainbow"] .chart-img,
-[data-theme="batman"] .chart-img {
+[data-theme="rainbow"] .chart-img {
   filter: invert(1) hue-rotate(180deg);
 }

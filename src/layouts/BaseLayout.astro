@@ -27,7 +27,7 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         var saved = localStorage.getItem('theme');
-        var valid = (saved === 'batman' || saved === 'vanaheim' || saved === 'muspelheim' || saved === 'niflheim' || saved === 'alfheim') ? saved : 'rainbow';
+        var valid = (saved === 'vanaheim' || saved === 'muspelheim' || saved === 'niflheim' || saved === 'alfheim') ? saved : 'rainbow';
         document.documentElement.setAttribute('data-theme', valid);
       })();
     </script>
@@ -89,17 +89,12 @@ const { title, description = 'A blog.' } = Astro.props;
             <path d="M22.2 9.5 L25 7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
             <path d="M21.2 13.5 L24 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
-          <!-- Bat sigil: Batman-only ornament (mirrors the Asgard antler) -->
-          <svg class="batman-sigil" viewBox="0 0 24 24" width="22" height="16" fill="currentColor" stroke="none" aria-hidden="true">
-            <path d="M12 9 L12.6 7.6 L13.2 6 L13.7 8.1 L15.2 9.2 L16.8 7.6 L22 8.6 L20 10 L21 11.6 L18.4 11.9 L16.4 13.6 L14.2 13.1 L13.4 15.6 L12 13.8 L10.6 15.6 L9.8 13.1 L7.6 13.6 L5.6 11.9 L3 11.6 L4 10 L2 8.6 L7.2 7.6 L8.8 9.2 L10.3 8.1 L10.8 6 L11.4 7.6 Z"/>
-          </svg>
           <a href="/" class="site-title">dustinlanders.com</a>
           <!-- Subtle current-theme readout. Names toggle via data-theme; the toggle
                button itself stays icon-only. -->
           <span class="theme-indicator">theme
             <span class="theme-name theme-name-rainbow">asgard</span>
             <span class="theme-name theme-name-vanaheim">vanaheim</span>
-            <span class="theme-name theme-name-batman">batman</span>
             <span class="theme-name theme-name-muspelheim">muspelheim</span>
             <span class="theme-name theme-name-niflheim">niflheim</span>
             <span class="theme-name theme-name-alfheim">alfheim</span>
@@ -331,8 +326,8 @@ const { title, description = 'A blog.' } = Astro.props;
     opacity: 1;
   }
 
-  /* Carries each theme's signature color (asgard gold, vanaheim green,
-     batman bat-gold) via --accent, so the switch tints with the theme. */
+  /* Carries each theme's signature color (asgard gold, vanaheim green)
+     via --accent, so the switch tints with the theme. */
   #theme-toggle {
     background: none;
     border: none;
@@ -367,7 +362,6 @@ const { title, description = 'A blog.' } = Astro.props;
   .theme-name { display: none; }
   :global([data-theme="rainbow"]) .theme-name-rainbow { display: inline; }
   :global([data-theme="vanaheim"]) .theme-name-vanaheim { display: inline; }
-  :global([data-theme="batman"]) .theme-name-batman { display: inline; }
   :global([data-theme="muspelheim"]) .theme-name-muspelheim { display: inline; }
   :global([data-theme="niflheim"]) .theme-name-niflheim { display: inline; }
   :global([data-theme="alfheim"]) .theme-name-alfheim { display: inline; }
@@ -686,10 +680,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
   let themeSpin = 0;
   document.getElementById('theme-toggle')?.addEventListener('click', (e) => {
-    // Batman is always forced last, regardless of where it sits in this list.
-    const order = ['rainbow', 'vanaheim', 'muspelheim', 'niflheim', 'alfheim', 'batman']
-      .filter((t) => t !== 'batman')
-      .concat('batman');
+    const order = ['rainbow', 'vanaheim', 'muspelheim', 'niflheim', 'alfheim'];
     const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];

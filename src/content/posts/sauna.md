@@ -2,12 +2,12 @@
 title: "I Just Wanted the Sauna"
 date: "2026-06-04"
 description: "I had convinced myself I could feel okay about myself if I started going to the gym. Four weeks in. New man. Disciplined. And then, on St. Patrick's Day, the sauna."
-draft: false
+draft: true
 ---
 
 Have you ever walked away from something muttering holy shit, holy shit, holy shit, because what just happened is too weird to have happened, and so there must be some mistake? And then comes the mourning. You realize I used to be on a track through life where I had never been harassed into a blowjob orgy with older men. And that reality just got snatched away from me. Now I am forever on the other track. The one where this did happen.
 
-That happened to me about a year ago. And while I firmly believe I am in the right here, and that I was sexually harassed, I do have to admit one thing. I sometimes wonder if my entropy-prone nature just quietly filters into everyday decisions where I really, really do not want it to.
+That happened to me last year. And while I firmly believe I am in the right here, and that I was sexually harassed, I do have to admit one thing. I sometimes wonder if my entropy-prone nature just quietly filters into everyday decisions where I really, really do not want it to.
 
 I did not want an adventure on this cloudy, chilly morning. The analog wall clock read about 6:52AM as I finished my workout, and I just wanted the sauna. I wanted to enjoy it the normal way you enjoy a sauna, which is to sit there one towel away from butt naked, sweating next to other men who are also one towel away from butt naked, and all of us pretending that this is fine. To maintain the fineness, we have rules. Good rules. Well established, widely understood, the kind of rules I think we can all stand behind. Or so I thought. Until now.
 
@@ -25,7 +25,7 @@ Turns out, it is not used solely for relaxing.
 
 Or it is. Maybe a little too much. For two of the men in there that morning, it was working great.
 
-Let's rewind. You know the sound.
+Let's rewind to before the workout.
 
 Pre-workout, I walk into the locker room and see four old dudes with the wieners just hanging out. And look, it is a locker room, whatever. But (I am laughing as I type this) I mean a circle of dudes. Butt-ass naked. Laughing, giggling, peepees just... out.
 
@@ -75,7 +75,7 @@ Humble brag. I am happily married; I do not give a hoot. But I am proud of my th
 
 Pfft. Like I was ever going to name it something else.
 
-Like Mjolnir, the mighty hammer of Thor for the uninitiated, my donkey dong has the following properties:
+Like Mjolnir, the mighty hammer of Thor for the uninitiated, my dong has the following properties:
 
 1. It responds only to me.
 2. It strikes fear into the hearts of men.
@@ -91,7 +91,7 @@ Reader. It did not.
 
 This was, as it turns out, the one room on Earth where that feature is a liability. A circle of men who are not afraid. Men who are, if anything, encouraged. I had brought a hammer to the one place actively in the market for hammers.
 
-The older gentlemen encouraged by Mjolnir's unintended appearance- as if someone just spotted him getting out of the shower and he was like "Oh, excuse me guys!" while he quickly covered himself, just settles down in front of little guy, and goes plop. Hey- ok- wow- ok- wow- that's- yep. Yep. Yep. I thought- that- ok- wow- hey- did you- what- wow- how- yeah- did you- no- you didn't- oh you did- oh you are! Oh, you still are! Ok- I think he is just going to keep doing that. And by that- I mean blowing the other guy like a full-spectrum fucking workout.
+The older gentleman, encouraged by Mjolnir's unintended appearance, settles down in front of Little Guy (the other man to my left)and goes plop. By plop- I mean he plopped his face on the other guys crotch. No fumbling, no "Oh, excuse me guys!," no towel scramble like a man caught stepping out of the shower. He just goes plop. Hey- ok- wow- ok- wow- that's- yep. Yep. Yep. I thought- that- ok- wow- hey- did you- what- wow- how- yeah- did you- no- you didn't- oh you did- oh you are! Oh, you still are! Ok- I think he is just going to keep doing that. And by that- I mean blowing the other guy like a full-spectrum fucking workout.
 
 So, I stand up.
 
@@ -99,7 +99,7 @@ You have never seen a man rise from a sauna bench with more purpose and less gra
 
 I had to turn my body sideways to exit without making wiener-to-back contact with the current arrangement of naked men I was navigating.
 
-I get the door. The good, heavy, dignified door. I push through it and I am back in the locker room, where the original circle is still going. Still giggling. Peepees still out. A full quorum now. All waiting their turn.
+I get the door. The good, heavy, dignified door. I push through it and I am back in the locker room, where the original locker-room circle is still going. Still giggling. Peepees still out. A full quorum now. All waiting their turn.
 
 I ditch the 2/3 of a normal towel they have in gym locker rooms for another fresh 2/3 of a normal towel and I head straight for the bathrooms. I enter a stall. I can't be followed.
 

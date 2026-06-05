@@ -49,6 +49,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </section>
     </div>
 
+    <!-- Story direction (orchestrator) -->
+    <section class="block">
+      <div class="block-head"><h2>Story direction</h2></div>
+      <textarea id="direction" class="setting-input" rows="4" placeholder="Optional: the shape you want. The arc, the turn, the ending, the theme. e.g. Build to the moment one of them admits they pulled the brake on purpose, then end on the others deciding whether to cover for them."></textarea>
+      <p class="hint">The orchestrator is an AI showrunner. Each round it reads this and the scene so far, then drops a short note steering the next beats toward where you want it to go. Toggle it in the run bar below.</p>
+    </section>
+
     <!-- Run controls -->
     <section class="block run-block">
       <div class="run-controls">
@@ -82,6 +89,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         </label>
         <label class="ctl ctl-check" title="Feed the real wall-clock into the scene so time-based goals (catch the last train, leave before midnight) actually bite. Turn off for timeless or period scenes.">Real time
           <input id="use-time" type="checkbox" checked />
+        </label>
+        <label class="ctl ctl-check" title="An AI showrunner. Each round it reads your story direction and the scene, then adds a short note steering the next beats: escalate, pay off a thread, force a turn, land the ending. Turn off for pure free-form improv.">Orchestrator
+          <input id="orchestrate" type="checkbox" checked />
         </label>
         <button id="run-btn" type="button" class="primary-btn">Run scene</button>
         <button id="stop-btn" type="button" class="secondary-btn gate-hidden">Stop</button>
@@ -232,6 +242,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   :global(.beat.director) { border-left-style: dashed; }
   :global(.beat.director .beat-name) { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.68rem; }
   :global(.beat.director .beat-text) { color: var(--fg-muted); font-style: italic; }
+  :global(.beat.orchestrator) { border-left-style: dotted; border-left-color: var(--c, var(--fg-muted)); }
+  :global(.beat.orchestrator .beat-name) { color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.66rem; }
+  :global(.beat.orchestrator .beat-text) { color: var(--fg-muted); font-style: italic; }
   :global(.beat.thinking .beat-text) { color: var(--fg-muted); font-style: italic; }
 
   /* Screenplay: name in caps over tight dialogue */
@@ -254,13 +267,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#a855f7'];
   var LS_KEY = 'story_studio_state';
 
-  var state = { chars: [], setting: '', transcript: [] };
+  var state = { chars: [], setting: '', direction: '', transcript: [] };
   var running = false;
   var stopRequested = false;
 
   // --- elements ---
   var charList = document.getElementById('char-list');
   var settingEl = document.getElementById('setting');
+  var directionEl = document.getElementById('direction');
   var transcriptEl = document.getElementById('transcript');
   var transcriptEmpty = document.getElementById('transcript-empty');
   var runBtn = document.getElementById('run-btn');
@@ -276,6 +290,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         var saved = JSON.parse(raw);
         state.chars = Array.isArray(saved.chars) ? saved.chars : [];
         state.setting = saved.setting || '';
+        state.direction = saved.direction || '';
         state.transcript = Array.isArray(saved.transcript) ? saved.transcript : [];
       }
     } catch (e) {}
@@ -340,6 +355,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   settingEl.addEventListener('input', function () { state.setting = settingEl.value; save(); });
+  directionEl.addEventListener('input', function () { state.direction = directionEl.value; save(); });
 
   // --- transcript ---
   function renderTranscript() {
@@ -360,6 +376,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (b.kind === 'director') {
       el.className = 'beat director';
       el.innerHTML = '<div class="beat-name">Director</div><div class="beat-text">' + escapeHtml(b.text) + '</div>';
+    } else if (b.kind === 'orchestrator') {
+      el.className = 'beat orchestrator';
+      el.innerHTML = '<div class="beat-name">Orchestrator</div><div class="beat-text">' + escapeHtml(b.text) + '</div>';
     } else {
       el.className = 'beat ' + (b.format || 'screenplay');
       var color = colorFor(charIndex(b.name));
@@ -389,10 +408,52 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   // --- prompt building ---
   function sceneSoFar() {
     if (state.transcript.length === 0) return '';
-    return state.transcript.map(function (b) {
-      if (b.kind === 'director') return '[' + b.text + ']';
-      return b.name + ': ' + b.text;
-    }).join('\n\n');
+    return state.transcript
+      .filter(function (b) { return b.kind !== 'orchestrator'; })
+      .map(function (b) {
+        if (b.kind === 'director') return '[' + b.text + ']';
+        return b.name + ': ' + b.text;
+      }).join('\n\n');
+  }
+
+  // The orchestrator's most recent note, fed into each character's prompt as direction.
+  function latestDirection() {
+    for (var i = state.transcript.length - 1; i >= 0; i--) {
+      if (state.transcript[i].kind === 'orchestrator') return state.transcript[i].text;
+    }
+    return '';
+  }
+
+  // --- orchestrator (AI showrunner) ---
+  function orchestratorSystem() {
+    var s = 'You are the ORCHESTRATOR: the showrunner and director of a collaborative fiction scene. You never write dialogue and you never speak as a character. Your only job is to keep the scene on track and moving.\n\n';
+    s += 'You will be given the target direction the writer wants, the cast and their private goals, the setting, the scene so far, and where we are in the arc.\n\n';
+    s += 'Output ONE short note to the writers room: at most two sentences, under 40 words. Make it concrete and actionable -- name what should happen in the next beats to serve the story: what to escalate, which thread to pay off, what to stop circling, when to force a turn or land the ending. ';
+    s += 'Steer toward the target direction when one is given; if none is given, keep the scene coherent, escalating, and building to a real turn. ';
+    s += 'You may use the private character goals to steer, but never reveal or name any private goal in your note. ';
+    s += 'Give direction for what should happen next; do not narrate events as if they already happened, do not write dialogue, do not use a label or preamble. Just the note.';
+    return s;
+  }
+
+  function orchestratorMessages(r, rounds) {
+    var dir = (state.direction || '').trim();
+    var cast = state.chars
+      .filter(function (c) { return c.name.trim() || c.desc.trim(); })
+      .map(function (c) {
+        var line = '- ' + (c.name || 'Unnamed') + ': ' + (c.desc || 'no description').replace(/\s+/g, ' ').trim();
+        if ((c.goal || '').trim()) line += ' [private goal: ' + c.goal.trim() + ']';
+        return line;
+      }).join('\n');
+    var scene = sceneSoFar();
+    var phase = (rounds <= 1 || r === 0) ? 'opening' : (r >= rounds - 1) ? 'final' : 'middle';
+
+    var content = 'TARGET DIRECTION (the shape the writer wants): ' + (dir || '(none given -- keep it coherent, escalating, and building to a real turn)') + '\n\n';
+    content += 'CAST:\n' + (cast || '(none)') + '\n\n';
+    if (state.setting.trim()) content += 'SETTING:\n' + state.setting.trim() + '\n\n';
+    content += 'SCENE SO FAR:\n' + (scene || '(not started yet)') + '\n\n';
+    content += 'ARC POSITION: round ' + (r + 1) + ' of ' + rounds + ' (' + phase + ').\n\n';
+    content += 'Write the orchestrator note for the next beats now.';
+    return [{ role: 'user', content: content }];
   }
 
   function systemFor(char) {
@@ -440,6 +501,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       else content += '\n\nThe scene is building: raise the stakes, force the issue, do not reset to small talk.';
     }
 
+    // Orchestrator note: the showrunner's steer for this moment, woven in as direction the character honors but never quotes.
+    var orchEl = document.getElementById('orchestrate');
+    if (!orchEl || orchEl.checked) {
+      var dir = latestDirection();
+      if (dir) content += "\n\nDIRECTION (the orchestrator's note to the room for this moment; honor it in what you choose to do, but do not quote or mention it): " + dir;
+    }
+
     // Live real-world clock on the user turn, so the minute visibly advances and deadlines bite. Muteable for timeless scenes.
     var timeEl = document.getElementById('use-time');
     if (!timeEl || timeEl.checked) {
@@ -459,9 +527,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   // --- API ---
-  async function ask(system, messages) {
+  async function ask(system, messages, maxOverride) {
     var model = document.getElementById('model-select').value;
-    var maxTok = parseInt(document.getElementById('length-select').value, 10) || 600;
+    var maxTok = maxOverride || parseInt(document.getElementById('length-select').value, 10) || 600;
     var headers = { 'Content-Type': 'application/json' };
     if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
     var res = await fetch(API_BASE + '/api/story-chat', {
@@ -508,11 +576,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     var rounds = Math.min(20, Math.max(1, parseInt(document.getElementById('rounds').value, 10) || 1));
     var order = document.getElementById('order-select').value;
     var format = document.getElementById('format-select').value;
+    var orchEl = document.getElementById('orchestrate');
+    var orchOn = !orchEl || orchEl.checked;
     stopRequested = false;
     setRunning(true);
 
     try {
       for (var r = 0; r < rounds && !stopRequested; r++) {
+        // Orchestrator goes first each round: read the arc, steer the next beats.
+        if (orchOn && !stopRequested) {
+          var oThinking = addBeat({ kind: 'orchestrator', text: '...' });
+          oThinking.classList.add('thinking');
+          state.transcript.pop();
+          var note;
+          try {
+            note = await ask(orchestratorSystem(), orchestratorMessages(r, rounds), 240);
+          } catch (e) {
+            oThinking.remove();
+            throw e;
+          }
+          oThinking.remove();
+          note = (note || '').trim();
+          if (note) addBeat({ kind: 'orchestrator', text: note });
+        }
         var lineup = order === 'random' ? shuffle(active) : active;
         for (var i = 0; i < lineup.length && !stopRequested; i++) {
           var char = lineup[i];
@@ -561,9 +647,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   document.getElementById('copy-btn').addEventListener('click', function () {
-    var text = state.transcript.map(function (b) {
-      return b.kind === 'director' ? '[' + b.text + ']' : b.name + ': ' + b.text;
-    }).join('\n\n');
+    var text = state.transcript
+      .filter(function (b) { return b.kind !== 'orchestrator'; })
+      .map(function (b) {
+        return b.kind === 'director' ? '[' + b.text + ']' : b.name + ': ' + b.text;
+      }).join('\n\n');
     navigator.clipboard.writeText(text).then(function () {
       var btn = document.getElementById('copy-btn');
       var old = btn.textContent; btn.textContent = 'Copied';
@@ -578,6 +666,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     load();
     renderChars();
     settingEl.value = state.setting;
+    directionEl.value = state.direction;
     renderTranscript();
   }
 

@@ -2,7 +2,7 @@
 title: "I Just Wanted the Sauna"
 date: "2026-06-04"
 description: "I had convinced myself I could feel okay about myself if I started going to the gym. Four weeks in. New man. Disciplined. And then, on St. Patrick's Day, the sauna."
-draft: false
+draft: true
 ---
 
 Have you ever walked away from something muttering holy shit, holy shit, holy shit, because what just happened is too weird to have happened, and so there must be some mistake? And then comes the mourning. You realize I used to be on a track through life where I had never been harassed into a blowjob orgy with older men. And that reality just got snatched away from me. Now I am forever on the other track. The one where this did happen.

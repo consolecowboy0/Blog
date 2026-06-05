@@ -101,13 +101,13 @@ I had to turn my body sideways to exit without making wiener-to-back contact wit
 
 I get the door. The good, heavy, dignified door. I push through it and I am back in the locker room, where the original circle is still going. Still giggling. Peepees still out. A full quorum now. All waiting their turn.
 
-I get dressed faster than I have ever gotten dressed in my life. I do not shower. I will deal with that at home. I will be dealing with a lot of things at home. Including finding my dignity, pride, or something.
-
 I ditch the 2/3 of a normal towel they have in gym locker rooms for another fresh 2/3 of a normal towel and I head straight for the bathrooms. I enter a stall. I can't be followed.
 
 I'm laughing. Like I can't stop laughing. The whole thing just felt so absurd. My hands are shaking as I text Ellen.
 
 <img class="text-img" src="/images/posts/sauna-text-2.png" alt="iMessage screenshot. Dustin texts: 'Then he gets up and starts SUCKING OFF THE OTHER OLD MAN WHILE IM RUGHT THERE,' 'I leave immediately,' 'And I'm hiding in a stall while I type this frantically.' The reply: 'Stop,' 'Get out of there.' Dustin: 'Pook this actually just happened!' 'Like right in front of me too!' 'Pook' 'Weirdest thing in my life' 'Heading out.' Reply: 'Are you safe in the sauna?' 'JESUS.' Dustin: 'Oh I'm getting the fuck out of here.'" loading="lazy" />
+
+I am getting dressed, and little guy comes on out. I'll be honest- my first thought- was damn that was fast. He sits right next to me. The absolute absurdness of this situation... I have to get dressed next to little guy. Like we are sitting directly next to each other. I couldn't fucking believe it. Not a word uttered.
 
 And then I am outside, cloudy chilly morning, and I hear myself. Holy shit. Holy shit. Holy shit. Out loud. To no one. To a cold and empty parking lot.
 

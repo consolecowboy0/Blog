@@ -63,6 +63,8 @@ export function verifyToken(token) {
 
 export function requireAuth(req) {
   const auth = req.headers.authorization;
-  const token = auth?.startsWith('Bearer ') ? auth.slice(7) : null;
-  return verifyToken(token);
+  if (auth?.startsWith('Bearer ')) return verifyToken(auth.slice(7));
+  const cookie = req.headers.cookie || '';
+  const match = cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
+  return match ? verifyToken(match[1]) : null;
 }

@@ -15,6 +15,8 @@
       document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'svartalfheim') {
       document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'helheim') {
+      document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'light') {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -82,6 +84,12 @@
       --bg-page: #17100f;
       --text: #e7dccb;
       --border: #2a1c1e;
+    }
+    [data-theme="helheim"] {
+      --bg: #0a0f0c;
+      --bg-page: #121a14;
+      --text: #c5d1c2;
+      --border: #1c271f;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Inter, system-ui, sans-serif; background: var(--bg-page); color: var(--text); padding: 2rem; }

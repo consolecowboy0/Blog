@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Nine themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim and svartalfheim are overrides.
+  // Ten themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim, svartalfheim and helheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -30,6 +30,8 @@
       document.documentElement.setAttribute('data-theme', 'jotunheim');
     } else if (t === 'svartalfheim') {
       document.documentElement.setAttribute('data-theme', 'svartalfheim');
+    } else if (t === 'helheim') {
+      document.documentElement.setAttribute('data-theme', 'helheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -210,6 +212,24 @@
       --accent-blue: #d8455c;
       --accent-green: #7fa0a0;
       --accent-gold: #e0a23c;
+    }
+
+    /* helheim: grave-cold green-black background, corpse-pallor text, will-o'-the-wisp
+       green node accent. Realm of the dead, distinct from svartalfheim's forge. */
+    [data-theme="helheim"] {
+      --bg: #0a0f0c;
+      --bg-card: #121a14;
+      --bg-card-hover: #1c271f;
+      --bg-track: #16201a;
+      --border: #1c271f;
+      --border-light: #2a3a2e;
+      --text: #c5d1c2;
+      --text-secondary: #94a594;
+      --text-muted: #6f8276;
+      --accent-red: #b06a8c;
+      --accent-blue: #87c267;
+      --accent-green: #6f9a86;
+      --accent-gold: #b8a06a;
     }
 
 
@@ -619,7 +639,7 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim / midgard / jotunheim / svartalfheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim / midgard / jotunheim / svartalfheim / helheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
@@ -630,6 +650,7 @@
       midgard:    '#ece4d6',
       jotunheim:  '#13161b',
       svartalfheim: '#0e0a0c',
+      helheim:    '#0a0f0c',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';

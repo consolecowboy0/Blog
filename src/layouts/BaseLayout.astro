@@ -27,7 +27,7 @@ const { title, description = 'A blog.' } = Astro.props;
     <script is:inline>
       (function() {
         var saved = localStorage.getItem('theme');
-        var valid = (saved === 'vanaheim' || saved === 'muspelheim' || saved === 'niflheim' || saved === 'alfheim' || saved === 'midgard' || saved === 'jotunheim' || saved === 'svartalfheim') ? saved : 'rainbow';
+        var valid = (saved === 'vanaheim' || saved === 'muspelheim' || saved === 'niflheim' || saved === 'alfheim' || saved === 'midgard' || saved === 'jotunheim' || saved === 'svartalfheim' || saved === 'helheim') ? saved : 'rainbow';
         document.documentElement.setAttribute('data-theme', valid);
       })();
     </script>
@@ -101,6 +101,7 @@ const { title, description = 'A blog.' } = Astro.props;
             <span class="theme-name theme-name-midgard">midgard</span>
             <span class="theme-name theme-name-jotunheim">jotunheim</span>
             <span class="theme-name theme-name-svartalfheim">svartalfheim</span>
+            <span class="theme-name theme-name-helheim">helheim</span>
           </span>
         </div>
         <div class="nav-links">
@@ -371,6 +372,7 @@ const { title, description = 'A blog.' } = Astro.props;
   :global([data-theme="midgard"]) .theme-name-midgard { display: inline; }
   :global([data-theme="jotunheim"]) .theme-name-jotunheim { display: inline; }
   :global([data-theme="svartalfheim"]) .theme-name-svartalfheim { display: inline; }
+  :global([data-theme="helheim"]) .theme-name-helheim { display: inline; }
 
   /* A quick half-turn spin each time you switch themes (set inline in JS). */
   #theme-toggle svg {
@@ -686,7 +688,7 @@ const { title, description = 'A blog.' } = Astro.props;
 
   let themeSpin = 0;
   document.getElementById('theme-toggle')?.addEventListener('click', (e) => {
-    const order = ['rainbow', 'vanaheim', 'muspelheim', 'niflheim', 'alfheim', 'midgard', 'jotunheim', 'svartalfheim'];
+    const order = ['rainbow', 'vanaheim', 'muspelheim', 'niflheim', 'alfheim', 'midgard', 'jotunheim', 'svartalfheim', 'helheim'];
     const current = document.documentElement.getAttribute('data-theme') || 'rainbow';
     const idx = order.indexOf(current);
     const next = order[(idx + 1) % order.length];

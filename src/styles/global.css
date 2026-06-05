@@ -149,6 +149,27 @@
   --svart-header-to: #080506;
 }
 
+/* Helheim mode — the realm of the dead: Hel's cold, mist-drowned hall beneath
+   Yggdrasil where those who die of sickness and age are gathered. A dark theme,
+   but a grave-cold green-grey near-black rather than Svartalfheim's warm soot,
+   Jotunheim's neutral granite, or Niflheim's blue ice. Corpse-pallor ink, a
+   will-o'-the-wisp green accent (a hue no other realm owns — the phosphor-glow of
+   decay and grave-fire), moss-shadow borders, and a sweep that runs from necrotic
+   bruise through grave-mould to bone-pale, the half-living, half-dead face of Hel
+   herself. Shares Asgard's antler sigil, here lit like marsh-light over the dead. */
+[data-theme="helheim"] {
+  --bg: #0a0f0c;
+  --fg: #c5d1c2;
+  --fg-muted: #6f8276;
+  --accent: #87c267;
+  --border: #1c271f;
+  --code-bg: #060a07;
+  --hel-grad: linear-gradient(90deg, #4a2f5e 0%, #3f5d4e 28%, #6fae5a 52%, #a7d77e 76%, #dfead0 100%);
+  --hel-glow: 0 0 8px rgba(135, 194, 103, 0.5), 0 0 20px rgba(122, 90, 140, 0.3);
+  --hel-header-from: #0a0f0c;
+  --hel-header-to: #060a07;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -402,6 +423,34 @@
   [data-theme="svartalfheim"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(216, 69, 92, 0.55));
+  }
+}
+
+/* Helheim: the antler sigil glows like cold grave-fire, a wisp drifting over the
+   dead, with a faint bruise-violet halo of decay. */
+[data-theme="helheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: hel-sigil-glow 5s ease-in-out infinite;
+}
+
+@keyframes hel-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(135, 194, 103, 0.5))
+      drop-shadow(0 0 8px rgba(122, 90, 140, 0.3));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 6px rgba(167, 215, 126, 0.85))
+      drop-shadow(0 0 16px rgba(135, 194, 103, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="helheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(135, 194, 103, 0.55));
   }
 }
 
@@ -890,6 +939,88 @@
 
 [data-theme="svartalfheim"] hr::after {
   content: '⚒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* Helheim: the realm of the dead. Headings in wisp-green; the wordmark catches the
+   bruise→grave-mould→bone sweep, the half-living face of Hel. Mirrors the dark
+   structure, lit by grave-fire instead of the forge. */
+[data-theme="helheim"] h1,
+[data-theme="helheim"] h2 {
+  color: var(--accent);
+}
+
+[data-theme="helheim"] .site-title {
+  background: var(--hel-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="helheim"] a:hover {
+  text-shadow: var(--hel-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="helheim"] pre,
+[data-theme="helheim"] code {
+  border-color: var(--border);
+}
+
+[data-theme="helheim"] header {
+  background: linear-gradient(180deg, var(--hel-header-from) 0%, var(--hel-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: grave-light drifting across the dark, reusing the sweep keyframes. */
+[data-theme="helheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--hel-grad);
+  background-size: 200% auto;
+  opacity: 0.6;
+  animation: bifrost-sweep 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="helheim"] header::after {
+    animation: none;
+  }
+}
+
+/* Blockquotes: grave-fire glow on the left rule. */
+[data-theme="helheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(135, 194, 103, 0.22);
+}
+
+/* HR: grave divider with a dagger at center, the typographer's mark of the dead. */
+[data-theme="helheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--hel-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="helheim"] hr::after {
+  content: '†';
   position: absolute;
   top: 50%;
   left: 50%;

@@ -12,7 +12,7 @@
   @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
 </style>
 <script>    (function(){
-  // Eight themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard and jotunheim are overrides.
+  // Nine themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim and svartalfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -28,6 +28,8 @@
       document.documentElement.setAttribute('data-theme', 'midgard');
     } else if (t === 'jotunheim') {
       document.documentElement.setAttribute('data-theme', 'jotunheim');
+    } else if (t === 'svartalfheim') {
+      document.documentElement.setAttribute('data-theme', 'svartalfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -241,6 +243,30 @@
   --accent-green: #7fa0a0;
   --accent-gold: #c7d8e2;
 }
+[data-theme="svartalfheim"] {
+  /* Dwarven deep-forge: warm soot-black ground, forge-ash ink, cut-garnet accent. */
+  --bg: #0e0a0c;
+  --bg-card: #17100f;
+  --bg-card-hover: #2a1c1e;
+  --bg-track: #0e0a0c;
+  --bg-panel: #17100f;
+  --bg-panel-hover: #2a1c1e;
+  --card-bg: #17100f;
+  --null: #0e0a0c;
+  --input-bg: #17100f;
+  --border: #2a1c1e;
+  --border-light: #323b45;
+  --text: #e7dccb;
+  --text-secondary: #b59a86;
+  --text-sec: #b59a86;
+  --text-muted: #8a6f60;
+  --fg: #e7dccb;
+  --fg-muted: #8a6f60;
+  --accent-red: #c98a8a;
+  --accent-blue: #d8455c;
+  --accent-green: #7fa0a0;
+  --accent-gold: #e0a23c;
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 body { background: var(--bg); color: var(--text); font-family: var(--font-sans); margin: 0; overflow: hidden; }
@@ -422,11 +448,12 @@ const themeColors = {
   alfheim: { bg: '#f7f4fb', edge: 'rgba(139,92,196,0.30)', edgeRoute: 'rgba(199,154,63,0.55)', label: '#8b5cc4', glow: 'rgba(139,92,196,0.22)' },
   niflheim: { bg: '#0a0f14', edge: 'rgba(92,200,224,0.28)', edgeRoute: 'rgba(168,230,240,0.60)', label: '#5cc8e0', glow: 'rgba(92,200,224,0.25)' },
   midgard: { bg: '#ece4d6', edge: 'rgba(31,111,139,0.30)', edgeRoute: 'rgba(90,138,60,0.55)', label: '#1f6f8b', glow: 'rgba(47,143,122,0.22)' },
-  jotunheim: { bg: '#13161b', edge: 'rgba(157,184,201,0.28)', edgeRoute: 'rgba(199,216,226,0.55)', label: '#9db8c9', glow: 'rgba(157,184,201,0.24)' }
+  jotunheim: { bg: '#13161b', edge: 'rgba(157,184,201,0.28)', edgeRoute: 'rgba(199,216,226,0.55)', label: '#9db8c9', glow: 'rgba(157,184,201,0.24)' },
+  svartalfheim: { bg: '#0e0a0c', edge: 'rgba(216,69,92,0.28)', edgeRoute: 'rgba(224,162,60,0.55)', label: '#d8455c', glow: 'rgba(216,69,92,0.24)' }
 };
 function currentTheme() {
   const t = document.documentElement.getAttribute('data-theme');
-  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim' || t === 'alfheim' || t === 'niflheim' || t === 'midgard' || t === 'jotunheim') ? t : 'rainbow';
+  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim' || t === 'alfheim' || t === 'niflheim' || t === 'midgard' || t === 'jotunheim' || t === 'svartalfheim') ? t : 'rainbow';
 }
 function isDark() { return true; }
 function T() { return themeColors[currentTheme()]; }

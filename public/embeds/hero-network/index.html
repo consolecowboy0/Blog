@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Eight themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard and jotunheim are overrides.
+  // Nine themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim and svartalfheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -28,6 +28,8 @@
       document.documentElement.setAttribute('data-theme', 'midgard');
     } else if (t === 'jotunheim') {
       document.documentElement.setAttribute('data-theme', 'jotunheim');
+    } else if (t === 'svartalfheim') {
+      document.documentElement.setAttribute('data-theme', 'svartalfheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -190,6 +192,24 @@
       --accent-blue: #9db8c9;
       --accent-green: #7fa0a0;
       --accent-gold: #c7d8e2;
+    }
+
+    /* svartalfheim: warm soot-black background, forge-ash text, cut-garnet node
+       accent. Dwarven deep-forge dark theme, distinct from jotunheim's steel. */
+    [data-theme="svartalfheim"] {
+      --bg: #0e0a0c;
+      --bg-card: #17100f;
+      --bg-card-hover: #2a1c1e;
+      --bg-track: #1f252d;
+      --border: #2a1c1e;
+      --border-light: #323b45;
+      --text: #e7dccb;
+      --text-secondary: #b59a86;
+      --text-muted: #8a6f60;
+      --accent-red: #c98a8a;
+      --accent-blue: #d8455c;
+      --accent-green: #7fa0a0;
+      --accent-gold: #e0a23c;
     }
 
 
@@ -599,7 +619,7 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim / midgard / jotunheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim / midgard / jotunheim / svartalfheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
@@ -609,6 +629,7 @@
       niflheim:   '#0a0f14',
       midgard:    '#ece4d6',
       jotunheim:  '#13161b',
+      svartalfheim: '#0e0a0c',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';

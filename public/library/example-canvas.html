@@ -7,7 +7,7 @@
   <script>
     (function(){
   function applyTheme(t){
-    if (t === 'dark' || t === 'rainbow') {
+    if (t === 'dark' || t === 'rainbow' || t === 'niflheim') {
       document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'light') {
       document.documentElement.removeAttribute('data-theme');
@@ -52,6 +52,12 @@
       --bg-page: #15082b;
       --text: #e8f7ff;
       --border: #5a2ea0;
+    }
+    [data-theme="niflheim"] {
+      --bg: #0a0f14;
+      --bg-page: #111a22;
+      --text: #d6e6f0;
+      --border: #16242e;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Inter, system-ui, sans-serif; background: var(--bg-page); color: var(--text); padding: 2rem; }

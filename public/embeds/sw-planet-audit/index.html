@@ -52,6 +52,14 @@
   --card-bg: #efeaf6;
   --null: #d6c8e0;
 }
+[data-theme="niflheim"] {
+  --bg: #0a0f14;
+  --fg: #d6e6f0;
+  --fg-muted: #9ab4c4;
+  --border: #16242e;
+  --card-bg: #111a22;
+  --null: #060a0e;
+}
 
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -149,7 +157,7 @@ body {
 }
 </style>
 <script>    (function(){
-  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
+  // Six themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim and niflheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -159,6 +167,8 @@ body {
       document.documentElement.setAttribute('data-theme', 'muspelheim');
     } else if (t === 'alfheim') {
       document.documentElement.setAttribute('data-theme', 'alfheim');
+    } else if (t === 'niflheim') {
+      document.documentElement.setAttribute('data-theme', 'niflheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }

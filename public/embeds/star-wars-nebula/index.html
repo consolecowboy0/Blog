@@ -12,7 +12,7 @@
   @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 800; font-display: swap; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); }
 </style>
 <script>    (function(){
-  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
+  // Six themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim and niflheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -22,6 +22,8 @@
       document.documentElement.setAttribute('data-theme', 'muspelheim');
     } else if (t === 'alfheim') {
       document.documentElement.setAttribute('data-theme', 'alfheim');
+    } else if (t === 'niflheim') {
+      document.documentElement.setAttribute('data-theme', 'niflheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -162,6 +164,30 @@
   --accent-blue: #8b5cc4;
   --accent-green: #7a6ba5;
   --accent-gold: #c79a3f;
+}
+[data-theme="niflheim"] {
+  /* Ice realm of the frost: glacial cyan/frost on a near-black cold background. */
+  --bg: #0a0f14;
+  --bg-card: #111a22;
+  --bg-card-hover: #16242e;
+  --bg-track: #0a0f14;
+  --bg-panel: #111a22;
+  --bg-panel-hover: #16242e;
+  --card-bg: #111a22;
+  --null: #0a0f14;
+  --input-bg: #0a0f14;
+  --border: #16242e;
+  --border-light: #7aa7c9;
+  --text: #d6e6f0;
+  --text-secondary: #9ab4c4;
+  --text-sec: #9ab4c4;
+  --text-muted: #6b8194;
+  --fg: #d6e6f0;
+  --fg-muted: #6b8194;
+  --accent-red: #7aa7c9;
+  --accent-blue: #5cc8e0;
+  --accent-green: #a8e6f0;
+  --accent-gold: #5cc8e0;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -341,11 +367,12 @@ const themeColors = {
   batman: { bg: '#10151e', edge: 'rgba(80,95,130,0.28)', edgeRoute: 'rgba(201,166,72,0.45)', label: '#93a0b3', glow: 'rgba(40,55,90,0.35)' },
   vanaheim: { bg: '#16241c', edge: 'rgba(47,125,79,0.30)', edgeRoute: 'rgba(201,162,39,0.55)', label: '#c9a227', glow: 'rgba(47,125,79,0.22)' },
   muspelheim: { bg: '#0d0604', edge: 'rgba(255,106,31,0.28)', edgeRoute: 'rgba(255,61,0,0.60)', label: '#ffb300', glow: 'rgba(255,106,31,0.25)' },
-  alfheim: { bg: '#f7f4fb', edge: 'rgba(139,92,196,0.30)', edgeRoute: 'rgba(199,154,63,0.55)', label: '#8b5cc4', glow: 'rgba(139,92,196,0.22)' }
+  alfheim: { bg: '#f7f4fb', edge: 'rgba(139,92,196,0.30)', edgeRoute: 'rgba(199,154,63,0.55)', label: '#8b5cc4', glow: 'rgba(139,92,196,0.22)' },
+  niflheim: { bg: '#0a0f14', edge: 'rgba(92,200,224,0.28)', edgeRoute: 'rgba(168,230,240,0.60)', label: '#5cc8e0', glow: 'rgba(92,200,224,0.25)' }
 };
 function currentTheme() {
   const t = document.documentElement.getAttribute('data-theme');
-  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim' || t === 'alfheim') ? t : 'rainbow';
+  return (t === 'batman' || t === 'vanaheim' || t === 'muspelheim' || t === 'alfheim' || t === 'niflheim') ? t : 'rainbow';
 }
 function isDark() { return true; }
 function T() { return themeColors[currentTheme()]; }

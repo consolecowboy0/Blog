@@ -89,6 +89,23 @@
   --alf-header-to: #efeaf6;
 }
 
+/* Niflheim mode — the primordial ice realm: a glacial blue-black ground, frost-white
+   ink, an ice-cyan accent (a hue no other realm uses), and a glacier→frost gradient.
+   The cold mirror of Muspelheim's dark fire — together they are the fire and ice whose
+   meeting makes the world. Shares Asgard's antler sigil, here rimed like frost on iron. */
+[data-theme="niflheim"] {
+  --bg: #0a0f14;
+  --fg: #d6e6f0;
+  --fg-muted: #6b8194;
+  --accent: #5cc8e0;
+  --border: #16242e;
+  --code-bg: #060a0e;
+  --nifl-grad: linear-gradient(90deg, #3a7ca5 0%, #5cc8e0 40%, #a8e6f0 70%, #e8f6fb 100%);
+  --nifl-glow: 0 0 6px rgba(92, 200, 224, 0.55), 0 0 18px rgba(168, 230, 240, 0.35);
+  --nifl-header-from: #0a0f14;
+  --nifl-header-to: #060a0e;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -234,6 +251,34 @@
   [data-theme="muspelheim"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(255, 90, 20, 0.6));
+  }
+}
+
+/* Niflheim: the antler sigil rimes over with a cold frost-glow, the ice mirror
+   of Muspelheim's ember. */
+[data-theme="niflheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: nifl-sigil-glow 5s ease-in-out infinite;
+}
+
+@keyframes nifl-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(92, 200, 224, 0.55))
+      drop-shadow(0 0 8px rgba(168, 230, 240, 0.35));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(168, 230, 240, 0.85))
+      drop-shadow(0 0 16px rgba(92, 200, 224, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="niflheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(92, 200, 224, 0.6));
   }
 }
 
@@ -428,6 +473,85 @@
 }
 
 [data-theme="muspelheim"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Niflheim: ice realm. Headings in ice-cyan; the wordmark catches the glacier→frost
+   gradient. Mirrors Muspelheim's structure, lit cold instead of molten. */
+[data-theme="niflheim"] h1,
+[data-theme="niflheim"] h2 {
+  color: var(--accent);
+}
+
+[data-theme="niflheim"] .site-title {
+  background: var(--nifl-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="niflheim"] a:hover {
+  text-shadow: var(--nifl-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="niflheim"] pre,
+[data-theme="niflheim"] code {
+  border-color: var(--border);
+}
+
+[data-theme="niflheim"] header {
+  background: linear-gradient(180deg, var(--nifl-header-from) 0%, var(--nifl-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header stripe: frost drifting across the ice, reusing the sweep keyframes. */
+[data-theme="niflheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--nifl-grad);
+  background-size: 200% auto;
+  opacity: 0.55;
+  animation: bifrost-sweep 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="niflheim"] header::after {
+    animation: none;
+  }
+}
+
+[data-theme="niflheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(92, 200, 224, 0.24);
+}
+
+[data-theme="niflheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--nifl-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="niflheim"] hr::after {
   content: '✦';
   position: absolute;
   top: 50%;

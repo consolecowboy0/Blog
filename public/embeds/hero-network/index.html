@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
+  // Six themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim and niflheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -22,6 +22,8 @@
       document.documentElement.setAttribute('data-theme', 'muspelheim');
     } else if (t === 'alfheim') {
       document.documentElement.setAttribute('data-theme', 'alfheim');
+    } else if (t === 'niflheim') {
+      document.documentElement.setAttribute('data-theme', 'niflheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -128,6 +130,25 @@
       --accent-blue: #7a6ba5;
       --accent-green: #8b5cc4;
       --accent-gold: #c79a3f;
+    }
+
+    /* niflheim: glacial near-black background, frost-white text, ice-cyan
+       node/glow accent, cool steel-blue secondary, pale frost highlight.
+       The cold ice mirror of muspelheim's fire. */
+    [data-theme="niflheim"] {
+      --bg: #0a0f14;
+      --bg-card: #111a22;
+      --bg-card-hover: #16242e;
+      --bg-track: #070b0f;
+      --border: #16242e;
+      --border-light: #1f3340;
+      --text: #d6e6f0;
+      --text-secondary: #9ab4c4;
+      --text-muted: #6b8194;
+      --accent-red: #5cc8e0;
+      --accent-blue: #7aa7c9;
+      --accent-green: #a8e6f0;
+      --accent-gold: #7aa7c9;
     }
 
 
@@ -537,13 +558,14 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
       vanaheim:   '#f5f3ea',
       muspelheim: '#140a07',
       alfheim:    '#f7f4fb',
+      niflheim:   '#0a0f14',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';

@@ -12,7 +12,7 @@
   </style>
   <script src="./d3-slim.js"></script>
   <script>    (function(){
-  // Five themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim and alfheim are overrides.
+  // Six themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim and niflheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -22,6 +22,8 @@
       document.documentElement.setAttribute('data-theme', 'muspelheim');
     } else if (t === 'alfheim') {
       document.documentElement.setAttribute('data-theme', 'alfheim');
+    } else if (t === 'niflheim') {
+      document.documentElement.setAttribute('data-theme', 'niflheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -124,6 +126,23 @@
       --accent-blue: #7a6ba5;
       --accent-green: #8b5cc4;
       --accent-gold: #c79a3f;
+    }
+
+    /* niflheim: dark glacial bg, ice-cyan accents, frost-white text. */
+    [data-theme="niflheim"] {
+      --bg: #0a0f14;
+      --bg-card: #111a22;
+      --bg-card-hover: #16242e;
+      --bg-track: #0a0f14;
+      --border: #16242e;
+      --border-light: #6b8194;
+      --text: #d6e6f0;
+      --text-secondary: #9ab4c4;
+      --text-muted: #6b8194;
+      --accent-red: #7aa7c9;
+      --accent-blue: #5cc8e0;
+      --accent-green: #5cc8e0;
+      --accent-gold: #a8e6f0;
     }
 
 

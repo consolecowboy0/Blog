@@ -12,13 +12,13 @@
     </style>
     <script>
       (function(){
-  // Five themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, and alfheim.
+  // Six themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, alfheim, and niflheim.
   // This is a bundled app whose base CSS :root is light, so we always set an explicit
-  // data-theme. Vanaheim, muspelheim, and alfheim must not fall through to rainbow.
+  // data-theme. Vanaheim, muspelheim, alfheim, and niflheim must not fall through to rainbow.
   function applyTheme(t){
     document.documentElement.setAttribute(
       'data-theme',
-      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : 'rainbow'
+      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : t === 'niflheim' ? 'niflheim' : 'rainbow'
     );
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -140,6 +140,27 @@
         --accent-orange: #c79a3f !important;
         --accent-purple: #8b5cc4 !important;
         --chart-grid: #d6c8e0 !important;
+      }
+
+      /* Niflheim: DARK glacial near-black background, frost-white text, with ice cyan,
+         cool steel-blue, and pale frost accents. The cold ice mirror of muspelheim's fire. */
+      [data-theme="niflheim"] {
+        --bg-primary: #0a0f14 !important;
+        --bg-secondary: #111a22 !important;
+        --bg-card: #111a22 !important;
+        --bg-card-hover: #16242e !important;
+        --border: #16242e !important;
+        --border-light: #1d2f3b !important;
+        --text-primary: #d6e6f0 !important;
+        --text-secondary: #9ab4c4 !important;
+        --text-muted: #6b8194 !important;
+        --accent-red: #7aa7c9 !important;
+        --accent-blue: #5cc8e0 !important;
+        --accent-green: #5cc8e0 !important;
+        --accent-gold: #a8e6f0 !important;
+        --accent-orange: #7aa7c9 !important;
+        --accent-purple: #7aa7c9 !important;
+        --chart-grid: #16242e !important;
       }
     </style>
   </head>

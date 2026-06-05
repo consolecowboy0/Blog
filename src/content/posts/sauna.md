@@ -91,7 +91,7 @@ Reader. It did not.
 
 This was, as it turns out, the one room on Earth where that feature is a liability. A circle of men who are not afraid. Men who are, if anything, encouraged. I had brought a hammer to the one place actively in the market for hammers.
 
-The older gentleman, encouraged by Mjolnir's unintended appearance, settles down in front of little guy and goes plop. No fumbling, no "Oh, excuse me guys!," no towel scramble like a man caught stepping out of the shower. He just goes plop. Hey- ok- wow- ok- wow- that's- yep. Yep. Yep. I thought- that- ok- wow- hey- did you- what- wow- how- yeah- did you- no- you didn't- oh you did- oh you are! Oh, you still are! Ok- I think he is just going to keep doing that. And by that- I mean blowing the other guy like a full-spectrum fucking workout.
+The older gentleman, encouraged by Mjolnir's unintended appearance, settles down in front of Little Guy (the other man to my left)and goes plop. By plop- I mean he plopped his face on the other guys crotch. No fumbling, no "Oh, excuse me guys!," no towel scramble like a man caught stepping out of the shower. He just goes plop. Hey- ok- wow- ok- wow- that's- yep. Yep. Yep. I thought- that- ok- wow- hey- did you- what- wow- how- yeah- did you- no- you didn't- oh you did- oh you are! Oh, you still are! Ok- I think he is just going to keep doing that. And by that- I mean blowing the other guy like a full-spectrum fucking workout.
 
 So, I stand up.
 

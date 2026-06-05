@@ -96,16 +96,18 @@
    The inhabited daytime counterpart to Vanaheim, lit for the world of men.
    Shares Asgard's antler sigil. */
 [data-theme="midgard"] {
-  --bg: #ece4d6;
-  --fg: #1b2a33;
-  --fg-muted: #5e6b6b;
-  --accent: #1f6f8b;
-  --border: #d2cbb8;
-  --code-bg: #e1d8c6;
-  --mid-grad: linear-gradient(90deg, #5a8a3c 0%, #3f9b6e 22%, #2f8f7a 42%, #1f6f8b 66%, #1d5a8a 86%, #143f6b 100%);
-  --mid-glow: 0 0 10px rgba(31, 111, 139, 0.32), 0 0 22px rgba(47, 143, 122, 0.24);
-  --mid-header-from: #ece4d6;
-  --mid-header-to: #e1d8c6;
+  --bg: #f2e9d8;
+  --fg: #122e37;
+  --fg-muted: #5a7d72;
+  --accent: #0c8e9c;
+  --border: #cdbf9e;
+  --code-bg: #e6dcc4;
+  /* Land→sea sweep, now dawn to abyss: amber sunrise → meadow → emerald →
+     teal shallows → cyan world-ocean → deep blue → abyssal indigo. */
+  --mid-grad: linear-gradient(90deg, #e0a23c 0%, #7fb23a 16%, #2fa66a 34%, #129b86 50%, #0c8e9c 66%, #1566a8 84%, #123a78 100%);
+  --mid-glow: 0 0 10px rgba(12, 142, 156, 0.4), 0 0 24px rgba(47, 166, 106, 0.28);
+  --mid-header-from: #f2e9d8;
+  --mid-header-to: #e8dcc2;
 }
 
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
@@ -294,20 +296,20 @@
 @keyframes mid-sigil-glow {
   0%, 100% {
     filter:
-      drop-shadow(0 0 3px rgba(31, 111, 139, 0.45))
-      drop-shadow(0 0 8px rgba(47, 143, 122, 0.3));
+      drop-shadow(0 0 3px rgba(12, 142, 156, 0.5))
+      drop-shadow(0 0 8px rgba(47, 166, 106, 0.32));
   }
   50% {
     filter:
-      drop-shadow(0 0 5px rgba(31, 111, 139, 0.7))
-      drop-shadow(0 0 16px rgba(47, 143, 122, 0.45));
+      drop-shadow(0 0 5px rgba(12, 142, 156, 0.75))
+      drop-shadow(0 0 16px rgba(47, 166, 106, 0.5));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   [data-theme="midgard"] .asgard-sigil {
     animation: none;
-    filter: drop-shadow(0 0 4px rgba(31, 111, 139, 0.5));
+    filter: drop-shadow(0 0 4px rgba(12, 142, 156, 0.55));
   }
 }
 
@@ -617,7 +619,7 @@
 /* Blockquotes: ocean glow on the left rule. */
 [data-theme="midgard"] blockquote {
   border-left-color: var(--accent);
-  box-shadow: -4px 0 14px rgba(31, 111, 139, 0.2);
+  box-shadow: -4px 0 14px rgba(12, 142, 156, 0.24);
 }
 
 /* HR: land→sea divider with Jörmungandr, the World Serpent, coiled at center. */

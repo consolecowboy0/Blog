@@ -129,6 +129,26 @@
   --jot-header-to: #0c0f13;
 }
 
+/* Svartalfheim mode — the dark realm below: the dwarves' deep forge and the dark
+   elves' mines. A dark theme, but warm soot-black basalt rather than Jotunheim's
+   grey granite or Niflheim's blue ice. Forge-ash ink, a cut-garnet crimson accent
+   (a hue no other realm owns — the deep-mine gemstone and the colour of metal at
+   forging heat), ember borders, and an ember→molten-gold→garnet gradient like a
+   blade drawn glowing from the coals. The underground counterpart to Asgard's
+   gold. Shares Asgard's antler sigil. */
+[data-theme="svartalfheim"] {
+  --bg: #0e0a0c;
+  --fg: #e7dccb;
+  --fg-muted: #a07f6b;
+  --accent: #d8455c;
+  --border: #2a1c1e;
+  --code-bg: #080506;
+  --svart-grad: linear-gradient(90deg, #3a2422 0%, #b5471f 22%, #e0892c 42%, #f2c64e 56%, #d8455c 74%, #7a1f33 100%);
+  --svart-glow: 0 0 8px rgba(216, 69, 92, 0.5), 0 0 20px rgba(224, 137, 44, 0.3);
+  --svart-header-from: #0e0a0c;
+  --svart-header-to: #080506;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -356,6 +376,32 @@
   [data-theme="jotunheim"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(157, 184, 201, 0.55));
+  }
+}
+
+[data-theme="svartalfheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: svart-sigil-glow 4s ease-in-out infinite;
+}
+
+@keyframes svart-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(216, 69, 92, 0.5))
+      drop-shadow(0 0 8px rgba(224, 137, 44, 0.3));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 6px rgba(242, 198, 78, 0.85))
+      drop-shadow(0 0 16px rgba(216, 69, 92, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="svartalfheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(216, 69, 92, 0.55));
   }
 }
 
@@ -770,6 +816,88 @@
   background: var(--bg);
   padding: 0 0.65rem;
   font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Svartalfheim: the deep forge. Headings in garnet; the wordmark catches the
+   ember→gold→garnet sweep like steel pulled glowing from the coals. Mirrors the
+   dark structure, lit by the forge instead of the storm. */
+[data-theme="svartalfheim"] h1,
+[data-theme="svartalfheim"] h2 {
+  color: var(--accent);
+}
+
+[data-theme="svartalfheim"] .site-title {
+  background: var(--svart-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="svartalfheim"] a:hover {
+  text-shadow: var(--svart-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="svartalfheim"] pre,
+[data-theme="svartalfheim"] code {
+  border-color: var(--border);
+}
+
+[data-theme="svartalfheim"] header {
+  background: linear-gradient(180deg, var(--svart-header-from) 0%, var(--svart-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: forge-glow drawn across the dark, reusing the sweep keyframes. */
+[data-theme="svartalfheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--svart-grad);
+  background-size: 200% auto;
+  opacity: 0.6;
+  animation: bifrost-sweep 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="svartalfheim"] header::after {
+    animation: none;
+  }
+}
+
+/* Blockquotes: garnet glow on the left rule. */
+[data-theme="svartalfheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(216, 69, 92, 0.22);
+}
+
+/* HR: forge divider with hammer-and-pick at center. */
+[data-theme="svartalfheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--svart-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="svartalfheim"] hr::after {
+  content: '⚒';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.75rem;
   line-height: 1;
 }
 

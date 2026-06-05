@@ -63,23 +63,32 @@
         --card-bg: #1b2027;
         --grid-color: #232a32;
       }
+      [data-theme="svartalfheim"] {
+        --bg: #0e0a0c;
+        --text: #e7dccb;
+        --text-sec: #b59a86;
+        --text-muted: #8a6f60;
+        --border: #2a1c1e;
+        --card-bg: #17100f;
+        --grid-color: #2a1c1e;
+      }
       body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; }
     </style>
     <script>
       (function(){
   function applyTheme(t){
-    if (t === 'dark' || t === 'rainbow' || t === 'niflheim' || t === 'midgard' || t === 'jotunheim') {
+    if (t === 'dark' || t === 'rainbow' || t === 'niflheim' || t === 'midgard' || t === 'jotunheim' || t === 'svartalfheim') {
       document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'light') {
       document.documentElement.removeAttribute('data-theme');
     }
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
-  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow' || urlTheme === 'niflheim' || urlTheme === 'midgard' || urlTheme === 'jotunheim') {
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow' || urlTheme === 'niflheim' || urlTheme === 'midgard' || urlTheme === 'jotunheim' || urlTheme === 'svartalfheim') {
     applyTheme(urlTheme);
   } else {
     var saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'rainbow' || saved === 'niflheim' || saved === 'midgard' || saved === 'jotunheim') {
+    if (saved === 'dark' || saved === 'rainbow' || saved === 'niflheim' || saved === 'midgard' || saved === 'jotunheim' || saved === 'svartalfheim') {
       applyTheme(saved);
     } else if (saved === 'light') {
       // explicit user choice — leave default (no attribute)

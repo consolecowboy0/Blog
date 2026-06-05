@@ -12,13 +12,13 @@
     </style>
     <script>
       (function(){
-  // Eight themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, alfheim, niflheim, midgard, and jotunheim.
+  // Nine themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, alfheim, niflheim, midgard, jotunheim, and svartalfheim.
   // This is a bundled app whose base CSS :root is light, so we always set an explicit
-  // data-theme. Vanaheim, muspelheim, alfheim, niflheim, midgard, and jotunheim must not fall through to rainbow.
+  // data-theme. Vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim, and svartalfheim must not fall through to rainbow.
   function applyTheme(t){
     document.documentElement.setAttribute(
       'data-theme',
-      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : t === 'niflheim' ? 'niflheim' : t === 'midgard' ? 'midgard' : t === 'jotunheim' ? 'jotunheim' : 'rainbow'
+      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : t === 'niflheim' ? 'niflheim' : t === 'midgard' ? 'midgard' : t === 'jotunheim' ? 'jotunheim' : t === 'svartalfheim' ? 'svartalfheim' : 'rainbow'
     );
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -204,6 +204,26 @@
         --accent-orange: #b0a18f !important;
         --accent-purple: #8497a8 !important;
         --chart-grid: #232a32 !important;
+      }
+
+      /* svartalfheim: dwarven deep-forge: soot-black bg, forge-ash text, garnet accents. */
+      [data-theme="svartalfheim"] {
+        --bg-primary: #0e0a0c !important;
+        --bg-secondary: #17100f !important;
+        --bg-card: #17100f !important;
+        --bg-card-hover: #2a1c1e !important;
+        --border: #2a1c1e !important;
+        --border-light: #3a2628 !important;
+        --text-primary: #e7dccb !important;
+        --text-secondary: #b59a86 !important;
+        --text-muted: #8a6f60 !important;
+        --accent-red: #c2511f !important;
+        --accent-blue: #d8455c !important;
+        --accent-green: #7d94a3 !important;
+        --accent-gold: #e0a23c !important;
+        --accent-orange: #c2511f !important;
+        --accent-purple: #d8455c !important;
+        --chart-grid: #2a1c1e !important;
       }
     </style>
   </head>

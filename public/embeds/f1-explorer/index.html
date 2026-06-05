@@ -12,13 +12,13 @@
     </style>
     <script>
       (function(){
-  // Nine themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, alfheim, niflheim, midgard, jotunheim, and svartalfheim.
+  // Ten themes, matching the site: rainbow (Asgard, default), batman, vanaheim (007), muspelheim, alfheim, niflheim, midgard, jotunheim, svartalfheim, and helheim.
   // This is a bundled app whose base CSS :root is light, so we always set an explicit
-  // data-theme. Vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim, and svartalfheim must not fall through to rainbow.
+  // data-theme. Vanaheim, muspelheim, alfheim, niflheim, midgard, jotunheim, svartalfheim, and helheim must not fall through to rainbow.
   function applyTheme(t){
     document.documentElement.setAttribute(
       'data-theme',
-      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : t === 'niflheim' ? 'niflheim' : t === 'midgard' ? 'midgard' : t === 'jotunheim' ? 'jotunheim' : t === 'svartalfheim' ? 'svartalfheim' : 'rainbow'
+      t === 'batman' ? 'batman' : t === 'vanaheim' ? 'vanaheim' : t === 'muspelheim' ? 'muspelheim' : t === 'alfheim' ? 'alfheim' : t === 'niflheim' ? 'niflheim' : t === 'midgard' ? 'midgard' : t === 'jotunheim' ? 'jotunheim' : t === 'svartalfheim' ? 'svartalfheim' : t === 'helheim' ? 'helheim' : 'rainbow'
     );
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
@@ -224,6 +224,26 @@
         --accent-orange: #c2511f !important;
         --accent-purple: #d8455c !important;
         --chart-grid: #2a1c1e !important;
+      }
+
+      /* helheim: realm of the dead: grave-cold green-black bg, corpse-pallor text, wisp-green accents. */
+      [data-theme="helheim"] {
+        --bg-primary: #0a0f0c !important;
+        --bg-secondary: #121a14 !important;
+        --bg-card: #121a14 !important;
+        --bg-card-hover: #1c271f !important;
+        --border: #1c271f !important;
+        --border-light: #2a3a2e !important;
+        --text-primary: #c5d1c2 !important;
+        --text-secondary: #94a594 !important;
+        --text-muted: #6f8276 !important;
+        --accent-red: #b06a8c !important;
+        --accent-blue: #87c267 !important;
+        --accent-green: #6f9a86 !important;
+        --accent-gold: #b8a06a !important;
+        --accent-orange: #b06a8c !important;
+        --accent-purple: #87c267 !important;
+        --chart-grid: #1c271f !important;
       }
     </style>
   </head>

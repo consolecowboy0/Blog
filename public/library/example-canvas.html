@@ -9,6 +9,8 @@
   function applyTheme(t){
     if (t === 'dark' || t === 'rainbow' || t === 'niflheim') {
       document.documentElement.setAttribute('data-theme', t);
+    } else if (t === 'midgard') {
+      document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'light') {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -58,6 +60,12 @@
       --bg-page: #111a22;
       --text: #d6e6f0;
       --border: #16242e;
+    }
+    [data-theme="midgard"] {
+      --bg: #f4eddf;
+      --bg-page: #ece4d6;
+      --text: #1b2a33;
+      --border: #d2cbb8;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Inter, system-ui, sans-serif; background: var(--bg-page); color: var(--text); padding: 2rem; }

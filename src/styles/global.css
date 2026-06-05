@@ -89,6 +89,25 @@
   --nifl-header-to: #060a0e;
 }
 
+/* Midgard mode — the human realm, the Middle Enclosure ringed by the world-sea
+   where Jörmungandr lies. A warm daylight theme: loam-and-sand ground, deep
+   sea-ink text, an ocean-blue accent (the world-ocean — a hue no other realm
+   owns), and a land→sea gradient (green earth → teal shallows → deep ocean).
+   The inhabited daytime counterpart to Vanaheim, lit for the world of men.
+   Shares Asgard's antler sigil. */
+[data-theme="midgard"] {
+  --bg: #ece4d6;
+  --fg: #1b2a33;
+  --fg-muted: #5e6b6b;
+  --accent: #1f6f8b;
+  --border: #d2cbb8;
+  --code-bg: #e1d8c6;
+  --mid-grad: linear-gradient(90deg, #5a8a3c 0%, #2f8f7a 35%, #1f6f8b 65%, #1d5a8a 100%);
+  --mid-glow: 0 0 10px rgba(31, 111, 139, 0.32), 0 0 22px rgba(47, 143, 122, 0.24);
+  --mid-header-from: #ece4d6;
+  --mid-header-to: #e1d8c6;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -262,6 +281,33 @@
   [data-theme="niflheim"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(92, 200, 224, 0.6));
+  }
+}
+
+/* Midgard: the antler sigil glows a steady sea-blue, like sun on the world-ocean. */
+[data-theme="midgard"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: mid-sigil-glow 6s ease-in-out infinite;
+}
+
+@keyframes mid-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(31, 111, 139, 0.45))
+      drop-shadow(0 0 8px rgba(47, 143, 122, 0.3));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(31, 111, 139, 0.7))
+      drop-shadow(0 0 16px rgba(47, 143, 122, 0.45));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="midgard"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(31, 111, 139, 0.5));
   }
 }
 
@@ -500,6 +546,79 @@
 }
 
 [data-theme="niflheim"] hr::after {
+  content: '✦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+/* Midgard: the human daylight realm. Headings in sea-ink; the wordmark carries
+   the land→sea gradient. Mirrors Vanaheim's daytime structure, lit oceanic. */
+[data-theme="midgard"] h1,
+[data-theme="midgard"] h2 {
+  color: var(--fg);
+}
+
+[data-theme="midgard"] .site-title {
+  background: var(--mid-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="midgard"] a:hover {
+  text-shadow: var(--mid-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="midgard"] pre,
+[data-theme="midgard"] code {
+  border-color: var(--accent);
+}
+
+[data-theme="midgard"] header {
+  background: linear-gradient(180deg, var(--mid-header-from) 0%, var(--mid-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: a calm land→sea band (no animation — daylight is still). */
+[data-theme="midgard"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--mid-grad);
+  opacity: 0.55;
+}
+
+/* Blockquotes: ocean glow on the left rule. */
+[data-theme="midgard"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(31, 111, 139, 0.2);
+}
+
+/* HR: land→sea divider with a rune star at center. */
+[data-theme="midgard"] hr {
+  border: none;
+  height: 1px;
+  background: var(--mid-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="midgard"] hr::after {
   content: '✦';
   position: absolute;
   top: 50%;

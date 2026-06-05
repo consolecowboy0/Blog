@@ -102,7 +102,7 @@
   --accent: #1f6f8b;
   --border: #d2cbb8;
   --code-bg: #e1d8c6;
-  --mid-grad: linear-gradient(90deg, #5a8a3c 0%, #2f8f7a 35%, #1f6f8b 65%, #1d5a8a 100%);
+  --mid-grad: linear-gradient(90deg, #5a8a3c 0%, #3f9b6e 22%, #2f8f7a 42%, #1f6f8b 66%, #1d5a8a 86%, #143f6b 100%);
   --mid-glow: 0 0 10px rgba(31, 111, 139, 0.32), 0 0 22px rgba(47, 143, 122, 0.24);
   --mid-header-from: #ece4d6;
   --mid-header-to: #e1d8c6;
@@ -567,11 +567,17 @@
 
 [data-theme="midgard"] .site-title {
   background: var(--mid-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  /* The land→sea sweep drifts slowly through the wordmark, like a tide. */
+  animation: bifrost-sweep 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="midgard"] .site-title { animation: none; }
 }
 
 [data-theme="midgard"] a:hover {
@@ -590,7 +596,7 @@
   position: relative;
 }
 
-/* Header rule: a calm land→sea band (no animation — daylight is still). */
+/* Header rule: the world-sea ringing Midgard, drifting slowly like a calm tide. */
 [data-theme="midgard"] header::after {
   content: '';
   position: absolute;
@@ -599,7 +605,13 @@
   right: 0;
   height: 2px;
   background: var(--mid-grad);
-  opacity: 0.55;
+  background-size: 200% auto;
+  opacity: 0.6;
+  animation: bifrost-sweep 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="midgard"] header::after { animation: none; }
 }
 
 /* Blockquotes: ocean glow on the left rule. */
@@ -608,7 +620,7 @@
   box-shadow: -4px 0 14px rgba(31, 111, 139, 0.2);
 }
 
-/* HR: land→sea divider with a rune star at center. */
+/* HR: land→sea divider with Jörmungandr, the World Serpent, coiled at center. */
 [data-theme="midgard"] hr {
   border: none;
   height: 1px;
@@ -619,7 +631,7 @@
 }
 
 [data-theme="midgard"] hr::after {
-  content: '✦';
+  content: '∿';
   position: absolute;
   top: 50%;
   left: 50%;
@@ -627,7 +639,7 @@
   color: var(--accent);
   background: var(--bg);
   padding: 0 0.65rem;
-  font-size: 0.7rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 

@@ -54,23 +54,32 @@
         --card-bg: #e1d8c6;
         --grid-color: #d2cbb8;
       }
+      [data-theme="jotunheim"] {
+        --bg: #13161b;
+        --text: #d9dee4;
+        --text-sec: #aab4bf;
+        --text-muted: #828d99;
+        --border: #232a32;
+        --card-bg: #1b2027;
+        --grid-color: #232a32;
+      }
       body { background: var(--bg); color: var(--text); font-family: 'Inter', -apple-system, sans-serif; }
     </style>
     <script>
       (function(){
   function applyTheme(t){
-    if (t === 'dark' || t === 'rainbow' || t === 'niflheim' || t === 'midgard') {
+    if (t === 'dark' || t === 'rainbow' || t === 'niflheim' || t === 'midgard' || t === 'jotunheim') {
       document.documentElement.setAttribute('data-theme', t);
     } else if (t === 'light') {
       document.documentElement.removeAttribute('data-theme');
     }
   }
   var urlTheme = new URLSearchParams(location.search).get('theme');
-  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow' || urlTheme === 'niflheim' || urlTheme === 'midgard') {
+  if (urlTheme === 'light' || urlTheme === 'dark' || urlTheme === 'rainbow' || urlTheme === 'niflheim' || urlTheme === 'midgard' || urlTheme === 'jotunheim') {
     applyTheme(urlTheme);
   } else {
     var saved = localStorage.getItem('theme');
-    if (saved === 'dark' || saved === 'rainbow' || saved === 'niflheim' || saved === 'midgard') {
+    if (saved === 'dark' || saved === 'rainbow' || saved === 'niflheim' || saved === 'midgard' || saved === 'jotunheim') {
       applyTheme(saved);
     } else if (saved === 'light') {
       // explicit user choice — leave default (no attribute)

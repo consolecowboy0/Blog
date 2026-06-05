@@ -12,7 +12,7 @@
   </style>
   <script>
   (function(){
-    // Themes matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim and midgard are overrides.
+    // Themes matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard and jotunheim are overrides.
     function applyTheme(t){
       if (t === 'batman') document.documentElement.setAttribute('data-theme', 'batman');
       else if (t === 'vanaheim') document.documentElement.setAttribute('data-theme', 'vanaheim');
@@ -20,6 +20,7 @@
       else if (t === 'alfheim') document.documentElement.setAttribute('data-theme', 'alfheim');
       else if (t === 'niflheim') document.documentElement.setAttribute('data-theme', 'niflheim');
       else if (t === 'midgard') document.documentElement.setAttribute('data-theme', 'midgard');
+      else if (t === 'jotunheim') document.documentElement.setAttribute('data-theme', 'jotunheim');
       else document.documentElement.removeAttribute('data-theme');
       if (window.__redraw) window.__redraw();
     }
@@ -74,6 +75,11 @@
       --bg: #ece4d6; --bg-card: #e1d8c6; --border: #d2cbb8;
       --text: #1b2a33; --text-secondary: #3a4a52; --text-muted: #5e6b6b;
       --act: #c08a3c; --hold: #1f6f8b; --danger: #b04a3a;
+    }
+    [data-theme="jotunheim"] {
+      --bg: #13161b; --bg-card: #1b2027; --border: #232a32;
+      --text: #d9dee4; --text-secondary: #aab4bf; --text-muted: #828d99;
+      --act: #9db8c9; --hold: #c7d8e2; --danger: #c98a8a;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { font-size: 17px; }

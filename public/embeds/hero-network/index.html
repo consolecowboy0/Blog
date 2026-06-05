@@ -12,7 +12,7 @@
   </style>
   <script src="../vendor/d3.v7.min.js"></script>
   <script>    (function(){
-  // Seven themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim and midgard are overrides.
+  // Eight themes, matching the site: rainbow (Asgard) lives in :root, batman, vanaheim, muspelheim, alfheim, niflheim, midgard and jotunheim are overrides.
   function applyTheme(t){
     if (t === 'batman') {
       document.documentElement.setAttribute('data-theme', 'batman');
@@ -26,6 +26,8 @@
       document.documentElement.setAttribute('data-theme', 'niflheim');
     } else if (t === 'midgard') {
       document.documentElement.setAttribute('data-theme', 'midgard');
+    } else if (t === 'jotunheim') {
+      document.documentElement.setAttribute('data-theme', 'jotunheim');
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
@@ -170,6 +172,24 @@
       --accent-blue: #1d5a8a;
       --accent-green: #5a8a3c;
       --accent-gold: #1f6f8b;
+    }
+
+    /* jotunheim: cold granite background, snow-light text, stormlight steel node
+       accent. Stone-and-storm dark theme, distinct from niflheim's ice-blue. */
+    [data-theme="jotunheim"] {
+      --bg: #13161b;
+      --bg-card: #1b2027;
+      --bg-card-hover: #232a32;
+      --bg-track: #1f252d;
+      --border: #232a32;
+      --border-light: #323b45;
+      --text: #d9dee4;
+      --text-secondary: #aab4bf;
+      --text-muted: #828d99;
+      --accent-red: #c98a8a;
+      --accent-blue: #9db8c9;
+      --accent-green: #7fa0a0;
+      --accent-gold: #c7d8e2;
     }
 
 
@@ -579,7 +599,7 @@
     };
 
     // Node stroke color = the active background, so nodes read as cut out of the canvas.
-    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim).
+    // One entry per theme (rainbow / batman / vanaheim / muspelheim / alfheim / niflheim / midgard / jotunheim).
     const nodeStrokeByTheme = {
       rainbow:    '#0b1338',
       batman:     '#10151e',
@@ -588,6 +608,7 @@
       alfheim:    '#f7f4fb',
       niflheim:   '#0a0f14',
       midgard:    '#ece4d6',
+      jotunheim:  '#13161b',
     };
     function currentTheme() {
       return document.documentElement.getAttribute('data-theme') || 'rainbow';

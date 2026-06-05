@@ -110,6 +110,25 @@
   --mid-header-to: #e8dcc2;
 }
 
+/* Jotunheim mode — the giants' realm: granite peaks under an endless storm. A
+   dark theme, but stone-grey rather than Niflheim's blue ice. Cold granite ground,
+   pale snow-light ink, a stormlight steel-blue accent (a hue no other realm owns —
+   Niflheim keeps the saturated frost-cyan, this is weathered pewter), pine-dark
+   borders, and a slate→stormlight→steel gradient like lightning over the crags.
+   The stone-and-storm counterpart to Niflheim's ice. Shares Asgard's antler sigil. */
+[data-theme="jotunheim"] {
+  --bg: #13161b;
+  --fg: #d9dee4;
+  --fg-muted: #828d99;
+  --accent: #9db8c9;
+  --border: #232a32;
+  --code-bg: #0c0f13;
+  --jot-grad: linear-gradient(90deg, #3a4654 0%, #6b8290 32%, #c7d8e2 58%, #9db8c9 80%, #5e7382 100%);
+  --jot-glow: 0 0 6px rgba(157, 184, 201, 0.55), 0 0 18px rgba(120, 150, 170, 0.35);
+  --jot-header-from: #13161b;
+  --jot-header-to: #0c0f13;
+}
+
 /* Rainbow mode — Thor: Ragnarok palette. Several variations live below; only one
    [data-theme="rainbow"] block is active at a time. To switch, comment the active
    one and uncomment another. All palette-specific colors are vars so the
@@ -310,6 +329,33 @@
   [data-theme="midgard"] .asgard-sigil {
     animation: none;
     filter: drop-shadow(0 0 4px rgba(12, 142, 156, 0.55));
+  }
+}
+
+/* Jotunheim: the antler sigil flickers like stormlight catching on cold iron. */
+[data-theme="jotunheim"] .asgard-sigil {
+  display: inline-block;
+  opacity: 1;
+  animation: jot-sigil-glow 5s ease-in-out infinite;
+}
+
+@keyframes jot-sigil-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 3px rgba(157, 184, 201, 0.5))
+      drop-shadow(0 0 8px rgba(120, 150, 170, 0.32));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 5px rgba(199, 216, 226, 0.85))
+      drop-shadow(0 0 16px rgba(157, 184, 201, 0.5));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="jotunheim"] .asgard-sigil {
+    animation: none;
+    filter: drop-shadow(0 0 4px rgba(157, 184, 201, 0.55));
   }
 }
 
@@ -642,6 +688,88 @@
   background: var(--bg);
   padding: 0 0.65rem;
   font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* Jotunheim: stone-and-storm realm. Headings in stormlight steel; the wordmark
+   catches the slate→stormlight gradient. Mirrors Niflheim's dark structure, lit by
+   lightning over granite instead of frost. */
+[data-theme="jotunheim"] h1,
+[data-theme="jotunheim"] h2 {
+  color: var(--accent);
+}
+
+[data-theme="jotunheim"] .site-title {
+  background: var(--jot-grad);
+  background-size: 100% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+[data-theme="jotunheim"] a:hover {
+  text-shadow: var(--jot-glow);
+  border-color: var(--accent);
+}
+
+[data-theme="jotunheim"] pre,
+[data-theme="jotunheim"] code {
+  border-color: var(--border);
+}
+
+[data-theme="jotunheim"] header {
+  background: linear-gradient(180deg, var(--jot-header-from) 0%, var(--jot-header-to) 100%);
+  border-bottom-color: transparent;
+  position: relative;
+}
+
+/* Header rule: stormlight rolling across the crags, reusing the sweep keyframes. */
+[data-theme="jotunheim"] header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--jot-grad);
+  background-size: 200% auto;
+  opacity: 0.55;
+  animation: bifrost-sweep 20s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="jotunheim"] header::after {
+    animation: none;
+  }
+}
+
+/* Blockquotes: cold steel glow on the left rule. */
+[data-theme="jotunheim"] blockquote {
+  border-left-color: var(--accent);
+  box-shadow: -4px 0 14px rgba(157, 184, 201, 0.22);
+}
+
+/* HR: storm divider with a mountain peak at center. */
+[data-theme="jotunheim"] hr {
+  border: none;
+  height: 1px;
+  background: var(--jot-grad);
+  opacity: 0.6;
+  position: relative;
+  overflow: visible;
+}
+
+[data-theme="jotunheim"] hr::after {
+  content: '▲';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.65rem;
+  font-size: 0.7rem;
   line-height: 1;
 }
 

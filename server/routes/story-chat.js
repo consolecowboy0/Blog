@@ -15,7 +15,7 @@ router.post('/api/story-chat', async (req, res) => {
   }
 
   try {
-    // Never use an API key -- run on the server's Claude Code subscription auth.
+    const savedKey = process.env.ANTHROPIC_API_KEY;
     delete process.env.ANTHROPIC_API_KEY;
 
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
@@ -52,11 +52,13 @@ router.post('/api/story-chat', async (req, res) => {
     console.log('[story-chat] Complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key'))) {
-      return res.status(401).json({ error: 'Agent SDK auth error: ' + result });
+      return res.status(401).json({ error: 'Agent SDK authentication failed' });
     }
 
+    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
     res.json({ text: result });
   } catch (err) {
+    if (savedKey) process.env.ANTHROPIC_API_KEY = savedKey;
     const message = err.message || '';
     if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
       return res.status(501).json({ error: 'Agent SDK requires Claude Code CLI installed on the server.' });

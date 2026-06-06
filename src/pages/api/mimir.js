@@ -27,7 +27,7 @@ export async function POST({ request, clientAddress }) {
   const convCol = db.collection('dm_conversations');
 
   if (action === 'send') {
-    const { visitor_id, text, fingerprint } = body;
+    const { visitor_id, text } = body;
     if (typeof visitor_id !== 'string' || typeof text !== 'string') {
       return json({ error: 'Missing fields' }, 400);
     }
@@ -36,6 +36,10 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
+    let fingerprint = '';
+    if (typeof body.fingerprint === 'string') {
+      fingerprint = body.fingerprint.replace(/[^\x20-\x7E]/g, '').slice(0, 128);
+    }
 
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
     if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);

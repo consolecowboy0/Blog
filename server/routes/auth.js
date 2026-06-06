@@ -17,6 +17,13 @@ router.post('/api/auth', (req, res) => {
   }
 
   const token = createToken(scope);
+  res.cookie('auth_token', token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: '/',
+  });
   res.json({ token });
 });
 

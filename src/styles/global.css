@@ -460,14 +460,15 @@
   color: var(--accent);
 }
 
-/* Only the site title keeps the Bifrost gradient, and it sits still. */
+/* The site title carries the Bifrost gradient; it drifts gently across the wordmark. */
 [data-theme="rainbow"] .site-title {
   background: var(--rainbow-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 /* Links get a neon glow on hover */
@@ -552,11 +553,12 @@
 
 [data-theme="muspelheim"] .site-title {
   background: var(--musp-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="muspelheim"] a:hover {
@@ -631,11 +633,12 @@
 
 [data-theme="niflheim"] .site-title {
   background: var(--nifl-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="niflheim"] a:hover {
@@ -796,11 +799,12 @@
 
 [data-theme="jotunheim"] .site-title {
   background: var(--jot-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="jotunheim"] a:hover {
@@ -878,11 +882,12 @@
 
 [data-theme="svartalfheim"] .site-title {
   background: var(--svart-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="svartalfheim"] a:hover {
@@ -960,11 +965,12 @@
 
 [data-theme="helheim"] .site-title {
   background: var(--hel-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="helheim"] a:hover {
@@ -1041,11 +1047,12 @@
 
 [data-theme="vanaheim"] .site-title {
   background: var(--van-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="vanaheim"] a:hover {
@@ -1114,11 +1121,12 @@
 
 [data-theme="alfheim"] .site-title {
   background: var(--alf-grad);
-  background-size: 100% auto;
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: bifrost-sweep 20s linear infinite;
 }
 
 [data-theme="alfheim"] a:hover {
@@ -1176,6 +1184,20 @@
   padding: 0 0.65rem;
   font-size: 0.7rem;
   line-height: 1;
+}
+
+/* Gentle wordmark drift respects reduced-motion: the gradient holds still. */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="rainbow"] .site-title,
+  [data-theme="muspelheim"] .site-title,
+  [data-theme="niflheim"] .site-title,
+  [data-theme="jotunheim"] .site-title,
+  [data-theme="svartalfheim"] .site-title,
+  [data-theme="helheim"] .site-title,
+  [data-theme="vanaheim"] .site-title,
+  [data-theme="alfheim"] .site-title {
+    animation: none;
+  }
 }
 
 * {

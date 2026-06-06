@@ -1197,6 +1197,42 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Ambient gradient drift — a very subtle wash of each theme's own colors that
+   slowly breathes behind the page. Theme-agnostic: the blobs are built from
+   --accent and --fg-muted, so every theme tints it for free. The layer is fixed
+   and oversized (150%, bled -25% per edge) and animated with transform only, so
+   it stays GPU-cheap and never reveals an edge. Sits at z-index -1, above the
+   propagated body background but behind all content; never catches pointer
+   events. Honors prefers-reduced-motion. */
+body::before {
+  content: '';
+  position: fixed;
+  top: -25%;
+  left: -25%;
+  width: 150%;
+  height: 150%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center,
+      color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 70%) 18% 22% / 60% 60% no-repeat,
+    radial-gradient(circle at center,
+      color-mix(in srgb, var(--fg-muted) 12%, transparent) 0%, transparent 70%) 82% 28% / 60% 60% no-repeat,
+    radial-gradient(circle at center,
+      color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 72%) 50% 86% / 66% 66% no-repeat;
+  animation: ambient-drift 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes ambient-drift {
+  0%   { transform: translate3d(-1.5%, -1%, 0) rotate(0deg) scale(1.05); }
+  100% { transform: translate3d(1.5%, 2%, 0) rotate(3deg) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+}
+
 a {
   color: var(--fg);
   text-decoration: none;

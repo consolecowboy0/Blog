@@ -7,7 +7,7 @@ draft: true
 
 Have you ever walked away from something muttering holy shit, holy shit, holy shit, because what just happened is too weird to have happened, and so there must be some mistake? And then comes the mourning. You realize I used to be on a track through life where I had never been harassed into a blowjob orgy with older men. And that reality just got snatched away from me. Now I am forever on the other track. The one where this did happen.
 
-That happened to me last year. And while I firmly believe I am in the right here, and that I was sexually harassed, I do have to admit one thing. I sometimes wonder if my entropy-prone nature just quietly filters into everyday decisions where I really, really do not want it to.
+That happened to me last year. And while I firmly believe I am in the right here, and that I was sexually harassed, I do have to admit one thing. Weird stuff finds me. Or I find it. The jury is still out.
 
 I did not want an adventure on this cloudy, chilly morning. The analog wall clock read about 6:52AM as I finished my workout, and I just wanted the sauna. I wanted to enjoy it the normal way you enjoy a sauna, which is to sit there one towel away from butt naked, sweating next to other men who are also one towel away from butt naked, and all of us pretending that this is fine. To maintain the fineness, we have rules. Good rules. Well established, widely understood, the kind of rules I think we can all stand behind. Or so I thought. Until now.
 
@@ -15,7 +15,7 @@ Rule #1: Enjoy your time. But do so FUCKING QUIETLY. Then go to work and hate yo
 
 That is the only rule.
 
-That is all I wanted. I mean, for Christ's sake. This story has never been told properly. It is time. It is time.
+That is all I wanted. I mean, for Christ's sake. Anyway. This story has never been told properly, so here it is.
 
 It happened on St. Patrick's Day, 2025, which I need you to understand is relevant to nothing. Nobody was Irish (well, no more than they could have been any other kind of white person). Nobody was drunk (I know 7AM does not guarantee sobriety, but this is a family fitness center, so). There were no shenanigans of the green-beer variety. I want all of that on the record before we go any further, given where this is headed.
 
@@ -80,10 +80,7 @@ Like Mjolnir, the mighty hammer of Thor for the uninitiated, my dong has the fol
 1. It responds only to me.
 2. It strikes fear into the hearts of men.
 3. It is generally just fun to wield.
-4. It has multiple uses.
-5. I always have it with me.
-6. I have a holster for it- it is underwear that says Mjolnir on my butt.
-7. That last one is a total lie but I'm honestly thinking about it now.
+4. I have a holster for it. Underwear that says Mjolnir on the butt. That last one is a total lie but I'm honestly thinking about it now.
 
 Now, you will recall property number two. Mjolnir strikes fear into the hearts of men.
 

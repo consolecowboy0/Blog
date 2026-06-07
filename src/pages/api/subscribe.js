@@ -1,5 +1,6 @@
 export const prerender = false;
 
+import { createHash } from 'node:crypto';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
@@ -41,10 +42,11 @@ export async function POST({ request, clientAddress }) {
   const doc = await ref.get();
   if (doc.exists) return json({ ok: true, already: true });
 
+  const ipHash = createHash('sha256').update(ip).digest('hex').slice(0, 16);
   await ref.set({
     email,
     created: now,
-    ip,
+    ip_hash: ipHash,
     source: 'homepage',
   });
 

@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { requireAuth } from '../lib/auth.js';
 
+delete process.env.ANTHROPIC_API_KEY;
+
 const router = Router();
 
 router.post('/api/story-chat', async (req, res) => {
@@ -10,22 +12,32 @@ router.post('/api/story-chat', async (req, res) => {
 
   const { system, messages, model } = req.body || {};
 
-  if (!system || !messages) {
-    return res.status(400).json({ error: 'Missing system or messages' });
+  if (!system || typeof system !== 'string') {
+    return res.status(400).json({ error: 'Missing or invalid system prompt' });
+  }
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return res.status(400).json({ error: 'Missing or invalid messages' });
+  }
+  if (system.length > 10000) {
+    return res.status(400).json({ error: 'System prompt too long' });
   }
 
   try {
-    // Never use an API key -- run on the server's Claude Code subscription auth.
-    delete process.env.ANTHROPIC_API_KEY;
-
     const { query } = await import('@anthropic-ai/claude-agent-sdk');
     console.log('[story-chat] Starting query');
 
     const userPrompt = messages[messages.length - 1]?.content || '';
+    if (typeof userPrompt !== 'string' || userPrompt.length > 10000) {
+      return res.status(400).json({ error: 'Invalid message content' });
+    }
 
-    const sdkModel = model?.includes('opus') ? 'opus'
-      : model?.includes('haiku') ? 'haiku'
+    const ALLOWED_MODELS = ['opus', 'sonnet', 'haiku'];
+    const sdkModel = typeof model === 'string' && model.includes('opus') ? 'opus'
+      : typeof model === 'string' && model.includes('haiku') ? 'haiku'
       : 'sonnet';
+    if (!ALLOWED_MODELS.includes(sdkModel)) {
+      return res.status(400).json({ error: 'Invalid model' });
+    }
 
     const options = {
       model: sdkModel,
@@ -52,7 +64,7 @@ router.post('/api/story-chat', async (req, res) => {
     console.log('[story-chat] Complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key'))) {
-      return res.status(401).json({ error: 'Agent SDK auth error: ' + result });
+      return res.status(502).json({ error: 'Upstream authentication failed' });
     }
 
     res.json({ text: result });

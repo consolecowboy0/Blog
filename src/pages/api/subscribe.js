@@ -16,6 +16,11 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) {
+    return json({ error: 'Content-Type must be application/json' }, 415);
+  }
+
   let body;
   try {
     body = await request.json();

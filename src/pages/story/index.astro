@@ -263,7 +263,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script is:inline>
 (function () {
   var API_BASE = location.hostname === 'localhost' ? '' : 'https://api.dustinlanders.com';
-  var authToken = localStorage.getItem('auth_token') || null;
+  var authToken = null;
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#a855f7'];
   var LS_KEY = 'story_studio_state';
 
@@ -672,7 +672,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   function signOut() {
     authToken = null;
-    localStorage.removeItem('auth_token');
+    document.cookie = 'auth_token=; Path=/; Max-Age=0; Secure; SameSite=Strict';
     document.getElementById('panel').style.display = 'none';
     document.getElementById('gate').style.display = 'flex';
     document.getElementById('gate-password').value = '';
@@ -695,7 +695,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       var data = await res.json();
       if (res.ok && data.token) {
         authToken = data.token;
-        localStorage.setItem('auth_token', authToken);
         show();
       } else {
         errEl.textContent = res.status === 429 ? 'Too many attempts. Wait a bit.' : 'Wrong password';

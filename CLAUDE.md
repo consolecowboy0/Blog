@@ -30,31 +30,53 @@ Defined in `src/content.config.ts`. Two collections:
 - `src/pages/index.astro` - Homepage
 - `src/pages/posts/[...id].astro` - Dynamic post routes
 - `src/pages/library/` - Library section
-- `src/pages/rockoutwithyour/` - Interactive feature page
-- `src/pages/api/agent-chat.js` - Server-side API endpoint (SSR via Netlify adapter)
-- `src/pages/dev/` - Dev-only pages
+- `src/pages/analytics/` - Traffic analytics dashboard (password-gated)
+- `src/pages/mimir/` - AI messaging interface
+- `src/pages/story/` - Story Studio (multi-agent collaborative fiction)
+- `src/pages/api/` - Server-side API endpoints (SSR via Netlify adapter)
+
+### API Endpoints
+
+- `src/pages/api/analytics.js` - Dashboard traffic stats (auth required)
+- `src/pages/api/track.js` - First-party pageview beacon
+- `src/pages/api/subscribe.js` - Email subscription
+- `src/pages/api/subscribers.js` - Subscriber management (auth required)
+- `src/pages/api/mimir.js` - Mimir chat backend
+- `src/pages/api/auth.js` - Session token generation
 
 ### Layouts
 
-- `BaseLayout.astro` - Site-wide wrapper
-- `PostLayout.astro` - Blog post wrapper
+- `BaseLayout.astro` - Site-wide wrapper (theme system, analytics beacon)
+- `PostLayout.astro` - Blog post wrapper (drop-cap, magazine typography)
 
 ### Styling
 
-Uses `@fontsource/inter` and `@fontsource-variable/jetbrains-mono`. Styles in `src/styles/`.
+Uses `@fontsource/inter` and `@fontsource-variable/jetbrains-mono`. Styles in `src/styles/`. Nine themes (Norse mythology-inspired) toggled via `data-theme` attribute on `<html>`.
 
 ### Key Dependencies
 
 - `chart.js` and `d3` for data visualization in posts/library items
+- `firebase-admin` for Firestore (pageviews, subscribers, conversations)
+- `@anthropic-ai/claude-agent-sdk` for Story Studio AI
 
-### Agents System
+### Lib Modules
 
-Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads character JSON files, a room, and relationships, then runs rounds of conversation via Claude API.
+- `src/lib/auth.js` - HMAC token creation/verification, password checking
+- `src/lib/firebase.js` - Firebase Admin singleton
+- `src/lib/cors.js` - CORS headers for API routes
+- `src/lib/channels.js` - Traffic source classification (search/social/email/referral/direct)
+- `src/lib/rate-limit.js` - In-memory sliding-window rate limiter
 
-**Character sets** live in `characters/`. Each set is a directory:
+### Characters System
+
+Character data lives in `characters/`. Used by Story Studio and the separate API server.
+
+**Character sets** (each a directory):
 - `characters/cyber/` - Cyberpunk Night City theme
 - `characters/diesel/` - Dieselpunk bunker theme
-- `characters/modelthinker/` - Mental model problem-solvers
+- `characters/modelthinker/` - Mental model problem-solvers (12 characters)
+- `characters/analysts/` - Analysis-focused characters
+- `characters/mathlab/` - Mathematical characters
 
 **Character JSON format:**
 ```json
@@ -75,18 +97,10 @@ Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads charact
 }
 ```
 
-**Relationships JSON:** `relationships_<theme>.json` -- array of pairings with `between`, `type`, `history`, `current_tension`, `shared_knowledge`. Every character pair should have an entry.
+**Relationships JSON:** `relationships_<theme>.json` - array of pairings with `between`, `type`, `history`, `current_tension`, `shared_knowledge`.
 
-**Room JSON:** `room_<name>.json` -- `name`, `location`, `time`, `weather`, `atmosphere` (lighting/sound/crowd/smell), `layout` (named areas), `objects_of_note`, `mood`.
+**Room JSON:** `room_<name>.json` - `name`, `location`, `time`, `weather`, `atmosphere` (lighting/sound/crowd/smell), `layout` (named areas), `objects_of_note`, `mood`.
 
-**Order modes** (dropdown in UI):
-- Default: fixed upload order
-- Random: Fisher-Yates shuffle per round
-- Priority: agents bid 1-10 urgency before each round, sorted by bid
+### Separate Server
 
-**Model Thinker characters** (12 total): Axiom (First Principles), Loop (Systems Thinking), Prior (Bayesian), Nash (Game Theory), Contra (Inversion), Bottleneck (Theory of Constraints), Darwin (Evolutionary), Tail (Power Laws/Fat Tails), Web (Network Theory), Margin (Marginal Thinking), Razor (Occam's Razor), Atlas (Map vs Territory). Each applies their mental model as a lens to problems. Tension comes from where models disagree.
-
-**API endpoints:**
-- `src/pages/api/agent-chat.js` - Direct Claude API calls
-- `src/pages/api/agent-sdk-chat.js` - Agent SDK mode
-- `src/pages/api/pixellab.js` - PixelLab pixel art illustration
+`server/` is a standalone Express server for the Story Studio chat endpoint (`/api/story-chat`). Deployed independently (Caddy reverse proxy). The Astro site calls it from the Story Studio page.

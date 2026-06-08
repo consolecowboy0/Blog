@@ -16,10 +16,7 @@ export default defineConfig({
   adapter: netlify(),
   prefetch: {
     prefetchAll: true,
-    // Hover/tap intent, not viewport. Viewport prefetch occasionally served a
-    // cached response as a download instead of navigating; a refresh always
-    // fixed it. Hover prefetches far less and stays fresh at click time.
-    defaultStrategy: 'hover',
+    defaultStrategy: 'viewport',
   },
   vite: {
     ssr: {

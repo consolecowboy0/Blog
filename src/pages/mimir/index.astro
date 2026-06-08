@@ -447,13 +447,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script>
   const API = '/api/mimir';
 
-  function djb2(str: string): string {
-    let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) + hash) + str.charCodeAt(i);
-      hash = hash & hash;
-    }
-    return (hash >>> 0).toString(16).padStart(8, '0').slice(0, 8);
+  function generateVisitorId(): string {
+    const buf = new Uint8Array(16);
+    crypto.getRandomValues(buf);
+    return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
   }
 
   function getFingerprint(): string {
@@ -469,8 +466,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   const fingerprint = getFingerprint();
-  // Fall back to the legacy key so returning visitors keep their existing thread.
-  let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id') || djb2(fingerprint);
+  let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id') || generateVisitorId();
   localStorage.setItem('mimir_visitor_id', visitorId);
 
   const idEl = document.getElementById('visitor-id')!;

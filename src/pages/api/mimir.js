@@ -20,9 +20,13 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
+  const rawBody = await request.text();
+  if (rawBody.length > 8192) {
+    return json({ error: 'Payload too large' }, 413);
+  }
   let body;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     return json({ error: 'Invalid JSON' }, 400);
   }
@@ -32,7 +36,9 @@ export async function POST({ request, clientAddress }) {
   const convCol = db.collection('dm_conversations');
 
   if (action === 'send') {
-    const { visitor_id, text, fingerprint } = body;
+    const { visitor_id, text } = body;
+    const fingerprint = body.fingerprint && typeof body.fingerprint === 'object'
+      ? JSON.stringify(body.fingerprint).slice(0, 512) : '';
     if (typeof visitor_id !== 'string' || typeof text !== 'string') {
       return json({ error: 'Missing fields' }, 400);
     }

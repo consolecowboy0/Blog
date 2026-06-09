@@ -42,7 +42,7 @@ app.use('/api/', rateLimit({
   message: { error: 'Too many requests' },
 }));
 
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '100kb' }));
 
 // Routes
 app.use(authRoutes);

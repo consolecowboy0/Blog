@@ -52,7 +52,8 @@ router.post('/api/story-chat', async (req, res) => {
     console.log('[story-chat] Complete, result length=%d', result.length);
 
     if (result && (result.includes('Invalid API key') || result.includes('Fix external API key'))) {
-      return res.status(401).json({ error: 'Agent SDK auth error: ' + result });
+      console.error('[story-chat] Agent SDK auth error:', result);
+      return res.status(401).json({ error: 'Agent authentication failed' });
     }
 
     res.json({ text: result });

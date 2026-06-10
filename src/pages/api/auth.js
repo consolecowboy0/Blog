@@ -16,6 +16,14 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
     });
   }
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ error: 'Content-Type must be application/json' }), {
+      status: 415,
+      headers: corsHeaders,
+    });
+  }
+
   let body;
   try {
     body = await request.json();

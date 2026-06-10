@@ -42,6 +42,8 @@ export async function POST({ request, clientAddress }) {
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
+    const fp = typeof fingerprint === 'string' ? fingerprint.slice(0, 512) : '';
+
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
     if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
     const rlVis = checkRate(`mimir-send:${visitor_id}`, 20, 10 * 60 * 1000);
@@ -57,12 +59,12 @@ export async function POST({ request, clientAddress }) {
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
-        ...(fingerprint ? { fingerprint } : {}),
+        ...(fp ? { fingerprint: fp } : {}),
       });
     } else {
       await docRef.set({
         id: visitor_id,
-        fingerprint: fingerprint || '',
+        fingerprint: fp,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
         created: now,

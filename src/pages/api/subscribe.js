@@ -49,7 +49,6 @@ export async function POST({ request, clientAddress }) {
   await ref.set({
     email,
     created: now,
-    ip,
     source: 'homepage',
   });
 

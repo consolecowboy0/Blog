@@ -32,7 +32,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div class="id-resume">
         <button id="resume-toggle" class="resume-link">Switch ID</button>
         <div id="resume-form" class="resume-form resume-hidden">
-          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="16" />
+          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="36" />
           <button id="resume-btn" class="resume-go">Go</button>
         </div>
       </div>
@@ -447,12 +447,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script>
   const API = '/api/mimir';
 
-  function generateVisitorId(): string {
-    const buf = new Uint8Array(16);
-    crypto.getRandomValues(buf);
-    return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
-  }
-
   function getFingerprint(): string {
     return [
       navigator.userAgent,
@@ -465,8 +459,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     ].join('|');
   }
 
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
   const fingerprint = getFingerprint();
-  let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id') || generateVisitorId();
+  let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id');
+  if (!visitorId || !uuidRe.test(visitorId)) {
+    visitorId = crypto.randomUUID();
+  }
   localStorage.setItem('mimir_visitor_id', visitorId);
 
   const idEl = document.getElementById('visitor-id')!;
@@ -540,7 +538,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       lastMsgTime = 0;
       return;
     }
-    messagesEl.innerHTML = messages.map(renderBubble).join('');
+    if (messages.length > lastMsgCount && lastMsgCount > 0) {
+      const newMsgs = messages.slice(lastMsgCount);
+      for (const msg of newMsgs) {
+        const div = document.createElement('div');
+        div.innerHTML = renderBubble(msg);
+        messagesEl.appendChild(div.firstElementChild!);
+      }
+    } else {
+      messagesEl.innerHTML = messages.map(renderBubble).join('');
+    }
     messagesEl.scrollTop = messagesEl.scrollHeight;
     lastMsgCount = messages.length;
     lastMsgTime = messages[messages.length - 1].time;

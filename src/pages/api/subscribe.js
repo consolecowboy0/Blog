@@ -1,10 +1,11 @@
 export const prerender = false;
 
+import { createHash } from 'node:crypto';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -39,7 +40,7 @@ export async function POST({ request, clientAddress }) {
   if (!rl.ok) return json({ error: 'Rate limited' }, 429);
 
   const db = getDb();
-  const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');
+  const docId = createHash('sha256').update(email).digest('hex').slice(0, 32);
   const ref = db.collection('subscribers').doc(docId);
   const now = Date.now();
 

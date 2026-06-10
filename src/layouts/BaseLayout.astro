@@ -858,7 +858,16 @@ const { title, description = 'A blog.' } = Astro.props;
         lastMsgTime = 0;
         return;
       }
-      messagesDiv.innerHTML = messages.map(makeBubble).join('');
+      if (messages.length > lastMsgCount && lastMsgCount > 0) {
+        const newMsgs = messages.slice(lastMsgCount);
+        for (const msg of newMsgs) {
+          const div = document.createElement('div');
+          div.innerHTML = makeBubble(msg);
+          messagesDiv.appendChild(div.firstElementChild!);
+        }
+      } else {
+        messagesDiv.innerHTML = messages.map(makeBubble).join('');
+      }
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
       lastMsgCount = messages.length;
       lastMsgTime = messages[messages.length - 1].time;

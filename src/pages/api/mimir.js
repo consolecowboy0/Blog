@@ -32,7 +32,8 @@ export async function POST({ request, clientAddress }) {
   const convCol = db.collection('dm_conversations');
 
   if (action === 'send') {
-    const { visitor_id, text, fingerprint } = body;
+    const { visitor_id, text } = body;
+    const fp = typeof body.fingerprint === 'string' ? body.fingerprint.slice(0, 500) : '';
     if (typeof visitor_id !== 'string' || typeof text !== 'string') {
       return json({ error: 'Missing fields' }, 400);
     }
@@ -57,12 +58,12 @@ export async function POST({ request, clientAddress }) {
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
-        ...(fingerprint ? { fingerprint } : {}),
+        ...(fp ? { fingerprint: fp } : {}),
       });
     } else {
       await docRef.set({
         id: visitor_id,
-        fingerprint: fingerprint || '',
+        fingerprint: fp,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
         created: now,
@@ -76,12 +77,15 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'poll') {
     const { visitor_id } = body;
-    if (typeof visitor_id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(visitor_id) || visitor_id.length > 128) {
+    if (typeof visitor_id !== 'string' || visitor_id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(visitor_id)) {
+      return json({ error: 'Invalid visitor_id' }, 400);
+    }
+    if (visitor_id.length < 20) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
 
-    const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
-    if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    const rlIp = checkRate(`mimir-poll:${ip}`, 30, 60 * 1000);
+    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

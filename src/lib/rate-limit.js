@@ -1,11 +1,11 @@
-// Simple in-memory sliding-window rate limiter.
-// Good enough for single-instance Netlify functions and dev.
-// For multi-instance production, replace the store with Netlify Blobs or Redis.
+// In-memory sliding-window rate limiter. Resets on deploy/restart and is not
+// shared across Netlify function instances. For durable rate limiting at scale,
+// swap the store for Netlify Blobs or Redis.
 
 const store = new Map();
 
 function prune(now) {
-  if (store.size < 1000) return;
+  if (store.size < 200) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
   }

@@ -90,3 +90,12 @@ Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads charact
 - `src/pages/api/agent-chat.js` - Direct Claude API calls
 - `src/pages/api/agent-sdk-chat.js` - Agent SDK mode
 - `src/pages/api/pixellab.js` - PixelLab pixel art illustration
+
+### Standalone Server (`server/`)
+
+Separate Express app deployed to `api.dustinlanders.com`. Serves Story Studio API routes that use the Claude Agent SDK. Has its own `package.json` and auth module (`server/lib/auth.js`). The Astro app handles all other API routes via Netlify SSR; only Story Studio calls the standalone server in production.
+
+- `server/index.js` - Express entrypoint with CORS, rate limiting, security headers
+- `server/routes/story-chat.js` - Story generation via Claude Agent SDK
+- `server/routes/auth.js` - Password auth (same HMAC token scheme as `src/lib/auth.js`)
+- `server/lib/auth.js` - Token creation/verification (mirrors `src/lib/auth.js`)

@@ -1,20 +1,15 @@
 export const prerender = false;
 
+import { createHash } from 'node:crypto';
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 
-// Subscriber list management for the analytics dashboard. Reads/writes the same
-// Firestore `subscribers` collection that the homepage subscribe form populates
-// (see api/subscribe.js). Auth: scope "analytics".
-
 const METHODS = 'GET, POST, PATCH, DELETE, OPTIONS';
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
 
-// Doc id derived from the email, matching api/subscribe.js so the homepage and
-// the dashboard address the same documents.
 function docIdFor(email) {
-  return email.replace(/[^A-Za-z0-9_.-]/g, '_');
+  return createHash('sha256').update(email).digest('hex').slice(0, 32);
 }
 
 function normEmail(raw) {
@@ -70,6 +65,7 @@ export async function POST({ request }) {
     if ((await ref.get()).exists) return json({ error: 'Already on the list', already: true }, 409, corsHeaders);
     const now = Date.now();
     await ref.set({ email, created: now, source: 'manual' });
+    console.log('[subscribers] ADD email=%s id=%s at=%d', email, ref.id, now);
     return json({ ok: true, subscriber: { id: ref.id, email, created: now, source: 'manual' } }, 200, corsHeaders);
   } catch {
     return json({ error: 'Server error' }, 500, corsHeaders);
@@ -97,17 +93,17 @@ export async function PATCH({ request }) {
     const newId = docIdFor(email);
     const prev = oldDoc.data();
 
-    // Same document (case-only or trivial change): patch the email field in place.
     if (newId === id) {
       await oldRef.update({ email });
+      console.log('[subscribers] EDIT id=%s email=%s at=%d', id, email, Date.now());
       return json({ ok: true, subscriber: { id, email, created: prev.created || 0, source: prev.source || '' } }, 200, corsHeaders);
     }
 
-    // Email changed enough to move documents. Refuse to clobber an existing one.
     const newRef = db.collection('subscribers').doc(newId);
     if ((await newRef.get()).exists) return json({ error: 'That email already exists' }, 409, corsHeaders);
     await newRef.set({ ...prev, email });
     await oldRef.delete();
+    console.log('[subscribers] EDIT id=%s->%s email=%s at=%d', id, newId, email, Date.now());
     return json({ ok: true, subscriber: { id: newId, email, created: prev.created || 0, source: prev.source || '' } }, 200, corsHeaders);
   } catch {
     return json({ error: 'Server error' }, 500, corsHeaders);
@@ -127,6 +123,7 @@ export async function DELETE({ request }) {
   try {
     const db = getDb();
     await db.collection('subscribers').doc(id).delete();
+    console.log('[subscribers] DELETE id=%s at=%d', id, Date.now());
     return json({ ok: true }, 200, corsHeaders);
   } catch {
     return json({ error: 'Server error' }, 500, corsHeaders);

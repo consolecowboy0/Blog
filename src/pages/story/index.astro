@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+const apiBase = import.meta.env.STORY_API_BASE || (import.meta.env.DEV ? '' : 'https://api.dustinlanders.com');
 ---
 
 <BaseLayout title="Story Studio - dustinlanders.com">
+  <meta slot="head" name="api-base" content={apiBase} />
   <div id="gate">
     <div class="gate-box">
       <div class="gate-icon">
@@ -262,7 +264,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script is:inline>
 (function () {
-  var API_BASE = location.hostname === 'localhost' ? '' : 'https://api.dustinlanders.com';
+  var API_BASE = document.querySelector('meta[name="api-base"]')?.getAttribute('content') || '';
   var authToken = null;
   var COLORS = ['#e05252','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#a855f7'];
   var LS_KEY = 'story_studio_state';

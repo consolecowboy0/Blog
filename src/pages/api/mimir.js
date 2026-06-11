@@ -51,18 +51,25 @@ export async function POST({ request, clientAddress }) {
     const doc = await docRef.get();
     const now = Date.now();
 
+    let fp = '';
+    if (fingerprint && typeof fingerprint === 'string') {
+      fp = fingerprint.slice(0, 512);
+    } else if (fingerprint && typeof fingerprint === 'object') {
+      try { fp = JSON.stringify(fingerprint).slice(0, 512); } catch { fp = ''; }
+    }
+
     if (doc.exists) {
       await docRef.update({
         messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
-        ...(fingerprint ? { fingerprint } : {}),
+        ...(fp ? { fingerprint: fp } : {}),
       });
     } else {
       await docRef.set({
         id: visitor_id,
-        fingerprint: fingerprint || '',
+        fingerprint: fp,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
         created: now,

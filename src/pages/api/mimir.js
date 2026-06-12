@@ -5,6 +5,15 @@ import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
+function sanitizeText(str) {
+  return str
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200D\uFEFF]/gu, "")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+const MAX_BODY = 8192;
+
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -14,6 +23,9 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > MAX_BODY) return json({ error: 'Payload too large' }, 413);
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
@@ -42,10 +54,18 @@ export async function POST({ request, clientAddress }) {
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
+    const safeText = sanitizeText(text);
+
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
-    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlIp.ok) return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rlIp.retryAfter) },
+    });
     const rlVis = checkRate(`mimir-send:${visitor_id}`, 20, 10 * 60 * 1000);
-    if (!rlVis.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlVis.ok) return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rlVis.retryAfter) },
+    });
 
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
@@ -60,8 +80,8 @@ export async function POST({ request, clientAddress }) {
 
     if (doc.exists) {
       await docRef.update({
-        messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
-        preview: text.substring(0, 80),
+        messages: FieldValue.arrayUnion({ from: 'visitor', text: safeText, time: now }),
+        preview: safeText.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
         ...(fp ? { fingerprint: fp } : {}),
@@ -70,8 +90,8 @@ export async function POST({ request, clientAddress }) {
       await docRef.set({
         id: visitor_id,
         fingerprint: fp,
-        messages: [{ from: 'visitor', text, time: now }],
-        preview: text.substring(0, 80),
+        messages: [{ from: 'visitor', text: safeText, time: now }],
+        preview: safeText.substring(0, 80),
         created: now,
         updated: now,
         unread: 1,
@@ -88,7 +108,10 @@ export async function POST({ request, clientAddress }) {
     }
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
-    if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rl.ok) return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

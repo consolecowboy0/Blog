@@ -62,10 +62,14 @@ export function verifyToken(token) {
 
 export function getTokenFromRequest(request) {
   const auth = request.headers.get('Authorization');
-  if (auth?.startsWith('Bearer ')) return auth.slice(7);
+  if (auth?.startsWith('Bearer ')) {
+    const token = auth.slice(7);
+    return token.length <= 512 ? token : null;
+  }
   const cookie = request.headers.get('Cookie') || '';
   const match = cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
-  return match ? match[1] : null;
+  if (!match) return null;
+  return match[1].length <= 512 ? match[1] : null;
 }
 
 export function requireAuth(request, scope) {

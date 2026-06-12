@@ -501,6 +501,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   resumeBtn.addEventListener('click', () => {
     const newId = resumeInput.value.trim();
     if (!newId) return;
+    if (newId.length > 128 || !/^[A-Za-z0-9_-]+$/.test(newId)) {
+      resumeInput.setCustomValidity('Letters, numbers, hyphens, underscores only (max 128)');
+      resumeInput.reportValidity();
+      return;
+    }
+    resumeInput.setCustomValidity('');
     visitorId = newId;
     localStorage.setItem('mimir_visitor_id', visitorId);
     idEl.textContent = visitorId;

@@ -3,6 +3,7 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -35,9 +36,16 @@ function unauthorized(corsHeaders) {
   return json({ error: 'Unauthorized' }, 401, corsHeaders);
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`subs:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return new Response(JSON.stringify({ error: 'Rate limited' }), {
+    status: 429,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+  });
 
   try {
     const db = getDb();

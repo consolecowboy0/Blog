@@ -13,16 +13,32 @@ export async function POST({ request, clientAddress }) {
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
       status: 429,
-      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) {
+    return new Response(JSON.stringify({ error: 'Content-Type must be application/json' }), {
+      status: 415,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const raw = await request.text();
+  if (raw.length > 1024) {
+    return new Response(JSON.stringify({ error: 'Payload too large' }), {
+      status: 413,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   let body;
   try {
-    body = await request.json();
+    body = JSON.parse(raw);
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -31,21 +47,21 @@ export async function POST({ request, clientAddress }) {
   if (!password || !scope) {
     return new Response(JSON.stringify({ error: 'Missing password or scope' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   if (!['analytics'].includes(scope)) {
     return new Response(JSON.stringify({ error: 'Invalid scope' }), {
       status: 400,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
   if (!verifyPassword(password, scope)) {
     return new Response(JSON.stringify({ error: 'Wrong password' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
@@ -55,7 +71,8 @@ export async function POST({ request, clientAddress }) {
     status: 200,
     headers: {
       ...corsHeaders,
-      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+      'Content-Type': 'application/json',
+      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400`,
     },
   });
 }

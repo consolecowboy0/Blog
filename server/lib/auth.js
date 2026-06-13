@@ -14,7 +14,7 @@ const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
 };
 
-const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
+const TOKEN_TTL = 60 * 60 * 24; // 24 hours
 
 function sign(payload) {
   return createHmac('sha256', SECRET).update(payload).digest('hex');

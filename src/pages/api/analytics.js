@@ -1,8 +1,9 @@
 export const prerender = false;
 
-import { requireAuth } from '../../lib/auth.js';
+import { requireAuth, getTokenFromRequest } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 import {
   classifyChannel, sourceLabel, CHANNELS, CHANNEL_LABELS,
   flagEmoji, isSpamHost, isPlausibleHost, CC_NAME, regionLabel,
@@ -32,7 +33,16 @@ export async function GET({ request }) {
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const tokenKey = getTokenFromRequest(request) || 'unknown';
+  const rl = checkRate(`analytics:${tokenKey.slice(0, 16)}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Too many requests' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
 

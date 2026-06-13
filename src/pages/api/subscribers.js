@@ -1,8 +1,9 @@
 export const prerender = false;
 
-import { requireAuth } from '../../lib/auth.js';
+import { requireAuth, getTokenFromRequest } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -38,6 +39,10 @@ function unauthorized(corsHeaders) {
 export async function GET({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+
+  const tokenKey = getTokenFromRequest(request) || 'unknown';
+  const rl = checkRate(`subscribers:${tokenKey.slice(0, 16)}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Too many requests' }, 429, corsHeaders);
 
   try {
     const db = getDb();

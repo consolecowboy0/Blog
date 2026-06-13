@@ -63,11 +63,7 @@ router.post('/api/story-chat', async (req, res) => {
 
     res.json({ text: result });
   } catch (err) {
-    const message = err.message || '';
-    if (message.includes('MODULE_NOT_FOUND') || message.includes('Cannot find') || message.includes('not found')) {
-      return res.status(501).json({ error: 'Agent SDK requires Claude Code CLI installed on the server.' });
-    }
-    console.error('[story-chat] Error:', message);
+    console.error('[story-chat] Error:', err.message || err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

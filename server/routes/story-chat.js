@@ -37,7 +37,8 @@ router.post('/api/story-chat', async (req, res) => {
       model: sdkModel,
       systemPrompt: system,
       maxTurns: 1,
-      permissionMode: 'auto',
+      permissionMode: 'default',
+      allowedTools: [],
     };
 
     let result = '';

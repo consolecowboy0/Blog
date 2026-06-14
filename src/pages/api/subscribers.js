@@ -58,6 +58,9 @@ export async function POST({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
 
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 4096) return json({ error: 'Payload too large' }, 413, corsHeaders);
+
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -79,6 +82,9 @@ export async function POST({ request }) {
 export async function PATCH({ request }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+
+  const clp = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (clp > 4096) return json({ error: 'Payload too large' }, 413, corsHeaders);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }

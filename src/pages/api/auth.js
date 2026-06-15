@@ -7,46 +7,46 @@ import { checkRate } from '../../lib/rate-limit.js';
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
 
+  const json = (data, status) =>
+    new Response(JSON.stringify(data), {
+      status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  // Reject non-JSON content types to block CSRF via form submissions.
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) {
+    return json({ error: 'Content-Type must be application/json' }, 415);
+  }
+
   // Rate-limit: 5 attempts per 15 min per IP
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
       status: 429,
-      headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
   let body;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: corsHeaders,
-    });
+    return json({ error: 'Invalid JSON' }, 400);
   }
 
   const { password, scope } = body;
 
   if (!password || !scope) {
-    return new Response(JSON.stringify({ error: 'Missing password or scope' }), {
-      status: 400,
-      headers: corsHeaders,
-    });
+    return json({ error: 'Missing password or scope' }, 400);
   }
 
   if (!['analytics'].includes(scope)) {
-    return new Response(JSON.stringify({ error: 'Invalid scope' }), {
-      status: 400,
-      headers: corsHeaders,
-    });
+    return json({ error: 'Invalid scope' }, 400);
   }
 
   if (!verifyPassword(password, scope)) {
-    return new Response(JSON.stringify({ error: 'Wrong password' }), {
-      status: 401,
-      headers: corsHeaders,
-    });
+    return json({ error: 'Wrong password' }, 401);
   }
 
   const token = createToken(scope);
@@ -55,6 +55,7 @@ export async function POST({ request, clientAddress }) {
     status: 200,
     headers: {
       ...corsHeaders,
+      'Content-Type': 'application/json',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });

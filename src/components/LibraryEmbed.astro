@@ -43,7 +43,7 @@ const { src, title } = Astro.props;
       try {
         iframe.contentWindow?.postMessage(
           { type: 'parent-theme', theme: currentTheme() },
-          '*'
+          window.location.origin
         );
       } catch { /* cross-origin — ignore */ }
     });

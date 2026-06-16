@@ -4,7 +4,13 @@ import { requireAuth } from '../lib/auth.js';
 const router = Router();
 
 router.post('/api/story-chat', async (req, res) => {
-  if (!requireAuth(req)) {
+  const ct = req.headers['content-type'] || '';
+  if (!ct.includes('application/json')) {
+    return res.status(415).json({ error: 'Content-Type must be application/json' });
+  }
+
+  const auth = requireAuth(req);
+  if (!auth || auth.scope !== 'analytics') {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -37,7 +43,7 @@ router.post('/api/story-chat', async (req, res) => {
       model: sdkModel,
       systemPrompt: system,
       maxTurns: 1,
-      permissionMode: 'auto',
+      permissionMode: 'default',
     };
 
     let result = '';

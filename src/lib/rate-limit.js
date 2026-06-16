@@ -3,11 +3,19 @@
 // For multi-instance production, replace the store with Netlify Blobs or Redis.
 
 const store = new Map();
+const MAX_ENTRIES = 10_000;
 
 function prune(now) {
-  if (store.size < 1000) return;
+  if (store.size < 500) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
+  }
+  if (store.size > MAX_ENTRIES) {
+    const overflow = store.size - MAX_ENTRIES;
+    const iter = store.keys();
+    for (let i = 0; i < overflow; i++) {
+      store.delete(iter.next().value);
+    }
   }
 }
 

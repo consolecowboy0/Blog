@@ -20,7 +20,7 @@ export async function POST({ request, clientAddress }) {
   }
 
   // Rate-limit: 5 attempts per 15 min per IP
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = clientAddress || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
@@ -41,12 +41,8 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Missing password or scope' }, 400);
   }
 
-  if (!['analytics'].includes(scope)) {
-    return json({ error: 'Invalid scope' }, 400);
-  }
-
-  if (!verifyPassword(password, scope)) {
-    return json({ error: 'Wrong password' }, 401);
+  if (!['analytics'].includes(scope) || !verifyPassword(password, scope)) {
+    return json({ error: 'Authentication failed' }, 401);
   }
 
   const token = createToken(scope);

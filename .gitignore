@@ -6,3 +6,6 @@ dist/
 .DS_Store
 **/.DS_Store
 .claude/worktrees/
+
+# F1 database build artifact (regenerate with data/f1/build_f1db.py)
+data/f1/f1.db

@@ -1,0 +1,327 @@
+@prefix f1:    <https://dustinlanders.com/ontology/f1#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix dct:   <http://purl.org/dc/terms/> .
+
+#################################################################
+#  Formula 1 Ontology  —  conceptual model of the f1.db database
+#
+#  A hand-curated OWL ontology describing the *meaning* of the
+#  Formula 1 SQLite database built by build_f1db.py. It defines the
+#  domain's classes, their hierarchy and disjointness, and the object
+#  and datatype properties that connect them. The companion file
+#  f1-mapping.ttl gives the mechanical table/column -> ontology mapping.
+#################################################################
+
+f1: a owl:Ontology ;
+    dct:title "Formula 1 Ontology" ;
+    dct:description "Conceptual ontology over the f1db-derived SQLite database: seasons, races, circuits, drivers, constructors, engines, tyres, entrants, session results and championship standings, 1950-present." ;
+    dct:source <https://github.com/f1db/f1db> ;
+    dct:license <https://creativecommons.org/licenses/by/4.0/> ;
+    owl:versionInfo "1.0.0" .
+
+# Annotation properties linking ontology terms to the relational schema.
+f1:mapsToTable  a owl:AnnotationProperty ; rdfs:label "maps to table" .
+f1:mapsToColumn a owl:AnnotationProperty ; rdfs:label "maps to column" .
+
+#################################################################
+#  TOP-LEVEL CLASSES
+#################################################################
+
+f1:Entity a owl:Class ;
+    rdfs:label "F1 Entity" ;
+    rdfs:comment "Root class for every individual in the Formula 1 domain." .
+
+### --- Agents -------------------------------------------------
+
+f1:Agent a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Agent" ;
+    rdfs:comment "A person or organisation that participates in Formula 1." .
+
+f1:Person a owl:Class ; rdfs:subClassOf f1:Agent ; rdfs:label "Person" .
+
+f1:Driver a owl:Class ; rdfs:subClassOf f1:Person ;
+    rdfs:label "Driver" ;
+    rdfs:comment "A racing driver who has entered at least one Formula 1 session." ;
+    f1:mapsToTable "driver" .
+
+f1:Organization a owl:Class ; rdfs:subClassOf f1:Agent ; rdfs:label "Organization" .
+
+f1:Constructor a owl:Class ; rdfs:subClassOf f1:Organization ;
+    rdfs:label "Constructor" ;
+    rdfs:comment "The marque credited with building the car (chassis). Championship points accrue to the constructor." ;
+    f1:mapsToTable "constructor" .
+
+f1:EngineManufacturer a owl:Class ; rdfs:subClassOf f1:Organization ;
+    rdfs:label "Engine Manufacturer" ;
+    rdfs:comment "Maker of the power unit, which may differ from the constructor." ;
+    f1:mapsToTable "engine_manufacturer" .
+
+f1:TyreManufacturer a owl:Class ; rdfs:subClassOf f1:Organization ;
+    rdfs:label "Tyre Manufacturer" ;
+    f1:mapsToTable "tyre_manufacturer" .
+
+f1:Entrant a owl:Class ; rdfs:subClassOf f1:Organization ;
+    rdfs:label "Entrant" ;
+    rdfs:comment "The team/organisation that enters a car for a season, e.g. 'Scuderia Ferrari'. Distinct from the constructor marque." ;
+    f1:mapsToTable "entrant" .
+
+### --- Technical components -----------------------------------
+
+f1:TechnicalComponent a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Technical Component" .
+
+f1:Chassis a owl:Class ; rdfs:subClassOf f1:TechnicalComponent ;
+    rdfs:label "Chassis" ;
+    rdfs:comment "A car model built by a constructor (e.g. Ferrari SF-23)." ;
+    f1:mapsToTable "chassis" .
+
+f1:Engine a owl:Class ; rdfs:subClassOf f1:TechnicalComponent ;
+    rdfs:label "Engine" ;
+    rdfs:comment "A specific power-unit specification produced by an engine manufacturer." ;
+    f1:mapsToTable "engine" .
+
+### --- Places ------------------------------------------------
+
+f1:Place a owl:Class ; rdfs:subClassOf f1:Entity ; rdfs:label "Place" .
+
+f1:Continent a owl:Class ; rdfs:subClassOf f1:Place ;
+    rdfs:label "Continent" ; f1:mapsToTable "continent" .
+
+f1:Country a owl:Class ; rdfs:subClassOf f1:Place ;
+    rdfs:label "Country" ; f1:mapsToTable "country" .
+
+f1:Circuit a owl:Class ; rdfs:subClassOf f1:Place ;
+    rdfs:label "Circuit" ;
+    rdfs:comment "A racing venue. A circuit has one or more layouts over its history." ;
+    f1:mapsToTable "circuit" .
+
+f1:CircuitLayout a owl:Class ; rdfs:subClassOf f1:Place ;
+    rdfs:label "Circuit Layout" ;
+    rdfs:comment "A specific configuration (length/turns) of a circuit used in a given era." ;
+    f1:mapsToTable "circuit_layout" .
+
+### --- Competitive structure ---------------------------------
+
+f1:GrandPrix a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Grand Prix" ;
+    rdfs:comment "A named, recurring event franchise (e.g. the Monaco Grand Prix), independent of any single year." ;
+    f1:mapsToTable "grand_prix" .
+
+f1:Season a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Season" ;
+    rdfs:comment "A championship year." ;
+    f1:mapsToTable "season" .
+
+f1:Race a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Race" ;
+    rdfs:comment "A specific running of a Grand Prix in a season (a race weekend / round), held at one circuit layout." ;
+    f1:mapsToTable "race" .
+
+### --- Session results (performances) -------------------------
+# A SessionEntry reifies 'a car/driver took part in a session and was
+# classified'. Every per-race result table is a subclass.
+
+f1:SessionEntry a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Session Entry" ;
+    rdfs:comment "An abstract performance record: one driver, in one car, classified in one on-track session of one race." .
+
+f1:PracticeResult a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Practice Result" ;
+    rdfs:comment "Classification in a free-practice, pre-qualifying or warm-up session." .
+
+f1:QualifyingResult a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Qualifying Result" ;
+    rdfs:comment "Classification in a qualifying or sprint-qualifying session (including split Q1/Q2/Q3 times)." .
+
+f1:GridPosition a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Starting Grid Position" ;
+    rdfs:comment "A car's place on the starting grid of a race or sprint, after penalties." .
+
+f1:RaceResult a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Race Result" ;
+    rdfs:comment "Final classification in the main race, with points, gap and retirement reason." ;
+    f1:mapsToTable "race_result" .
+
+f1:SprintRaceResult a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Sprint Race Result" ;
+    f1:mapsToTable "sprint_race_result" .
+
+f1:FastestLap a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Fastest Lap" ; f1:mapsToTable "fastest_lap" .
+
+f1:PitStop a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Pit Stop" ;
+    rdfs:comment "A single pit stop by one car in a race." ;
+    f1:mapsToTable "pit_stop" .
+
+f1:DriverOfTheDay a owl:Class ; rdfs:subClassOf f1:SessionEntry ;
+    rdfs:label "Driver of the Day Vote" ; f1:mapsToTable "driver_of_the_day_result" .
+
+### --- Championship standings ---------------------------------
+
+f1:Standing a owl:Class ; rdfs:subClassOf f1:Entity ;
+    rdfs:label "Championship Standing" ;
+    rdfs:comment "A classification row in a championship table, holding accumulated points and a position." .
+
+f1:DriverStanding a owl:Class ; rdfs:subClassOf f1:Standing ;
+    rdfs:label "Driver Standing" .
+
+f1:ConstructorStanding a owl:Class ; rdfs:subClassOf f1:Standing ;
+    rdfs:label "Constructor Standing" .
+
+# Disjointness of the major branches.
+[] a owl:AllDisjointClasses ; owl:members
+   ( f1:Agent f1:TechnicalComponent f1:Place f1:GrandPrix f1:Season
+     f1:Race f1:SessionEntry f1:Standing ) .
+[] a owl:AllDisjointClasses ; owl:members
+   ( f1:Driver f1:Constructor f1:EngineManufacturer f1:TyreManufacturer f1:Entrant ) .
+
+#################################################################
+#  OBJECT PROPERTIES
+#################################################################
+
+# -- structural / part-of ----------------------------------------
+f1:partOfCircuit a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "part of circuit" ;
+    rdfs:domain f1:CircuitLayout ; rdfs:range f1:Circuit ;
+    f1:mapsToColumn "circuit_layout.circuit_id" .
+
+f1:locatedInCountry a owl:ObjectProperty ;
+    rdfs:label "located in country" ;
+    rdfs:range f1:Country ;
+    rdfs:comment "Generic placement of a circuit, organisation or event in a country." .
+
+f1:withinContinent a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "within continent" ;
+    rdfs:domain f1:Country ; rdfs:range f1:Continent ;
+    f1:mapsToColumn "country.continent_id" .
+
+# -- season / race composition -----------------------------------
+f1:inSeason a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "in season" ;
+    rdfs:domain f1:Race ; rdfs:range f1:Season ;
+    f1:mapsToColumn "race.year" .
+
+f1:runsGrandPrix a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "runs grand prix" ;
+    rdfs:domain f1:Race ; rdfs:range f1:GrandPrix ;
+    rdfs:comment "Links a specific race to the recurring Grand Prix it is an instance of." ;
+    f1:mapsToColumn "race.grand_prix_id" .
+
+f1:heldAtCircuit a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "held at circuit" ;
+    rdfs:domain f1:Race ; rdfs:range f1:Circuit ;
+    f1:mapsToColumn "race.circuit_id" .
+
+f1:usedLayout a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "used circuit layout" ;
+    rdfs:domain f1:Race ; rdfs:range f1:CircuitLayout ;
+    f1:mapsToColumn "race.circuit_layout_id" .
+
+# -- session-entry participation ---------------------------------
+f1:inRace a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "in race" ;
+    rdfs:domain f1:SessionEntry ; rdfs:range f1:Race ;
+    f1:mapsToColumn "*.race_id" .
+
+f1:performedBy a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "performed by driver" ;
+    rdfs:domain f1:SessionEntry ; rdfs:range f1:Driver ;
+    f1:mapsToColumn "*.driver_id" .
+
+f1:forConstructor a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "for constructor" ;
+    rdfs:range f1:Constructor ;
+    f1:mapsToColumn "*.constructor_id" .
+
+f1:usingEngineOf a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "using engine manufacturer" ;
+    rdfs:range f1:EngineManufacturer ;
+    f1:mapsToColumn "*.engine_manufacturer_id" .
+
+f1:onTyresOf a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "on tyres of" ;
+    rdfs:domain f1:SessionEntry ; rdfs:range f1:TyreManufacturer ;
+    f1:mapsToColumn "*.tyre_manufacturer_id" .
+
+# -- component provenance ----------------------------------------
+f1:builtBy a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "built by" ;
+    rdfs:domain f1:Chassis ; rdfs:range f1:Constructor ;
+    f1:mapsToColumn "chassis.constructor_id" .
+
+f1:manufacturedBy a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "manufactured by" ;
+    rdfs:domain f1:Engine ; rdfs:range f1:EngineManufacturer ;
+    f1:mapsToColumn "engine.engine_manufacturer_id" .
+
+# -- people / nationality ----------------------------------------
+f1:hasNationality a owl:ObjectProperty ;
+    rdfs:label "has nationality" ;
+    rdfs:domain f1:Driver ; rdfs:range f1:Country ;
+    f1:mapsToColumn "driver.nationality_country_id" .
+
+f1:bornInCountry a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "born in country" ;
+    rdfs:domain f1:Driver ; rdfs:range f1:Country ;
+    f1:mapsToColumn "driver.country_of_birth_country_id" .
+
+f1:relatedToDriver a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "related to driver" ;
+    rdfs:domain f1:Driver ; rdfs:range f1:Driver ;
+    rdfs:comment "Family relationship between two drivers (father/son, brothers, etc.)." ;
+    f1:mapsToTable "driver_family_relationship" .
+
+f1:precededBy a owl:ObjectProperty ;
+    rdfs:label "constructor lineage predecessor" ;
+    rdfs:domain f1:Constructor ; rdfs:range f1:Constructor ;
+    rdfs:comment "Constructor chronology: a team's earlier identity (e.g. Brawn -> Honda)." ;
+    f1:mapsToTable "constructor_chronology" .
+
+# -- standings ---------------------------------------------------
+f1:standingForDriver a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "standing for driver" ;
+    rdfs:domain f1:DriverStanding ; rdfs:range f1:Driver .
+
+f1:standingForConstructor a owl:ObjectProperty , owl:FunctionalProperty ;
+    rdfs:label "standing for constructor" ;
+    rdfs:domain f1:ConstructorStanding ; rdfs:range f1:Constructor .
+
+#################################################################
+#  DATATYPE PROPERTIES (salient attributes)
+#################################################################
+
+f1:fullName a owl:DatatypeProperty ; rdfs:label "full name" ; rdfs:range xsd:string .
+f1:abbreviation a owl:DatatypeProperty ; rdfs:label "abbreviation" ; rdfs:range xsd:string .
+
+f1:dateOfBirth a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain f1:Driver ; rdfs:range xsd:date ; rdfs:label "date of birth" .
+f1:dateOfDeath a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain f1:Driver ; rdfs:range xsd:date ; rdfs:label "date of death" .
+f1:permanentNumber a owl:DatatypeProperty ;
+    rdfs:domain f1:Driver ; rdfs:range xsd:integer ; rdfs:label "permanent number" .
+
+f1:year a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain f1:Season ; rdfs:range xsd:gYear ; rdfs:label "year" .
+f1:round a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain f1:Race ; rdfs:range xsd:integer ; rdfs:label "round" .
+f1:date a owl:DatatypeProperty , owl:FunctionalProperty ;
+    rdfs:domain f1:Race ; rdfs:range xsd:date ; rdfs:label "date" .
+
+f1:latitude a owl:DatatypeProperty ; rdfs:domain f1:Circuit ; rdfs:range xsd:decimal ; rdfs:label "latitude" .
+f1:longitude a owl:DatatypeProperty ; rdfs:domain f1:Circuit ; rdfs:range xsd:decimal ; rdfs:label "longitude" .
+f1:lengthKm a owl:DatatypeProperty ; rdfs:domain f1:Circuit ; rdfs:range xsd:decimal ; rdfs:label "length (km)" .
+f1:turns a owl:DatatypeProperty ; rdfs:domain f1:Circuit ; rdfs:range xsd:integer ; rdfs:label "turns" .
+
+f1:positionNumber a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ; rdfs:label "finishing/classified position" ;
+    rdfs:comment "Numeric classified position; null when the entry did not receive one (DNF/DSQ/etc.)." .
+f1:points a owl:DatatypeProperty ; rdfs:range xsd:decimal ; rdfs:label "points" .
+f1:championshipWon a owl:DatatypeProperty ; rdfs:range xsd:boolean ; rdfs:label "championship won" .
+f1:reasonRetired a owl:DatatypeProperty ;
+    rdfs:domain f1:RaceResult ; rdfs:range xsd:string ; rdfs:label "reason retired" .
+f1:lapNumber a owl:DatatypeProperty ; rdfs:range xsd:integer ; rdfs:label "lap number" .

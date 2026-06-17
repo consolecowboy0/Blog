@@ -1,0 +1,4421 @@
+@prefix f1:   <https://dustinlanders.com/ontology/f1#> .
+@prefix f1m:  <https://dustinlanders.com/ontology/f1/schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+
+# Direct mapping of the f1.db relational schema to OWL, generated from
+# f1.schema.json. Each table is an owl:Class (f1m:), each column a
+# property, each foreign key an owl:ObjectProperty. Table classes are
+# tied to the conceptual model in f1.ttl via rdfs:subClassOf where a
+# concept exists. Regenerate with: python3 build_f1db.py && (this script).
+
+f1m: a owl:Ontology ;
+    dct:title "Formula 1 Database Direct Mapping (f1.db schema)" ;
+    owl:imports f1: ;
+    owl:versionInfo "1.0.0" .
+
+f1m:Continent a owl:Class ;
+    rdfs:label "continent" ;
+    rdfs:subClassOf f1:Continent ;
+    f1:mapsToTable "continent" ;
+    rdfs:comment "PK (id); 7 rows." .
+
+f1m:Country a owl:Class ;
+    rdfs:label "country" ;
+    rdfs:subClassOf f1:Country ;
+    f1:mapsToTable "country" ;
+    rdfs:comment "PK (id); 249 rows." .
+
+f1m:Circuit a owl:Class ;
+    rdfs:label "circuit" ;
+    rdfs:subClassOf f1:Circuit ;
+    f1:mapsToTable "circuit" ;
+    rdfs:comment "PK (id); 78 rows." .
+
+f1m:CircuitLayout a owl:Class ;
+    rdfs:label "circuit_layout" ;
+    rdfs:subClassOf f1:CircuitLayout ;
+    f1:mapsToTable "circuit_layout" ;
+    rdfs:comment "PK (id); 160 rows." .
+
+f1m:GrandPrix a owl:Class ;
+    rdfs:label "grand_prix" ;
+    rdfs:subClassOf f1:GrandPrix ;
+    f1:mapsToTable "grand_prix" ;
+    rdfs:comment "PK (id); 54 rows." .
+
+f1m:Constructor a owl:Class ;
+    rdfs:label "constructor" ;
+    rdfs:subClassOf f1:Constructor ;
+    f1:mapsToTable "constructor" ;
+    rdfs:comment "PK (id); 187 rows." .
+
+f1m:ConstructorChronology a owl:Class ;
+    rdfs:label "constructor_chronology" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "constructor_chronology" ;
+    rdfs:comment "PK (parent_constructor_id, position_display_order); 217 rows." .
+
+f1m:Chassis a owl:Class ;
+    rdfs:label "chassis" ;
+    rdfs:subClassOf f1:Chassis ;
+    f1:mapsToTable "chassis" ;
+    rdfs:comment "PK (id); 1153 rows." .
+
+f1m:EngineManufacturer a owl:Class ;
+    rdfs:label "engine_manufacturer" ;
+    rdfs:subClassOf f1:EngineManufacturer ;
+    f1:mapsToTable "engine_manufacturer" ;
+    rdfs:comment "PK (id); 78 rows." .
+
+f1m:Engine a owl:Class ;
+    rdfs:label "engine" ;
+    rdfs:subClassOf f1:Engine ;
+    f1:mapsToTable "engine" ;
+    rdfs:comment "PK (id); 424 rows." .
+
+f1m:TyreManufacturer a owl:Class ;
+    rdfs:label "tyre_manufacturer" ;
+    rdfs:subClassOf f1:TyreManufacturer ;
+    f1:mapsToTable "tyre_manufacturer" ;
+    rdfs:comment "PK (id); 9 rows." .
+
+f1m:Entrant a owl:Class ;
+    rdfs:label "entrant" ;
+    rdfs:subClassOf f1:Entrant ;
+    f1:mapsToTable "entrant" ;
+    rdfs:comment "PK (id); 830 rows." .
+
+f1m:Driver a owl:Class ;
+    rdfs:label "driver" ;
+    rdfs:subClassOf f1:Driver ;
+    f1:mapsToTable "driver" ;
+    rdfs:comment "PK (id); 917 rows." .
+
+f1m:DriverFamilyRelationship a owl:Class ;
+    rdfs:label "driver_family_relationship" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "driver_family_relationship" ;
+    rdfs:comment "PK (parent_driver_id, position_display_order); 86 rows." .
+
+f1m:Season a owl:Class ;
+    rdfs:label "season" ;
+    rdfs:subClassOf f1:Season ;
+    f1:mapsToTable "season" ;
+    rdfs:comment "PK (year); 77 rows." .
+
+f1m:Race a owl:Class ;
+    rdfs:label "race" ;
+    rdfs:subClassOf f1:Race ;
+    f1:mapsToTable "race" ;
+    rdfs:comment "PK (id); 1171 rows." .
+
+f1m:SeasonDriver a owl:Class ;
+    rdfs:label "season_driver" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_driver" ;
+    rdfs:comment "PK (year, driver_id); 3414 rows." .
+
+f1m:SeasonConstructor a owl:Class ;
+    rdfs:label "season_constructor" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_constructor" ;
+    rdfs:comment "PK (year, constructor_id); 1079 rows." .
+
+f1m:SeasonEngineManufacturer a owl:Class ;
+    rdfs:label "season_engine_manufacturer" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_engine_manufacturer" ;
+    rdfs:comment "PK (year, engine_manufacturer_id); 560 rows." .
+
+f1m:SeasonTyreManufacturer a owl:Class ;
+    rdfs:label "season_tyre_manufacturer" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_tyre_manufacturer" ;
+    rdfs:comment "PK (year, tyre_manufacturer_id); 160 rows." .
+
+f1m:SeasonDriverStanding a owl:Class ;
+    rdfs:label "season_driver_standing" ;
+    rdfs:subClassOf f1:DriverStanding ;
+    f1:mapsToTable "season_driver_standing" ;
+    rdfs:comment "PK (year, position_display_order); 1680 rows." .
+
+f1m:SeasonConstructorStanding a owl:Class ;
+    rdfs:label "season_constructor_standing" ;
+    rdfs:subClassOf f1:ConstructorStanding ;
+    f1:mapsToTable "season_constructor_standing" ;
+    rdfs:comment "PK (year, position_display_order); 721 rows." .
+
+f1m:SeasonEntrant a owl:Class ;
+    rdfs:label "season_entrant" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant" ;
+    rdfs:comment "PK (year, entrant_id); 1799 rows." .
+
+f1m:SeasonEntrantConstructor a owl:Class ;
+    rdfs:label "season_entrant_constructor" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant_constructor" ;
+    rdfs:comment "PK (year, entrant_id, constructor_id, engine_manufacturer_id); 1925 rows." .
+
+f1m:SeasonEntrantDriver a owl:Class ;
+    rdfs:label "season_entrant_driver" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant_driver" ;
+    rdfs:comment "PK (year, entrant_id, constructor_id, engine_manufacturer_id, driver_id); 3877 rows." .
+
+f1m:SeasonEntrantEngine a owl:Class ;
+    rdfs:label "season_entrant_engine" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant_engine" ;
+    rdfs:comment "PK (year, entrant_id, constructor_id, engine_manufacturer_id, engine_id); 2027 rows." .
+
+f1m:SeasonEntrantChassis a owl:Class ;
+    rdfs:label "season_entrant_chassis" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant_chassis" ;
+    rdfs:comment "PK (year, entrant_id, constructor_id, engine_manufacturer_id, chassis_id); 2292 rows." .
+
+f1m:SeasonEntrantTyreManufacturer a owl:Class ;
+    rdfs:label "season_entrant_tyre_manufacturer" ;
+    rdfs:subClassOf f1:Entity ;
+    f1:mapsToTable "season_entrant_tyre_manufacturer" ;
+    rdfs:comment "PK (year, entrant_id, constructor_id, engine_manufacturer_id, tyre_manufacturer_id); 1955 rows." .
+
+f1m:RaceDriverStanding a owl:Class ;
+    rdfs:label "race_driver_standing" ;
+    rdfs:subClassOf f1:DriverStanding ;
+    f1:mapsToTable "race_driver_standing" ;
+    rdfs:comment "PK (race_id, position_display_order); 21361 rows." .
+
+f1m:RaceConstructorStanding a owl:Class ;
+    rdfs:label "race_constructor_standing" ;
+    rdfs:subClassOf f1:ConstructorStanding ;
+    f1:mapsToTable "race_constructor_standing" ;
+    rdfs:comment "PK (race_id, position_display_order); 10566 rows." .
+
+f1m:FreePractice1Result a owl:Class ;
+    rdfs:label "free_practice_1_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "free_practice_1_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 15988 rows." .
+
+f1m:FreePractice2Result a owl:Class ;
+    rdfs:label "free_practice_2_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "free_practice_2_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 15444 rows." .
+
+f1m:FreePractice3Result a owl:Class ;
+    rdfs:label "free_practice_3_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "free_practice_3_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 8757 rows." .
+
+f1m:FreePractice4Result a owl:Class ;
+    rdfs:label "free_practice_4_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "free_practice_4_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 706 rows." .
+
+f1m:WarmingUpResult a owl:Class ;
+    rdfs:label "warming_up_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "warming_up_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 7683 rows." .
+
+f1m:PreQualifyingResult a owl:Class ;
+    rdfs:label "pre_qualifying_result" ;
+    rdfs:subClassOf f1:PracticeResult ;
+    f1:mapsToTable "pre_qualifying_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 647 rows." .
+
+f1m:Qualifying1Result a owl:Class ;
+    rdfs:label "qualifying_1_result" ;
+    rdfs:subClassOf f1:QualifyingResult ;
+    f1:mapsToTable "qualifying_1_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 7707 rows." .
+
+f1m:Qualifying2Result a owl:Class ;
+    rdfs:label "qualifying_2_result" ;
+    rdfs:subClassOf f1:QualifyingResult ;
+    f1:mapsToTable "qualifying_2_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 7541 rows." .
+
+f1m:QualifyingResult a owl:Class ;
+    rdfs:label "qualifying_result" ;
+    rdfs:subClassOf f1:QualifyingResult ;
+    f1:mapsToTable "qualifying_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 26866 rows." .
+
+f1m:SprintQualifyingResult a owl:Class ;
+    rdfs:label "sprint_qualifying_result" ;
+    rdfs:subClassOf f1:QualifyingResult ;
+    f1:mapsToTable "sprint_qualifying_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 422 rows." .
+
+f1m:StartingGridPosition a owl:Class ;
+    rdfs:label "starting_grid_position" ;
+    rdfs:subClassOf f1:GridPosition ;
+    f1:mapsToTable "starting_grid_position" ;
+    rdfs:comment "PK (race_id, position_display_order); 25682 rows." .
+
+f1m:SprintStartingGridPosition a owl:Class ;
+    rdfs:label "sprint_starting_grid_position" ;
+    rdfs:subClassOf f1:GridPosition ;
+    f1:mapsToTable "sprint_starting_grid_position" ;
+    rdfs:comment "PK (race_id, position_display_order); 545 rows." .
+
+f1m:RaceResult a owl:Class ;
+    rdfs:label "race_result" ;
+    rdfs:subClassOf f1:RaceResult ;
+    f1:mapsToTable "race_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 27445 rows." .
+
+f1m:SprintRaceResult a owl:Class ;
+    rdfs:label "sprint_race_result" ;
+    rdfs:subClassOf f1:SprintRaceResult ;
+    f1:mapsToTable "sprint_race_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 546 rows." .
+
+f1m:FastestLap a owl:Class ;
+    rdfs:label "fastest_lap" ;
+    rdfs:subClassOf f1:FastestLap ;
+    f1:mapsToTable "fastest_lap" ;
+    rdfs:comment "PK (race_id, position_display_order); 16999 rows." .
+
+f1m:PitStop a owl:Class ;
+    rdfs:label "pit_stop" ;
+    rdfs:subClassOf f1:PitStop ;
+    f1:mapsToTable "pit_stop" ;
+    rdfs:comment "PK (race_id, position_display_order); 22293 rows." .
+
+f1m:DriverOfTheDayResult a owl:Class ;
+    rdfs:label "driver_of_the_day_result" ;
+    rdfs:subClassOf f1:DriverOfTheDay ;
+    f1:mapsToTable "driver_of_the_day_result" ;
+    rdfs:comment "PK (race_id, position_display_order); 852 rows." .
+
+#### Object properties (foreign keys) ####
+
+f1m:country__continent_id a owl:ObjectProperty ;
+    rdfs:label "country.continent_id" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range f1m:Continent ;
+    f1:mapsToColumn "country.continent_id" .
+
+f1m:circuit__country_id a owl:ObjectProperty ;
+    rdfs:label "circuit.country_id" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "circuit.country_id" .
+
+f1m:circuit_layout__circuit_id a owl:ObjectProperty ;
+    rdfs:label "circuit_layout.circuit_id" ;
+    rdfs:domain f1m:CircuitLayout ;
+    rdfs:range f1m:Circuit ;
+    f1:mapsToColumn "circuit_layout.circuit_id" .
+
+f1m:grand_prix__country_id a owl:ObjectProperty ;
+    rdfs:label "grand_prix.country_id" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "grand_prix.country_id" .
+
+f1m:constructor__country_id a owl:ObjectProperty ;
+    rdfs:label "constructor.country_id" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "constructor.country_id" .
+
+f1m:constructor_chronology__parent_constructor_id a owl:ObjectProperty ;
+    rdfs:label "constructor_chronology.parent_constructor_id" ;
+    rdfs:domain f1m:ConstructorChronology ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "constructor_chronology.parent_constructor_id" .
+
+f1m:constructor_chronology__constructor_id a owl:ObjectProperty ;
+    rdfs:label "constructor_chronology.constructor_id" ;
+    rdfs:domain f1m:ConstructorChronology ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "constructor_chronology.constructor_id" .
+
+f1m:chassis__constructor_id a owl:ObjectProperty ;
+    rdfs:label "chassis.constructor_id" ;
+    rdfs:domain f1m:Chassis ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "chassis.constructor_id" .
+
+f1m:engine_manufacturer__country_id a owl:ObjectProperty ;
+    rdfs:label "engine_manufacturer.country_id" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "engine_manufacturer.country_id" .
+
+f1m:engine__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "engine.engine_manufacturer_id" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "engine.engine_manufacturer_id" .
+
+f1m:tyre_manufacturer__country_id a owl:ObjectProperty ;
+    rdfs:label "tyre_manufacturer.country_id" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "tyre_manufacturer.country_id" .
+
+f1m:driver__country_of_birth_country_id a owl:ObjectProperty ;
+    rdfs:label "driver.country_of_birth_country_id" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "driver.country_of_birth_country_id" .
+
+f1m:driver__nationality_country_id a owl:ObjectProperty ;
+    rdfs:label "driver.nationality_country_id" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "driver.nationality_country_id" .
+
+f1m:driver__second_nationality_country_id a owl:ObjectProperty ;
+    rdfs:label "driver.second_nationality_country_id" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "driver.second_nationality_country_id" .
+
+f1m:driver_family_relationship__parent_driver_id a owl:ObjectProperty ;
+    rdfs:label "driver_family_relationship.parent_driver_id" ;
+    rdfs:domain f1m:DriverFamilyRelationship ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "driver_family_relationship.parent_driver_id" .
+
+f1m:driver_family_relationship__driver_id a owl:ObjectProperty ;
+    rdfs:label "driver_family_relationship.driver_id" ;
+    rdfs:domain f1m:DriverFamilyRelationship ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "driver_family_relationship.driver_id" .
+
+f1m:race__year a owl:ObjectProperty ;
+    rdfs:label "race.year" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "race.year" .
+
+f1m:race__grand_prix_id a owl:ObjectProperty ;
+    rdfs:label "race.grand_prix_id" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range f1m:GrandPrix ;
+    f1:mapsToColumn "race.grand_prix_id" .
+
+f1m:race__circuit_id a owl:ObjectProperty ;
+    rdfs:label "race.circuit_id" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range f1m:Circuit ;
+    f1:mapsToColumn "race.circuit_id" .
+
+f1m:race__circuit_layout_id a owl:ObjectProperty ;
+    rdfs:label "race.circuit_layout_id" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range f1m:CircuitLayout ;
+    f1:mapsToColumn "race.circuit_layout_id" .
+
+f1m:season_driver__year a owl:ObjectProperty ;
+    rdfs:label "season_driver.year" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_driver.year" .
+
+f1m:season_driver__driver_id a owl:ObjectProperty ;
+    rdfs:label "season_driver.driver_id" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "season_driver.driver_id" .
+
+f1m:season_constructor__year a owl:ObjectProperty ;
+    rdfs:label "season_constructor.year" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_constructor.year" .
+
+f1m:season_constructor__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_constructor.constructor_id" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_constructor.constructor_id" .
+
+f1m:season_engine_manufacturer__year a owl:ObjectProperty ;
+    rdfs:label "season_engine_manufacturer.year" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_engine_manufacturer.year" .
+
+f1m:season_engine_manufacturer__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_engine_manufacturer.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_engine_manufacturer.engine_manufacturer_id" .
+
+f1m:season_tyre_manufacturer__year a owl:ObjectProperty ;
+    rdfs:label "season_tyre_manufacturer.year" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_tyre_manufacturer.year" .
+
+f1m:season_tyre_manufacturer__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_tyre_manufacturer.tyre_manufacturer_id" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "season_tyre_manufacturer.tyre_manufacturer_id" .
+
+f1m:season_driver_standing__year a owl:ObjectProperty ;
+    rdfs:label "season_driver_standing.year" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_driver_standing.year" .
+
+f1m:season_driver_standing__driver_id a owl:ObjectProperty ;
+    rdfs:label "season_driver_standing.driver_id" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "season_driver_standing.driver_id" .
+
+f1m:season_constructor_standing__year a owl:ObjectProperty ;
+    rdfs:label "season_constructor_standing.year" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_constructor_standing.year" .
+
+f1m:season_constructor_standing__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_constructor_standing.constructor_id" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_constructor_standing.constructor_id" .
+
+f1m:season_constructor_standing__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_constructor_standing.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_constructor_standing.engine_manufacturer_id" .
+
+f1m:season_entrant__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant.year" ;
+    rdfs:domain f1m:SeasonEntrant ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant.year" .
+
+f1m:season_entrant__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrant ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant.entrant_id" .
+
+f1m:season_entrant__country_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant.country_id" ;
+    rdfs:domain f1m:SeasonEntrant ;
+    rdfs:range f1m:Country ;
+    f1:mapsToColumn "season_entrant.country_id" .
+
+f1m:season_entrant_constructor__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant_constructor.year" ;
+    rdfs:domain f1m:SeasonEntrantConstructor ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant_constructor.year" .
+
+f1m:season_entrant_constructor__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_constructor.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrantConstructor ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant_constructor.entrant_id" .
+
+f1m:season_entrant_constructor__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_constructor.constructor_id" ;
+    rdfs:domain f1m:SeasonEntrantConstructor ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_entrant_constructor.constructor_id" .
+
+f1m:season_entrant_constructor__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_constructor.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantConstructor ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_entrant_constructor.engine_manufacturer_id" .
+
+f1m:season_entrant_driver__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant_driver.year" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant_driver.year" .
+
+f1m:season_entrant_driver__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_driver.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant_driver.entrant_id" .
+
+f1m:season_entrant_driver__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_driver.constructor_id" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_entrant_driver.constructor_id" .
+
+f1m:season_entrant_driver__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_driver.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_entrant_driver.engine_manufacturer_id" .
+
+f1m:season_entrant_driver__driver_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_driver.driver_id" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "season_entrant_driver.driver_id" .
+
+f1m:season_entrant_engine__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant_engine.year" ;
+    rdfs:domain f1m:SeasonEntrantEngine ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant_engine.year" .
+
+f1m:season_entrant_engine__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_engine.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrantEngine ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant_engine.entrant_id" .
+
+f1m:season_entrant_engine__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_engine.constructor_id" ;
+    rdfs:domain f1m:SeasonEntrantEngine ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_entrant_engine.constructor_id" .
+
+f1m:season_entrant_engine__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_engine.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantEngine ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_entrant_engine.engine_manufacturer_id" .
+
+f1m:season_entrant_engine__engine_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_engine.engine_id" ;
+    rdfs:domain f1m:SeasonEntrantEngine ;
+    rdfs:range f1m:Engine ;
+    f1:mapsToColumn "season_entrant_engine.engine_id" .
+
+f1m:season_entrant_chassis__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant_chassis.year" ;
+    rdfs:domain f1m:SeasonEntrantChassis ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant_chassis.year" .
+
+f1m:season_entrant_chassis__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_chassis.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrantChassis ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant_chassis.entrant_id" .
+
+f1m:season_entrant_chassis__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_chassis.constructor_id" ;
+    rdfs:domain f1m:SeasonEntrantChassis ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_entrant_chassis.constructor_id" .
+
+f1m:season_entrant_chassis__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_chassis.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantChassis ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_entrant_chassis.engine_manufacturer_id" .
+
+f1m:season_entrant_chassis__chassis_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_chassis.chassis_id" ;
+    rdfs:domain f1m:SeasonEntrantChassis ;
+    rdfs:range f1m:Chassis ;
+    f1:mapsToColumn "season_entrant_chassis.chassis_id" .
+
+f1m:season_entrant_tyre_manufacturer__year a owl:ObjectProperty ;
+    rdfs:label "season_entrant_tyre_manufacturer.year" ;
+    rdfs:domain f1m:SeasonEntrantTyreManufacturer ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "season_entrant_tyre_manufacturer.year" .
+
+f1m:season_entrant_tyre_manufacturer__entrant_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_tyre_manufacturer.entrant_id" ;
+    rdfs:domain f1m:SeasonEntrantTyreManufacturer ;
+    rdfs:range f1m:Entrant ;
+    f1:mapsToColumn "season_entrant_tyre_manufacturer.entrant_id" .
+
+f1m:season_entrant_tyre_manufacturer__constructor_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_tyre_manufacturer.constructor_id" ;
+    rdfs:domain f1m:SeasonEntrantTyreManufacturer ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "season_entrant_tyre_manufacturer.constructor_id" .
+
+f1m:season_entrant_tyre_manufacturer__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_tyre_manufacturer.engine_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantTyreManufacturer ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "season_entrant_tyre_manufacturer.engine_manufacturer_id" .
+
+f1m:season_entrant_tyre_manufacturer__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "season_entrant_tyre_manufacturer.tyre_manufacturer_id" ;
+    rdfs:domain f1m:SeasonEntrantTyreManufacturer ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "season_entrant_tyre_manufacturer.tyre_manufacturer_id" .
+
+f1m:race_driver_standing__race_id a owl:ObjectProperty ;
+    rdfs:label "race_driver_standing.race_id" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "race_driver_standing.race_id" .
+
+f1m:race_driver_standing__year a owl:ObjectProperty ;
+    rdfs:label "race_driver_standing.year" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "race_driver_standing.year" .
+
+f1m:race_driver_standing__driver_id a owl:ObjectProperty ;
+    rdfs:label "race_driver_standing.driver_id" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "race_driver_standing.driver_id" .
+
+f1m:race_constructor_standing__race_id a owl:ObjectProperty ;
+    rdfs:label "race_constructor_standing.race_id" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "race_constructor_standing.race_id" .
+
+f1m:race_constructor_standing__year a owl:ObjectProperty ;
+    rdfs:label "race_constructor_standing.year" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "race_constructor_standing.year" .
+
+f1m:race_constructor_standing__constructor_id a owl:ObjectProperty ;
+    rdfs:label "race_constructor_standing.constructor_id" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "race_constructor_standing.constructor_id" .
+
+f1m:race_constructor_standing__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "race_constructor_standing.engine_manufacturer_id" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "race_constructor_standing.engine_manufacturer_id" .
+
+f1m:free_practice_1_result__race_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.race_id" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "free_practice_1_result.race_id" .
+
+f1m:free_practice_1_result__year a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.year" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "free_practice_1_result.year" .
+
+f1m:free_practice_1_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.driver_id" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "free_practice_1_result.driver_id" .
+
+f1m:free_practice_1_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.constructor_id" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "free_practice_1_result.constructor_id" .
+
+f1m:free_practice_1_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "free_practice_1_result.engine_manufacturer_id" .
+
+f1m:free_practice_1_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_1_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "free_practice_1_result.tyre_manufacturer_id" .
+
+f1m:free_practice_2_result__race_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.race_id" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "free_practice_2_result.race_id" .
+
+f1m:free_practice_2_result__year a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.year" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "free_practice_2_result.year" .
+
+f1m:free_practice_2_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.driver_id" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "free_practice_2_result.driver_id" .
+
+f1m:free_practice_2_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.constructor_id" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "free_practice_2_result.constructor_id" .
+
+f1m:free_practice_2_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "free_practice_2_result.engine_manufacturer_id" .
+
+f1m:free_practice_2_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_2_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "free_practice_2_result.tyre_manufacturer_id" .
+
+f1m:free_practice_3_result__race_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.race_id" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "free_practice_3_result.race_id" .
+
+f1m:free_practice_3_result__year a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.year" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "free_practice_3_result.year" .
+
+f1m:free_practice_3_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.driver_id" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "free_practice_3_result.driver_id" .
+
+f1m:free_practice_3_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.constructor_id" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "free_practice_3_result.constructor_id" .
+
+f1m:free_practice_3_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "free_practice_3_result.engine_manufacturer_id" .
+
+f1m:free_practice_3_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_3_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "free_practice_3_result.tyre_manufacturer_id" .
+
+f1m:free_practice_4_result__race_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.race_id" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "free_practice_4_result.race_id" .
+
+f1m:free_practice_4_result__year a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.year" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "free_practice_4_result.year" .
+
+f1m:free_practice_4_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.driver_id" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "free_practice_4_result.driver_id" .
+
+f1m:free_practice_4_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.constructor_id" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "free_practice_4_result.constructor_id" .
+
+f1m:free_practice_4_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "free_practice_4_result.engine_manufacturer_id" .
+
+f1m:free_practice_4_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "free_practice_4_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "free_practice_4_result.tyre_manufacturer_id" .
+
+f1m:warming_up_result__race_id a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.race_id" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "warming_up_result.race_id" .
+
+f1m:warming_up_result__year a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.year" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "warming_up_result.year" .
+
+f1m:warming_up_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.driver_id" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "warming_up_result.driver_id" .
+
+f1m:warming_up_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.constructor_id" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "warming_up_result.constructor_id" .
+
+f1m:warming_up_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "warming_up_result.engine_manufacturer_id" .
+
+f1m:warming_up_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "warming_up_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "warming_up_result.tyre_manufacturer_id" .
+
+f1m:pre_qualifying_result__race_id a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.race_id" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "pre_qualifying_result.race_id" .
+
+f1m:pre_qualifying_result__year a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.year" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "pre_qualifying_result.year" .
+
+f1m:pre_qualifying_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.driver_id" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "pre_qualifying_result.driver_id" .
+
+f1m:pre_qualifying_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.constructor_id" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "pre_qualifying_result.constructor_id" .
+
+f1m:pre_qualifying_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "pre_qualifying_result.engine_manufacturer_id" .
+
+f1m:pre_qualifying_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "pre_qualifying_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "pre_qualifying_result.tyre_manufacturer_id" .
+
+f1m:qualifying_1_result__race_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.race_id" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "qualifying_1_result.race_id" .
+
+f1m:qualifying_1_result__year a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.year" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "qualifying_1_result.year" .
+
+f1m:qualifying_1_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.driver_id" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "qualifying_1_result.driver_id" .
+
+f1m:qualifying_1_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.constructor_id" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "qualifying_1_result.constructor_id" .
+
+f1m:qualifying_1_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "qualifying_1_result.engine_manufacturer_id" .
+
+f1m:qualifying_1_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_1_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "qualifying_1_result.tyre_manufacturer_id" .
+
+f1m:qualifying_2_result__race_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.race_id" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "qualifying_2_result.race_id" .
+
+f1m:qualifying_2_result__year a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.year" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "qualifying_2_result.year" .
+
+f1m:qualifying_2_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.driver_id" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "qualifying_2_result.driver_id" .
+
+f1m:qualifying_2_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.constructor_id" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "qualifying_2_result.constructor_id" .
+
+f1m:qualifying_2_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "qualifying_2_result.engine_manufacturer_id" .
+
+f1m:qualifying_2_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_2_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "qualifying_2_result.tyre_manufacturer_id" .
+
+f1m:qualifying_result__race_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.race_id" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "qualifying_result.race_id" .
+
+f1m:qualifying_result__year a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.year" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "qualifying_result.year" .
+
+f1m:qualifying_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.driver_id" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "qualifying_result.driver_id" .
+
+f1m:qualifying_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.constructor_id" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "qualifying_result.constructor_id" .
+
+f1m:qualifying_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "qualifying_result.engine_manufacturer_id" .
+
+f1m:qualifying_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "qualifying_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "qualifying_result.tyre_manufacturer_id" .
+
+f1m:sprint_qualifying_result__race_id a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.race_id" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "sprint_qualifying_result.race_id" .
+
+f1m:sprint_qualifying_result__year a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.year" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "sprint_qualifying_result.year" .
+
+f1m:sprint_qualifying_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.driver_id" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "sprint_qualifying_result.driver_id" .
+
+f1m:sprint_qualifying_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.constructor_id" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "sprint_qualifying_result.constructor_id" .
+
+f1m:sprint_qualifying_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "sprint_qualifying_result.engine_manufacturer_id" .
+
+f1m:sprint_qualifying_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_qualifying_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "sprint_qualifying_result.tyre_manufacturer_id" .
+
+f1m:starting_grid_position__race_id a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.race_id" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "starting_grid_position.race_id" .
+
+f1m:starting_grid_position__year a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.year" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "starting_grid_position.year" .
+
+f1m:starting_grid_position__driver_id a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.driver_id" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "starting_grid_position.driver_id" .
+
+f1m:starting_grid_position__constructor_id a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.constructor_id" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "starting_grid_position.constructor_id" .
+
+f1m:starting_grid_position__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.engine_manufacturer_id" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "starting_grid_position.engine_manufacturer_id" .
+
+f1m:starting_grid_position__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "starting_grid_position.tyre_manufacturer_id" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "starting_grid_position.tyre_manufacturer_id" .
+
+f1m:sprint_starting_grid_position__race_id a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.race_id" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "sprint_starting_grid_position.race_id" .
+
+f1m:sprint_starting_grid_position__year a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.year" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "sprint_starting_grid_position.year" .
+
+f1m:sprint_starting_grid_position__driver_id a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.driver_id" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "sprint_starting_grid_position.driver_id" .
+
+f1m:sprint_starting_grid_position__constructor_id a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.constructor_id" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "sprint_starting_grid_position.constructor_id" .
+
+f1m:sprint_starting_grid_position__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.engine_manufacturer_id" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "sprint_starting_grid_position.engine_manufacturer_id" .
+
+f1m:sprint_starting_grid_position__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_starting_grid_position.tyre_manufacturer_id" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "sprint_starting_grid_position.tyre_manufacturer_id" .
+
+f1m:race_result__race_id a owl:ObjectProperty ;
+    rdfs:label "race_result.race_id" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "race_result.race_id" .
+
+f1m:race_result__year a owl:ObjectProperty ;
+    rdfs:label "race_result.year" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "race_result.year" .
+
+f1m:race_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "race_result.driver_id" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "race_result.driver_id" .
+
+f1m:race_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "race_result.constructor_id" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "race_result.constructor_id" .
+
+f1m:race_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "race_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "race_result.engine_manufacturer_id" .
+
+f1m:race_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "race_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "race_result.tyre_manufacturer_id" .
+
+f1m:sprint_race_result__race_id a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.race_id" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "sprint_race_result.race_id" .
+
+f1m:sprint_race_result__year a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.year" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "sprint_race_result.year" .
+
+f1m:sprint_race_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.driver_id" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "sprint_race_result.driver_id" .
+
+f1m:sprint_race_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.constructor_id" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "sprint_race_result.constructor_id" .
+
+f1m:sprint_race_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "sprint_race_result.engine_manufacturer_id" .
+
+f1m:sprint_race_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "sprint_race_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "sprint_race_result.tyre_manufacturer_id" .
+
+f1m:fastest_lap__race_id a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.race_id" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "fastest_lap.race_id" .
+
+f1m:fastest_lap__year a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.year" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "fastest_lap.year" .
+
+f1m:fastest_lap__driver_id a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.driver_id" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "fastest_lap.driver_id" .
+
+f1m:fastest_lap__constructor_id a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.constructor_id" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "fastest_lap.constructor_id" .
+
+f1m:fastest_lap__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.engine_manufacturer_id" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "fastest_lap.engine_manufacturer_id" .
+
+f1m:fastest_lap__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "fastest_lap.tyre_manufacturer_id" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "fastest_lap.tyre_manufacturer_id" .
+
+f1m:pit_stop__race_id a owl:ObjectProperty ;
+    rdfs:label "pit_stop.race_id" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "pit_stop.race_id" .
+
+f1m:pit_stop__year a owl:ObjectProperty ;
+    rdfs:label "pit_stop.year" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "pit_stop.year" .
+
+f1m:pit_stop__driver_id a owl:ObjectProperty ;
+    rdfs:label "pit_stop.driver_id" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "pit_stop.driver_id" .
+
+f1m:pit_stop__constructor_id a owl:ObjectProperty ;
+    rdfs:label "pit_stop.constructor_id" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "pit_stop.constructor_id" .
+
+f1m:pit_stop__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "pit_stop.engine_manufacturer_id" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "pit_stop.engine_manufacturer_id" .
+
+f1m:pit_stop__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "pit_stop.tyre_manufacturer_id" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "pit_stop.tyre_manufacturer_id" .
+
+f1m:driver_of_the_day_result__race_id a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.race_id" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:Race ;
+    f1:mapsToColumn "driver_of_the_day_result.race_id" .
+
+f1m:driver_of_the_day_result__year a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.year" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:Season ;
+    f1:mapsToColumn "driver_of_the_day_result.year" .
+
+f1m:driver_of_the_day_result__driver_id a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.driver_id" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:Driver ;
+    f1:mapsToColumn "driver_of_the_day_result.driver_id" .
+
+f1m:driver_of_the_day_result__constructor_id a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.constructor_id" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:Constructor ;
+    f1:mapsToColumn "driver_of_the_day_result.constructor_id" .
+
+f1m:driver_of_the_day_result__engine_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.engine_manufacturer_id" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:EngineManufacturer ;
+    f1:mapsToColumn "driver_of_the_day_result.engine_manufacturer_id" .
+
+f1m:driver_of_the_day_result__tyre_manufacturer_id a owl:ObjectProperty ;
+    rdfs:label "driver_of_the_day_result.tyre_manufacturer_id" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range f1m:TyreManufacturer ;
+    f1:mapsToColumn "driver_of_the_day_result.tyre_manufacturer_id" .
+
+#### Datatype properties (non-FK columns) ####
+
+f1m:continent__id a owl:DatatypeProperty ;
+    rdfs:label "continent.id" ;
+    rdfs:domain f1m:Continent ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "continent.id" .
+
+f1m:continent__code a owl:DatatypeProperty ;
+    rdfs:label "continent.code" ;
+    rdfs:domain f1m:Continent ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "continent.code" .
+
+f1m:continent__name a owl:DatatypeProperty ;
+    rdfs:label "continent.name" ;
+    rdfs:domain f1m:Continent ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "continent.name" .
+
+f1m:continent__demonym a owl:DatatypeProperty ;
+    rdfs:label "continent.demonym" ;
+    rdfs:domain f1m:Continent ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "continent.demonym" .
+
+f1m:country__id a owl:DatatypeProperty ;
+    rdfs:label "country.id" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.id" .
+
+f1m:country__alpha2_code a owl:DatatypeProperty ;
+    rdfs:label "country.alpha2_code" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.alpha2_code" .
+
+f1m:country__alpha3_code a owl:DatatypeProperty ;
+    rdfs:label "country.alpha3_code" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.alpha3_code" .
+
+f1m:country__ioc_code a owl:DatatypeProperty ;
+    rdfs:label "country.ioc_code" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.ioc_code" .
+
+f1m:country__name a owl:DatatypeProperty ;
+    rdfs:label "country.name" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.name" .
+
+f1m:country__demonym a owl:DatatypeProperty ;
+    rdfs:label "country.demonym" ;
+    rdfs:domain f1m:Country ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "country.demonym" .
+
+f1m:circuit__id a owl:DatatypeProperty ;
+    rdfs:label "circuit.id" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.id" .
+
+f1m:circuit__name a owl:DatatypeProperty ;
+    rdfs:label "circuit.name" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.name" .
+
+f1m:circuit__full_name a owl:DatatypeProperty ;
+    rdfs:label "circuit.full_name" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.full_name" .
+
+f1m:circuit__previous_names a owl:DatatypeProperty ;
+    rdfs:label "circuit.previous_names" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.previous_names" .
+
+f1m:circuit__type a owl:DatatypeProperty ;
+    rdfs:label "circuit.type" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.type" .
+
+f1m:circuit__direction a owl:DatatypeProperty ;
+    rdfs:label "circuit.direction" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.direction" .
+
+f1m:circuit__place_name a owl:DatatypeProperty ;
+    rdfs:label "circuit.place_name" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit.place_name" .
+
+f1m:circuit__latitude a owl:DatatypeProperty ;
+    rdfs:label "circuit.latitude" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "circuit.latitude" .
+
+f1m:circuit__longitude a owl:DatatypeProperty ;
+    rdfs:label "circuit.longitude" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "circuit.longitude" .
+
+f1m:circuit__length a owl:DatatypeProperty ;
+    rdfs:label "circuit.length" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "circuit.length" .
+
+f1m:circuit__turns a owl:DatatypeProperty ;
+    rdfs:label "circuit.turns" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "circuit.turns" .
+
+f1m:circuit__total_races_held a owl:DatatypeProperty ;
+    rdfs:label "circuit.total_races_held" ;
+    rdfs:domain f1m:Circuit ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "circuit.total_races_held" .
+
+f1m:circuit_layout__id a owl:DatatypeProperty ;
+    rdfs:label "circuit_layout.id" ;
+    rdfs:domain f1m:CircuitLayout ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "circuit_layout.id" .
+
+f1m:circuit_layout__effective a owl:DatatypeProperty ;
+    rdfs:label "circuit_layout.effective" ;
+    rdfs:domain f1m:CircuitLayout ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "circuit_layout.effective" .
+
+f1m:circuit_layout__length a owl:DatatypeProperty ;
+    rdfs:label "circuit_layout.length" ;
+    rdfs:domain f1m:CircuitLayout ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "circuit_layout.length" .
+
+f1m:circuit_layout__turns a owl:DatatypeProperty ;
+    rdfs:label "circuit_layout.turns" ;
+    rdfs:domain f1m:CircuitLayout ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "circuit_layout.turns" .
+
+f1m:grand_prix__id a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.id" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "grand_prix.id" .
+
+f1m:grand_prix__name a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.name" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "grand_prix.name" .
+
+f1m:grand_prix__full_name a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.full_name" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "grand_prix.full_name" .
+
+f1m:grand_prix__short_name a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.short_name" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "grand_prix.short_name" .
+
+f1m:grand_prix__abbreviation a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.abbreviation" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "grand_prix.abbreviation" .
+
+f1m:grand_prix__total_races_held a owl:DatatypeProperty ;
+    rdfs:label "grand_prix.total_races_held" ;
+    rdfs:domain f1m:GrandPrix ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "grand_prix.total_races_held" .
+
+f1m:constructor__id a owl:DatatypeProperty ;
+    rdfs:label "constructor.id" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "constructor.id" .
+
+f1m:constructor__name a owl:DatatypeProperty ;
+    rdfs:label "constructor.name" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "constructor.name" .
+
+f1m:constructor__full_name a owl:DatatypeProperty ;
+    rdfs:label "constructor.full_name" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "constructor.full_name" .
+
+f1m:constructor__best_championship_position a owl:DatatypeProperty ;
+    rdfs:label "constructor.best_championship_position" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.best_championship_position" .
+
+f1m:constructor__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "constructor.best_starting_grid_position" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.best_starting_grid_position" .
+
+f1m:constructor__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "constructor.best_race_result" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.best_race_result" .
+
+f1m:constructor__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "constructor.best_sprint_race_result" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.best_sprint_race_result" .
+
+f1m:constructor__total_championship_wins a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_championship_wins" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_championship_wins" .
+
+f1m:constructor__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_race_entries" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_race_entries" .
+
+f1m:constructor__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_race_starts" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_race_starts" .
+
+f1m:constructor__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_race_wins" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_race_wins" .
+
+f1m:constructor__total1_and2_finishes a owl:DatatypeProperty ;
+    rdfs:label "constructor.total1_and2_finishes" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total1_and2_finishes" .
+
+f1m:constructor__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_race_laps" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_race_laps" .
+
+f1m:constructor__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_podiums" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_podiums" .
+
+f1m:constructor__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_podium_races" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_podium_races" .
+
+f1m:constructor__total_points a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_points" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "constructor.total_points" .
+
+f1m:constructor__total_championship_points a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_championship_points" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "constructor.total_championship_points" .
+
+f1m:constructor__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_pole_positions" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_pole_positions" .
+
+f1m:constructor__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_fastest_laps" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_fastest_laps" .
+
+f1m:constructor__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_sprint_race_starts" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_sprint_race_starts" .
+
+f1m:constructor__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "constructor.total_sprint_race_wins" ;
+    rdfs:domain f1m:Constructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor.total_sprint_race_wins" .
+
+f1m:constructor_chronology__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "constructor_chronology.position_display_order" ;
+    rdfs:domain f1m:ConstructorChronology ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor_chronology.position_display_order" .
+
+f1m:constructor_chronology__year_from a owl:DatatypeProperty ;
+    rdfs:label "constructor_chronology.year_from" ;
+    rdfs:domain f1m:ConstructorChronology ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor_chronology.year_from" .
+
+f1m:constructor_chronology__year_to a owl:DatatypeProperty ;
+    rdfs:label "constructor_chronology.year_to" ;
+    rdfs:domain f1m:ConstructorChronology ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "constructor_chronology.year_to" .
+
+f1m:chassis__id a owl:DatatypeProperty ;
+    rdfs:label "chassis.id" ;
+    rdfs:domain f1m:Chassis ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "chassis.id" .
+
+f1m:chassis__name a owl:DatatypeProperty ;
+    rdfs:label "chassis.name" ;
+    rdfs:domain f1m:Chassis ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "chassis.name" .
+
+f1m:chassis__full_name a owl:DatatypeProperty ;
+    rdfs:label "chassis.full_name" ;
+    rdfs:domain f1m:Chassis ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "chassis.full_name" .
+
+f1m:engine_manufacturer__id a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.id" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine_manufacturer.id" .
+
+f1m:engine_manufacturer__name a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.name" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine_manufacturer.name" .
+
+f1m:engine_manufacturer__best_championship_position a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.best_championship_position" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.best_championship_position" .
+
+f1m:engine_manufacturer__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.best_starting_grid_position" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.best_starting_grid_position" .
+
+f1m:engine_manufacturer__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.best_race_result" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.best_race_result" .
+
+f1m:engine_manufacturer__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.best_sprint_race_result" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.best_sprint_race_result" .
+
+f1m:engine_manufacturer__total_championship_wins a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_championship_wins" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_championship_wins" .
+
+f1m:engine_manufacturer__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_race_entries" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_race_entries" .
+
+f1m:engine_manufacturer__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_race_starts" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_race_starts" .
+
+f1m:engine_manufacturer__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_race_wins" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_race_wins" .
+
+f1m:engine_manufacturer__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_race_laps" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_race_laps" .
+
+f1m:engine_manufacturer__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_podiums" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_podiums" .
+
+f1m:engine_manufacturer__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_podium_races" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_podium_races" .
+
+f1m:engine_manufacturer__total_points a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_points" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "engine_manufacturer.total_points" .
+
+f1m:engine_manufacturer__total_championship_points a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_championship_points" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "engine_manufacturer.total_championship_points" .
+
+f1m:engine_manufacturer__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_pole_positions" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_pole_positions" .
+
+f1m:engine_manufacturer__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_fastest_laps" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_fastest_laps" .
+
+f1m:engine_manufacturer__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_sprint_race_starts" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_sprint_race_starts" .
+
+f1m:engine_manufacturer__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "engine_manufacturer.total_sprint_race_wins" ;
+    rdfs:domain f1m:EngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "engine_manufacturer.total_sprint_race_wins" .
+
+f1m:engine__id a owl:DatatypeProperty ;
+    rdfs:label "engine.id" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine.id" .
+
+f1m:engine__name a owl:DatatypeProperty ;
+    rdfs:label "engine.name" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine.name" .
+
+f1m:engine__full_name a owl:DatatypeProperty ;
+    rdfs:label "engine.full_name" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine.full_name" .
+
+f1m:engine__capacity a owl:DatatypeProperty ;
+    rdfs:label "engine.capacity" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "engine.capacity" .
+
+f1m:engine__configuration a owl:DatatypeProperty ;
+    rdfs:label "engine.configuration" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine.configuration" .
+
+f1m:engine__aspiration a owl:DatatypeProperty ;
+    rdfs:label "engine.aspiration" ;
+    rdfs:domain f1m:Engine ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "engine.aspiration" .
+
+f1m:tyre_manufacturer__id a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.id" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "tyre_manufacturer.id" .
+
+f1m:tyre_manufacturer__name a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.name" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "tyre_manufacturer.name" .
+
+f1m:tyre_manufacturer__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.best_starting_grid_position" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.best_starting_grid_position" .
+
+f1m:tyre_manufacturer__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.best_race_result" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.best_race_result" .
+
+f1m:tyre_manufacturer__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.best_sprint_race_result" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.best_sprint_race_result" .
+
+f1m:tyre_manufacturer__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_race_entries" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_race_entries" .
+
+f1m:tyre_manufacturer__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_race_starts" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_race_starts" .
+
+f1m:tyre_manufacturer__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_race_wins" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_race_wins" .
+
+f1m:tyre_manufacturer__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_race_laps" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_race_laps" .
+
+f1m:tyre_manufacturer__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_podiums" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_podiums" .
+
+f1m:tyre_manufacturer__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_podium_races" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_podium_races" .
+
+f1m:tyre_manufacturer__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_pole_positions" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_pole_positions" .
+
+f1m:tyre_manufacturer__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_fastest_laps" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_fastest_laps" .
+
+f1m:tyre_manufacturer__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_sprint_race_starts" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_sprint_race_starts" .
+
+f1m:tyre_manufacturer__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "tyre_manufacturer.total_sprint_race_wins" ;
+    rdfs:domain f1m:TyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "tyre_manufacturer.total_sprint_race_wins" .
+
+f1m:entrant__id a owl:DatatypeProperty ;
+    rdfs:label "entrant.id" ;
+    rdfs:domain f1m:Entrant ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "entrant.id" .
+
+f1m:entrant__name a owl:DatatypeProperty ;
+    rdfs:label "entrant.name" ;
+    rdfs:domain f1m:Entrant ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "entrant.name" .
+
+f1m:driver__id a owl:DatatypeProperty ;
+    rdfs:label "driver.id" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.id" .
+
+f1m:driver__name a owl:DatatypeProperty ;
+    rdfs:label "driver.name" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.name" .
+
+f1m:driver__first_name a owl:DatatypeProperty ;
+    rdfs:label "driver.first_name" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.first_name" .
+
+f1m:driver__last_name a owl:DatatypeProperty ;
+    rdfs:label "driver.last_name" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.last_name" .
+
+f1m:driver__full_name a owl:DatatypeProperty ;
+    rdfs:label "driver.full_name" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.full_name" .
+
+f1m:driver__abbreviation a owl:DatatypeProperty ;
+    rdfs:label "driver.abbreviation" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.abbreviation" .
+
+f1m:driver__permanent_number a owl:DatatypeProperty ;
+    rdfs:label "driver.permanent_number" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.permanent_number" .
+
+f1m:driver__gender a owl:DatatypeProperty ;
+    rdfs:label "driver.gender" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.gender" .
+
+f1m:driver__date_of_birth a owl:DatatypeProperty ;
+    rdfs:label "driver.date_of_birth" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "driver.date_of_birth" .
+
+f1m:driver__date_of_death a owl:DatatypeProperty ;
+    rdfs:label "driver.date_of_death" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "driver.date_of_death" .
+
+f1m:driver__place_of_birth a owl:DatatypeProperty ;
+    rdfs:label "driver.place_of_birth" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver.place_of_birth" .
+
+f1m:driver__best_championship_position a owl:DatatypeProperty ;
+    rdfs:label "driver.best_championship_position" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.best_championship_position" .
+
+f1m:driver__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "driver.best_starting_grid_position" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.best_starting_grid_position" .
+
+f1m:driver__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "driver.best_race_result" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.best_race_result" .
+
+f1m:driver__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "driver.best_sprint_race_result" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.best_sprint_race_result" .
+
+f1m:driver__total_championship_wins a owl:DatatypeProperty ;
+    rdfs:label "driver.total_championship_wins" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_championship_wins" .
+
+f1m:driver__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "driver.total_race_entries" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_race_entries" .
+
+f1m:driver__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "driver.total_race_starts" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_race_starts" .
+
+f1m:driver__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "driver.total_race_wins" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_race_wins" .
+
+f1m:driver__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "driver.total_race_laps" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_race_laps" .
+
+f1m:driver__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "driver.total_podiums" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_podiums" .
+
+f1m:driver__total_points a owl:DatatypeProperty ;
+    rdfs:label "driver.total_points" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "driver.total_points" .
+
+f1m:driver__total_championship_points a owl:DatatypeProperty ;
+    rdfs:label "driver.total_championship_points" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "driver.total_championship_points" .
+
+f1m:driver__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "driver.total_pole_positions" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_pole_positions" .
+
+f1m:driver__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "driver.total_fastest_laps" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_fastest_laps" .
+
+f1m:driver__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "driver.total_sprint_race_starts" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_sprint_race_starts" .
+
+f1m:driver__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "driver.total_sprint_race_wins" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_sprint_race_wins" .
+
+f1m:driver__total_driver_of_the_day a owl:DatatypeProperty ;
+    rdfs:label "driver.total_driver_of_the_day" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_driver_of_the_day" .
+
+f1m:driver__total_grand_slams a owl:DatatypeProperty ;
+    rdfs:label "driver.total_grand_slams" ;
+    rdfs:domain f1m:Driver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver.total_grand_slams" .
+
+f1m:driver_family_relationship__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "driver_family_relationship.position_display_order" ;
+    rdfs:domain f1m:DriverFamilyRelationship ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_family_relationship.position_display_order" .
+
+f1m:driver_family_relationship__type a owl:DatatypeProperty ;
+    rdfs:label "driver_family_relationship.type" ;
+    rdfs:domain f1m:DriverFamilyRelationship ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "driver_family_relationship.type" .
+
+f1m:season__year a owl:DatatypeProperty ;
+    rdfs:label "season.year" ;
+    rdfs:domain f1m:Season ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season.year" .
+
+f1m:race__id a owl:DatatypeProperty ;
+    rdfs:label "race.id" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race.id" .
+
+f1m:race__round a owl:DatatypeProperty ;
+    rdfs:label "race.round" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race.round" .
+
+f1m:race__date a owl:DatatypeProperty ;
+    rdfs:label "race.date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.date" .
+
+f1m:race__time a owl:DatatypeProperty ;
+    rdfs:label "race.time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.time" .
+
+f1m:race__official_name a owl:DatatypeProperty ;
+    rdfs:label "race.official_name" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.official_name" .
+
+f1m:race__qualifying_format a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying_format" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying_format" .
+
+f1m:race__sprint_qualifying_format a owl:DatatypeProperty ;
+    rdfs:label "race.sprint_qualifying_format" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.sprint_qualifying_format" .
+
+f1m:race__circuit_type a owl:DatatypeProperty ;
+    rdfs:label "race.circuit_type" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.circuit_type" .
+
+f1m:race__direction a owl:DatatypeProperty ;
+    rdfs:label "race.direction" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.direction" .
+
+f1m:race__course_length a owl:DatatypeProperty ;
+    rdfs:label "race.course_length" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race.course_length" .
+
+f1m:race__turns a owl:DatatypeProperty ;
+    rdfs:label "race.turns" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race.turns" .
+
+f1m:race__laps a owl:DatatypeProperty ;
+    rdfs:label "race.laps" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race.laps" .
+
+f1m:race__distance a owl:DatatypeProperty ;
+    rdfs:label "race.distance" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race.distance" .
+
+f1m:race__scheduled_laps a owl:DatatypeProperty ;
+    rdfs:label "race.scheduled_laps" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race.scheduled_laps" .
+
+f1m:race__scheduled_distance a owl:DatatypeProperty ;
+    rdfs:label "race.scheduled_distance" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race.scheduled_distance" .
+
+f1m:race__drivers_championship_decider a owl:DatatypeProperty ;
+    rdfs:label "race.drivers_championship_decider" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race.drivers_championship_decider" .
+
+f1m:race__constructors_championship_decider a owl:DatatypeProperty ;
+    rdfs:label "race.constructors_championship_decider" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race.constructors_championship_decider" .
+
+f1m:race__pre_qualifying_date a owl:DatatypeProperty ;
+    rdfs:label "race.pre_qualifying_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.pre_qualifying_date" .
+
+f1m:race__pre_qualifying_time a owl:DatatypeProperty ;
+    rdfs:label "race.pre_qualifying_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.pre_qualifying_time" .
+
+f1m:race__free_practice1_date a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice1_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.free_practice1_date" .
+
+f1m:race__free_practice1_time a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice1_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.free_practice1_time" .
+
+f1m:race__free_practice2_date a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice2_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.free_practice2_date" .
+
+f1m:race__free_practice2_time a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice2_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.free_practice2_time" .
+
+f1m:race__free_practice3_date a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice3_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.free_practice3_date" .
+
+f1m:race__free_practice3_time a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice3_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.free_practice3_time" .
+
+f1m:race__free_practice4_date a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice4_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.free_practice4_date" .
+
+f1m:race__free_practice4_time a owl:DatatypeProperty ;
+    rdfs:label "race.free_practice4_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.free_practice4_time" .
+
+f1m:race__qualifying1_date a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying1_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying1_date" .
+
+f1m:race__qualifying1_time a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying1_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying1_time" .
+
+f1m:race__qualifying2_date a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying2_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying2_date" .
+
+f1m:race__qualifying2_time a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying2_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying2_time" .
+
+f1m:race__qualifying_date a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.qualifying_date" .
+
+f1m:race__qualifying_time a owl:DatatypeProperty ;
+    rdfs:label "race.qualifying_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.qualifying_time" .
+
+f1m:race__sprint_qualifying_date a owl:DatatypeProperty ;
+    rdfs:label "race.sprint_qualifying_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.sprint_qualifying_date" .
+
+f1m:race__sprint_qualifying_time a owl:DatatypeProperty ;
+    rdfs:label "race.sprint_qualifying_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.sprint_qualifying_time" .
+
+f1m:race__sprint_race_date a owl:DatatypeProperty ;
+    rdfs:label "race.sprint_race_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:date ;
+    f1:mapsToColumn "race.sprint_race_date" .
+
+f1m:race__sprint_race_time a owl:DatatypeProperty ;
+    rdfs:label "race.sprint_race_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.sprint_race_time" .
+
+f1m:race__warming_up_date a owl:DatatypeProperty ;
+    rdfs:label "race.warming_up_date" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.warming_up_date" .
+
+f1m:race__warming_up_time a owl:DatatypeProperty ;
+    rdfs:label "race.warming_up_time" ;
+    rdfs:domain f1m:Race ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race.warming_up_time" .
+
+f1m:season_driver__position_number a owl:DatatypeProperty ;
+    rdfs:label "season_driver.position_number" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.position_number" .
+
+f1m:season_driver__position_text a owl:DatatypeProperty ;
+    rdfs:label "season_driver.position_text" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_driver.position_text" .
+
+f1m:season_driver__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "season_driver.best_starting_grid_position" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.best_starting_grid_position" .
+
+f1m:season_driver__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_driver.best_race_result" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.best_race_result" .
+
+f1m:season_driver__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_driver.best_sprint_race_result" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.best_sprint_race_result" .
+
+f1m:season_driver__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_race_entries" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_race_entries" .
+
+f1m:season_driver__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_race_starts" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_race_starts" .
+
+f1m:season_driver__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_race_wins" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_race_wins" .
+
+f1m:season_driver__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_race_laps" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_race_laps" .
+
+f1m:season_driver__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_podiums" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_podiums" .
+
+f1m:season_driver__total_points a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_points" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "season_driver.total_points" .
+
+f1m:season_driver__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_pole_positions" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_pole_positions" .
+
+f1m:season_driver__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_fastest_laps" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_fastest_laps" .
+
+f1m:season_driver__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_sprint_race_starts" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_sprint_race_starts" .
+
+f1m:season_driver__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_sprint_race_wins" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_sprint_race_wins" .
+
+f1m:season_driver__total_driver_of_the_day a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_driver_of_the_day" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_driver_of_the_day" .
+
+f1m:season_driver__total_grand_slams a owl:DatatypeProperty ;
+    rdfs:label "season_driver.total_grand_slams" ;
+    rdfs:domain f1m:SeasonDriver ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver.total_grand_slams" .
+
+f1m:season_constructor__position_number a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.position_number" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.position_number" .
+
+f1m:season_constructor__position_text a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.position_text" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_constructor.position_text" .
+
+f1m:season_constructor__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.best_starting_grid_position" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.best_starting_grid_position" .
+
+f1m:season_constructor__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.best_race_result" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.best_race_result" .
+
+f1m:season_constructor__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.best_sprint_race_result" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.best_sprint_race_result" .
+
+f1m:season_constructor__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_race_entries" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_race_entries" .
+
+f1m:season_constructor__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_race_starts" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_race_starts" .
+
+f1m:season_constructor__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_race_wins" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_race_wins" .
+
+f1m:season_constructor__total1_and2_finishes a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total1_and2_finishes" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total1_and2_finishes" .
+
+f1m:season_constructor__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_race_laps" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_race_laps" .
+
+f1m:season_constructor__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_podiums" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_podiums" .
+
+f1m:season_constructor__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_podium_races" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_podium_races" .
+
+f1m:season_constructor__total_points a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_points" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "season_constructor.total_points" .
+
+f1m:season_constructor__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_pole_positions" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_pole_positions" .
+
+f1m:season_constructor__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_fastest_laps" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_fastest_laps" .
+
+f1m:season_constructor__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_sprint_race_starts" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_sprint_race_starts" .
+
+f1m:season_constructor__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_constructor.total_sprint_race_wins" ;
+    rdfs:domain f1m:SeasonConstructor ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor.total_sprint_race_wins" .
+
+f1m:season_engine_manufacturer__position_number a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.position_number" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.position_number" .
+
+f1m:season_engine_manufacturer__position_text a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.position_text" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_engine_manufacturer.position_text" .
+
+f1m:season_engine_manufacturer__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.best_starting_grid_position" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.best_starting_grid_position" .
+
+f1m:season_engine_manufacturer__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.best_race_result" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.best_race_result" .
+
+f1m:season_engine_manufacturer__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.best_sprint_race_result" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.best_sprint_race_result" .
+
+f1m:season_engine_manufacturer__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_race_entries" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_race_entries" .
+
+f1m:season_engine_manufacturer__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_race_starts" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_race_starts" .
+
+f1m:season_engine_manufacturer__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_race_wins" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_race_wins" .
+
+f1m:season_engine_manufacturer__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_race_laps" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_race_laps" .
+
+f1m:season_engine_manufacturer__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_podiums" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_podiums" .
+
+f1m:season_engine_manufacturer__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_podium_races" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_podium_races" .
+
+f1m:season_engine_manufacturer__total_points a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_points" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "season_engine_manufacturer.total_points" .
+
+f1m:season_engine_manufacturer__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_pole_positions" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_pole_positions" .
+
+f1m:season_engine_manufacturer__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_fastest_laps" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_fastest_laps" .
+
+f1m:season_engine_manufacturer__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_sprint_race_starts" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_sprint_race_starts" .
+
+f1m:season_engine_manufacturer__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_engine_manufacturer.total_sprint_race_wins" ;
+    rdfs:domain f1m:SeasonEngineManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_engine_manufacturer.total_sprint_race_wins" .
+
+f1m:season_tyre_manufacturer__best_starting_grid_position a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.best_starting_grid_position" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.best_starting_grid_position" .
+
+f1m:season_tyre_manufacturer__best_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.best_race_result" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.best_race_result" .
+
+f1m:season_tyre_manufacturer__best_sprint_race_result a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.best_sprint_race_result" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.best_sprint_race_result" .
+
+f1m:season_tyre_manufacturer__total_race_entries a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_race_entries" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_race_entries" .
+
+f1m:season_tyre_manufacturer__total_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_race_starts" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_race_starts" .
+
+f1m:season_tyre_manufacturer__total_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_race_wins" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_race_wins" .
+
+f1m:season_tyre_manufacturer__total_race_laps a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_race_laps" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_race_laps" .
+
+f1m:season_tyre_manufacturer__total_podiums a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_podiums" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_podiums" .
+
+f1m:season_tyre_manufacturer__total_podium_races a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_podium_races" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_podium_races" .
+
+f1m:season_tyre_manufacturer__total_pole_positions a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_pole_positions" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_pole_positions" .
+
+f1m:season_tyre_manufacturer__total_fastest_laps a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_fastest_laps" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_fastest_laps" .
+
+f1m:season_tyre_manufacturer__total_sprint_race_starts a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_sprint_race_starts" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_sprint_race_starts" .
+
+f1m:season_tyre_manufacturer__total_sprint_race_wins a owl:DatatypeProperty ;
+    rdfs:label "season_tyre_manufacturer.total_sprint_race_wins" ;
+    rdfs:domain f1m:SeasonTyreManufacturer ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_tyre_manufacturer.total_sprint_race_wins" .
+
+f1m:season_driver_standing__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "season_driver_standing.position_display_order" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver_standing.position_display_order" .
+
+f1m:season_driver_standing__position_number a owl:DatatypeProperty ;
+    rdfs:label "season_driver_standing.position_number" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_driver_standing.position_number" .
+
+f1m:season_driver_standing__position_text a owl:DatatypeProperty ;
+    rdfs:label "season_driver_standing.position_text" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_driver_standing.position_text" .
+
+f1m:season_driver_standing__points a owl:DatatypeProperty ;
+    rdfs:label "season_driver_standing.points" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "season_driver_standing.points" .
+
+f1m:season_driver_standing__championship_won a owl:DatatypeProperty ;
+    rdfs:label "season_driver_standing.championship_won" ;
+    rdfs:domain f1m:SeasonDriverStanding ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "season_driver_standing.championship_won" .
+
+f1m:season_constructor_standing__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "season_constructor_standing.position_display_order" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor_standing.position_display_order" .
+
+f1m:season_constructor_standing__position_number a owl:DatatypeProperty ;
+    rdfs:label "season_constructor_standing.position_number" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "season_constructor_standing.position_number" .
+
+f1m:season_constructor_standing__position_text a owl:DatatypeProperty ;
+    rdfs:label "season_constructor_standing.position_text" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_constructor_standing.position_text" .
+
+f1m:season_constructor_standing__points a owl:DatatypeProperty ;
+    rdfs:label "season_constructor_standing.points" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "season_constructor_standing.points" .
+
+f1m:season_constructor_standing__championship_won a owl:DatatypeProperty ;
+    rdfs:label "season_constructor_standing.championship_won" ;
+    rdfs:domain f1m:SeasonConstructorStanding ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "season_constructor_standing.championship_won" .
+
+f1m:season_entrant_driver__rounds a owl:DatatypeProperty ;
+    rdfs:label "season_entrant_driver.rounds" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_entrant_driver.rounds" .
+
+f1m:season_entrant_driver__rounds_text a owl:DatatypeProperty ;
+    rdfs:label "season_entrant_driver.rounds_text" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "season_entrant_driver.rounds_text" .
+
+f1m:season_entrant_driver__test_driver a owl:DatatypeProperty ;
+    rdfs:label "season_entrant_driver.test_driver" ;
+    rdfs:domain f1m:SeasonEntrantDriver ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "season_entrant_driver.test_driver" .
+
+f1m:race_driver_standing__round a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.round" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_driver_standing.round" .
+
+f1m:race_driver_standing__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.position_display_order" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_driver_standing.position_display_order" .
+
+f1m:race_driver_standing__position_number a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.position_number" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_driver_standing.position_number" .
+
+f1m:race_driver_standing__position_text a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.position_text" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_driver_standing.position_text" .
+
+f1m:race_driver_standing__points a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.points" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race_driver_standing.points" .
+
+f1m:race_driver_standing__positions_gained a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.positions_gained" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_driver_standing.positions_gained" .
+
+f1m:race_driver_standing__championship_won a owl:DatatypeProperty ;
+    rdfs:label "race_driver_standing.championship_won" ;
+    rdfs:domain f1m:RaceDriverStanding ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_driver_standing.championship_won" .
+
+f1m:race_constructor_standing__round a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.round" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_constructor_standing.round" .
+
+f1m:race_constructor_standing__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.position_display_order" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_constructor_standing.position_display_order" .
+
+f1m:race_constructor_standing__position_number a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.position_number" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_constructor_standing.position_number" .
+
+f1m:race_constructor_standing__position_text a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.position_text" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_constructor_standing.position_text" .
+
+f1m:race_constructor_standing__points a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.points" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race_constructor_standing.points" .
+
+f1m:race_constructor_standing__positions_gained a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.positions_gained" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_constructor_standing.positions_gained" .
+
+f1m:race_constructor_standing__championship_won a owl:DatatypeProperty ;
+    rdfs:label "race_constructor_standing.championship_won" ;
+    rdfs:domain f1m:RaceConstructorStanding ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_constructor_standing.championship_won" .
+
+f1m:free_practice_1_result__round a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.round" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.round" .
+
+f1m:free_practice_1_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.position_display_order" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.position_display_order" .
+
+f1m:free_practice_1_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.position_number" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.position_number" .
+
+f1m:free_practice_1_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.position_text" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.position_text" .
+
+f1m:free_practice_1_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.driver_number" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.driver_number" .
+
+f1m:free_practice_1_result__time a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.time" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_1_result.time" .
+
+f1m:free_practice_1_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.time_millis" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.time_millis" .
+
+f1m:free_practice_1_result__gap a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.gap" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_1_result.gap" .
+
+f1m:free_practice_1_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.gap_millis" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.gap_millis" .
+
+f1m:free_practice_1_result__interval a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.interval" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_1_result.interval" .
+
+f1m:free_practice_1_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.interval_millis" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.interval_millis" .
+
+f1m:free_practice_1_result__laps a owl:DatatypeProperty ;
+    rdfs:label "free_practice_1_result.laps" ;
+    rdfs:domain f1m:FreePractice1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_1_result.laps" .
+
+f1m:free_practice_2_result__round a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.round" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.round" .
+
+f1m:free_practice_2_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.position_display_order" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.position_display_order" .
+
+f1m:free_practice_2_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.position_number" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.position_number" .
+
+f1m:free_practice_2_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.position_text" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.position_text" .
+
+f1m:free_practice_2_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.driver_number" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.driver_number" .
+
+f1m:free_practice_2_result__time a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.time" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_2_result.time" .
+
+f1m:free_practice_2_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.time_millis" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.time_millis" .
+
+f1m:free_practice_2_result__gap a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.gap" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_2_result.gap" .
+
+f1m:free_practice_2_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.gap_millis" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.gap_millis" .
+
+f1m:free_practice_2_result__interval a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.interval" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_2_result.interval" .
+
+f1m:free_practice_2_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.interval_millis" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.interval_millis" .
+
+f1m:free_practice_2_result__laps a owl:DatatypeProperty ;
+    rdfs:label "free_practice_2_result.laps" ;
+    rdfs:domain f1m:FreePractice2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_2_result.laps" .
+
+f1m:free_practice_3_result__round a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.round" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.round" .
+
+f1m:free_practice_3_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.position_display_order" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.position_display_order" .
+
+f1m:free_practice_3_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.position_number" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.position_number" .
+
+f1m:free_practice_3_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.position_text" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.position_text" .
+
+f1m:free_practice_3_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.driver_number" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.driver_number" .
+
+f1m:free_practice_3_result__time a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.time" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_3_result.time" .
+
+f1m:free_practice_3_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.time_millis" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.time_millis" .
+
+f1m:free_practice_3_result__gap a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.gap" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_3_result.gap" .
+
+f1m:free_practice_3_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.gap_millis" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.gap_millis" .
+
+f1m:free_practice_3_result__interval a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.interval" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_3_result.interval" .
+
+f1m:free_practice_3_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.interval_millis" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.interval_millis" .
+
+f1m:free_practice_3_result__laps a owl:DatatypeProperty ;
+    rdfs:label "free_practice_3_result.laps" ;
+    rdfs:domain f1m:FreePractice3Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_3_result.laps" .
+
+f1m:free_practice_4_result__round a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.round" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.round" .
+
+f1m:free_practice_4_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.position_display_order" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.position_display_order" .
+
+f1m:free_practice_4_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.position_number" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.position_number" .
+
+f1m:free_practice_4_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.position_text" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.position_text" .
+
+f1m:free_practice_4_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.driver_number" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.driver_number" .
+
+f1m:free_practice_4_result__time a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.time" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_4_result.time" .
+
+f1m:free_practice_4_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.time_millis" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.time_millis" .
+
+f1m:free_practice_4_result__gap a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.gap" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_4_result.gap" .
+
+f1m:free_practice_4_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.gap_millis" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.gap_millis" .
+
+f1m:free_practice_4_result__interval a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.interval" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "free_practice_4_result.interval" .
+
+f1m:free_practice_4_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.interval_millis" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.interval_millis" .
+
+f1m:free_practice_4_result__laps a owl:DatatypeProperty ;
+    rdfs:label "free_practice_4_result.laps" ;
+    rdfs:domain f1m:FreePractice4Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "free_practice_4_result.laps" .
+
+f1m:warming_up_result__round a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.round" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.round" .
+
+f1m:warming_up_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.position_display_order" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.position_display_order" .
+
+f1m:warming_up_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.position_number" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.position_number" .
+
+f1m:warming_up_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.position_text" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.position_text" .
+
+f1m:warming_up_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.driver_number" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.driver_number" .
+
+f1m:warming_up_result__time a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.time" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "warming_up_result.time" .
+
+f1m:warming_up_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.time_millis" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.time_millis" .
+
+f1m:warming_up_result__gap a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.gap" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "warming_up_result.gap" .
+
+f1m:warming_up_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.gap_millis" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.gap_millis" .
+
+f1m:warming_up_result__interval a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.interval" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "warming_up_result.interval" .
+
+f1m:warming_up_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.interval_millis" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.interval_millis" .
+
+f1m:warming_up_result__laps a owl:DatatypeProperty ;
+    rdfs:label "warming_up_result.laps" ;
+    rdfs:domain f1m:WarmingUpResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "warming_up_result.laps" .
+
+f1m:pre_qualifying_result__round a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.round" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.round" .
+
+f1m:pre_qualifying_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.position_display_order" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.position_display_order" .
+
+f1m:pre_qualifying_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.position_number" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.position_number" .
+
+f1m:pre_qualifying_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.position_text" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.position_text" .
+
+f1m:pre_qualifying_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.driver_number" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.driver_number" .
+
+f1m:pre_qualifying_result__time a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.time" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.time" .
+
+f1m:pre_qualifying_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.time_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.time_millis" .
+
+f1m:pre_qualifying_result__q1 a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q1" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q1" .
+
+f1m:pre_qualifying_result__q1_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q1_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q1_millis" .
+
+f1m:pre_qualifying_result__q2 a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q2" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q2" .
+
+f1m:pre_qualifying_result__q2_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q2_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q2_millis" .
+
+f1m:pre_qualifying_result__q3 a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q3" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q3" .
+
+f1m:pre_qualifying_result__q3_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.q3_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.q3_millis" .
+
+f1m:pre_qualifying_result__gap a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.gap" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.gap" .
+
+f1m:pre_qualifying_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.gap_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.gap_millis" .
+
+f1m:pre_qualifying_result__interval a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.interval" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.interval" .
+
+f1m:pre_qualifying_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.interval_millis" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pre_qualifying_result.interval_millis" .
+
+f1m:pre_qualifying_result__laps a owl:DatatypeProperty ;
+    rdfs:label "pre_qualifying_result.laps" ;
+    rdfs:domain f1m:PreQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pre_qualifying_result.laps" .
+
+f1m:qualifying_1_result__round a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.round" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.round" .
+
+f1m:qualifying_1_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.position_display_order" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.position_display_order" .
+
+f1m:qualifying_1_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.position_number" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.position_number" .
+
+f1m:qualifying_1_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.position_text" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.position_text" .
+
+f1m:qualifying_1_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.driver_number" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.driver_number" .
+
+f1m:qualifying_1_result__time a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.time" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.time" .
+
+f1m:qualifying_1_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.time_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.time_millis" .
+
+f1m:qualifying_1_result__q1 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q1" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q1" .
+
+f1m:qualifying_1_result__q1_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q1_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q1_millis" .
+
+f1m:qualifying_1_result__q2 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q2" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q2" .
+
+f1m:qualifying_1_result__q2_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q2_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q2_millis" .
+
+f1m:qualifying_1_result__q3 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q3" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q3" .
+
+f1m:qualifying_1_result__q3_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.q3_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.q3_millis" .
+
+f1m:qualifying_1_result__gap a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.gap" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.gap" .
+
+f1m:qualifying_1_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.gap_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.gap_millis" .
+
+f1m:qualifying_1_result__interval a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.interval" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_1_result.interval" .
+
+f1m:qualifying_1_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.interval_millis" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.interval_millis" .
+
+f1m:qualifying_1_result__laps a owl:DatatypeProperty ;
+    rdfs:label "qualifying_1_result.laps" ;
+    rdfs:domain f1m:Qualifying1Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_1_result.laps" .
+
+f1m:qualifying_2_result__round a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.round" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.round" .
+
+f1m:qualifying_2_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.position_display_order" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.position_display_order" .
+
+f1m:qualifying_2_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.position_number" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.position_number" .
+
+f1m:qualifying_2_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.position_text" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.position_text" .
+
+f1m:qualifying_2_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.driver_number" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.driver_number" .
+
+f1m:qualifying_2_result__time a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.time" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.time" .
+
+f1m:qualifying_2_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.time_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.time_millis" .
+
+f1m:qualifying_2_result__q1 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q1" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q1" .
+
+f1m:qualifying_2_result__q1_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q1_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q1_millis" .
+
+f1m:qualifying_2_result__q2 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q2" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q2" .
+
+f1m:qualifying_2_result__q2_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q2_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q2_millis" .
+
+f1m:qualifying_2_result__q3 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q3" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q3" .
+
+f1m:qualifying_2_result__q3_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.q3_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.q3_millis" .
+
+f1m:qualifying_2_result__gap a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.gap" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.gap" .
+
+f1m:qualifying_2_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.gap_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.gap_millis" .
+
+f1m:qualifying_2_result__interval a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.interval" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_2_result.interval" .
+
+f1m:qualifying_2_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.interval_millis" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.interval_millis" .
+
+f1m:qualifying_2_result__laps a owl:DatatypeProperty ;
+    rdfs:label "qualifying_2_result.laps" ;
+    rdfs:domain f1m:Qualifying2Result ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_2_result.laps" .
+
+f1m:qualifying_result__round a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.round" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.round" .
+
+f1m:qualifying_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.position_display_order" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.position_display_order" .
+
+f1m:qualifying_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.position_number" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.position_number" .
+
+f1m:qualifying_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.position_text" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.position_text" .
+
+f1m:qualifying_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.driver_number" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.driver_number" .
+
+f1m:qualifying_result__time a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.time" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.time" .
+
+f1m:qualifying_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.time_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.time_millis" .
+
+f1m:qualifying_result__q1 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q1" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.q1" .
+
+f1m:qualifying_result__q1_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q1_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.q1_millis" .
+
+f1m:qualifying_result__q2 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q2" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.q2" .
+
+f1m:qualifying_result__q2_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q2_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.q2_millis" .
+
+f1m:qualifying_result__q3 a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q3" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.q3" .
+
+f1m:qualifying_result__q3_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.q3_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.q3_millis" .
+
+f1m:qualifying_result__gap a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.gap" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.gap" .
+
+f1m:qualifying_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.gap_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.gap_millis" .
+
+f1m:qualifying_result__interval a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.interval" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "qualifying_result.interval" .
+
+f1m:qualifying_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.interval_millis" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.interval_millis" .
+
+f1m:qualifying_result__laps a owl:DatatypeProperty ;
+    rdfs:label "qualifying_result.laps" ;
+    rdfs:domain f1m:QualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "qualifying_result.laps" .
+
+f1m:sprint_qualifying_result__round a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.round" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.round" .
+
+f1m:sprint_qualifying_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.position_display_order" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.position_display_order" .
+
+f1m:sprint_qualifying_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.position_number" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.position_number" .
+
+f1m:sprint_qualifying_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.position_text" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.position_text" .
+
+f1m:sprint_qualifying_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.driver_number" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.driver_number" .
+
+f1m:sprint_qualifying_result__time a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.time" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.time" .
+
+f1m:sprint_qualifying_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.time_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.time_millis" .
+
+f1m:sprint_qualifying_result__q1 a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q1" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.q1" .
+
+f1m:sprint_qualifying_result__q1_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q1_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.q1_millis" .
+
+f1m:sprint_qualifying_result__q2 a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q2" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.q2" .
+
+f1m:sprint_qualifying_result__q2_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q2_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.q2_millis" .
+
+f1m:sprint_qualifying_result__q3 a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q3" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.q3" .
+
+f1m:sprint_qualifying_result__q3_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.q3_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.q3_millis" .
+
+f1m:sprint_qualifying_result__gap a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.gap" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.gap" .
+
+f1m:sprint_qualifying_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.gap_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.gap_millis" .
+
+f1m:sprint_qualifying_result__interval a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.interval" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_qualifying_result.interval" .
+
+f1m:sprint_qualifying_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.interval_millis" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.interval_millis" .
+
+f1m:sprint_qualifying_result__laps a owl:DatatypeProperty ;
+    rdfs:label "sprint_qualifying_result.laps" ;
+    rdfs:domain f1m:SprintQualifyingResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_qualifying_result.laps" .
+
+f1m:starting_grid_position__round a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.round" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.round" .
+
+f1m:starting_grid_position__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.position_display_order" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.position_display_order" .
+
+f1m:starting_grid_position__position_number a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.position_number" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.position_number" .
+
+f1m:starting_grid_position__position_text a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.position_text" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "starting_grid_position.position_text" .
+
+f1m:starting_grid_position__driver_number a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.driver_number" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.driver_number" .
+
+f1m:starting_grid_position__qualification_position_number a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.qualification_position_number" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.qualification_position_number" .
+
+f1m:starting_grid_position__qualification_position_text a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.qualification_position_text" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "starting_grid_position.qualification_position_text" .
+
+f1m:starting_grid_position__grid_penalty a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.grid_penalty" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "starting_grid_position.grid_penalty" .
+
+f1m:starting_grid_position__grid_penalty_positions a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.grid_penalty_positions" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.grid_penalty_positions" .
+
+f1m:starting_grid_position__time a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.time" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "starting_grid_position.time" .
+
+f1m:starting_grid_position__time_millis a owl:DatatypeProperty ;
+    rdfs:label "starting_grid_position.time_millis" ;
+    rdfs:domain f1m:StartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "starting_grid_position.time_millis" .
+
+f1m:sprint_starting_grid_position__round a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.round" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.round" .
+
+f1m:sprint_starting_grid_position__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.position_display_order" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.position_display_order" .
+
+f1m:sprint_starting_grid_position__position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.position_number" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.position_number" .
+
+f1m:sprint_starting_grid_position__position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.position_text" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_starting_grid_position.position_text" .
+
+f1m:sprint_starting_grid_position__driver_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.driver_number" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.driver_number" .
+
+f1m:sprint_starting_grid_position__qualification_position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.qualification_position_number" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.qualification_position_number" .
+
+f1m:sprint_starting_grid_position__qualification_position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.qualification_position_text" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_starting_grid_position.qualification_position_text" .
+
+f1m:sprint_starting_grid_position__grid_penalty a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.grid_penalty" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_starting_grid_position.grid_penalty" .
+
+f1m:sprint_starting_grid_position__grid_penalty_positions a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.grid_penalty_positions" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.grid_penalty_positions" .
+
+f1m:sprint_starting_grid_position__time a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.time" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_starting_grid_position.time" .
+
+f1m:sprint_starting_grid_position__time_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_starting_grid_position.time_millis" ;
+    rdfs:domain f1m:SprintStartingGridPosition ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_starting_grid_position.time_millis" .
+
+f1m:race_result__round a owl:DatatypeProperty ;
+    rdfs:label "race_result.round" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.round" .
+
+f1m:race_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "race_result.position_display_order" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.position_display_order" .
+
+f1m:race_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "race_result.position_number" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.position_number" .
+
+f1m:race_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "race_result.position_text" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.position_text" .
+
+f1m:race_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "race_result.driver_number" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.driver_number" .
+
+f1m:race_result__shared_car a owl:DatatypeProperty ;
+    rdfs:label "race_result.shared_car" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_result.shared_car" .
+
+f1m:race_result__laps a owl:DatatypeProperty ;
+    rdfs:label "race_result.laps" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.laps" .
+
+f1m:race_result__time a owl:DatatypeProperty ;
+    rdfs:label "race_result.time" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.time" .
+
+f1m:race_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "race_result.time_millis" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.time_millis" .
+
+f1m:race_result__time_penalty a owl:DatatypeProperty ;
+    rdfs:label "race_result.time_penalty" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.time_penalty" .
+
+f1m:race_result__time_penalty_millis a owl:DatatypeProperty ;
+    rdfs:label "race_result.time_penalty_millis" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.time_penalty_millis" .
+
+f1m:race_result__gap a owl:DatatypeProperty ;
+    rdfs:label "race_result.gap" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.gap" .
+
+f1m:race_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "race_result.gap_millis" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.gap_millis" .
+
+f1m:race_result__gap_laps a owl:DatatypeProperty ;
+    rdfs:label "race_result.gap_laps" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.gap_laps" .
+
+f1m:race_result__interval a owl:DatatypeProperty ;
+    rdfs:label "race_result.interval" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.interval" .
+
+f1m:race_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "race_result.interval_millis" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.interval_millis" .
+
+f1m:race_result__reason_retired a owl:DatatypeProperty ;
+    rdfs:label "race_result.reason_retired" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.reason_retired" .
+
+f1m:race_result__points a owl:DatatypeProperty ;
+    rdfs:label "race_result.points" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "race_result.points" .
+
+f1m:race_result__pole_position a owl:DatatypeProperty ;
+    rdfs:label "race_result.pole_position" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_result.pole_position" .
+
+f1m:race_result__qualification_position_number a owl:DatatypeProperty ;
+    rdfs:label "race_result.qualification_position_number" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.qualification_position_number" .
+
+f1m:race_result__qualification_position_text a owl:DatatypeProperty ;
+    rdfs:label "race_result.qualification_position_text" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.qualification_position_text" .
+
+f1m:race_result__grid_position_number a owl:DatatypeProperty ;
+    rdfs:label "race_result.grid_position_number" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.grid_position_number" .
+
+f1m:race_result__grid_position_text a owl:DatatypeProperty ;
+    rdfs:label "race_result.grid_position_text" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "race_result.grid_position_text" .
+
+f1m:race_result__positions_gained a owl:DatatypeProperty ;
+    rdfs:label "race_result.positions_gained" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.positions_gained" .
+
+f1m:race_result__pit_stops a owl:DatatypeProperty ;
+    rdfs:label "race_result.pit_stops" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "race_result.pit_stops" .
+
+f1m:race_result__fastest_lap a owl:DatatypeProperty ;
+    rdfs:label "race_result.fastest_lap" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_result.fastest_lap" .
+
+f1m:race_result__driver_of_the_day a owl:DatatypeProperty ;
+    rdfs:label "race_result.driver_of_the_day" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_result.driver_of_the_day" .
+
+f1m:race_result__grand_slam a owl:DatatypeProperty ;
+    rdfs:label "race_result.grand_slam" ;
+    rdfs:domain f1m:RaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "race_result.grand_slam" .
+
+f1m:sprint_race_result__round a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.round" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.round" .
+
+f1m:sprint_race_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.position_display_order" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.position_display_order" .
+
+f1m:sprint_race_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.position_number" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.position_number" .
+
+f1m:sprint_race_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.position_text" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.position_text" .
+
+f1m:sprint_race_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.driver_number" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.driver_number" .
+
+f1m:sprint_race_result__shared_car a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.shared_car" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "sprint_race_result.shared_car" .
+
+f1m:sprint_race_result__laps a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.laps" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.laps" .
+
+f1m:sprint_race_result__time a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.time" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.time" .
+
+f1m:sprint_race_result__time_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.time_millis" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.time_millis" .
+
+f1m:sprint_race_result__time_penalty a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.time_penalty" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "sprint_race_result.time_penalty" .
+
+f1m:sprint_race_result__time_penalty_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.time_penalty_millis" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.time_penalty_millis" .
+
+f1m:sprint_race_result__gap a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.gap" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.gap" .
+
+f1m:sprint_race_result__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.gap_millis" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.gap_millis" .
+
+f1m:sprint_race_result__gap_laps a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.gap_laps" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.gap_laps" .
+
+f1m:sprint_race_result__interval a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.interval" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.interval" .
+
+f1m:sprint_race_result__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.interval_millis" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.interval_millis" .
+
+f1m:sprint_race_result__reason_retired a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.reason_retired" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.reason_retired" .
+
+f1m:sprint_race_result__points a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.points" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.points" .
+
+f1m:sprint_race_result__pole_position a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.pole_position" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "sprint_race_result.pole_position" .
+
+f1m:sprint_race_result__qualification_position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.qualification_position_number" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.qualification_position_number" .
+
+f1m:sprint_race_result__qualification_position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.qualification_position_text" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.qualification_position_text" .
+
+f1m:sprint_race_result__grid_position_number a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.grid_position_number" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.grid_position_number" .
+
+f1m:sprint_race_result__grid_position_text a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.grid_position_text" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.grid_position_text" .
+
+f1m:sprint_race_result__positions_gained a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.positions_gained" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "sprint_race_result.positions_gained" .
+
+f1m:sprint_race_result__pit_stops a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.pit_stops" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "sprint_race_result.pit_stops" .
+
+f1m:sprint_race_result__fastest_lap a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.fastest_lap" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "sprint_race_result.fastest_lap" .
+
+f1m:sprint_race_result__driver_of_the_day a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.driver_of_the_day" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "sprint_race_result.driver_of_the_day" .
+
+f1m:sprint_race_result__grand_slam a owl:DatatypeProperty ;
+    rdfs:label "sprint_race_result.grand_slam" ;
+    rdfs:domain f1m:SprintRaceResult ;
+    rdfs:range xsd:boolean ;
+    f1:mapsToColumn "sprint_race_result.grand_slam" .
+
+f1m:fastest_lap__round a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.round" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.round" .
+
+f1m:fastest_lap__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.position_display_order" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.position_display_order" .
+
+f1m:fastest_lap__position_number a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.position_number" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.position_number" .
+
+f1m:fastest_lap__position_text a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.position_text" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.position_text" .
+
+f1m:fastest_lap__driver_number a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.driver_number" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.driver_number" .
+
+f1m:fastest_lap__lap a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.lap" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.lap" .
+
+f1m:fastest_lap__time a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.time" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "fastest_lap.time" .
+
+f1m:fastest_lap__time_millis a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.time_millis" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.time_millis" .
+
+f1m:fastest_lap__gap a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.gap" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "fastest_lap.gap" .
+
+f1m:fastest_lap__gap_millis a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.gap_millis" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.gap_millis" .
+
+f1m:fastest_lap__interval a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.interval" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "fastest_lap.interval" .
+
+f1m:fastest_lap__interval_millis a owl:DatatypeProperty ;
+    rdfs:label "fastest_lap.interval_millis" ;
+    rdfs:domain f1m:FastestLap ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "fastest_lap.interval_millis" .
+
+f1m:pit_stop__round a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.round" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.round" .
+
+f1m:pit_stop__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.position_display_order" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.position_display_order" .
+
+f1m:pit_stop__position_number a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.position_number" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.position_number" .
+
+f1m:pit_stop__position_text a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.position_text" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.position_text" .
+
+f1m:pit_stop__driver_number a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.driver_number" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.driver_number" .
+
+f1m:pit_stop__stop a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.stop" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.stop" .
+
+f1m:pit_stop__lap a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.lap" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.lap" .
+
+f1m:pit_stop__time a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.time" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:string ;
+    f1:mapsToColumn "pit_stop.time" .
+
+f1m:pit_stop__time_millis a owl:DatatypeProperty ;
+    rdfs:label "pit_stop.time_millis" ;
+    rdfs:domain f1m:PitStop ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "pit_stop.time_millis" .
+
+f1m:driver_of_the_day_result__round a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.round" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_of_the_day_result.round" .
+
+f1m:driver_of_the_day_result__position_display_order a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.position_display_order" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_of_the_day_result.position_display_order" .
+
+f1m:driver_of_the_day_result__position_number a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.position_number" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_of_the_day_result.position_number" .
+
+f1m:driver_of_the_day_result__position_text a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.position_text" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_of_the_day_result.position_text" .
+
+f1m:driver_of_the_day_result__driver_number a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.driver_number" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:integer ;
+    f1:mapsToColumn "driver_of_the_day_result.driver_number" .
+
+f1m:driver_of_the_day_result__percentage a owl:DatatypeProperty ;
+    rdfs:label "driver_of_the_day_result.percentage" ;
+    rdfs:domain f1m:DriverOfTheDayResult ;
+    rdfs:range xsd:decimal ;
+    f1:mapsToColumn "driver_of_the_day_result.percentage" .
+

@@ -1,0 +1,3909 @@
+{
+  "source": "https://github.com/f1db/f1db",
+  "license": "CC BY 4.0",
+  "release_tag": "v2026.7.0",
+  "table_count": 47,
+  "row_total": 245236,
+  "tables": {
+    "continent": {
+      "source_csv": "f1db-continents.csv",
+      "row_count": 7,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "code",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "demonym",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "country": {
+      "source_csv": "f1db-countries.csv",
+      "row_count": 249,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "alpha2_code",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "alpha3_code",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "ioc_code",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "demonym",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "continent_id",
+          "type": "TEXT",
+          "references": "continent"
+        }
+      ]
+    },
+    "circuit": {
+      "source_csv": "f1db-circuits.csv",
+      "row_count": 78,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "previous_names",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "direction",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "place_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "latitude",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "longitude",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "length",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "turns",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_races_held",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "circuit_layout": {
+      "source_csv": "f1db-circuits-layouts.csv",
+      "row_count": 160,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "circuit_id",
+          "type": "TEXT",
+          "references": "circuit"
+        },
+        {
+          "name": "effective",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "length",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "turns",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "grand_prix": {
+      "source_csv": "f1db-grands-prix.csv",
+      "row_count": 54,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "short_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "abbreviation",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "total_races_held",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "constructor": {
+      "source_csv": "f1db-constructors.csv",
+      "row_count": 187,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "best_championship_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_championship_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total1_and2_finishes",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_championship_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "constructor_chronology": {
+      "source_csv": "f1db-constructors-chronology.csv",
+      "row_count": 217,
+      "primary_key": [
+        "parent_constructor_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "parent_constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "year_from",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "year_to",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "chassis": {
+      "source_csv": "f1db-chassis.csv",
+      "row_count": 1153,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "engine_manufacturer": {
+      "source_csv": "f1db-engine-manufacturers.csv",
+      "row_count": 78,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "best_championship_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_championship_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_championship_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "engine": {
+      "source_csv": "f1db-engines.csv",
+      "row_count": 424,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "capacity",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "configuration",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "aspiration",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "tyre_manufacturer": {
+      "source_csv": "f1db-tyre-manufacturers.csv",
+      "row_count": 9,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "entrant": {
+      "source_csv": "f1db-entrants.csv",
+      "row_count": 830,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "driver": {
+      "source_csv": "f1db-drivers.csv",
+      "row_count": 917,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "first_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "last_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "full_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "abbreviation",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "permanent_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gender",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "date_of_birth",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "date_of_death",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "place_of_birth",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "country_of_birth_country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "nationality_country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "second_nationality_country_id",
+          "type": "TEXT",
+          "references": "country"
+        },
+        {
+          "name": "best_championship_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_championship_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_championship_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_driver_of_the_day",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_grand_slams",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "driver_family_relationship": {
+      "source_csv": "f1db-drivers-family-relationships.csv",
+      "row_count": 86,
+      "primary_key": [
+        "parent_driver_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "parent_driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "type",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "season": {
+      "source_csv": "f1db-seasons.csv",
+      "row_count": 77,
+      "primary_key": [
+        "year"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "race": {
+      "source_csv": "f1db-races.csv",
+      "row_count": 1171,
+      "primary_key": [
+        "id"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grand_prix_id",
+          "type": "TEXT",
+          "references": "grand_prix"
+        },
+        {
+          "name": "official_name",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying_format",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "sprint_qualifying_format",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "circuit_id",
+          "type": "TEXT",
+          "references": "circuit"
+        },
+        {
+          "name": "circuit_layout_id",
+          "type": "TEXT",
+          "references": "circuit_layout"
+        },
+        {
+          "name": "circuit_type",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "direction",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "course_length",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "turns",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "distance",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "scheduled_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "scheduled_distance",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "drivers_championship_decider",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "constructors_championship_decider",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "pre_qualifying_date",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "pre_qualifying_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "free_practice1_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "free_practice1_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "free_practice2_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "free_practice2_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "free_practice3_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "free_practice3_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "free_practice4_date",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "free_practice4_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying1_date",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying1_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying2_date",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying2_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "qualifying_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "qualifying_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "sprint_qualifying_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "sprint_qualifying_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "sprint_race_date",
+          "type": "DATE",
+          "references": null
+        },
+        {
+          "name": "sprint_race_time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "warming_up_date",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "warming_up_time",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "season_driver": {
+      "source_csv": "f1db-seasons-drivers.csv",
+      "row_count": 3414,
+      "primary_key": [
+        "year",
+        "driver_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_driver_of_the_day",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_grand_slams",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "season_constructor": {
+      "source_csv": "f1db-seasons-constructors.csv",
+      "row_count": 1079,
+      "primary_key": [
+        "year",
+        "constructor_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total1_and2_finishes",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "season_engine_manufacturer": {
+      "source_csv": "f1db-seasons-engine-manufacturers.csv",
+      "row_count": 560,
+      "primary_key": [
+        "year",
+        "engine_manufacturer_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "season_tyre_manufacturer": {
+      "source_csv": "f1db-seasons-tyre-manufacturers.csv",
+      "row_count": 160,
+      "primary_key": [
+        "year",
+        "tyre_manufacturer_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "best_starting_grid_position",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "best_sprint_race_result",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_entries",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_wins",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_race_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podiums",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_podium_races",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_pole_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_fastest_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_starts",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "total_sprint_race_wins",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "season_driver_standing": {
+      "source_csv": "f1db-seasons-driver-standings.csv",
+      "row_count": 1680,
+      "primary_key": [
+        "year",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "championship_won",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "season_constructor_standing": {
+      "source_csv": "f1db-seasons-constructor-standings.csv",
+      "row_count": 721,
+      "primary_key": [
+        "year",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "championship_won",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "season_entrant": {
+      "source_csv": "f1db-seasons-entrants.csv",
+      "row_count": 1799,
+      "primary_key": [
+        "year",
+        "entrant_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "country_id",
+          "type": "TEXT",
+          "references": "country"
+        }
+      ]
+    },
+    "season_entrant_constructor": {
+      "source_csv": "f1db-seasons-entrants-constructors.csv",
+      "row_count": 1925,
+      "primary_key": [
+        "year",
+        "entrant_id",
+        "constructor_id",
+        "engine_manufacturer_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        }
+      ]
+    },
+    "season_entrant_driver": {
+      "source_csv": "f1db-seasons-entrants-drivers.csv",
+      "row_count": 3877,
+      "primary_key": [
+        "year",
+        "entrant_id",
+        "constructor_id",
+        "engine_manufacturer_id",
+        "driver_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "rounds",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "rounds_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "test_driver",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "season_entrant_engine": {
+      "source_csv": "f1db-seasons-entrants-engines.csv",
+      "row_count": 2027,
+      "primary_key": [
+        "year",
+        "entrant_id",
+        "constructor_id",
+        "engine_manufacturer_id",
+        "engine_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "engine_id",
+          "type": "TEXT",
+          "references": "engine"
+        }
+      ]
+    },
+    "season_entrant_chassis": {
+      "source_csv": "f1db-seasons-entrants-chassis.csv",
+      "row_count": 2292,
+      "primary_key": [
+        "year",
+        "entrant_id",
+        "constructor_id",
+        "engine_manufacturer_id",
+        "chassis_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "chassis_id",
+          "type": "TEXT",
+          "references": "chassis"
+        }
+      ]
+    },
+    "season_entrant_tyre_manufacturer": {
+      "source_csv": "f1db-seasons-entrants-tyre-manufacturers.csv",
+      "row_count": 1955,
+      "primary_key": [
+        "year",
+        "entrant_id",
+        "constructor_id",
+        "engine_manufacturer_id",
+        "tyre_manufacturer_id"
+      ],
+      "columns": [
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "entrant_id",
+          "type": "TEXT",
+          "references": "entrant"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        }
+      ]
+    },
+    "race_driver_standing": {
+      "source_csv": "f1db-races-driver-standings.csv",
+      "row_count": 21361,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "positions_gained",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "championship_won",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "race_constructor_standing": {
+      "source_csv": "f1db-races-constructor-standings.csv",
+      "row_count": 10566,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "positions_gained",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "championship_won",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "free_practice_1_result": {
+      "source_csv": "f1db-races-free-practice-1-results.csv",
+      "row_count": 15988,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "free_practice_2_result": {
+      "source_csv": "f1db-races-free-practice-2-results.csv",
+      "row_count": 15444,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "free_practice_3_result": {
+      "source_csv": "f1db-races-free-practice-3-results.csv",
+      "row_count": 8757,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "free_practice_4_result": {
+      "source_csv": "f1db-races-free-practice-4-results.csv",
+      "row_count": 706,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "warming_up_result": {
+      "source_csv": "f1db-races-warming-up-results.csv",
+      "row_count": 7683,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "pre_qualifying_result": {
+      "source_csv": "f1db-races-pre-qualifying-results.csv",
+      "row_count": 647,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q1",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "TEXT",
+          "references": null
+        }
+      ]
+    },
+    "qualifying_1_result": {
+      "source_csv": "f1db-races-qualifying-1-results.csv",
+      "row_count": 7707,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q1",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "qualifying_2_result": {
+      "source_csv": "f1db-races-qualifying-2-results.csv",
+      "row_count": 7541,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q1",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "qualifying_result": {
+      "source_csv": "f1db-races-qualifying-results.csv",
+      "row_count": 26866,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q1",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q2",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q3",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "sprint_qualifying_result": {
+      "source_csv": "f1db-races-sprint-qualifying-results.csv",
+      "row_count": 422,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q1_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q2",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q2_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "q3",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "q3_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "starting_grid_position": {
+      "source_csv": "f1db-races-starting-grid-positions.csv",
+      "row_count": 25682,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "qualification_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "qualification_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_penalty",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_penalty_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "sprint_starting_grid_position": {
+      "source_csv": "f1db-races-sprint-starting-grid-positions.csv",
+      "row_count": 545,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "qualification_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "qualification_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_penalty",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_penalty_positions",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "race_result": {
+      "source_csv": "f1db-races-race-results.csv",
+      "row_count": 27445,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "shared_car",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time_penalty",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_penalty_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "reason_retired",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "points",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "pole_position",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "qualification_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "qualification_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "grid_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "positions_gained",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "pit_stops",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "fastest_lap",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "driver_of_the_day",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "grand_slam",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "sprint_race_result": {
+      "source_csv": "f1db-races-sprint-race-results.csv",
+      "row_count": 546,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "shared_car",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time_penalty",
+          "type": "REAL",
+          "references": null
+        },
+        {
+          "name": "time_penalty_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap_laps",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "reason_retired",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "points",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "pole_position",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "qualification_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "qualification_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "grid_position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "grid_position_text",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "positions_gained",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "pit_stops",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "fastest_lap",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "driver_of_the_day",
+          "type": "BOOLEAN",
+          "references": null
+        },
+        {
+          "name": "grand_slam",
+          "type": "BOOLEAN",
+          "references": null
+        }
+      ]
+    },
+    "fastest_lap": {
+      "source_csv": "f1db-races-fastest-laps.csv",
+      "row_count": 16999,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "lap",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "gap",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "gap_millis",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "interval",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "interval_millis",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "pit_stop": {
+      "source_csv": "f1db-races-pit-stops.csv",
+      "row_count": 22293,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "stop",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "lap",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "time",
+          "type": "TEXT",
+          "references": null
+        },
+        {
+          "name": "time_millis",
+          "type": "INTEGER",
+          "references": null
+        }
+      ]
+    },
+    "driver_of_the_day_result": {
+      "source_csv": "f1db-races-driver-of-the-day-results.csv",
+      "row_count": 852,
+      "primary_key": [
+        "race_id",
+        "position_display_order"
+      ],
+      "columns": [
+        {
+          "name": "race_id",
+          "type": "INTEGER",
+          "references": "race"
+        },
+        {
+          "name": "year",
+          "type": "INTEGER",
+          "references": "season"
+        },
+        {
+          "name": "round",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_display_order",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "position_text",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_number",
+          "type": "INTEGER",
+          "references": null
+        },
+        {
+          "name": "driver_id",
+          "type": "TEXT",
+          "references": "driver"
+        },
+        {
+          "name": "constructor_id",
+          "type": "TEXT",
+          "references": "constructor"
+        },
+        {
+          "name": "engine_manufacturer_id",
+          "type": "TEXT",
+          "references": "engine_manufacturer"
+        },
+        {
+          "name": "tyre_manufacturer_id",
+          "type": "TEXT",
+          "references": "tyre_manufacturer"
+        },
+        {
+          "name": "percentage",
+          "type": "REAL",
+          "references": null
+        }
+      ]
+    }
+  }
+}

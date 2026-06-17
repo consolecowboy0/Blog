@@ -676,7 +676,7 @@ const { title, description = 'A blog.' } = Astro.props;
   function broadcastThemeToEmbeds(theme: string) {
     document.querySelectorAll('iframe').forEach((iframe) => {
       try {
-        iframe.contentWindow?.postMessage({ type: 'parent-theme', theme }, '*');
+        iframe.contentWindow?.postMessage({ type: 'parent-theme', theme }, window.location.origin);
       } catch { /* cross-origin — ignore */ }
     });
   }

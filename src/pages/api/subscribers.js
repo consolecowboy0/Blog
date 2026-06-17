@@ -3,6 +3,7 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -49,14 +50,17 @@ export async function GET({ request }) {
       })
       .sort((a, b) => b.created - a.created || (a.email < b.email ? -1 : 1));
     return json({ subscribers, total: subscribers.length }, 200, corsHeaders);
-  } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+  } catch {
+    return json({ error: 'Server error' }, 500, corsHeaders);
   }
 }
 
-export async function POST({ request }) {
+export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ip = clientAddress || 'unknown';
+  const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -71,14 +75,17 @@ export async function POST({ request }) {
     const now = Date.now();
     await ref.set({ email, created: now, source: 'manual' });
     return json({ ok: true, subscriber: { id: ref.id, email, created: now, source: 'manual' } }, 200, corsHeaders);
-  } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+  } catch {
+    return json({ error: 'Server error' }, 500, corsHeaders);
   }
 }
 
-export async function PATCH({ request }) {
+export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ip = clientAddress || 'unknown';
+  const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -109,24 +116,30 @@ export async function PATCH({ request }) {
     await newRef.set({ ...prev, email });
     await oldRef.delete();
     return json({ ok: true, subscriber: { id: newId, email, created: prev.created || 0, source: prev.source || '' } }, 200, corsHeaders);
-  } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+  } catch {
+    return json({ error: 'Server error' }, 500, corsHeaders);
   }
 }
 
-export async function DELETE({ request }) {
+export async function DELETE({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ip = clientAddress || 'unknown';
+  const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);
+  if (id.length > 254 || !/^[A-Za-z0-9_.-]+$/.test(id)) {
+    return json({ error: 'Invalid id' }, 400, corsHeaders);
+  }
 
   try {
     const db = getDb();
     await db.collection('subscribers').doc(id).delete();
     return json({ ok: true }, 200, corsHeaders);
-  } catch (err) {
-    return json({ error: err.message }, 500, corsHeaders);
+  } catch {
+    return json({ error: 'Server error' }, 500, corsHeaders);
   }
 }
 

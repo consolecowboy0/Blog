@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/body-limit.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -20,7 +21,7 @@ export async function POST({ request, clientAddress }) {
   }
 
   // Rate-limit: 5 attempts per 15 min per IP
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = clientAddress || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
@@ -28,12 +29,9 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await parseJsonBody(request, 2048);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   const { password, scope } = body;
 
@@ -56,6 +54,7 @@ export async function POST({ request, clientAddress }) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });

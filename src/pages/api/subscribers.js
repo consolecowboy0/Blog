@@ -4,6 +4,7 @@ import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { rejectLargeBody, secureHeaders } from '../../lib/api-security.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -28,7 +29,7 @@ function normEmail(raw) {
 function json(data, status, corsHeaders) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, ...secureHeaders(), 'Content-Type': 'application/json' },
   });
 }
 
@@ -58,6 +59,7 @@ export async function GET({ request }) {
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  if (rejectLargeBody(request)) return json({ error: 'Payload too large' }, 413, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
@@ -83,6 +85,7 @@ export async function POST({ request, clientAddress }) {
 export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  if (rejectLargeBody(request)) return json({ error: 'Payload too large' }, 413, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);

@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { rejectLargeBody, secureHeaders } from '../../lib/api-security.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -12,8 +13,10 @@ export async function POST({ request, clientAddress }) {
   const json = (data, status = 200) =>
     new Response(JSON.stringify(data), {
       status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...secureHeaders(), 'Content-Type': 'application/json' },
     });
+
+  if (rejectLargeBody(request)) return json({ error: 'Payload too large' }, 413);
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
@@ -87,6 +90,10 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
 
+    // IP-only bucket caps total poll requests regardless of visitor_id, preventing
+    // enumeration of conversation IDs from a single address.
+    const rlIp = checkRate(`mimir-poll:${ip}`, 60, 60 * 1000);
+    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
     if (!rl.ok) return json({ error: 'Rate limited' }, 429);
 

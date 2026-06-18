@@ -3,6 +3,7 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { secureHeaders } from '../../lib/api-security.js';
 import {
   classifyChannel, sourceLabel, CHANNELS, CHANNEL_LABELS,
   flagEmoji, isSpamHost, isPlausibleHost, CC_NAME, regionLabel,
@@ -346,7 +347,7 @@ export async function GET({ request }) {
         topPaths,
         topReferrers,
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { ...corsHeaders, ...secureHeaders(), 'Content-Type': 'application/json' } }
     );
   } catch {
     return new Response(JSON.stringify({ error: 'Server error' }), {

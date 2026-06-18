@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { rejectLargeBody, secureHeaders } from '../../lib/api-security.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -10,8 +11,10 @@ export async function POST({ request, clientAddress }) {
   const json = (data, status) =>
     new Response(JSON.stringify(data), {
       status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...secureHeaders(), 'Content-Type': 'application/json' },
     });
+
+  if (rejectLargeBody(request)) return json({ error: 'Payload too large' }, 413);
 
   // Reject non-JSON content types to block CSRF via form submissions.
   const ct = request.headers.get('Content-Type') || '';
@@ -55,6 +58,7 @@ export async function POST({ request, clientAddress }) {
     status: 200,
     headers: {
       ...corsHeaders,
+      ...secureHeaders(),
       'Content-Type': 'application/json',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },

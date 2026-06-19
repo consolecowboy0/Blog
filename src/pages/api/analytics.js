@@ -64,7 +64,7 @@ export async function GET({ request }) {
     // ms timestamp of the first deploy carrying geo/UTM/channel data. Lets the
     // dashboard shade the trend before this point. 0 = unset (no seam drawn).
     const DATA_EPOCH = parseInt(
-      process.env.ANALYTICS_DATA_EPOCH || import.meta.env.ANALYTICS_DATA_EPOCH || '0', 10
+      process.env.ANALYTICS_DATA_EPOCH || '0', 10
     ) || 0;
 
     let total = 0;

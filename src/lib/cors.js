@@ -35,5 +35,7 @@ export function corsHeadersFor(request, methods = 'GET, POST, OPTIONS') {
 }
 
 export function preflight(request, methods) {
-  return new Response(null, { status: 204, headers: corsHeadersFor(request, methods) });
+  const headers = corsHeadersFor(request, methods);
+  headers['Access-Control-Max-Age'] = '7200';
+  return new Response(null, { status: 204, headers });
 }

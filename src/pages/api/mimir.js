@@ -3,11 +3,12 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { clientIp, safeJson, rateLimited } from '../../lib/request.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = clientIp(clientAddress);
 
   const json = (data, status = 200) =>
     new Response(JSON.stringify(data), {
@@ -20,12 +21,8 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const body = await safeJson(request);
+  if (!body) return json({ error: 'Invalid or oversized request' }, 400);
 
   const { action } = body;
   const db = getDb();
@@ -43,9 +40,9 @@ export async function POST({ request, clientAddress }) {
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
-    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlIp.ok) return rateLimited(rlIp.retryAfter, corsHeaders);
     const rlVis = checkRate(`mimir-send:${visitor_id}`, 20, 10 * 60 * 1000);
-    if (!rlVis.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlVis.ok) return rateLimited(rlVis.retryAfter, corsHeaders);
 
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
@@ -88,7 +85,7 @@ export async function POST({ request, clientAddress }) {
     }
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
-    if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rl.ok) return rateLimited(rl.retryAfter, corsHeaders);
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

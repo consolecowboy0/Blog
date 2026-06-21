@@ -32,7 +32,7 @@ export async function GET({ request }) {
   if (!auth) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
-      headers: corsHeaders,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 

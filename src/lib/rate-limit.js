@@ -1,13 +1,15 @@
-// Simple in-memory sliding-window rate limiter.
-// Good enough for single-instance Netlify functions and dev.
-// For multi-instance production, replace the store with Netlify Blobs or Redis.
-
 const store = new Map();
+const MAX_ENTRIES = 10000;
 
 function prune(now) {
-  if (store.size < 1000) return;
+  if (store.size < 500) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
+  }
+  if (store.size > MAX_ENTRIES) {
+    const sorted = [...store.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const drop = sorted.slice(0, store.size - MAX_ENTRIES);
+    for (const [k] of drop) store.delete(k);
   }
 }
 

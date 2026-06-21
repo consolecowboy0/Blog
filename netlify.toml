@@ -50,3 +50,9 @@
   for = "/library/*"
   [headers.values]
     Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
+# API responses must not be cached by proxies or browsers
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store"

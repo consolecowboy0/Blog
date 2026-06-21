@@ -92,7 +92,8 @@ export async function POST({ request, clientAddress }) {
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
-    return json({ messages: doc.data().messages || [] });
+    const messages = (doc.data().messages || []).slice(-200);
+    return json({ messages });
   }
 
   return json({ error: 'Unknown action' }, 400);

@@ -20,6 +20,11 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
+  const contentLength = parseInt(request.headers.get('Content-Length') || '0', 10);
+  if (contentLength > 8192) {
+    return json({ error: 'Payload too large' }, 413);
+  }
+
   let body;
   try {
     body = await request.json();

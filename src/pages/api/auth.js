@@ -41,7 +41,7 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Missing password or scope' }, 400);
   }
 
-  if (!['analytics'].includes(scope)) {
+  if (!['analytics', 'legion', 'backend'].includes(scope)) {
     return json({ error: 'Invalid scope' }, 400);
   }
 

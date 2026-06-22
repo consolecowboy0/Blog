@@ -21,10 +21,11 @@ if (process.env.NODE_ENV !== 'production') {
 
 export function corsHeadersFor(request, methods = 'GET, POST, OPTIONS') {
   const origin = request?.headers?.get?.('Origin') || '';
-  const allow = ALLOWED.has(origin) ? origin : '';
+  const allow = origin && !origin.includes(',') && ALLOWED.has(origin) ? origin : '';
   const h = {
     'Access-Control-Allow-Methods': methods,
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Max-Age': '7200',
     'Vary': 'Origin',
   };
   if (allow) {

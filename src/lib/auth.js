@@ -7,9 +7,11 @@ if (!SECRET) {
 
 const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
+  legion: process.env.AUTH_HASH_LEGION,
+  backend: process.env.AUTH_HASH_BACKEND,
 };
 
-const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
+const TOKEN_TTL = 60 * 60 * 24; // 24 hours
 
 function sign(payload) {
   return createHmac('sha256', SECRET).update(payload).digest('hex');
@@ -44,8 +46,8 @@ export function verifyToken(token) {
   const parts = token.split('.');
   if (parts.length !== 2) return null;
   const [payload, sig] = parts;
+  if (!/^[0-9a-f]{64}$/.test(sig)) return null;
   const expected = sign(payload);
-  if (sig.length !== expected.length) return null;
   try {
     if (!timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
   } catch {

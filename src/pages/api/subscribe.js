@@ -23,7 +23,9 @@ export async function POST({ request, clientAddress }) {
 
   let body;
   try {
-    body = await request.json();
+    const raw = await request.text();
+    if (raw.length > 1024) return json({ error: 'Payload too large' }, 413);
+    body = JSON.parse(raw);
   } catch {
     return json({ error: 'Invalid JSON' }, 400);
   }

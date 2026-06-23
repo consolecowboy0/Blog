@@ -412,7 +412,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script>
   const API_BASE = '';
-  let authToken: string | null = null;
   let trendChart = null;
   let chanChart = null;
   let lastData = null;
@@ -443,7 +442,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   async function tryToken() {
-    if (authToken) { showPanel(); return true; }
     try {
       const res = await fetch(`${API_BASE}/api/analytics?days=1`, { credentials: 'same-origin' });
       if (res.ok) { showPanel(); return true; }
@@ -458,11 +456,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const res = await fetch(`${API_BASE}/api/auth`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ password: pw, scope: 'analytics' }),
       });
       if (res.ok) {
-        const data = await res.json();
-        authToken = data.token;
         gateError!.classList.add('gate-hidden');
         gatePassword!.value = '';
         showPanel();
@@ -478,7 +475,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
 
   function signOut() {
-    authToken = null;
     document.cookie = 'auth_token=; Path=/; Max-Age=0; Secure; SameSite=Strict';
     panel!.style.display = 'none';
     gate!.style.display = 'flex';
@@ -496,7 +492,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const owner = ownerInclude!.checked ? '&owner=1' : '';
     try {
       const res = await fetch(`${API_BASE}/api/analytics?${span}${owner}`, {
-        headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
         credentials: 'same-origin',
       });
       if (res.status === 401) { signOut(); return; }
@@ -897,10 +892,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const SUB_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   let subscribers: any[] = [];
 
-  function authHeaders(): Record<string, string> {
-    return authToken ? { Authorization: `Bearer ${authToken}` } : {};
-  }
-
   function setSubError(msg: string) {
     const el = document.getElementById('subs-error')!;
     el.textContent = msg;
@@ -918,7 +909,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     loading.textContent = 'Loading…';
     loading.classList.remove('gate-hidden');
     try {
-      const res = await fetch(`${API_BASE}/api/subscribers`, { headers: authHeaders(), credentials: 'same-origin' });
+      const res = await fetch(`${API_BASE}/api/subscribers`, { credentials: 'same-origin' });
       if (res.status === 401) { signOut(); return; }
       if (!res.ok) throw new Error('Request failed (' + res.status + ')');
       const data = await res.json();
@@ -978,7 +969,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     try {
       const res = await fetch(`${API_BASE}/api/subscribers`, {
         method: 'PATCH',
-        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ id, email }),
       });
@@ -994,7 +985,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     try {
       const res = await fetch(`${API_BASE}/api/subscribers?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
-        headers: authHeaders(),
         credentials: 'same-origin',
       });
       if (res.status === 401) { signOut(); return; }
@@ -1030,7 +1020,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     try {
       const res = await fetch(`${API_BASE}/api/subscribers`, {
         method: 'POST',
-        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
         body: JSON.stringify({ email }),
       });

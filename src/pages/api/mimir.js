@@ -22,7 +22,9 @@ export async function POST({ request, clientAddress }) {
 
   let body;
   try {
-    body = await request.json();
+    const raw = await request.text();
+    if (raw.length > 4096) return json({ error: 'Payload too large' }, 413);
+    body = JSON.parse(raw);
   } catch {
     return json({ error: 'Invalid JSON' }, 400);
   }
@@ -92,7 +94,8 @@ export async function POST({ request, clientAddress }) {
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
-    return json({ messages: doc.data().messages || [] });
+    const messages = doc.data().messages || [];
+    return json({ messages: messages.slice(-100) });
   }
 
   return json({ error: 'Unknown action' }, 400);

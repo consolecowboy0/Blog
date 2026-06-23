@@ -58,12 +58,18 @@ export async function GET({ request }) {
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  try {
+    const raw = await request.text();
+    if (raw.length > 1024) return json({ error: 'Payload too large' }, 413, corsHeaders);
+    body = JSON.parse(raw);
+  } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
 
   const email = normEmail(body.email);
   if (!email) return json({ error: 'Invalid email' }, 400, corsHeaders);
@@ -83,12 +89,18 @@ export async function POST({ request, clientAddress }) {
 export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  try {
+    const raw = await request.text();
+    if (raw.length > 1024) return json({ error: 'Payload too large' }, 413, corsHeaders);
+    body = JSON.parse(raw);
+  } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
 
   const id = typeof body.id === 'string' ? body.id : '';
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);

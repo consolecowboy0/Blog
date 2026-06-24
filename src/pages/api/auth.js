@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeIp, parseJsonBody } from '../../lib/request.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -10,30 +11,26 @@ export async function POST({ request, clientAddress }) {
   const json = (data, status) =>
     new Response(JSON.stringify(data), {
       status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
     });
 
-  // Reject non-JSON content types to block CSRF via form submissions.
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  // Rate-limit: 5 attempts per 15 min per IP
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = safeIp(clientAddress);
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
       status: 429,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+
+  const parsed = await parseJsonBody(request, 1024);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.body;
 
   const { password, scope } = body;
 
@@ -56,6 +53,7 @@ export async function POST({ request, clientAddress }) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });

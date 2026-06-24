@@ -3,11 +3,12 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeIp, parseJsonBody } from '../../lib/request.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = safeIp(clientAddress);
 
   const json = (data, status = 200) =>
     new Response(JSON.stringify(data), {
@@ -20,12 +21,9 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await parseJsonBody(request, 8192);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.body;
 
   const { action } = body;
   const db = getDb();

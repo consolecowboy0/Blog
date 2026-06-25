@@ -83,6 +83,10 @@ export async function POST({ request, clientAddress }) {
 export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) {
+    return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
+  }
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);

@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, checkBodySize } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -14,6 +14,10 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  if (!checkBodySize(request, 8192)) {
+    return json({ error: 'Payload too large' }, 413);
+  }
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
@@ -92,7 +96,8 @@ export async function POST({ request, clientAddress }) {
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
-    return json({ messages: doc.data().messages || [] });
+    const all = doc.data().messages || [];
+    return json({ messages: all.slice(-200) });
   }
 
   return json({ error: 'Unknown action' }, 400);

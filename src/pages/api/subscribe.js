@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, checkBodySize } from '../../lib/rate-limit.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,6 +15,10 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  if (!checkBodySize(request, 2048)) {
+    return json({ error: 'Payload too large' }, 413);
+  }
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {

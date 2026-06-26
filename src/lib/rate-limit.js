@@ -17,6 +17,12 @@ function prune(now) {
  * @param {number} windowMs window duration in ms
  * @returns {{ ok: boolean, remaining: number, retryAfter: number }}
  */
+export function checkBodySize(request, maxBytes = 65536) {
+  const cl = request.headers.get('Content-Length');
+  if (cl && parseInt(cl, 10) > maxBytes) return false;
+  return true;
+}
+
 export function checkRate(key, max, windowMs) {
   const now = Date.now();
   prune(now);

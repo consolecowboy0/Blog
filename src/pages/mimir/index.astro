@@ -500,7 +500,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   resumeBtn.addEventListener('click', () => {
     const newId = resumeInput.value.trim();
-    if (!newId) return;
+    if (!newId || !/^[A-Fa-f0-9]{32}$/.test(newId)) return;
     visitorId = newId;
     localStorage.setItem('mimir_visitor_id', visitorId);
     idEl.textContent = visitorId;

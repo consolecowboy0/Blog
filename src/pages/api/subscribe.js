@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/request.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -16,17 +17,9 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  const ct = request.headers.get('Content-Type') || '';
-  if (!ct.includes('application/json')) {
-    return json({ error: 'Content-Type must be application/json' }, 415);
-  }
-
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await parseJsonBody(request);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   let { email } = body;
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);

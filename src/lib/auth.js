@@ -5,6 +5,8 @@ if (!SECRET) {
   throw new Error('[auth] AUTH_SECRET env var is required');
 }
 
+const VALID_SCOPES = ['analytics'];
+
 const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
 };
@@ -25,6 +27,7 @@ function safeEqualHex(a, b) {
 }
 
 export function verifyPassword(password, scope) {
+  if (!VALID_SCOPES.includes(scope)) return false;
   const hash = HASHES[scope];
   if (!hash) return false;
   const attempt = createHash('sha256').update(password).digest('hex');

@@ -3,7 +3,10 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/request.js';
 import { FieldValue } from 'firebase-admin/firestore';
+
+const VISITOR_ID_RE = /^[A-Fa-f0-9]{32}$/;
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -15,17 +18,9 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  const ct = request.headers.get('Content-Type') || '';
-  if (!ct.includes('application/json')) {
-    return json({ error: 'Content-Type must be application/json' }, 415);
-  }
-
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await parseJsonBody(request);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   const { action } = body;
   const db = getDb();
@@ -37,7 +32,7 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Missing fields' }, 400);
     }
     if (!visitor_id || !text) return json({ error: 'Missing fields' }, 400);
-    if (visitor_id.length > 128 || !/^[A-Za-z0-9_-]+$/.test(visitor_id)) {
+    if (!VISITOR_ID_RE.test(visitor_id)) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
@@ -83,7 +78,7 @@ export async function POST({ request, clientAddress }) {
 
   if (action === 'poll') {
     const { visitor_id } = body;
-    if (typeof visitor_id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(visitor_id) || visitor_id.length > 128) {
+    if (typeof visitor_id !== 'string' || !VISITOR_ID_RE.test(visitor_id)) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
 

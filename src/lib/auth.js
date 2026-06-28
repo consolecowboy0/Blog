@@ -64,7 +64,7 @@ export function getTokenFromRequest(request) {
   const auth = request.headers.get('Authorization');
   if (auth?.startsWith('Bearer ')) return auth.slice(7);
   const cookie = request.headers.get('Cookie') || '';
-  const match = cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
+  const match = cookie.match(/(?:^|;\s*)(?:__Host-)?auth_token=([^;]+)/);
   return match ? match[1] : null;
 }
 

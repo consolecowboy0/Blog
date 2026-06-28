@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeJson } from '../../lib/request.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -28,12 +29,8 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const body = await safeJson(request, 1024);
+  if (!body) return json({ error: 'Invalid JSON' }, 400);
 
   const { password, scope } = body;
 
@@ -56,7 +53,7 @@ export async function POST({ request, clientAddress }) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
-      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+      'Set-Cookie': `__Host-auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });
 }

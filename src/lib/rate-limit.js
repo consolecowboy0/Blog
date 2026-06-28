@@ -3,11 +3,15 @@
 // For multi-instance production, replace the store with Netlify Blobs or Redis.
 
 const store = new Map();
+const MAX_STORE = 10000;
 
 function prune(now) {
-  if (store.size < 1000) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
+  }
+  if (store.size > MAX_STORE) {
+    const entries = [...store.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    for (let i = 0; i < entries.length - MAX_STORE; i++) store.delete(entries[i][0]);
   }
 }
 
@@ -19,7 +23,7 @@ function prune(now) {
  */
 export function checkRate(key, max, windowMs) {
   const now = Date.now();
-  prune(now);
+  if (store.size >= 500) prune(now);
   let entry = store.get(key);
   if (!entry || entry.resetAt <= now) {
     entry = { count: 0, resetAt: now + windowMs };

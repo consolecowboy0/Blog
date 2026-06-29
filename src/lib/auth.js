@@ -7,6 +7,8 @@ if (!SECRET) {
 
 const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
+  legion: process.env.AUTH_HASH_LEGION,
+  backend: process.env.AUTH_HASH_BACKEND,
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days

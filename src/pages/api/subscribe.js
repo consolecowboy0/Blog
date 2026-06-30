@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, bodyTooLarge } from '../../lib/rate-limit.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,6 +15,8 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  if (bodyTooLarge(request)) return json({ error: 'Payload too large' }, 413);
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
@@ -36,7 +38,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

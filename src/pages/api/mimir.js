@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, bodyTooLarge } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -14,6 +14,8 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  if (bodyTooLarge(request)) return json({ error: 'Payload too large' }, 413);
 
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
@@ -43,9 +45,19 @@ export async function POST({ request, clientAddress }) {
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
-    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlIp.ok) {
+      return new Response(JSON.stringify({ error: 'Rate limited' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rlIp.retryAfter) },
+      });
+    }
     const rlVis = checkRate(`mimir-send:${visitor_id}`, 20, 10 * 60 * 1000);
-    if (!rlVis.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlVis.ok) {
+      return new Response(JSON.stringify({ error: 'Rate limited' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rlVis.retryAfter) },
+      });
+    }
 
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
@@ -88,7 +100,12 @@ export async function POST({ request, clientAddress }) {
     }
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
-    if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rl.ok) {
+      return new Response(JSON.stringify({ error: 'Rate limited' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+      });
+    }
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

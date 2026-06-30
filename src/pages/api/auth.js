@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, bodyTooLarge } from '../../lib/rate-limit.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -12,6 +12,10 @@ export async function POST({ request, clientAddress }) {
       status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
+  if (bodyTooLarge(request)) {
+    return json({ error: 'Payload too large' }, 413);
+  }
 
   // Reject non-JSON content types to block CSRF via form submissions.
   const ct = request.headers.get('Content-Type') || '';
@@ -39,6 +43,10 @@ export async function POST({ request, clientAddress }) {
 
   if (!password || !scope) {
     return json({ error: 'Missing password or scope' }, 400);
+  }
+
+  if (typeof password !== 'string' || password.length > 256) {
+    return json({ error: 'Invalid password' }, 400);
   }
 
   if (!['analytics'].includes(scope)) {

@@ -1,4 +1,4 @@
-// Simple in-memory sliding-window rate limiter.
+// Simple in-memory sliding-window rate limiter + body-size guard.
 // Good enough for single-instance Netlify functions and dev.
 // For multi-instance production, replace the store with Netlify Blobs or Redis.
 
@@ -29,4 +29,12 @@ export function checkRate(key, max, windowMs) {
   const remaining = Math.max(0, max - entry.count);
   const retryAfter = Math.max(0, Math.ceil((entry.resetAt - now) / 1000));
   return { ok: entry.count <= max, remaining, retryAfter };
+}
+
+const MAX_BODY = 16_384; // 16 KiB -- generous for any JSON API payload here
+
+export function bodyTooLarge(request) {
+  const cl = request.headers.get('Content-Length');
+  if (cl && parseInt(cl, 10) > MAX_BODY) return true;
+  return false;
 }

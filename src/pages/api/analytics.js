@@ -3,6 +3,7 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
+import { checkRate } from '../../lib/rate-limit.js';
 import {
   classifyChannel, sourceLabel, CHANNELS, CHANNEL_LABELS,
   flagEmoji, isSpamHost, isPlausibleHost, CC_NAME, regionLabel,
@@ -25,7 +26,7 @@ function countsAsTraffic(d, includeOwner) {
   return true;
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'GET, OPTIONS');
 
   const auth = requireAuth(request, 'analytics');
@@ -33,6 +34,15 @@ export async function GET({ request }) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
       headers: corsHeaders,
+    });
+  }
+
+  const ip = clientAddress || 'unknown';
+  const rl = checkRate(`analytics-read:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
 

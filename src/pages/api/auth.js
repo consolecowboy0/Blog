@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, safeJson } from '../../lib/rate-limit.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -28,14 +28,12 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+  const parsed = await safeJson(request, 4_096);
+  if (!parsed.ok) {
+    return json({ error: parsed.error }, parsed.error === 'Payload too large' ? 413 : 400);
   }
 
-  const { password, scope } = body;
+  const { password, scope } = parsed.body;
 
   if (!password || !scope) {
     return json({ error: 'Missing password or scope' }, 400);

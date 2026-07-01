@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, safeJson } from '../../lib/rate-limit.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,14 +21,12 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+  const parsed = await safeJson(request, 4_096);
+  if (!parsed.ok) {
+    return json({ error: parsed.error }, parsed.error === 'Payload too large' ? 413 : 400);
   }
 
-  let { email } = body;
+  let { email } = parsed.body;
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);
   email = email.trim().toLowerCase();
   if (email.length > 254 || !EMAIL_RE.test(email)) {

@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/request-guard.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -16,19 +17,10 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  const ct = request.headers.get('Content-Type') || '';
-  if (!ct.includes('application/json')) {
-    return json({ error: 'Content-Type must be application/json' }, 415);
-  }
+  const parsed = await parseJsonBody(request, 1024);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
-
-  let { email } = body;
+  let { email } = parsed.body;
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);
   email = email.trim().toLowerCase();
   if (email.length > 254 || !EMAIL_RE.test(email)) {
@@ -36,7 +28,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

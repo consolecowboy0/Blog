@@ -19,6 +19,11 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 1024) {
+    return json({ error: 'Payload too large' }, 413);
+  }
+
   // Rate-limit: 5 attempts per 15 min per IP
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);

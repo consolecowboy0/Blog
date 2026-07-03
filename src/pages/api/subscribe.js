@@ -21,6 +21,11 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 2048) {
+    return json({ error: 'Payload too large' }, 413);
+  }
+
   let body;
   try {
     body = await request.json();
@@ -36,7 +41,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

@@ -56,6 +56,7 @@ export async function POST({ request, clientAddress }) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
       'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });

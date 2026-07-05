@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { bodyTooLarge } from '../../lib/request-guard.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,6 +20,10 @@ export async function POST({ request, clientAddress }) {
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
     return json({ error: 'Content-Type must be application/json' }, 415);
+  }
+
+  if (bodyTooLarge(request, 1024)) {
+    return json({ error: 'Payload too large' }, 413);
   }
 
   let body;
@@ -44,13 +49,13 @@ export async function POST({ request, clientAddress }) {
   const now = Date.now();
 
   const doc = await ref.get();
-  if (doc.exists) return json({ ok: true, already: true });
-
-  await ref.set({
-    email,
-    created: now,
-    source: 'homepage',
-  });
+  if (!doc.exists) {
+    await ref.set({
+      email,
+      created: now,
+      source: 'homepage',
+    });
+  }
 
   return json({ ok: true });
 }

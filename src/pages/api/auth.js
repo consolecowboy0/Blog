@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { bodyTooLarge } from '../../lib/request-guard.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -17,6 +18,10 @@ export async function POST({ request, clientAddress }) {
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
     return json({ error: 'Content-Type must be application/json' }, 415);
+  }
+
+  if (bodyTooLarge(request, 1024)) {
+    return json({ error: 'Payload too large' }, 413);
   }
 
   // Rate-limit: 5 attempts per 15 min per IP

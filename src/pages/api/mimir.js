@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { bodyTooLarge } from '../../lib/request-guard.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -18,6 +19,10 @@ export async function POST({ request, clientAddress }) {
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
     return json({ error: 'Content-Type must be application/json' }, 415);
+  }
+
+  if (bodyTooLarge(request, 8192)) {
+    return json({ error: 'Payload too large' }, 413);
   }
 
   let body;

@@ -5,6 +5,8 @@ if (!SECRET) {
   throw new Error('[auth] AUTH_SECRET env var is required');
 }
 
+const VALID_SCOPES = ['analytics'];
+
 const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
 };
@@ -32,6 +34,7 @@ export function verifyPassword(password, scope) {
 }
 
 export function createToken(scope) {
+  if (!VALID_SCOPES.includes(scope)) return null;
   const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL;
   const nonce = randomBytes(8).toString('hex');
   const payload = Buffer.from(JSON.stringify({ scope, exp, nonce })).toString('base64url');
@@ -54,6 +57,7 @@ export function verifyToken(token) {
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
     if (data.exp < Math.floor(Date.now() / 1000)) return null;
+    if (!VALID_SCOPES.includes(data.scope)) return null;
     return data;
   } catch {
     return null;

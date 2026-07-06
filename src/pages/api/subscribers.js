@@ -1,5 +1,6 @@
 export const prerender = false;
 
+import { createHash } from 'node:crypto';
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
@@ -15,7 +16,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Doc id derived from the email, matching api/subscribe.js so the homepage and
 // the dashboard address the same documents.
 function docIdFor(email) {
-  return email.replace(/[^A-Za-z0-9_.-]/g, '_');
+  return createHash('sha256').update(email).digest('hex').slice(0, 32);
 }
 
 function normEmail(raw) {

@@ -10,6 +10,7 @@ const HASHES = {
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
+const TOKEN_NOT_BEFORE = parseInt(process.env.AUTH_TOKEN_NOT_BEFORE || '0', 10) || 0;
 
 function sign(payload) {
   return createHmac('sha256', SECRET).update(payload).digest('hex');
@@ -32,9 +33,10 @@ export function verifyPassword(password, scope) {
 }
 
 export function createToken(scope) {
-  const exp = Math.floor(Date.now() / 1000) + TOKEN_TTL;
+  const now = Math.floor(Date.now() / 1000);
+  const exp = now + TOKEN_TTL;
   const nonce = randomBytes(8).toString('hex');
-  const payload = Buffer.from(JSON.stringify({ scope, exp, nonce })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ scope, exp, iat: now, nonce })).toString('base64url');
   const sig = sign(payload);
   return `${payload}.${sig}`;
 }
@@ -54,6 +56,7 @@ export function verifyToken(token) {
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
     if (data.exp < Math.floor(Date.now() / 1000)) return null;
+    if (TOKEN_NOT_BEFORE && data.iat && data.iat < TOKEN_NOT_BEFORE) return null;
     return data;
   } catch {
     return null;

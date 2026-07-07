@@ -1,9 +1,14 @@
 export const prerender = false;
 
+import { createHash, randomBytes } from 'node:crypto';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
+
+function hashSecret(raw) {
+  return createHash('sha256').update(raw).digest('hex');
+}
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -32,7 +37,7 @@ export async function POST({ request, clientAddress }) {
   const convCol = db.collection('dm_conversations');
 
   if (action === 'send') {
-    const { visitor_id, text, fingerprint } = body;
+    const { visitor_id, text, fingerprint, secret } = body;
     if (typeof visitor_id !== 'string' || typeof text !== 'string') {
       return json({ error: 'Missing fields' }, 400);
     }
@@ -41,6 +46,9 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
+    if (typeof secret !== 'string' || !secret) {
+      return json({ error: 'Missing secret' }, 400);
+    }
 
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
     if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
@@ -50,6 +58,7 @@ export async function POST({ request, clientAddress }) {
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
     const now = Date.now();
+    const secretHash = hashSecret(secret);
 
     let fp = '';
     if (fingerprint && typeof fingerprint === 'string') {
@@ -59,16 +68,23 @@ export async function POST({ request, clientAddress }) {
     }
 
     if (doc.exists) {
-      await docRef.update({
+      const stored = doc.data().secretHash;
+      if (stored && stored !== secretHash) {
+        return json({ error: 'Forbidden' }, 403);
+      }
+      const update = {
         messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
         preview: text.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
         ...(fp ? { fingerprint: fp } : {}),
-      });
+      };
+      if (!stored) update.secretHash = secretHash;
+      await docRef.update(update);
     } else {
       await docRef.set({
         id: visitor_id,
+        secretHash,
         fingerprint: fp,
         messages: [{ from: 'visitor', text, time: now }],
         preview: text.substring(0, 80),
@@ -82,9 +98,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   if (action === 'poll') {
-    const { visitor_id } = body;
+    const { visitor_id, secret } = body;
     if (typeof visitor_id !== 'string' || !/^[A-Za-z0-9_-]+$/.test(visitor_id) || visitor_id.length > 128) {
       return json({ error: 'Invalid visitor_id' }, 400);
+    }
+    if (typeof secret !== 'string' || !secret) {
+      return json({ error: 'Missing secret' }, 400);
     }
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
@@ -92,6 +111,12 @@ export async function POST({ request, clientAddress }) {
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
+
+    const stored = doc.data().secretHash;
+    if (stored && stored !== hashSecret(secret)) {
+      return json({ error: 'Forbidden' }, 403);
+    }
+
     return json({ messages: doc.data().messages || [] });
   }
 

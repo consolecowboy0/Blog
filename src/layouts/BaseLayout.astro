@@ -726,6 +726,14 @@ const { title, description = 'A blog.' } = Astro.props;
     }
     localStorage.setItem('mimir_visitor_id', visitorId);
 
+    let mimirSecret = localStorage.getItem('mimir_secret');
+    if (!mimirSecret) {
+      const buf = new Uint8Array(32);
+      crypto.getRandomValues(buf);
+      mimirSecret = Array.from(buf, (b: number) => b.toString(16).padStart(2, '0')).join('');
+      localStorage.setItem('mimir_secret', mimirSecret);
+    }
+
     const idDisplay = document.getElementById('mimir-visitor-id');
     if (idDisplay) idDisplay.textContent = 'ID: ' + visitorId.slice(0, 8);
 
@@ -808,7 +816,7 @@ const { title, description = 'A blog.' } = Astro.props;
         await fetch('/api/mimir', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint: fp }),
+          body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint: fp, secret: mimirSecret }),
         });
       } catch { /* silent */ }
       input.focus();
@@ -832,7 +840,7 @@ const { title, description = 'A blog.' } = Astro.props;
         const res = await fetch('/api/mimir', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'poll', visitor_id: visitorId }),
+          body: JSON.stringify({ action: 'poll', visitor_id: visitorId, secret: mimirSecret }),
         });
         if (res.ok) {
           const data = await res.json();

@@ -32,7 +32,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div class="id-resume">
         <button id="resume-toggle" class="resume-link">Switch ID</button>
         <div id="resume-form" class="resume-form resume-hidden">
-          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="16" />
+          <input type="text" id="resume-input" placeholder="Paste ID:secret" maxlength="160" />
           <button id="resume-btn" class="resume-go">Go</button>
         </div>
       </div>
@@ -453,6 +453,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
   }
 
+  function generateSecret(): string {
+    const buf = new Uint8Array(32);
+    crypto.getRandomValues(buf);
+    return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+  }
+
   function getFingerprint(): string {
     return [
       navigator.userAgent,
@@ -468,6 +474,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const fingerprint = getFingerprint();
   let visitorId = localStorage.getItem('mimir_visitor_id') || localStorage.getItem('dm_visitor_id') || generateVisitorId();
   localStorage.setItem('mimir_visitor_id', visitorId);
+
+  let mimirSecret = localStorage.getItem('mimir_secret');
+  if (!mimirSecret) {
+    mimirSecret = generateSecret();
+    localStorage.setItem('mimir_secret', mimirSecret);
+  }
 
   const idEl = document.getElementById('visitor-id')!;
   const copyBtn = document.getElementById('copy-id')!;
@@ -487,7 +499,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   let lastSendTime = 0;
 
   copyBtn.addEventListener('click', () => {
-    navigator.clipboard.writeText(visitorId);
+    navigator.clipboard.writeText(visitorId + ':' + mimirSecret);
     copyBtn.classList.add('copied');
     copyBtn.title = 'Copied!';
     setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.title = 'Copy ID'; }, 1500);
@@ -499,10 +511,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 
   resumeBtn.addEventListener('click', () => {
-    const newId = resumeInput.value.trim();
-    if (!newId) return;
+    const parts = resumeInput.value.trim().split(':');
+    const newId = parts[0];
+    const newSecret = parts[1];
+    if (!newId || !newSecret) return;
     visitorId = newId;
+    mimirSecret = newSecret;
     localStorage.setItem('mimir_visitor_id', visitorId);
+    localStorage.setItem('mimir_secret', mimirSecret);
     idEl.textContent = visitorId;
     resumeForm.classList.add('resume-hidden');
     resumeInput.value = '';
@@ -564,7 +580,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const res = await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'poll', visitor_id: visitorId }),
+        body: JSON.stringify({ action: 'poll', visitor_id: visitorId, secret: mimirSecret }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -594,7 +610,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       await fetch(API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint }),
+        body: JSON.stringify({ action: 'send', visitor_id: visitorId, text, fingerprint, secret: mimirSecret }),
       });
     } catch { /* silent */ }
     sendBtn.removeAttribute('disabled');

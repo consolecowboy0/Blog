@@ -3,16 +3,17 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeParseJson } from '../../lib/safe-json.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 
-  const json = (data, status = 200) =>
+  const json = (data, status = 200, extra = {}) =>
     new Response(JSON.stringify(data), {
       status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', ...extra },
     });
 
   const ct = request.headers.get('Content-Type') || '';
@@ -20,12 +21,12 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+  const parsed = await safeParseJson(request);
+  if (parsed.error) {
+    const status = parsed.error === 'Payload too large' ? 413 : 400;
+    return json({ error: parsed.error }, status);
   }
+  const body = parsed.data;
 
   const { action } = body;
   const db = getDb();
@@ -43,9 +44,9 @@ export async function POST({ request, clientAddress }) {
     if (text.length > 2000) return json({ error: 'Too long' }, 400);
 
     const rlIp = checkRate(`mimir-send:${ip}`, 10, 5 * 60 * 1000);
-    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429, { 'Retry-After': String(rlIp.retryAfter) });
     const rlVis = checkRate(`mimir-send:${visitor_id}`, 20, 10 * 60 * 1000);
-    if (!rlVis.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rlVis.ok) return json({ error: 'Rate limited' }, 429, { 'Retry-After': String(rlVis.retryAfter) });
 
     const docRef = convCol.doc(visitor_id);
     const doc = await docRef.get();
@@ -88,7 +89,7 @@ export async function POST({ request, clientAddress }) {
     }
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
-    if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    if (!rl.ok) return json({ error: 'Rate limited' }, 429, { 'Retry-After': String(rl.retryAfter) });
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

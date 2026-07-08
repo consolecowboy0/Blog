@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeParseJson } from '../../lib/safe-json.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -21,12 +22,12 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
+  const parsed = await safeParseJson(request, 4096);
+  if (parsed.error) {
+    const status = parsed.error === 'Payload too large' ? 413 : 400;
+    return json({ error: parsed.error }, status);
   }
+  const body = parsed.data;
 
   let { email } = body;
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);
@@ -36,7 +37,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

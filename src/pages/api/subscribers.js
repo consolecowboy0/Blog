@@ -4,6 +4,7 @@ import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeParseJson } from '../../lib/safe-json.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -25,10 +26,10 @@ function normEmail(raw) {
   return email;
 }
 
-function json(data, status, corsHeaders) {
+function json(data, status, corsHeaders, extra = {}) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', ...extra },
   });
 }
 
@@ -58,12 +59,15 @@ export async function GET({ request }) {
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  const parsed = await safeParseJson(request);
+  if (parsed.error) return json({ error: parsed.error }, parsed.error === 'Payload too large' ? 413 : 400, corsHeaders);
+  const body = parsed.data;
 
   const email = normEmail(body.email);
   if (!email) return json({ error: 'Invalid email' }, 400, corsHeaders);
@@ -83,12 +87,15 @@ export async function POST({ request, clientAddress }) {
 export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  const parsed = await safeParseJson(request);
+  if (parsed.error) return json({ error: parsed.error }, parsed.error === 'Payload too large' ? 413 : 400, corsHeaders);
+  const body = parsed.data;
 
   const id = typeof body.id === 'string' ? body.id : '';
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);
@@ -126,7 +133,7 @@ export async function DELETE({ request, clientAddress }) {
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);

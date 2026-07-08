@@ -1,11 +1,7 @@
-// Simple in-memory sliding-window rate limiter.
-// Good enough for single-instance Netlify functions and dev.
-// For multi-instance production, replace the store with Netlify Blobs or Redis.
-
 const store = new Map();
+const MAX_ENTRIES = 10000;
 
 function prune(now) {
-  if (store.size < 1000) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
   }
@@ -19,7 +15,12 @@ function prune(now) {
  */
 export function checkRate(key, max, windowMs) {
   const now = Date.now();
-  prune(now);
+  if (store.size >= MAX_ENTRIES) prune(now);
+  if (store.size >= MAX_ENTRIES) {
+    const oldest = [...store.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const drop = Math.floor(oldest.length / 4);
+    for (let i = 0; i < drop; i++) store.delete(oldest[i][0]);
+  }
   let entry = store.get(key);
   if (!entry || entry.resetAt <= now) {
     entry = { count: 0, resetAt: now + windowMs };

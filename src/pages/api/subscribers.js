@@ -36,9 +36,13 @@ function unauthorized(corsHeaders) {
   return json({ error: 'Unauthorized' }, 401, corsHeaders);
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+
+  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = checkRate(`subs-read:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   try {
     const db = getDb();
@@ -49,7 +53,10 @@ export async function GET({ request }) {
         return { id: d.id, email: v.email || '', created: v.created || 0, source: v.source || '' };
       })
       .sort((a, b) => b.created - a.created || (a.email < b.email ? -1 : 1));
-    return json({ subscribers, total: subscribers.length }, 200, corsHeaders);
+    return new Response(JSON.stringify({ subscribers, total: subscribers.length }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+    });
   } catch {
     return json({ error: 'Server error' }, 500, corsHeaders);
   }

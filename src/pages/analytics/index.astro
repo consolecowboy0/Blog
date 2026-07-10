@@ -477,9 +477,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
   }
 
-  function signOut() {
+  async function signOut() {
     authToken = null;
-    document.cookie = 'auth_token=; Path=/; Max-Age=0; Secure; SameSite=Strict';
+    await fetch('/api/auth', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
     panel!.style.display = 'none';
     gate!.style.display = 'flex';
     gatePassword!.value = '';

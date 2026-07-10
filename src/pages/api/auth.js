@@ -61,6 +61,18 @@ export async function POST({ request, clientAddress }) {
   });
 }
 
+export async function DELETE({ request }) {
+  const corsHeaders = corsHeadersFor(request, 'POST, DELETE, OPTIONS');
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+      'Set-Cookie': 'auth_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0',
+    },
+  });
+}
+
 export async function OPTIONS({ request }) {
-  return preflight(request, 'POST, OPTIONS');
+  return preflight(request, 'POST, DELETE, OPTIONS');
 }

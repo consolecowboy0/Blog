@@ -16,30 +16,38 @@ interface Props {
 
 const { type, labels, datasets, title } = Astro.props;
 const chartId = `chart-${Math.random().toString(36).slice(2, 9)}`;
-const config = JSON.stringify({ type, data: { labels, datasets }, options: {
-  responsive: true,
-  maintainAspectRatio: true,
-  plugins: {
-    legend: { labels: { font: { family: 'Inter, sans-serif', size: 13 }, color: '#1a1a1a' } },
-    title: title ? { display: true, text: title, font: { family: 'Inter, sans-serif', size: 16, weight: 800 }, color: '#1a1a1a' } : { display: false },
-  },
-  scales: type !== 'pie' && type !== 'doughnut' && type !== 'radar' ? {
-    x: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
-    y: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
-  } : undefined,
-}});
+const configData = { type, data: { labels, datasets }, title: title || null,
+  hasScales: type !== 'pie' && type !== 'doughnut' && type !== 'radar' };
+const configJson = JSON.stringify(configData);
 ---
 
 <div class="chart-container">
   <canvas id={chartId}></canvas>
 </div>
 
-<script define:vars={{ chartId, config }}>
+<script define:vars={{ chartId, configJson }}>
   async function initChart() {
     const { Chart, registerables } = await import('chart.js');
     Chart.register(...registerables);
     const ctx = document.getElementById(chartId);
-    new Chart(ctx, JSON.parse(config));
+    const cd = JSON.parse(configJson);
+    const style = getComputedStyle(document.documentElement);
+    const fg = style.getPropertyValue('--text').trim() || '#1a1a1a';
+    const muted = style.getPropertyValue('--text-muted').trim() || '#555';
+    const grid = style.getPropertyValue('--border').trim() || '#e0e0db';
+    const options = {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { labels: { font: { family: 'Inter, sans-serif', size: 13 }, color: fg } },
+        title: cd.title ? { display: true, text: cd.title, font: { family: 'Inter, sans-serif', size: 16, weight: 800 }, color: fg } : { display: false },
+      },
+      scales: cd.hasScales ? {
+        x: { ticks: { font: { family: 'Inter, sans-serif' }, color: muted }, grid: { color: grid } },
+        y: { ticks: { font: { family: 'Inter, sans-serif' }, color: muted }, grid: { color: grid } },
+      } : undefined,
+    };
+    new Chart(ctx, { type: cd.type, data: cd.data, options });
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initChart);

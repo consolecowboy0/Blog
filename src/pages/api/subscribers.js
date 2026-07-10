@@ -58,6 +58,8 @@ export async function GET({ request }) {
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
@@ -83,6 +85,8 @@ export async function POST({ request, clientAddress }) {
 export async function PATCH({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (!ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
@@ -92,6 +96,9 @@ export async function PATCH({ request, clientAddress }) {
 
   const id = typeof body.id === 'string' ? body.id : '';
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);
+  if (id.length > 254 || !/^[A-Za-z0-9_.-]+$/.test(id)) {
+    return json({ error: 'Invalid id' }, 400, corsHeaders);
+  }
   const email = normEmail(body.email);
   if (!email) return json({ error: 'Invalid email' }, 400, corsHeaders);
 
@@ -124,6 +131,8 @@ export async function PATCH({ request, clientAddress }) {
 export async function DELETE({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ct = request.headers.get('Content-Type') || '';
+  if (ct && !ct.includes('application/json')) return json({ error: 'Content-Type must be application/json' }, 415, corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);

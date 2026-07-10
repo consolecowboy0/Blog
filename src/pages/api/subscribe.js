@@ -28,15 +28,15 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Invalid JSON' }, 400);
   }
 
+  const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+
   let { email } = body;
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);
   email = email.trim().toLowerCase();
   if (email.length > 254 || !EMAIL_RE.test(email)) {
     return json({ error: 'Invalid email' }, 400);
   }
-
-  const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

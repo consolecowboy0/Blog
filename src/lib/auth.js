@@ -40,7 +40,7 @@ export function createToken(scope) {
 }
 
 export function verifyToken(token) {
-  if (!token || typeof token !== 'string') return null;
+  if (!token || typeof token !== 'string' || token.length > 1024) return null;
   const parts = token.split('.');
   if (parts.length !== 2) return null;
   const [payload, sig] = parts;

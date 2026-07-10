@@ -28,9 +28,10 @@
     applyTheme(localStorage.getItem('theme'));
   }
   window.addEventListener('message', function(e){
+    var o = e.origin;
+    if (o !== 'https://dustinlanders.com' && o !== 'https://www.dustinlanders.com' && o.indexOf('http://localhost') !== 0 && o.indexOf('http://127.0.0.1') !== 0) return;
     if (e && e.data && e.data.type === 'parent-theme') {
       applyTheme(e.data.theme);
-      // No localStorage write — parent owns persisted preference.
     }
   });
 })();

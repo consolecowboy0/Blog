@@ -40,6 +40,12 @@ export async function POST({ request, clientAddress }) {
   if (!password || !scope) {
     return json({ error: 'Missing password or scope' }, 400);
   }
+  if (typeof password !== 'string' || password.length > 1024) {
+    return json({ error: 'Invalid password' }, 400);
+  }
+  if (typeof scope !== 'string') {
+    return json({ error: 'Invalid scope' }, 400);
+  }
 
   if (!['analytics'].includes(scope)) {
     return json({ error: 'Invalid scope' }, 400);

@@ -6,7 +6,7 @@ import LibraryEmbed from '../../components/LibraryEmbed.astro';
 
 export async function getStaticPaths() {
   const items = (await getCollection('library')).filter(
-    (item) => item.data.type !== 'pdf'
+    (item) => item.data.type !== 'pdf' && !item.data.draft
   );
   return items.map((item) => ({
     params: { id: item.id },

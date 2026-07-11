@@ -87,6 +87,8 @@ export async function POST({ request, clientAddress }) {
       return json({ error: 'Invalid visitor_id' }, 400);
     }
 
+    const rlIp = checkRate(`mimir-poll:${ip}`, 60, 60 * 1000);
+    if (!rlIp.ok) return json({ error: 'Rate limited' }, 429);
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
     if (!rl.ok) return json({ error: 'Rate limited' }, 429);
 

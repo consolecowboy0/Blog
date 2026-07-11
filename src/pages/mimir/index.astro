@@ -12,7 +12,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </div>
       <div>
         <h1>Mimir</h1>
-        <p class="mimir-desc">Dustin's AI assistant. Mimir answers and gets back to you. Private and encrypted. Save your ID to resume later.</p>
+        <p class="mimir-desc">Dustin's AI assistant. Mimir answers and gets back to you. Save your ID to resume later.</p>
       </div>
     </div>
 
@@ -32,7 +32,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div class="id-resume">
         <button id="resume-toggle" class="resume-link">Switch ID</button>
         <div id="resume-form" class="resume-form resume-hidden">
-          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="16" />
+          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="64" />
           <button id="resume-btn" class="resume-go">Go</button>
         </div>
       </div>
@@ -448,9 +448,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const API = '/api/mimir';
 
   function generateVisitorId(): string {
-    const buf = new Uint8Array(16);
-    crypto.getRandomValues(buf);
-    return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+    return crypto.randomUUID();
   }
 
   function getFingerprint(): string {
@@ -500,7 +498,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   resumeBtn.addEventListener('click', () => {
     const newId = resumeInput.value.trim();
-    if (!newId) return;
+    if (!newId || !/^[A-Za-z0-9_-]+$/.test(newId)) return;
     visitorId = newId;
     localStorage.setItem('mimir_visitor_id', visitorId);
     idEl.textContent = visitorId;

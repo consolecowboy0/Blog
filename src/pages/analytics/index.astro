@@ -479,6 +479,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   function signOut() {
     authToken = null;
+    document.cookie = '__Host-auth_token=; Path=/; Max-Age=0; Secure; SameSite=Strict';
     document.cookie = 'auth_token=; Path=/; Max-Age=0; Secure; SameSite=Strict';
     panel!.style.display = 'none';
     gate!.style.display = 'flex';

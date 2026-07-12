@@ -64,8 +64,10 @@ export function getTokenFromRequest(request) {
   const auth = request.headers.get('Authorization');
   if (auth?.startsWith('Bearer ')) return auth.slice(7);
   const cookie = request.headers.get('Cookie') || '';
-  const match = cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
-  return match ? match[1] : null;
+  const match = cookie.match(/(?:^|;\s*)__Host-auth_token=([^;]+)/);
+  if (match) return match[1];
+  const legacy = cookie.match(/(?:^|;\s*)auth_token=([^;]+)/);
+  return legacy ? legacy[1] : null;
 }
 
 export function requireAuth(request, scope) {

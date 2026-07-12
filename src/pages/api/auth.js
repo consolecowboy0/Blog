@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/body.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -13,13 +14,11 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  // Reject non-JSON content types to block CSRF via form submissions.
   const ct = request.headers.get('Content-Type') || '';
   if (!ct.includes('application/json')) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  // Rate-limit: 5 attempts per 15 min per IP
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
@@ -28,17 +27,19 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+
+  const parsed = await parseJsonBody(request, 1024);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   const { password, scope } = body;
 
-  if (!password || !scope) {
-    return json({ error: 'Missing password or scope' }, 400);
+  if (!password || typeof password !== 'string' || password.length > 256) {
+    return json({ error: 'Invalid password' }, 400);
+  }
+
+  if (!scope || typeof scope !== 'string') {
+    return json({ error: 'Missing scope' }, 400);
   }
 
   if (!['analytics'].includes(scope)) {
@@ -56,7 +57,7 @@ export async function POST({ request, clientAddress }) {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
-      'Set-Cookie': `auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
+      'Set-Cookie': `__Host-auth_token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`,
     },
   });
 }

@@ -3,7 +3,10 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { parseJsonBody } from '../../lib/body.js';
 import { FieldValue } from 'firebase-admin/firestore';
+
+const MAX_POLL_MESSAGES = 100;
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -20,12 +23,9 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await parseJsonBody(request, 4096);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   const { action } = body;
   const db = getDb();
@@ -92,7 +92,8 @@ export async function POST({ request, clientAddress }) {
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });
-    return json({ messages: doc.data().messages || [] });
+    const messages = doc.data().messages || [];
+    return json({ messages: messages.slice(-MAX_POLL_MESSAGES) });
   }
 
   return json({ error: 'Unknown action' }, 400);

@@ -16,12 +16,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.92",
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/netlify": "^7.0.6",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
-    "@netlify/blobs": "^10.7.4",
     "astro": "^6.0.2",
     "chart.js": "^4.5.1",
     "firebase-admin": "^13.8.0",

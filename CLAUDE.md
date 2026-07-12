@@ -30,9 +30,19 @@ Defined in `src/content.config.ts`. Two collections:
 - `src/pages/index.astro` - Homepage
 - `src/pages/posts/[...id].astro` - Dynamic post routes
 - `src/pages/library/` - Library section
-- `src/pages/rockoutwithyour/` - Interactive feature page
-- `src/pages/api/agent-chat.js` - Server-side API endpoint (SSR via Netlify adapter)
-- `src/pages/dev/` - Dev-only pages
+- `src/pages/mimir/` - Messaging system
+- `src/pages/analytics/` - Password-gated analytics dashboard
+- `src/pages/privacy.astro` - Privacy policy
+- `src/pages/terms.astro` - Terms and conditions
+
+### API Endpoints (SSR via Netlify adapter)
+
+- `src/pages/api/auth.js` - Password authentication, returns JWT
+- `src/pages/api/track.js` - Pageview analytics beacon
+- `src/pages/api/analytics.js` - Aggregated analytics data (auth required)
+- `src/pages/api/mimir.js` - Messaging send/poll
+- `src/pages/api/subscribe.js` - Email newsletter subscription
+- `src/pages/api/subscribers.js` - Subscriber management (auth required)
 
 ### Layouts
 
@@ -49,12 +59,14 @@ Uses `@fontsource/inter` and `@fontsource-variable/jetbrains-mono`. Styles in `s
 
 ### Agents System
 
-Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads character JSON files, a room, and relationships, then runs rounds of conversation via Claude API.
+Multi-agent character data lives in `characters/`. Each set is a directory with character JSON, relationships, and room definitions. Used by `agent_panel.py` (standalone Python script) and headshot/room generation scripts.
 
-**Character sets** live in `characters/`. Each set is a directory:
-- `characters/cyber/` - Cyberpunk Night City theme
-- `characters/diesel/` - Dieselpunk bunker theme
-- `characters/modelthinker/` - Mental model problem-solvers
+**Character sets:**
+- `characters/analysts/` - Data analysts theme (8 characters)
+- `characters/cyber/` - Cyberpunk Night City theme (5 characters)
+- `characters/diesel/` - Dieselpunk bunker theme (6 characters)
+- `characters/mathlab/` - Math/statistics theme (12 characters)
+- `characters/modelthinker/` - Mental model problem-solvers (12 characters)
 
 **Character JSON format:**
 ```json
@@ -78,15 +90,3 @@ Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads charact
 **Relationships JSON:** `relationships_<theme>.json` -- array of pairings with `between`, `type`, `history`, `current_tension`, `shared_knowledge`. Every character pair should have an entry.
 
 **Room JSON:** `room_<name>.json` -- `name`, `location`, `time`, `weather`, `atmosphere` (lighting/sound/crowd/smell), `layout` (named areas), `objects_of_note`, `mood`.
-
-**Order modes** (dropdown in UI):
-- Default: fixed upload order
-- Random: Fisher-Yates shuffle per round
-- Priority: agents bid 1-10 urgency before each round, sorted by bid
-
-**Model Thinker characters** (12 total): Axiom (First Principles), Loop (Systems Thinking), Prior (Bayesian), Nash (Game Theory), Contra (Inversion), Bottleneck (Theory of Constraints), Darwin (Evolutionary), Tail (Power Laws/Fat Tails), Web (Network Theory), Margin (Marginal Thinking), Razor (Occam's Razor), Atlas (Map vs Territory). Each applies their mental model as a lens to problems. Tension comes from where models disagree.
-
-**API endpoints:**
-- `src/pages/api/agent-chat.js` - Direct Claude API calls
-- `src/pages/api/agent-sdk-chat.js` - Agent SDK mode
-- `src/pages/api/pixellab.js` - PixelLab pixel art illustration

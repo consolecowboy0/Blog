@@ -32,7 +32,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       <div class="id-resume">
         <button id="resume-toggle" class="resume-link">Switch ID</button>
         <div id="resume-form" class="resume-form resume-hidden">
-          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="16" />
+          <input type="text" id="resume-input" placeholder="Paste ID" maxlength="36" />
           <button id="resume-btn" class="resume-go">Go</button>
         </div>
       </div>
@@ -448,9 +448,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const API = '/api/mimir';
 
   function generateVisitorId(): string {
-    const buf = new Uint8Array(16);
-    crypto.getRandomValues(buf);
-    return Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+    return crypto.randomUUID();
   }
 
   function getFingerprint(): string {

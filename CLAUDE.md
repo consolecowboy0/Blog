@@ -30,9 +30,19 @@ Defined in `src/content.config.ts`. Two collections:
 - `src/pages/index.astro` - Homepage
 - `src/pages/posts/[...id].astro` - Dynamic post routes
 - `src/pages/library/` - Library section
-- `src/pages/rockoutwithyour/` - Interactive feature page
-- `src/pages/api/agent-chat.js` - Server-side API endpoint (SSR via Netlify adapter)
-- `src/pages/dev/` - Dev-only pages
+- `src/pages/mimir/` - Visitor messaging (Mimir AI assistant)
+- `src/pages/analytics/` - Password-gated analytics dashboard
+- `src/pages/privacy.astro` - Privacy policy
+- `src/pages/terms.astro` - Terms page
+
+### API Endpoints (SSR via Netlify adapter)
+
+- `src/pages/api/auth.js` - Password auth with HMAC-signed session tokens
+- `src/pages/api/track.js` - First-party pageview tracking beacon
+- `src/pages/api/analytics.js` - Authenticated analytics data
+- `src/pages/api/mimir.js` - Mimir messaging (send/poll via Firestore)
+- `src/pages/api/subscribe.js` - Email subscription
+- `src/pages/api/subscribers.js` - Subscriber management (auth-gated)
 
 ### Layouts
 
@@ -45,16 +55,19 @@ Uses `@fontsource/inter` and `@fontsource-variable/jetbrains-mono`. Styles in `s
 
 ### Key Dependencies
 
-- `chart.js` and `d3` for data visualization in posts/library items
+- `chart.js` for data visualization in posts/library items
+- `d3` vendored in `public/embeds/` for interactive visualizations
+- `firebase-admin` for Firestore (analytics, Mimir, subscribers)
+- `katex` / `rehype-katex` / `remark-math` for math rendering
 
-### Agents System
+### Agents System (character data only, no live pages)
 
-Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads character JSON files, a room, and relationships, then runs rounds of conversation via Claude API.
-
-**Character sets** live in `characters/`. Each set is a directory:
+Character JSON files live in `characters/`. Each set is a directory:
 - `characters/cyber/` - Cyberpunk Night City theme
 - `characters/diesel/` - Dieselpunk bunker theme
 - `characters/modelthinker/` - Mental model problem-solvers
+- `characters/analysts/` - Analyst team
+- `characters/mathlab/` - Math/statistics agents
 
 **Character JSON format:**
 ```json
@@ -86,7 +99,6 @@ Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads charact
 
 **Model Thinker characters** (12 total): Axiom (First Principles), Loop (Systems Thinking), Prior (Bayesian), Nash (Game Theory), Contra (Inversion), Bottleneck (Theory of Constraints), Darwin (Evolutionary), Tail (Power Laws/Fat Tails), Web (Network Theory), Margin (Marginal Thinking), Razor (Occam's Razor), Atlas (Map vs Territory). Each applies their mental model as a lens to problems. Tension comes from where models disagree.
 
-**API endpoints:**
-- `src/pages/api/agent-chat.js` - Direct Claude API calls
-- `src/pages/api/agent-sdk-chat.js` - Agent SDK mode
-- `src/pages/api/pixellab.js` - PixelLab pixel art illustration
+### Mimir Messaging System
+
+Visitor messaging at `src/pages/mimir/index.astro` plus a floating chat widget embedded in `BaseLayout.astro`. Uses Firestore `dm_conversations` collection. Visitor identity via `crypto.randomUUID()` stored in localStorage.

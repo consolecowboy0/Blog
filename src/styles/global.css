@@ -10,14 +10,6 @@
   --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
 }
 
-[data-theme="dark"] {
-  --bg: #0a0a0f;
-  --fg: #e5e5e5;
-  --fg-muted: #999;
-  --accent: #f0f0f0;
-  --border: #1e1e2e;
-  --code-bg: #0d0d14;
-}
 
 /* Vanaheim mode — realm of the Vanir: the daylight Norse theme. Warm parchment
    ground, deep forest ink, verdant green regalia with a gold thread of growth.
@@ -1342,7 +1334,6 @@ th {
   width: 100%;
   margin: 1.5rem auto;
 }
-[data-theme="dark"] .chart-img,
 [data-theme="rainbow"] .chart-img {
   filter: invert(1) hue-rotate(180deg);
 }

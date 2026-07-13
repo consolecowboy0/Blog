@@ -44,13 +44,13 @@ export async function POST({ request, clientAddress }) {
   const now = Date.now();
 
   const doc = await ref.get();
-  if (doc.exists) return json({ ok: true, already: true });
-
-  await ref.set({
-    email,
-    created: now,
-    source: 'homepage',
-  });
+  if (!doc.exists) {
+    await ref.set({
+      email,
+      created: now,
+      source: 'homepage',
+    });
+  }
 
   return json({ ok: true });
 }

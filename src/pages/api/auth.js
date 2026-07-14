@@ -28,6 +28,9 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 4096) return json({ error: 'Payload too large' }, 413);
+
   let body;
   try {
     body = await request.json();

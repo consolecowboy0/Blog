@@ -28,7 +28,7 @@ function normEmail(raw) {
 function json(data, status, corsHeaders) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 }
 
@@ -62,6 +62,9 @@ export async function POST({ request, clientAddress }) {
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 4096) return json({ error: 'Payload too large' }, 413, corsHeaders);
+
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
 
@@ -86,6 +89,9 @@ export async function PATCH({ request, clientAddress }) {
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 4096) return json({ error: 'Payload too large' }, 413, corsHeaders);
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }

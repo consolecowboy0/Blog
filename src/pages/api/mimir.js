@@ -20,6 +20,9 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
+  const cl = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (cl > 8192) return json({ error: 'Payload too large' }, 413);
+
   let body;
   try {
     body = await request.json();
@@ -58,7 +61,11 @@ export async function POST({ request, clientAddress }) {
       try { fp = JSON.stringify(fingerprint).slice(0, 512); } catch { fp = ''; }
     }
 
+    const MAX_MESSAGES = 500;
     if (doc.exists) {
+      if ((doc.data().messages || []).length >= MAX_MESSAGES) {
+        return json({ error: 'Conversation limit reached' }, 400);
+      }
       await docRef.update({
         messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
         preview: text.substring(0, 80),

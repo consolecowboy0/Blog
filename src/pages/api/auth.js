@@ -20,7 +20,7 @@ export async function POST({ request, clientAddress }) {
   }
 
   // Rate-limit: 5 attempts per 15 min per IP
-  const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip = clientAddress || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {

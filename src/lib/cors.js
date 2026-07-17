@@ -13,8 +13,8 @@ const envList = (process.env.ALLOWED_ORIGINS || '')
 
 const ALLOWED = new Set([...DEFAULT_ALLOWED, ...envList]);
 
-// Allow localhost during dev
-if (process.env.NODE_ENV !== 'production') {
+// Allow localhost during dev only when NODE_ENV is explicitly non-production
+if (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') {
   ALLOWED.add('http://localhost:4321');
   ALLOWED.add('http://127.0.0.1:4321');
 }

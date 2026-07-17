@@ -3,6 +3,7 @@ export const prerender = false;
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { checkRatePersistent } from '../../lib/rate-limit-persistent.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -19,7 +20,9 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  // Rate-limit: 5 attempts per 15 min per IP
+  // Rate-limit: 5 attempts per 15 min per IP.
+  // In-memory limiter catches bursts within the same instance; persistent
+  // limiter (Netlify Blobs) survives across cold starts and instances.
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const rl = checkRate(`auth:${ip}`, 5, 15 * 60 * 1000);
   if (!rl.ok) {
@@ -27,6 +30,17 @@ export async function POST({ request, clientAddress }) {
       status: 429,
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
+  }
+  try {
+    const prl = await checkRatePersistent(`auth:${ip}`, 5, 15 * 60 * 1000);
+    if (!prl.ok) {
+      return new Response(JSON.stringify({ error: 'Too many attempts. Try again later.' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(prl.retryAfter) },
+      });
+    }
+  } catch {
+    // If persistent store is unavailable, in-memory limiter still provides partial protection
   }
   let body;
   try {

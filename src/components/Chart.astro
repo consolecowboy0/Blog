@@ -20,12 +20,12 @@ const config = JSON.stringify({ type, data: { labels, datasets }, options: {
   responsive: true,
   maintainAspectRatio: true,
   plugins: {
-    legend: { labels: { font: { family: 'Inter, sans-serif', size: 13 }, color: '#1a1a1a' } },
-    title: title ? { display: true, text: title, font: { family: 'Inter, sans-serif', size: 16, weight: 800 }, color: '#1a1a1a' } : { display: false },
+    legend: { labels: { font: { family: 'Inter, sans-serif', size: 13 } } },
+    title: title ? { display: true, text: title, font: { family: 'Inter, sans-serif', size: 16, weight: 800 } } : { display: false },
   },
   scales: type !== 'pie' && type !== 'doughnut' && type !== 'radar' ? {
-    x: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
-    y: { ticks: { font: { family: 'Inter, sans-serif' }, color: '#555' }, grid: { color: '#e0e0db' } },
+    x: { ticks: { font: { family: 'Inter, sans-serif' } } },
+    y: { ticks: { font: { family: 'Inter, sans-serif' } } },
   } : undefined,
 }});
 ---
@@ -39,7 +39,21 @@ const config = JSON.stringify({ type, data: { labels, datasets }, options: {
     const { Chart, registerables } = await import('chart.js');
     Chart.register(...registerables);
     const ctx = document.getElementById(chartId);
-    new Chart(ctx, JSON.parse(config));
+    const parsed = JSON.parse(config);
+    const style = getComputedStyle(document.documentElement);
+    const fg = style.getPropertyValue('--fg').trim() || '#1a1a1a';
+    const muted = style.getPropertyValue('--fg-muted').trim() || '#555';
+    const border = style.getPropertyValue('--border').trim() || '#e0e0db';
+    if (parsed.options.plugins.legend) parsed.options.plugins.legend.labels.color = fg;
+    if (parsed.options.plugins.title?.display) parsed.options.plugins.title.color = fg;
+    if (parsed.options.scales) {
+      for (const axis of Object.values(parsed.options.scales)) {
+        if (axis.ticks) axis.ticks.color = muted;
+        if (!axis.grid) axis.grid = {};
+        axis.grid.color = border;
+      }
+    }
+    new Chart(ctx, parsed);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initChart);

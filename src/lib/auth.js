@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, pbkdf2Sync, randomBytes, timingSafeEqual } from 'node:crypto';
 
 const SECRET = process.env.AUTH_SECRET;
 if (!SECRET) {
@@ -8,6 +8,10 @@ if (!SECRET) {
 const HASHES = {
   analytics: process.env.AUTH_HASH_ANALYTICS,
 };
+
+const PBKDF2_ITERATIONS = 600_000;
+const PBKDF2_KEYLEN = 32;
+const PBKDF2_DIGEST = 'sha256';
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
 
@@ -24,9 +28,29 @@ function safeEqualHex(a, b) {
   }
 }
 
+function safeEqual(a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b) || a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
+function verifyPbkdf2(password, stored) {
+  const [, iterStr, salt, hash] = stored.split(':');
+  const iterations = parseInt(iterStr, 10);
+  if (!iterations || !salt || !hash) return false;
+  const derived = pbkdf2Sync(password, Buffer.from(salt, 'hex'), iterations, PBKDF2_KEYLEN, PBKDF2_DIGEST);
+  return safeEqual(derived, Buffer.from(hash, 'hex'));
+}
+
+export function hashPassword(password) {
+  const salt = randomBytes(16).toString('hex');
+  const derived = pbkdf2Sync(password, Buffer.from(salt, 'hex'), PBKDF2_ITERATIONS, PBKDF2_KEYLEN, PBKDF2_DIGEST);
+  return `pbkdf2:${PBKDF2_ITERATIONS}:${salt}:${derived.toString('hex')}`;
+}
+
 export function verifyPassword(password, scope) {
   const hash = HASHES[scope];
   if (!hash) return false;
+  if (hash.startsWith('pbkdf2:')) return verifyPbkdf2(password, hash);
   const attempt = createHash('sha256').update(password).digest('hex');
   return safeEqualHex(attempt, hash);
 }

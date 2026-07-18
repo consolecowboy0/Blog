@@ -2,12 +2,18 @@
 // Good enough for single-instance Netlify functions and dev.
 // For multi-instance production, replace the store with Netlify Blobs or Redis.
 
+const MAX_STORE = 10_000;
 const store = new Map();
 
 function prune(now) {
   if (store.size < 1000) return;
   for (const [k, v] of store) {
     if (v.resetAt <= now) store.delete(k);
+  }
+  if (store.size > MAX_STORE) {
+    const entries = [...store.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
+    const toRemove = entries.slice(0, store.size - MAX_STORE);
+    for (const [k] of toRemove) store.delete(k);
   }
 }
 

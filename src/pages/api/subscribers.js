@@ -25,10 +25,10 @@ function normEmail(raw) {
   return email;
 }
 
-function json(data, status, corsHeaders) {
+function json(data, status, corsHeaders, extraHeaders) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', ...extraHeaders },
   });
 }
 
@@ -60,7 +60,7 @@ export async function POST({ request, clientAddress }) {
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -85,7 +85,7 @@ export async function PATCH({ request, clientAddress }) {
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
   let body;
   try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
@@ -126,7 +126,7 @@ export async function DELETE({ request, clientAddress }) {
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
   const ip = clientAddress || 'unknown';
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders, { 'Retry-After': String(rl.retryAfter) });
 
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);

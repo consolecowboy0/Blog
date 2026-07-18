@@ -23,8 +23,7 @@ export default defineConfig({
   },
   vite: {
     ssr: {
-      // Agent SDK requires Claude Code CLI — exclude from Netlify bundle
-      external: ['@anthropic-ai/claude-agent-sdk', 'firebase-admin', 'firebase-admin/app', 'firebase-admin/firestore'],
+      external: ['firebase-admin', 'firebase-admin/app', 'firebase-admin/firestore'],
     },
   },
 });

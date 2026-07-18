@@ -8,7 +8,7 @@ import LibraryLink from '../../components/LibraryLink.astro';
 
 ## The Worst Cars Ever Made
 
-That's unfair to say, of course. I just said it so you'd keep reading. But if you've been paying attention to the 2026 Formula 1 season, you know there's real controversy behind the clickbait- and when I started poking at it with math, what I found- well- prettty interesting I thought. So I'm here to share.
+That's unfair to say, of course. I just said it so you'd keep reading. But if you've been paying attention to the 2026 Formula 1 season, you know there's real controversy behind the clickbait- and when I started poking at it with math, what I found- well- pretty interesting I thought. So I'm here to share.
 
 38ms. That's the gap between two Formula 1 cars after six hundred meters of straight-line battle and a full 180-degree hairpin, as modeled by a simulation I built in Python. One driver had the aerodynamic advantage on the straight, the other clawed it all back through the corner, and after all that fury- the turbulent air, the mechanical screaming- they ended up separated by less time than a single frame of cinema film sits on the screen.
 
@@ -80,7 +80,7 @@ One ratio outperformed them all.
 
 Take the length of the preceding straight. Divide it by the radius of the corner at the end. L/R. A pure ratio with no units- the same type of number as Mach number (which tells you when you've broken the sound barrier). L/R tells you whether an overtake is going to stick.
 
-I pulled four full seasons of F1 timing data (2022-2025) through FastF1 and programmatically extracted nearly 2,000 overtakes from 77 race sessions. I measured success rates at all 120 corners across 16 circuits- not just the famous ones- but every unremarkable mid-speed kink and chicane that rarely makes the highlight reel. I catalogued 803,140 close-following events- with the help of AI of course. Who also made this plot below, with a title I do not approve of. I willl leave it as a cautionary tale of letting Claude make plots for you (I'm kidding).
+I pulled four full seasons of F1 timing data (2022-2025) through FastF1 and programmatically extracted nearly 2,000 overtakes from 77 race sessions. I measured success rates at all 120 corners across 16 circuits- not just the famous ones- but every unremarkable mid-speed kink and chicane that rarely makes the highlight reel. I catalogued 803,140 close-following events- with the help of AI of course. Who also made this plot below, with a title I do not approve of. I will leave it as a cautionary tale of letting Claude make plots for you (I'm kidding).
 
 <img class="chart-img" src="/images/charts/regression_lr_success.webp" alt="The One Ratio That Predicts Every Pass" loading="lazy" />
 *Each dot is a real F1 corner. Blue = corners without much DRS activity, orange = DRS-heavy zones. The green curve is the trend. Higher L/R, more passes stick.*

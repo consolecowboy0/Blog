@@ -41,6 +41,14 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Missing password or scope' }, 400);
   }
 
+  if (typeof password !== 'string' || typeof scope !== 'string') {
+    return json({ error: 'Invalid input types' }, 400);
+  }
+
+  if (password.length > 256 || scope.length > 32) {
+    return json({ error: 'Input too long' }, 400);
+  }
+
   if (!['analytics'].includes(scope)) {
     return json({ error: 'Invalid scope' }, 400);
   }

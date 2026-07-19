@@ -13,8 +13,9 @@ const envList = (process.env.ALLOWED_ORIGINS || '')
 
 const ALLOWED = new Set([...DEFAULT_ALLOWED, ...envList]);
 
-// Allow localhost during dev
-if (process.env.NODE_ENV !== 'production') {
+// Allow localhost during dev. Netlify sets CONTEXT=production; fall back to NODE_ENV.
+const isProduction = process.env.CONTEXT === 'production' || process.env.NODE_ENV === 'production';
+if (!isProduction) {
   ALLOWED.add('http://localhost:4321');
   ALLOWED.add('http://127.0.0.1:4321');
 }

@@ -19,6 +19,7 @@
     "@anthropic-ai/claude-agent-sdk": "^0.2.92",
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/netlify": "^7.0.6",
+    "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource/inter": "^5.2.8",
     "@netlify/blobs": "^10.7.4",

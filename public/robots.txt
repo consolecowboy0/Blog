@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+Disallow: /analytics
+Disallow: /analytics/
+Disallow: /mimir
+Disallow: /mimir/
+Disallow: /api/
+Disallow: /dev
+Disallow: /dev/
+
+Sitemap: https://dustinlanders.com/sitemap-index.xml

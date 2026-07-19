@@ -1,11 +1,14 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 import netlify from '@astrojs/netlify';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  integrations: [mdx()],
+  integrations: [mdx(), sitemap({
+    filter: (page) => !page.includes('/analytics') && !page.includes('/mimir') && !page.includes('/api/') && !page.includes('/dev'),
+  })],
   // Math rendering. singleDollarTextMath:false so a bare $ stays a dollar sign
   // (posts are full of "$455", "$682M"); only $$...$$ is treated as math.
   markdown: {

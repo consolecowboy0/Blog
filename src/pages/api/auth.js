@@ -37,8 +37,11 @@ export async function POST({ request, clientAddress }) {
 
   const { password, scope } = body;
 
-  if (!password || !scope) {
+  if (!password || typeof password !== 'string' || !scope || typeof scope !== 'string') {
     return json({ error: 'Missing password or scope' }, 400);
+  }
+  if (password.length > 256) {
+    return json({ error: 'Invalid password' }, 400);
   }
 
   if (!['analytics'].includes(scope)) {

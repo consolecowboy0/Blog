@@ -5,6 +5,10 @@ import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
+function sanitizeText(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
   const ip = clientAddress || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -58,10 +62,12 @@ export async function POST({ request, clientAddress }) {
       try { fp = JSON.stringify(fingerprint).slice(0, 512); } catch { fp = ''; }
     }
 
+    const safeText = sanitizeText(text);
+
     if (doc.exists) {
       await docRef.update({
-        messages: FieldValue.arrayUnion({ from: 'visitor', text, time: now }),
-        preview: text.substring(0, 80),
+        messages: FieldValue.arrayUnion({ from: 'visitor', text: safeText, time: now }),
+        preview: safeText.substring(0, 80),
         updated: now,
         unread: FieldValue.increment(1),
         ...(fp ? { fingerprint: fp } : {}),
@@ -70,8 +76,8 @@ export async function POST({ request, clientAddress }) {
       await docRef.set({
         id: visitor_id,
         fingerprint: fp,
-        messages: [{ from: 'visitor', text, time: now }],
-        preview: text.substring(0, 80),
+        messages: [{ from: 'visitor', text: safeText, time: now }],
+        preview: safeText.substring(0, 80),
         created: now,
         updated: now,
         unread: 1,

@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { readJsonBody } from '../../lib/body.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -15,17 +16,9 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  const ct = request.headers.get('Content-Type') || '';
-  if (!ct.includes('application/json')) {
-    return json({ error: 'Content-Type must be application/json' }, 415);
-  }
-
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const parsed = await readJsonBody(request, 4096);
+  if (parsed.error) return json({ error: parsed.error }, parsed.status);
+  const body = parsed.data;
 
   const { action } = body;
   const db = getDb();
@@ -89,6 +82,8 @@ export async function POST({ request, clientAddress }) {
 
     const rl = checkRate(`mimir-poll:${ip}:${visitor_id}`, 30, 60 * 1000);
     if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+    const rlVid = checkRate(`mimir-poll:${visitor_id}`, 60, 60 * 1000);
+    if (!rlVid.ok) return json({ error: 'Rate limited' }, 429);
 
     const doc = await convCol.doc(visitor_id).get();
     if (!doc.exists) return json({ messages: [] });

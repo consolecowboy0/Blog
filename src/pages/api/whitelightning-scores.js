@@ -5,9 +5,12 @@ import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
 
 // Public, global leaderboard for the White Lightning game (public/whitelightning).
-// Firestore collection "whitelightning_scores": { i: initials, s: score, ts }.
+// Firestore collection "whitelightning_scores_usd": { i: initials, s: score, ts }.
+// Score is dollars earned (jar price varies per drop point). Renamed from
+// "whitelightning_scores" (jars-sold scoring) to start the board fresh.
 // Trimmed to the top BOARD_MAX rows on every write, so the collection never grows.
 
+const COLLECTION = 'whitelightning_scores_usd';
 const BOARD_MAX = 10;
 const MAX_SCORE = 100000; // generous ceiling; blocks obviously spoofed submissions
 
@@ -21,7 +24,7 @@ export async function GET({ request }) {
   const corsHeaders = { ...corsHeadersFor(request, 'GET, POST, OPTIONS'), 'Content-Type': 'application/json' };
   try {
     const db = getDb();
-    const snap = await db.collection('whitelightning_scores').orderBy('s', 'desc').limit(BOARD_MAX).get();
+    const snap = await db.collection(COLLECTION).orderBy('s', 'desc').limit(BOARD_MAX).get();
     const board = snap.docs.map((d) => { const v = d.data(); return { i: v.i, s: v.s }; });
     return new Response(JSON.stringify({ board }), { status: 200, headers: corsHeaders });
   } catch {
@@ -61,7 +64,7 @@ export async function POST({ request, clientAddress }) {
 
   try {
     const db = getDb();
-    const col = db.collection('whitelightning_scores');
+    const col = db.collection(COLLECTION);
     await col.add({ i: initials, s: score, ts: Date.now() });
 
     const snap = await col.orderBy('s', 'desc').get();

@@ -1,108 +1,89 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import '@fontsource/inter/600.css';
 ---
 
-<BaseLayout title="Dustin Landers" description="Data journalism on motorsport, politics, and systems.">
-
-  <section class="landing">
-    <div class="landing-mark" aria-hidden="true">
-      <svg width="88" height="88" viewBox="0 0 32 32" fill="none">
-        <circle cx="16" cy="16" r="14.2" stroke="currentColor" stroke-width="1" opacity="0.18"/>
-        <g transform="translate(0,5.5)" stroke="currentColor" stroke-linecap="round" fill="none">
-          <path d="M16 21 C14 16 11 12 9 8 C8 5.5 8.5 3 10.5 2" stroke-width="1.5"/>
-          <path d="M9.8 9.5 L7 7.5" stroke-width="1.2"/>
-          <path d="M10.8 13.5 L8 12.5" stroke-width="1.2"/>
-          <path d="M16 21 C18 16 21 12 23 8 C24 5.5 23.5 3 21.5 2" stroke-width="1.5"/>
-          <path d="M22.2 9.5 L25 7.5" stroke-width="1.2"/>
-          <path d="M21.2 13.5 L24 12.5" stroke-width="1.2"/>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="dustinlanders.com" />
+    <title>dustinlanders.com</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <script is:inline>
+      // First-party pageview beacon. Fire-and-forget, no cookies.
+      (function() {
+        try {
+          fetch('/api/track', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            keepalive: true,
+            body: JSON.stringify({ path: location.pathname, ref: document.referrer || '' }),
+          }).catch(function() {});
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <main>
+      <svg class="antler" width="120" height="120" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ff4d4d"/>
+            <stop offset="0.17" stop-color="#ff9c3f"/>
+            <stop offset="0.34" stop-color="#ffe14d"/>
+            <stop offset="0.5" stop-color="#4ade80"/>
+            <stop offset="0.67" stop-color="#38bdf8"/>
+            <stop offset="0.84" stop-color="#6366f1"/>
+            <stop offset="1" stop-color="#c084fc"/>
+          </linearGradient>
+        </defs>
+        <circle cx="16" cy="16" r="14.2" stroke="url(#rainbow)" stroke-width="1.4" opacity="0.55"/>
+        <g transform="translate(0,5.5)" stroke="url(#rainbow)" stroke-linecap="round">
+          <path d="M16 21 C14 16 11 12 9 8 C8 5.5 8.5 3 10.5 2" stroke-width="1.9"/>
+          <path d="M9.8 9.5 L7 7.5" stroke-width="1.5"/>
+          <path d="M10.8 13.5 L8 12.5" stroke-width="1.5"/>
+          <path d="M16 21 C18 16 21 12 23 8 C24 5.5 23.5 3 21.5 2" stroke-width="1.9"/>
+          <path d="M22.2 9.5 L25 7.5" stroke-width="1.5"/>
+          <path d="M21.2 13.5 L24 12.5" stroke-width="1.5"/>
         </g>
       </svg>
-    </div>
+      <p class="wordmark">dustinlanders.com</p>
+    </main>
+  </body>
+</html>
 
-    <h1 class="landing-name">Dustin Landers</h1>
-    <p class="landing-tag">Data journalism, essays, and things I build.</p>
+<style is:global>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    <div class="landing-actions">
-      <a href="/posts" class="landing-btn primary">Read the Blog</a>
-      <a href="/library" class="landing-btn">Visit the Library</a>
-    </div>
-  </section>
+  html, body {
+    height: 100%;
+  }
 
-</BaseLayout>
+  body {
+    background: #ffffff;
+    color: #1a1a1a;
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-<style>
-  .landing {
-    min-height: 65vh;
+  main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    text-align: center;
     gap: 1.25rem;
   }
 
-  .landing-mark {
-    color: var(--fg);
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
-  }
-
-  .landing-name {
-    font-size: 2.5rem;
-    letter-spacing: -0.03em;
-    margin: 0;
-  }
-
-  .landing-tag {
-    font-size: 1.05rem;
-    color: var(--fg-muted);
-    max-width: 420px;
-    margin: 0;
-  }
-
-  .landing-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-
-  .landing-btn {
-    padding: 0.85rem 1.75rem;
-    font-size: 0.8rem;
+  .wordmark {
+    font-size: 1.1rem;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid var(--fg);
-    transition: opacity 0.15s, background 0.15s, color 0.15s;
-  }
-
-  .landing-btn.primary {
-    background: var(--fg);
-    color: var(--bg);
-  }
-
-  .landing-btn.primary:hover {
-    opacity: 0.85;
-  }
-
-  .landing-btn:not(.primary) {
-    background: transparent;
-    color: var(--fg);
-  }
-
-  .landing-btn:not(.primary):hover {
-    background: var(--code-bg);
-  }
-
-  @media (max-width: 700px) {
-    .landing {
-      min-height: 55vh;
-    }
-
-    .landing-name {
-      font-size: 2rem;
-    }
+    letter-spacing: -0.01em;
   }
 </style>

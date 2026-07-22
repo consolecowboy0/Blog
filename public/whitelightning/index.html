@@ -95,10 +95,10 @@
       Twelve jars of shine in the trunk and a backroad that winds like a copperhead. Throttle is stuck wide open, same as always.<br><br>
       <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
       <b>HOLD RIGHT</b> side (or → / D) to throw it right.<br><br>
-      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. <b>Lantern-lit barns</b> along the ridge buy what you're hauling: cross the chalk line and every jar still riding turns to cash, trunk restocked. A full case of twelve pays a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
     </div>
     <button class="go" id="startBtn">FIRE THE ENGINE</button>
-    <div class="fine">Score is jars sold · Full cases pay extra · Read the signs</div>
+    <div class="fine">Score is jars sold · Trade jars for continues · Read the signs</div>
   </div>
 </div>
 
@@ -122,6 +122,21 @@
       <button class="go" type="submit">SAVE</button>
     </form>
     <div class="fine">Three letters, same as always</div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="store">
+  <div class="handbill">
+    <div class="eyebrow">Copper Creek Barn &nbsp;·&nbsp; Drop Point</div>
+    <div class="verdict" style="font-size:clamp(22px,6vw,30px);">THE COUNTER</div>
+    <div class="rule"></div>
+    <div class="tally" id="storeStock"></div>
+    <div class="copy" id="storeLedger" style="text-align:center;margin-bottom:8px;"></div>
+    <div class="rule"></div>
+    <button class="go" id="sellBtn" style="display:block;width:100%;margin:8px 0;">SELL FOR CASH</button>
+    <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">TRADE FOR CONTINUE</button>
+    <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
+    <div class="fine">Sell the shine or trade a run of jars for another shot</div>
   </div>
 </div>
 
@@ -265,6 +280,7 @@ function setKey(e,down){
   if(down && (e.code==='Space'||e.code==='Enter')){
     if(state.mode==='menu'||state.mode==='dead') startFromOverlay();
     else if(state.mode==='continue') acceptContinue();
+    else if(state.mode==='store') storeLeave();
   }
 }
 window.addEventListener('keydown',e=>setKey(e,true));
@@ -422,6 +438,58 @@ function declineContinue(){
   showReport(state.deadReason);
 }
 
+// ---------- store (the barn keeper's counter at each drop) ----------
+const TRADE_COST = 8, CONTINUES_CAP = 9;
+function openStore(){
+  state.mode='store';
+  renderStore();
+  document.getElementById('store').classList.remove('hidden');
+}
+function renderStore(){
+  const s=state;
+  document.getElementById('storeStock').textContent = s.jars+' JARS IN THE TRUNK';
+  document.getElementById('storeLedger').textContent =
+    '$'+(s.banked*3)+' earned · '+s.banked+' sold · '+s.continues+' continues left';
+  const sellBtn=document.getElementById('sellBtn');
+  const tradeBtn=document.getElementById('tradeBtn');
+  const canSell = s.jars>0;
+  const canTrade = s.jars>=TRADE_COST && s.continues<CONTINUES_CAP;
+  const bonus = (s.jars===JARS) ? 2 : 0;
+  sellBtn.disabled = !canSell;
+  tradeBtn.disabled = !canTrade;
+  sellBtn.style.opacity = canSell ? '1' : '0.4';
+  tradeBtn.style.opacity = canTrade ? '1' : '0.4';
+  sellBtn.textContent = canSell
+    ? 'SELL '+s.jars+' JARS'+(bonus?' (FULL CASE +'+bonus+')':'')+' → $'+((s.jars+bonus)*3)
+    : 'NOTHING LEFT TO SELL';
+  tradeBtn.textContent = s.continues>=CONTINUES_CAP
+    ? 'TRUNK FULL OF CONTINUES'
+    : 'TRADE '+TRADE_COST+' JARS → +1 CONTINUE';
+}
+function storeSell(){
+  const s=state;
+  if(s.jars<=0) return;
+  const bonus=(s.jars===JARS)?2:0;
+  s.banked += s.jars+bonus;
+  cashDing();
+  s.jars=0;
+  renderStore();
+}
+function storeTrade(){
+  const s=state;
+  if(s.jars<TRADE_COST || s.continues>=CONTINUES_CAP) return;
+  s.jars -= TRADE_COST;
+  s.continues += 1;
+  cashDing();
+  renderStore();
+}
+function storeLeave(){
+  if(state.mode!=='store') return;
+  document.getElementById('store').classList.add('hidden');
+  state.jars = JARS;   // roll out with a full trunk
+  state.mode='run';
+}
+
 // ---------- run report + leaderboard ----------
 // The board is a global leaderboard persisted server-side (Firestore, via
 // /api/whitelightning-scores). localStorage is kept only as an offline cache
@@ -549,15 +617,12 @@ function step(dt){
   ensureRoad(s.sCar + Math.max(W,H)*1.3 + 200);
   dropRoad(s.sCar - 420);
 
-  // drop point: roll past the lantern and the trunk turns to cash
+  // drop point: roll past the lantern and pull up at the barn keeper's counter
   if(s.sCar >= s.nextDrop){
-    const bonus = (s.jars===JARS) ? 2 : 0;
-    s.banked += s.jars + bonus;
-    flash(bonus ? 'FULL CASE SOLD +'+(s.jars+bonus) : 'DELIVERED '+s.jars+' JARS');
-    cashDing();
-    s.jars = JARS;
     s.prevDrop = s.nextDrop;
     s.nextDrop += 5200 + Math.random()*1800;
+    openStore();
+    return;
   }
 
   // revenuers race you down the same road
@@ -1014,12 +1079,16 @@ function startFromOverlay(){
   document.getElementById('dead').classList.add('hidden');
   document.getElementById('continue').classList.add('hidden');
   document.getElementById('initials').classList.add('hidden');
+  document.getElementById('store').classList.add('hidden');
   reset();
   state.mode='run';
 }
 document.getElementById('startBtn').addEventListener('click', startFromOverlay);
 document.getElementById('againBtn').addEventListener('click', startFromOverlay);
 document.getElementById('continueBtn').addEventListener('click', acceptContinue);
+document.getElementById('sellBtn').addEventListener('click', storeSell);
+document.getElementById('tradeBtn').addEventListener('click', storeTrade);
+document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });
 document.getElementById('initialsInput').addEventListener('input', function(){
   this.value = this.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);

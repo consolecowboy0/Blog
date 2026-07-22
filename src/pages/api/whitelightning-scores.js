@@ -8,7 +8,7 @@ import { checkRate } from '../../lib/rate-limit.js';
 // Firestore collection "whitelightning_scores": { i: initials, s: score, ts }.
 // Trimmed to the top BOARD_MAX rows on every write, so the collection never grows.
 
-const BOARD_MAX = 5;
+const BOARD_MAX = 10;
 const MAX_SCORE = 100000; // generous ceiling; blocks obviously spoofed submissions
 
 function cleanInitials(v) {

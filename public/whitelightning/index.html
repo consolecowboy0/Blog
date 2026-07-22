@@ -97,7 +97,7 @@
       Twelve jars of shine in the trunk and a backroad that winds like a copperhead. Throttle is stuck wide open, same as always.<br><br>
       <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
       <b>HOLD RIGHT</b> side (or → / D) to throw it right.<br><br>
-      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dashed <b>contour lines</b> mapped across the hollow tell you which is coming. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash at whatever the keeper's paying that night, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dashed <b>contour lines</b> mapped across the hollow tell you which is coming: long green dashes for a downgrade, short red ticks for a climb. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash at whatever the keeper's paying that night, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
     </div>
     <button class="go" id="startBtn">FIRE THE ENGINE</button>
     <div class="fine">Score is dollars earned · Prices swing at every barn · Trade jars for continues</div>
@@ -719,7 +719,6 @@ function draw(){
     // topo contour lines: the ridge's elevation channel rides the same point grid as
     // curvature and width, so a crossed CONTOUR_STEP band gets a mapped line across the hollow
     ctx.save();
-    ctx.setLineDash([9*sc,7*sc]);
     ctx.lineWidth = 2.6*sc;
     for(let i=1;i<p.length;i++){
       const A=p[i-1], B=p[i];
@@ -732,8 +731,9 @@ function draw(){
       const reach = ww+170;
       const cl=toScreen(T, wx-nx*reach, wy-ny*reach);
       const cr=toScreen(T, wx+nx*reach, wy+ny*reach);
-      const climbing = B.z > A.z;   // line color says which way the ridge is headed, not just how high
+      const climbing = B.z > A.z;   // color and dash both say which way the ridge is headed
       ctx.strokeStyle = climbing ? 'rgba(165,53,44,0.65)' : 'rgba(95,139,70,0.65)';
+      ctx.setLineDash(climbing ? [4*sc,5*sc] : [13*sc,6*sc]);
       ctx.beginPath(); ctx.moveTo(cl[0],cl[1]); ctx.lineTo(cr[0],cr[1]); ctx.stroke();
     }
     ctx.restore();
@@ -1012,7 +1012,7 @@ function drawHUD(){
   ctx.fillText(Math.round(s.v*0.45)+' MPH', jx+4, jy+jh+40);
   ctx.fillStyle='#e8a33d';
   ctx.fillText('$'+s.cash+' · '+s.banked+' SOLD', jx+4, jy+jh+58);
-  const gsteep = Math.min(3, Math.floor(Math.abs(s.grade)/0.025)+1);
+  const gsteep = Math.max(1, Math.min(3, Math.ceil((Math.abs(s.grade)-0.03)/0.02)));
   const gradeArrow = s.grade>0.03 ? '▲'.repeat(gsteep) : (s.grade<-0.03 ? '▼'.repeat(gsteep) : '—');
   const gradeWord = s.grade>0.03 ? ' CLIMB' : (s.grade<-0.03 ? ' DROP' : '');
   ctx.fillStyle = s.grade>0.03?'#a5352c':(s.grade<-0.03?'#5f8b46':'rgba(207,217,196,0.65)');

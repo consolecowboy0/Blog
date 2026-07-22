@@ -165,7 +165,6 @@ const { title, description = 'A blog.' } = Astro.props;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 0.5rem;
   }
 
@@ -180,18 +179,22 @@ const { title, description = 'A blog.' } = Astro.props;
   .nav-links {
     display: flex;
     gap: 1.5rem;
+    flex-shrink: 0;
   }
 
   @media (max-width: 480px) {
-    nav {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.75rem;
+    .nav-brand {
+      min-width: 0;
     }
 
-    .nav-links {
-      width: 100%;
-      justify-content: flex-start;
+    .site-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .theme-indicator {
+      display: none;
     }
   }
 

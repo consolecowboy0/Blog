@@ -423,20 +423,28 @@ function declineContinue(){
 }
 
 // ---------- run report + leaderboard ----------
+// The board is a global leaderboard persisted server-side (Firestore, via
+// /api/whitelightning-scores). localStorage is kept only as an offline cache
+// so the board still shows something if the network call fails.
 function loadBoard(){
   try{ return JSON.parse(localStorage.getItem(BOARD_KEY)||'[]'); }catch(e){ return []; }
 }
 function saveBoard(list){ try{ localStorage.setItem(BOARD_KEY, JSON.stringify(list)); }catch(e){} }
+let cachedBoard = loadBoard();
+function refreshBoardFromServer(){
+  fetch('/api/whitelightning-scores').then(r=>r.ok?r.json():null).then(d=>{
+    if(d && Array.isArray(d.board)){ cachedBoard=d.board; saveBoard(cachedBoard); renderBoard(); }
+  }).catch(()=>{});
+}
+refreshBoardFromServer();
 function qualifiesForBoard(score){
   if(score<=0) return false;
-  const board=loadBoard();
-  return board.length<BOARD_MAX || score>board[board.length-1].s;
+  return cachedBoard.length<BOARD_MAX || score>cachedBoard[cachedBoard.length-1].s;
 }
 function renderBoard(){
-  const board=loadBoard();
   const el=document.getElementById('boardList');
-  el.innerHTML = board.length
-    ? board.map((e,idx)=>'<div class="row">'+(idx+1)+'. '+e.i+'<span>'+e.s+'</span></div>').join('')
+  el.innerHTML = cachedBoard.length
+    ? cachedBoard.map((e,idx)=>'<div class="row">'+(idx+1)+'. '+e.i+'<span>'+e.s+'</span></div>').join('')
     : '<div class="row">No runs on the board yet</div>';
 }
 function openInitialsEntry(score){
@@ -452,14 +460,23 @@ function submitInitials(){
   let v=(inp.value||'').toUpperCase().replace(/[^A-Z]/g,'');
   if(v.length<3) v=(v+'AAA').slice(0,3);
   v=v.slice(0,3);
-  const board=loadBoard();
-  board.push({i:v, s:state.pendingScore});
-  board.sort((a,b)=>b.s-a.s);
-  board.length=Math.min(BOARD_MAX, board.length);
-  saveBoard(board);
+  const score=state.pendingScore;
+
+  // Optimistic local update, so the board looks right immediately even if the
+  // network round-trip is slow.
+  cachedBoard = cachedBoard.concat([{i:v, s:score}]).sort((a,b)=>b.s-a.s).slice(0,BOARD_MAX);
+  saveBoard(cachedBoard);
   document.getElementById('initials').classList.add('hidden');
   renderBoard();
   document.getElementById('dead').classList.remove('hidden');
+
+  fetch('/api/whitelightning-scores', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({initials:v, score})
+  }).then(r=>r.ok?r.json():null).then(d=>{
+    if(d && d.ok && Array.isArray(d.board)){ cachedBoard=d.board; saveBoard(cachedBoard); renderBoard(); }
+  }).catch(()=>{});
 }
 function showReport(reason){
   const isBest = state.banked > state.best;

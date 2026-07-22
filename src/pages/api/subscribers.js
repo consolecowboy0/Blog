@@ -3,7 +3,7 @@ export const prerender = false;
 import { requireAuth } from '../../lib/auth.js';
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, safeJson } from '../../lib/rate-limit.js';
 
 // Subscriber list management for the analytics dashboard. Reads/writes the same
 // Firestore `subscribers` collection that the homepage subscribe form populates
@@ -62,8 +62,8 @@ export async function POST({ request, clientAddress }) {
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  const body = await safeJson(request);
+  if (!body) return json({ error: 'Invalid JSON' }, 400, corsHeaders);
 
   const email = normEmail(body.email);
   if (!email) return json({ error: 'Invalid email' }, 400, corsHeaders);
@@ -87,8 +87,8 @@ export async function PATCH({ request, clientAddress }) {
   const rl = checkRate(`subs-write:${ip}`, 30, 60 * 1000);
   if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'Invalid JSON' }, 400, corsHeaders); }
+  const body = await safeJson(request);
+  if (!body) return json({ error: 'Invalid JSON' }, 400, corsHeaders);
 
   const id = typeof body.id === 'string' ? body.id : '';
   if (!id) return json({ error: 'Missing id' }, 400, corsHeaders);

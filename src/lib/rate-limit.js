@@ -17,6 +17,16 @@ function prune(now) {
  * @param {number} windowMs window duration in ms
  * @returns {{ ok: boolean, remaining: number, retryAfter: number }}
  */
+const MAX_BODY = 64 * 1024; // 64 KB
+
+export async function safeJson(request, maxBytes = MAX_BODY) {
+  const len = parseInt(request.headers.get('Content-Length') || '', 10);
+  if (len > maxBytes) return null;
+  const body = await request.text();
+  if (body.length > maxBytes) return null;
+  try { return JSON.parse(body); } catch { return null; }
+}
+
 export function checkRate(key, max, windowMs) {
   const now = Date.now();
   prune(now);

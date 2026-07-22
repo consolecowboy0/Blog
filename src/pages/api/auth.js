@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { verifyPassword, createToken } from '../../lib/auth.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, safeJson } from '../../lib/rate-limit.js';
 
 export async function POST({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, 'POST, OPTIONS');
@@ -28,12 +28,8 @@ export async function POST({ request, clientAddress }) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
     });
   }
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const body = await safeJson(request);
+  if (!body) return json({ error: 'Invalid JSON' }, 400);
 
   const { password, scope } = body;
 

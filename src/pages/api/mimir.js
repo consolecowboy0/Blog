@@ -2,7 +2,7 @@ export const prerender = false;
 
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
-import { checkRate } from '../../lib/rate-limit.js';
+import { checkRate, safeJson } from '../../lib/rate-limit.js';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST({ request, clientAddress }) {
@@ -20,12 +20,8 @@ export async function POST({ request, clientAddress }) {
     return json({ error: 'Content-Type must be application/json' }, 415);
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
-    return json({ error: 'Invalid JSON' }, 400);
-  }
+  const body = await safeJson(request);
+  if (!body) return json({ error: 'Invalid JSON' }, 400);
 
   const { action } = body;
   const db = getDb();

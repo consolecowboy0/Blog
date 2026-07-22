@@ -430,7 +430,7 @@ function acceptContinue(){
   clearInterval(continueInterval);
   state.continues--;
   document.getElementById('continue').classList.add('hidden');
-  state.jars=JARS; state.a=0; state.lat=0; state.shake=0; state.spinAnim=0;
+  state.a=0; state.lat=0; state.shake=0; state.spinAnim=0;
   state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
   state.v=Math.min(state.v,160);
   state.mode='run';

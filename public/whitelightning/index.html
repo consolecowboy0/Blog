@@ -97,10 +97,10 @@
       Twelve jars of shine in the trunk and a backroad that winds like a copperhead. Throttle is stuck wide open, same as always.<br><br>
       <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
       <b>HOLD RIGHT</b> side (or → / D) to throw it right.<br><br>
-      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+      Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash at whatever the keeper's paying that night, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
     </div>
     <button class="go" id="startBtn">FIRE THE ENGINE</button>
-    <div class="fine">Score is jars sold · Trade jars for continues · Read the signs</div>
+    <div class="fine">Score is dollars earned · Prices swing at every barn · Trade jars for continues</div>
   </div>
 </div>
 
@@ -175,7 +175,8 @@ window.addEventListener('resize', resize);
 // ---------- game state ----------
 const JARS = 12;
 const CONTINUES_MAX = 3;
-const BOARD_KEY = 'wl_board3', BOARD_MAX = 10;
+const BOARD_KEY = 'wl_board_usd', BOARD_MAX = 10;
+const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moonshine market
 const E_SPIN = 0.55;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
 const state = {
@@ -186,14 +187,14 @@ const state = {
   sCar:0,
   v:0, vmax:0,
   miles:0, time:0,
-  jars:JARS, banked:0, nextDrop:0, prevDrop:-9999,
+  jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
   gap:999, heat:0, pack:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'',
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
 };
-try{ state.best = parseFloat(localStorage.getItem('wl_best3')||'0'); }catch(e){}
+try{ state.best = parseFloat(localStorage.getItem('wl_best_usd')||'0'); }catch(e){}
 
 const input = {left:false,right:false};
 
@@ -267,7 +268,7 @@ function reset(){
   s.a=0; s.aReq=0; s.lat=0; s.sCar=60;
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=JARS; s.gap=999; s.heat=0; s.shake=0; s.flashT=0;
-  s.banked=0; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
+  s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; particles.length=0;
   s.continues=CONTINUES_MAX;
@@ -442,8 +443,12 @@ function declineContinue(){
 
 // ---------- store (the barn keeper's counter at each drop) ----------
 const TRADE_COST = 8, CONTINUES_CAP = 9;
+function rollPrice(){
+  return PRICE_MIN + Math.floor(Math.random()*(PRICE_MAX-PRICE_MIN+1));
+}
 function openStore(){
   state.mode='store';
+  state.price = rollPrice();
   renderStore();
   document.getElementById('store').classList.remove('hidden');
 }
@@ -451,7 +456,7 @@ function renderStore(){
   const s=state;
   document.getElementById('storeStock').textContent = s.jars+' JARS IN THE TRUNK';
   document.getElementById('storeLedger').textContent =
-    '$'+(s.banked*3)+' earned · '+s.banked+' sold · '+s.continues+' continues left';
+    '$'+s.cash+' earned · '+s.banked+' sold · '+s.continues+' continues left · shine\'s fetching $'+s.price+'/jar tonight';
   const sellBtn=document.getElementById('sellBtn');
   const tradeBtn=document.getElementById('tradeBtn');
   const canSell = s.jars>0;
@@ -462,7 +467,7 @@ function renderStore(){
   sellBtn.style.opacity = canSell ? '1' : '0.4';
   tradeBtn.style.opacity = canTrade ? '1' : '0.4';
   sellBtn.textContent = canSell
-    ? 'SELL '+s.jars+' JARS'+(bonus?' (FULL CASE +'+bonus+')':'')+' → $'+((s.jars+bonus)*3)
+    ? 'SELL '+s.jars+' JARS'+(bonus?' (FULL CASE +'+bonus+')':'')+' → $'+((s.jars+bonus)*s.price)
     : 'NOTHING LEFT TO SELL';
   tradeBtn.textContent = s.continues>=CONTINUES_CAP
     ? 'TRUNK FULL OF CONTINUES'
@@ -473,6 +478,7 @@ function storeSell(){
   if(s.jars<=0) return;
   const bonus=(s.jars===JARS)?2:0;
   s.banked += s.jars+bonus;
+  s.cash += (s.jars+bonus)*s.price;
   cashDing();
   s.jars=0;
   renderStore();
@@ -514,12 +520,12 @@ function qualifiesForBoard(score){
 function renderBoard(){
   const el=document.getElementById('boardList');
   el.innerHTML = cachedBoard.length
-    ? cachedBoard.map((e,idx)=>'<div class="row">'+(idx+1)+'. '+e.i+'<span>'+e.s+'</span></div>').join('')
+    ? cachedBoard.map((e,idx)=>'<div class="row">'+(idx+1)+'. '+e.i+'<span>$'+e.s+'</span></div>').join('')
     : '<div class="row">No runs on the board yet</div>';
 }
 function openInitialsEntry(score){
   state.pendingScore=score;
-  document.getElementById('initialsScore').textContent = score+' jars sold — enter your initials';
+  document.getElementById('initialsScore').textContent = '$'+score+' earned — enter your initials';
   const inp=document.getElementById('initialsInput');
   inp.value='AAA';
   document.getElementById('initials').classList.remove('hidden');
@@ -549,16 +555,16 @@ function submitInitials(){
   }).catch(()=>{});
 }
 function showReport(reason){
-  const isBest = state.banked > state.best;
-  if(isBest){ state.best=state.banked; try{localStorage.setItem('wl_best3',String(state.best));}catch(e){} }
+  const isBest = state.cash > state.best;
+  if(isBest){ state.best=state.cash; try{localStorage.setItem('wl_best_usd',String(state.best));}catch(e){} }
   document.getElementById('verdict').textContent = REASONS[reason].v;
   document.getElementById('epitaph').textContent = REASONS[reason].e;
   document.getElementById('tally').textContent =
-    state.banked+' jars sold · $'+(state.banked*3)+' · '+state.miles.toFixed(2)+' miles';
+    state.banked+' jars sold · $'+state.cash+' · '+state.miles.toFixed(2)+' miles';
   document.getElementById('bestLine').textContent =
-    (isBest?'New hollow record — ':'Hollow record — ')+state.best+' jars sold';
-  if(qualifiesForBoard(state.banked)){
-    openInitialsEntry(state.banked);
+    (isBest?'New hollow record — $':'Hollow record — $')+state.best+' earned';
+  if(qualifiesForBoard(state.cash)){
+    openInitialsEntry(state.cash);
   } else {
     renderBoard();
     document.getElementById('dead').classList.remove('hidden');
@@ -959,7 +965,7 @@ function drawHUD(){
   ctx.fillStyle = s.heat>0.5 ? '#a5352c' : (s.heat>0.12 ? '#e8a33d' : 'rgba(207,217,196,0.65)');
   ctx.fillText(Math.round(s.v*0.45)+' MPH', jx+4, jy+jh+40);
   ctx.fillStyle='#e8a33d';
-  ctx.fillText('$'+(s.banked*3)+' · '+s.banked+' SOLD', jx+4, jy+jh+58);
+  ctx.fillText('$'+s.cash+' · '+s.banked+' SOLD', jx+4, jy+jh+58);
 
   // drop coming up
   if(s.mode==='run'){

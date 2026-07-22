@@ -720,7 +720,7 @@ function draw(){
     // curvature and width, so a crossed CONTOUR_STEP band gets a mapped line across the hollow
     ctx.save();
     ctx.setLineDash([9*sc,7*sc]);
-    ctx.lineWidth = 1.4*sc;
+    ctx.lineWidth = 2.6*sc;
     for(let i=1;i<p.length;i++){
       const A=p[i-1], B=p[i];
       const lvlA=Math.floor(A.z/CONTOUR_STEP), lvlB=Math.floor(B.z/CONTOUR_STEP);
@@ -732,8 +732,8 @@ function draw(){
       const reach = ww+170;
       const cl=toScreen(T, wx-nx*reach, wy-ny*reach);
       const cr=toScreen(T, wx+nx*reach, wy+ny*reach);
-      const t = Math.max(0, Math.min(1, (lvl+60)/240));           // higher ground reads paler/cooler
-      ctx.strokeStyle = 'rgba('+Math.round(80-18*t)+','+Math.round(64+22*t)+','+Math.round(34+26*t)+',0.42)';
+      const climbing = B.z > A.z;   // line color says which way the ridge is headed, not just how high
+      ctx.strokeStyle = climbing ? 'rgba(165,53,44,0.65)' : 'rgba(95,139,70,0.65)';
       ctx.beginPath(); ctx.moveTo(cl[0],cl[1]); ctx.lineTo(cr[0],cr[1]); ctx.stroke();
     }
     ctx.restore();
@@ -820,6 +820,15 @@ function draw(){
         }
       }
     }
+  }
+
+  // grade wash: the hollow tints warm on a climb, cool on a drop, felt as much as read
+  if(s.mode==='run' && Math.abs(s.grade) > 0.01){
+    const gi = Math.min(1, Math.abs(s.grade)*10);
+    ctx.fillStyle = s.grade>0
+      ? 'rgba(165,53,44,'+(gi*0.16).toFixed(3)+')'
+      : 'rgba(95,139,70,'+(gi*0.16).toFixed(3)+')';
+    ctx.fillRect(-20,-20,W+40,H+40);
   }
 
   // moon
@@ -1003,9 +1012,12 @@ function drawHUD(){
   ctx.fillText(Math.round(s.v*0.45)+' MPH', jx+4, jy+jh+40);
   ctx.fillStyle='#e8a33d';
   ctx.fillText('$'+s.cash+' · '+s.banked+' SOLD', jx+4, jy+jh+58);
-  const gradeArrow = s.grade>0.03?'▲':(s.grade<-0.03?'▼':'—');
+  const gsteep = Math.min(3, Math.floor(Math.abs(s.grade)/0.025)+1);
+  const gradeArrow = s.grade>0.03 ? '▲'.repeat(gsteep) : (s.grade<-0.03 ? '▼'.repeat(gsteep) : '—');
+  const gradeWord = s.grade>0.03 ? ' CLIMB' : (s.grade<-0.03 ? ' DROP' : '');
   ctx.fillStyle = s.grade>0.03?'#a5352c':(s.grade<-0.03?'#5f8b46':'rgba(207,217,196,0.65)');
-  ctx.fillText(gradeArrow+' '+Math.round(s.elev)+' FT', jx+4, jy+jh+76);
+  ctx.font = (Math.abs(s.grade)>0.05?'700 18px':'700 15px')+' "Courier Prime", monospace';
+  ctx.fillText(gradeArrow+' '+Math.round(s.elev)+' FT'+gradeWord, jx+4, jy+jh+76);
 
   // drop coming up
   if(s.mode==='run'){

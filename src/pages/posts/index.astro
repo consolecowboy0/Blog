@@ -27,9 +27,129 @@ const posts = (await getCollection('posts'))
     })}
     </div>
   </section>
+
+  <section class="section subscribe">
+    <h2>Subscribe</h2>
+    <p>New posts, no noise. Drop your email.</p>
+    <form id="subscribe-form" class="subscribe-form">
+      <input
+        id="subscribe-email"
+        type="email"
+        name="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        required
+      />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p id="subscribe-msg" class="subscribe-msg" role="status" aria-live="polite"></p>
+  </section>
 </BaseLayout>
 
+<script>
+  const form = document.getElementById('subscribe-form');
+  const input = document.getElementById('subscribe-email') as HTMLInputElement | null;
+  const msg = document.getElementById('subscribe-msg');
+  const btn = form?.querySelector('button') as HTMLButtonElement | null;
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = input?.value.trim();
+    if (!email) return;
+    if (btn) btn.disabled = true;
+    if (msg) msg.textContent = 'Subscribing...';
+    try {
+      const res = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (msg) {
+        if (res.ok) {
+          msg.textContent = data.already ? "You're already on the list." : 'Subscribed. Welcome aboard.';
+          (form as HTMLFormElement).reset();
+        } else {
+          msg.textContent = data.error || 'Something went wrong.';
+        }
+      }
+    } catch {
+      if (msg) msg.textContent = 'Network error. Try again.';
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+</script>
+
 <style>
+  .section {
+    margin-top: 4rem;
+  }
+
+  .subscribe h2 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+
+  .subscribe p {
+    color: var(--fg-muted);
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+
+  .subscribe-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 420px;
+  }
+
+  .subscribe-form input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .subscribe-form input:focus {
+    outline: none;
+    border-color: var(--fg);
+  }
+
+  .subscribe-form button {
+    padding: 0.65rem 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--bg);
+    background: var(--fg);
+    border: 1px solid var(--fg);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .subscribe-form button:hover {
+    opacity: 0.85;
+  }
+
+  .subscribe-form button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .subscribe-msg {
+    font-size: 0.82rem;
+    color: var(--fg-muted);
+    margin: 0.75rem 0 0;
+    min-height: 1.2em;
+  }
+
   .post-list h1 {
     margin-top: 1rem;
     margin-bottom: 2rem;

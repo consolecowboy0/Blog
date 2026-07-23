@@ -222,6 +222,7 @@ const state = {
   mode:'menu',
   a:0,            // signed drift angle: + = nose right (clockwise)
   aReq:0,         // drift the current curve demands
+  steerAxis:0,    // ramped -1..1, fakes analog from digital input
   lat:0,          // offset from centerline, + = right
   sCar:0,
   v:0, vmax:0,
@@ -315,7 +316,7 @@ function sampleRoad(s){
 
 function reset(){
   const s=state;
-  s.a=0; s.aReq=0; s.lat=0; s.sCar=60;
+  s.a=0; s.aReq=0; s.lat=0; s.sCar=60; s.steerAxis=0;
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=JARS; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0;
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
@@ -660,10 +661,12 @@ function step(dt){
   const pack = Math.exp(-dEdge*dEdge*1.2);
   s.pack = pack;
   const gMul = 1.25 - 0.75*pack;
-  let steer = 0;
-  if(input.right) steer += 1;
-  if(input.left)  steer -= 1;
-  s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + steer*1.35 ) * dt;
+  let steerTarget = 0;
+  if(input.right) steerTarget += 1;
+  if(input.left)  steerTarget -= 1;
+  const steerRate = 1/0.15; // ramp to full lock over 0.15s: taps nudge, holds lock
+  s.steerAxis += Math.max(-steerRate*dt, Math.min(steerRate*dt, steerTarget - s.steerAxis));
+  s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + s.steerAxis*1.35 ) * dt;
 
   const err = s.a - s.aReq;
   if(Math.abs(err) >= E_SPIN && s.safeT<=0){ die('spin'); return; }

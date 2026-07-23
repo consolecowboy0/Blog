@@ -581,6 +581,7 @@ function reset(){
   s.safeT=SAFE_PERIOD;
   if(!s.road) s.road = pickRandomRoad();
   buildRoad(s.road, s.sCar);
+  outboundTrio = []; trioStop = -1;   // a new run draws a fresh set of roads to study
 }
 
 // ---------- input ----------
@@ -1018,14 +1019,21 @@ function garageBack(){
 let mapChoices = [];
 let mapContext = 'start';   // 'start' = first leg out of the hideout, 'hub' = from a store stop
 let outboundTrio = [];   // the three roads offered heading down to Atlanta
+let trioStop = -1;       // the stop the outbound three were drawn for, so reopening keeps them
 function openRoadMap(context){
   mapContext = context;
   // heading down to Atlanta from the hideout, or back up to the hideout from Atlanta
   const toAtlanta = context==='start' || state.curStopType==='hideout';
   if(toAtlanta){
-    // fresh three on the way down; remember them for the trip back
-    mapChoices = drawThreeRoads();
-    outboundTrio = mapChoices;
+    // Draw the three once per departure and hold them. Reopening the map (after a
+    // garage or store detour at the same hub) must show the SAME three -- otherwise
+    // the names and difficulties reshuffle under you and the map stops being
+    // something you can study.
+    if(state.stopCount !== trioStop || !outboundTrio.length){
+      outboundTrio = drawThreeRoads();
+      trioStop = state.stopCount;
+    }
+    mapChoices = outboundTrio;
   } else {
     // same three back up, just reversed -- the roads you came down on, mirrored
     mapChoices = (outboundTrio.length ? outboundTrio : drawThreeRoads()).map(reverseRoad);

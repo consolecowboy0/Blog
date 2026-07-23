@@ -185,7 +185,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the barn, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -390,6 +390,8 @@ const ZONE_G = 0.17, ZONE_A = 0.34;
 const SPIN_GRACE = 0.32;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
 const ESCAPE_GAP = 500;       // world units of lead that starts shaking the tail
 const ESCAPE_HOLD = 2.6;      // seconds you must hold that lead before he loses your dust
+const BOOST_TIME = 3.6;       // seconds the blow-past boost lasts before it tapers out
+const BOOST_MAX = 0.45;       // peak top-end gain the moment you clear the lantern (+45%)
 // four-tire footprint, in world units, matching the fender positions drawn in drawAuto
 const CAR_HALF_TRACK = 16;    // center to a wheel's centerline, left/right
 const CAR_HALF_WB = 21;       // center to an axle, front/rear
@@ -415,6 +417,7 @@ const state = {
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   revActive:true,   // a revenuer only rides your tail some legs; other nights the road's clear
   escapeT:0,        // seconds you've held a shaking-distance lead; runs it out and the tail drops off
+  boostT:0,         // blow-past boost: can't stop with the law on you, so the drop hands you speed instead
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'', overT:0,
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
@@ -579,7 +582,7 @@ function reset(){
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
   s.engineBought=false; s.engineInstalled=false;
-  s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0;
+  s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0; s.boostT=0;
   rollChase();
   s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
@@ -854,6 +857,8 @@ function stopType(n){
   if(m===6) return 'hideout';
   return 'regular';
 }
+// what you shout past when the law won't let you stop to sell
+const BLOWBY_NAME = { regular:'THE BARN', town:'ATLANTA', hideout:'THE HIDEOUT' };
 const STORE_COPY = {
   regular:{eyebrow:'Copper Creek Barn &nbsp;·&nbsp; Drop Point', title:'THE COUNTER'},
   town:   {eyebrow:'Atlanta &nbsp;·&nbsp; Union Station Rail Yard', title:'THE ATLANTA DROP'},
@@ -1209,7 +1214,8 @@ function step(dt){
   s.skill += ((clean?1:0) - s.skill) * (clean ? 0.5 : 1.6) * dt;
   s.skill = Math.max(0, Math.min(1, s.skill));
   const skillBoost = 1 + s.skill*0.35;            // clean steering unlocks up to +35% top end
-  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05) * skillBoost;
+  const blowBoost = 1 + BOOST_MAX*(s.boostT/BOOST_TIME);  // blow-past nitrous, tapering as it runs out
+  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05) * skillBoost * blowBoost;
 
   // auto-brake: below the comfort band the throttle stays pinned; past it the brake
   // ramps in hard and scrubs speed until the slide settles back inside the green.
@@ -1317,8 +1323,18 @@ function step(dt){
   if(s.sCar >= s.nextDrop){
     s.prevDrop = s.nextDrop;
     s.nextDrop += 5200 + Math.random()*1800;
-    openStore();
-    return;
+    // law on your tail? no stopping to sell -- you blow past the drop, and the run
+    // past the lantern hands you a boost to shake him. no sale this drop, but a
+    // full head of steam to open the gap. clear road: pull up and sell as usual.
+    if(s.revActive){
+      s.boostT = BOOST_TIME;
+      s.v += 90;                 // instant kick off the lantern
+      flash('BLEW PAST '+BLOWBY_NAME[stopType(s.stopCount+1)]+' — BOOST');
+      cashDing();
+    } else {
+      openStore();
+      return;
+    }
   }
 
   // revenuers race you down the same road, but only on legs where one picked up your tail
@@ -1388,6 +1404,7 @@ function step(dt){
 
   s.shake = Math.max(0, s.shake-40*dt);
   s.flashT = Math.max(0, s.flashT-dt);
+  s.boostT = Math.max(0, s.boostT-dt);
 }
 
 // ---------- render ----------

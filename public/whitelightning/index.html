@@ -33,13 +33,13 @@
   }
   /* Full moon: the same night, washed cool and silver instead of lantern-amber. */
   html[data-theme="fullmoon"]{
-    --bg:#12151a;
-    --card:#1b2026;
-    --fg:#eef1f4;
-    --fg-muted:#8f9aa6;
-    --border:#333c46;
-    --lantern:#9fb0c0;
-    --overlay-grad:linear-gradient(180deg, #14181d 0%, #05070a 100%);
+    --bg:#1b2027;
+    --card:#252c35;
+    --fg:#f2f5f8;
+    --fg-muted:#9aa6b3;
+    --border:#3d4753;
+    --lantern:#a9bacb;
+    --overlay-grad:linear-gradient(180deg, #1e242c 0%, #0c1015 100%);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);touch-action:none;font-family:var(--font-body);}
@@ -395,10 +395,10 @@ const PALETTE = {
     roof:'#2c2620', roofHi:'#3a332a', bldgEdge:'#100d0a', win:'rgba(240,196,110,0.9)', pavement:'#1b1916',
   },
   fullmoon: {
-    treeIn:'#232a30', treeOut:'#0a0d10', sky:'#12151a',
+    treeIn:'#2c343c', treeOut:'#111820', sky:'#1b2027',
     moonCore:'#ffffff', moonHalo:'#cfd9e2', moonFade:'rgba(207,217,226,0)', moonR:76,
     accent:'#9fb0c8',
-    roof:'#262c33', roofHi:'#333b44', bldgEdge:'#0b0e12', win:'rgba(198,214,236,0.85)', pavement:'#191d22',
+    roof:'#2f363f', roofHi:'#3d4650', bldgEdge:'#12161c', win:'rgba(198,214,236,0.85)', pavement:'#20262d',
   },
 };
 function pal(){ return PALETTE[state.theme] || PALETTE.lantern; }

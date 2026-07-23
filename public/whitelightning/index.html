@@ -826,9 +826,9 @@ function acceptContinue(){
   state.continues--;
   document.getElementById('continue').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
-  if(state.revActive){ state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; }
+  if(state.revActive){ state.sRev=state.sCar-320; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; }
   else { state.gap=999; }
-  state.v=Math.min(state.v,160);
+  state.v=Math.min(state.v,200);
   state.safeT=SAFE_PERIOD;
   state.mode='run';
 }
@@ -1334,6 +1334,13 @@ function step(dt){
     } else if(dist < 320 && twist*s.vRev > 0.62 && s.vRev > 240 && Math.random() < 0.22*dt){
       s.revSpinT = 1.6; flash('REVENUER IN THE DITCH');
     }
+    // coming out of a continue or store stop the car crawls back up to pace; the
+    // revenuer eases off the same beat so he can't out-accelerate a spooling car
+    // and bust you before the grace window closes.
+    if(s.safeT > 0){
+      revTarget = Math.min(revTarget, s.v);           // never faster than the relaunching car
+      if(dist < 320) s.sRev = s.sCar - 320;           // hold a full length back while you spool up
+    }
     s.vRev += (revTarget - s.vRev)*0.5*dt;
     s.sRev += s.vRev*dt;
     const revHere = sampleRoad(s.sRev);
@@ -1342,8 +1349,10 @@ function step(dt){
     s.latRev = Math.max(-rband, Math.min(rband, s.latRev));
     s.revDrift += (Math.max(-0.5,Math.min(0.5, revHere.k*s.vRev*1.05)) - s.revDrift)*3*dt;
     s.gap = dist;
-    if(dist < 22 && Math.abs(s.latRev - s.lat) < 30){ die('busted'); return; }
-    if(dist < -30){ die('busted'); return; }
+    if(s.safeT<=0){                                    // no bust during the relaunch grace
+      if(dist < 22 && Math.abs(s.latRev - s.lat) < 30){ die('busted'); return; }
+      if(dist < -30){ die('busted'); return; }
+    }
   } else {
     s.gap = 999;   // clear road, no tail to outrun
   }

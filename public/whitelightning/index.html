@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>White Lightning — Ridge Run</title>
 <!-- Shared site-wide pageview beacon (whole domain, not just the blog). -->
 <script src="/beacon.js"></script>
@@ -43,7 +43,11 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);touch-action:none;font-family:var(--font-body);}
-  canvas{display:block;width:100vw;height:100vh;}
+  canvas{display:block;width:100vw;height:100vh;height:100dvh;}
+  #safeProbe{
+    position:fixed;inset:0;z-index:-1;pointer-events:none;visibility:hidden;
+    padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);
+  }
   .overlay{
     position:fixed;inset:0;display:flex;z-index:10;padding:18px;
     overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
@@ -89,12 +93,12 @@
   button.go:disabled{opacity:0.35;cursor:default;}
   .fine{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.1em;margin-top:14px;opacity:0.9;text-transform:uppercase;color:var(--fg-muted);}
   #mute{
-    position:fixed;top:12px;right:12px;z-index:20;font-family:var(--font-mono);font-weight:700;
+    position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:20;font-family:var(--font-mono);font-weight:700;
     background:var(--card);color:var(--fg-muted);border:1px solid var(--border);
     padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
   }
   #themeToggle{
-    position:fixed;top:12px;left:12px;z-index:20;font-family:var(--font-mono);font-weight:700;
+    position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:calc(12px + env(safe-area-inset-left,0px));z-index:20;font-family:var(--font-mono);font-weight:700;
     background:var(--card);color:var(--fg-muted);border:1px solid var(--border);
     padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
   }
@@ -143,6 +147,7 @@
 </head>
 <body>
 <canvas id="c"></canvas>
+<div id="safeProbe"></div>
 <button id="themeToggle">LANTERN LIGHT</button>
 <button id="mute">SOUND ON</button>
 
@@ -265,15 +270,31 @@
 const cvs = document.getElementById('c');
 const ctx = cvs.getContext('2d');
 let W=0,H=0,DPR=1, carX=0, carY=0, sc=1;
+// Real visible area, not the layout viewport: on mobile the address bar and
+// bottom toolbar overlay the page rather than shrinking window.innerHeight,
+// so gauges anchored to "the edge" end up hidden behind that browser chrome.
+const safeProbe = document.getElementById('safeProbe');
+const SAFE = {top:0,right:0,bottom:0,left:0};
+function readSafeArea(){
+  const cs = getComputedStyle(safeProbe);
+  SAFE.top = parseFloat(cs.paddingTop)||0;
+  SAFE.right = parseFloat(cs.paddingRight)||0;
+  SAFE.bottom = parseFloat(cs.paddingBottom)||0;
+  SAFE.left = parseFloat(cs.paddingLeft)||0;
+}
 function resize(){
   DPR = Math.min(window.devicePixelRatio||1, 2);
-  W = window.innerWidth; H = window.innerHeight;
+  const vv = window.visualViewport;
+  W = vv ? vv.width : window.innerWidth;
+  H = vv ? vv.height : window.innerHeight;
   cvs.width = W*DPR; cvs.height = H*DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   carX = W*0.5; carY = H*0.68;
   sc = Math.min(W,H)/420;
+  readSafeArea();
 }
 window.addEventListener('resize', resize);
+if(window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 
 // ---------- HUD palette: same muted, monochrome-plus-lantern look as the overlay screens ----------
 const HUD = {
@@ -1212,7 +1233,7 @@ function drawHUD(){
 
   // jar rack
   const jn = s.startJars, jw = jn>16 ? 13 : (jn>12 ? 16 : 18), jsc = jw/18;
-  const jx=14, jy=14, jh=34;
+  const jx=14+SAFE.left, jy=14+SAFE.top, jh=34;
   ctx.fillStyle=HUD.panel; ctx.fillRect(jx,jy,jn*jw+16,jh);
   ctx.strokeStyle=HUD.border; ctx.lineWidth=2; ctx.strokeRect(jx,jy,jn*jw+16,jh);
   for(let i=0;i<jn;i++){
@@ -1259,7 +1280,7 @@ function drawHUD(){
     if(Math.abs(ahead.k) > 0.0006){
       const dirRight = ahead.k > 0;
       const sev = Math.min(3, Math.ceil(Math.abs(ahead.k)/0.0009));
-      const pw=130, ph=34, px=W/2-pw/2, py=Math.max(52, H*0.06);
+      const pw=130, ph=34, px=W/2-pw/2, py=Math.max(52, H*0.06)+SAFE.top;
       ctx.fillStyle='rgba(58,42,24,0.92)'; ctx.fillRect(px,py,pw,ph);
       ctx.strokeStyle='#241a10'; ctx.lineWidth=2; ctx.strokeRect(px,py,pw,ph);
       ctx.font='700 14px "JetBrains Mono Variable", monospace';
@@ -1279,7 +1300,7 @@ function drawHUD(){
 
   // drift gauge: needle = drift error, keep it centered in the green
   const gr=Math.max(44,m*0.11);
-  const gx=gr+24, gy=H-Math.max(64,m*0.13);
+  const gx=gr+24+SAFE.left, gy=H-Math.max(64,m*0.13)-SAFE.bottom;
   ctx.save();
   ctx.translate(gx,gy);
   ctx.beginPath(); ctx.arc(0,0,gr,Math.PI,0); ctx.lineTo(gr,10); ctx.lineTo(-gr,10); ctx.closePath();
@@ -1328,7 +1349,7 @@ function drawHUD(){
   ctx.restore();
 
   // revenuer gap bar
-  const bw=Math.min(120,W*0.28), bx=W-bw-16, by=H-30;
+  const bw=Math.min(120,W*0.28), bx=W-bw-16-SAFE.right, by=H-30-SAFE.bottom;
   ctx.fillStyle=HUD.panel; ctx.fillRect(bx,by,bw,10);
   const frac=Math.min(1,Math.max(0,s.gap/400));
   ctx.fillStyle= frac<0.3 ? HUD.danger:HUD.safe;

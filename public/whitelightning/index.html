@@ -436,18 +436,27 @@ function mulberry32(a){
 }
 let roadRng = mulberry32(1);
 
-// Predefined roads between the hideout and Atlanta. Each seed fixes the curve
-// sequence; the profile fixes the character (how twisty, how wide, how steep).
-// Nothing here is random once chosen -- run it enough and you'll know it cold.
+// Predefined roads between the hideout and Atlanta. The profile fixes the
+// character (how twisty, how wide, how steep); the seed fixes the exact curve
+// sequence for a given session.
+// Names and difficulties are fixed. The seeds are rolled fresh once per session
+// (below), like a new Minecraft world every time you sit down: same road names,
+// same character, brand new curves. Within a session a road's seed holds steady
+// so it stays learnable -- run it enough and you'll know it cold for the night.
 const ROADS = [
-  {name:'MOONSHINE MILE', seed:0x7a1105, hint:'Long straights, gentle bends',   curve:0.65, straightBias:0.45, width:1.15, elev:0.55},
-  {name:'OLD MILL ROAD',  seed:0x2c8d33, hint:'Rolling and forgiving',          curve:0.85, straightBias:0.34, width:1.10, elev:0.80},
-  {name:'RATTLER RIDGE',  seed:0xb6e701, hint:'Fast, loose, narrow shoulders',  curve:1.05, straightBias:0.24, width:0.80, elev:1.05},
-  {name:"WIDOW'S GRADE",  seed:0x9d0b17, hint:'Steep drops, sweeping bends',    curve:1.10, straightBias:0.22, width:0.95, elev:1.40},
-  {name:'THE HORSESHOE',  seed:0x3f4229, hint:'Hairpins stacked back to back',  curve:1.45, straightBias:0.14, width:0.90, elev:0.95},
-  {name:'COPPERHEAD CUT', seed:0x51ce5b, hint:'Tight, twisting, blind crests',  curve:1.55, straightBias:0.12, width:0.82, elev:1.25},
+  {name:'MOONSHINE MILE', seed:0, hint:'Long straights, gentle bends',   curve:0.65, straightBias:0.45, width:1.15, elev:0.55},
+  {name:'OLD MILL ROAD',  seed:0, hint:'Rolling and forgiving',          curve:0.85, straightBias:0.34, width:1.10, elev:0.80},
+  {name:'RATTLER RIDGE',  seed:0, hint:'Fast, loose, narrow shoulders',  curve:1.05, straightBias:0.24, width:0.80, elev:1.05},
+  {name:"WIDOW'S GRADE",  seed:0, hint:'Steep drops, sweeping bends',    curve:1.10, straightBias:0.22, width:0.95, elev:1.40},
+  {name:'THE HORSESHOE',  seed:0, hint:'Hairpins stacked back to back',  curve:1.45, straightBias:0.14, width:0.90, elev:0.95},
+  {name:'COPPERHEAD CUT', seed:0, hint:'Tight, twisting, blind crests',  curve:1.55, straightBias:0.12, width:0.82, elev:1.25},
 ];
+// roll each road a fresh curve sequence for this session (Minecraft-style seed)
+for(const r of ROADS) r.seed = (Math.random()*0xffffffff)>>>0;
 function pickRandomRoad(){ return ROADS[Math.floor(Math.random()*ROADS.length)]; }
+// a reversed variant of a road: same name, same difficulty, curves mirrored so
+// it drives like the same stretch taken back the other way
+function reverseRoad(prof){ return Object.assign({}, prof, {reverse:true}); }
 // three distinct roads offered on the map each time you reach a hub
 function drawThreeRoads(){
   const pool = ROADS.slice(), out = [];
@@ -457,11 +466,12 @@ function drawThreeRoads(){
 
 const road = { pts:[], ds:6, sGen:0, x:0, y:0, head:0, k:0, kT:0, segLeft:0, idx:0,
                w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0,
-               prof:ROADS[0] };
+               dir:1, prof:ROADS[0] };
 // (re)build the ribbon for a chosen road, starting at world distance sStart.
 // Reseeding here is what makes the same road come out identical every time.
 function buildRoad(prof, sStart){
   road.prof = prof || ROADS[0];
+  road.dir = road.prof.reverse ? -1 : 1;   // reversed roads mirror every turn
   roadRng = mulberry32(road.prof.seed >>> 0);
   road.pts.length=0;
   const base = Math.floor(sStart/road.ds)*road.ds;
@@ -486,6 +496,7 @@ function pickSegment(){
     road.kT = (roadRng()<0.5?-1:1)*mag;
     road.segLeft = 240 + roadRng()*420;
   }
+  road.kT *= road.dir;                                  // mirror handedness when reversed
 }
 function ensureRoad(untilS){
   const pr = road.prof;
@@ -1002,11 +1013,19 @@ function garageBack(){
 // ---------- the map (hideout and Atlanta: choose one of three roads) ----------
 let mapChoices = [];
 let mapContext = 'start';   // 'start' = first leg out of the hideout, 'hub' = from a store stop
+let outboundTrio = [];   // the three roads offered heading down to Atlanta
 function openRoadMap(context){
   mapContext = context;
-  mapChoices = drawThreeRoads();
   // heading down to Atlanta from the hideout, or back up to the hideout from Atlanta
   const toAtlanta = context==='start' || state.curStopType==='hideout';
+  if(toAtlanta){
+    // fresh three on the way down; remember them for the trip back
+    mapChoices = drawThreeRoads();
+    outboundTrio = mapChoices;
+  } else {
+    // same three back up, just reversed -- the roads you came down on, mirrored
+    mapChoices = (outboundTrio.length ? outboundTrio : drawThreeRoads()).map(reverseRoad);
+  }
   document.getElementById('mapEyebrow').innerHTML = toAtlanta
     ? 'The Hideout &nbsp;·&nbsp; Study the Map'
     : 'Atlanta &nbsp;·&nbsp; Study the Map';

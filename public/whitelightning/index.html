@@ -1246,22 +1246,29 @@ function renderMap(){
   let bMinX=0, bMaxX=VW, bMinY=0, bMaxY=VH;
   // faint dashed spine from hub to hub
   out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
+  // Fan the three roads into their own lanes so they never cross: each bows to its
+  // own side (left / center / right) and the lanes only meet at the two hubs. The
+  // bow is zero at both hubs and widest in the middle, so every line still runs
+  // hideout-to-Atlanta while staying clear of its neighbors. Each road's own wander
+  // rides on top of its lane at a shared scale, so twistier roads still read wider.
+  let latMaxAll=0;
+  previewData.forEach(d=>{ let m=0; const s0=d.rot[0]; for(const p of d.rot) m=Math.max(m, Math.abs(p.x-s0.x)); d._lat=m; if(m>latMaxAll)latMaxAll=m; });
+  const laneAmp = halfW*0.62;                                        // how far the outer lanes bow out
+  const wanderSc = latMaxAll>0 ? (halfW*0.16)/latMaxAll : 0;         // shared, capped so no lane escapes its band
+  const bow = t => Math.sin(Math.PI*(t<0?0:t>1?1:t));               // 0 at both hubs, 1 at mid-run
   previewData.forEach((d,i)=>{
     const sel = i===selectedRoadIdx;
     const start=d.rot[0], end=d.rot[d.rot.length-1];
     const vspan=Math.max(1, end.y-start.y);
-    // vertical always spans hub-to-hub so the road connects both towns; horizontal
-    // keeps true aspect unless the wander would overflow, then it's compressed to fit
     const scY=boxH/vspan;
-    let latMax=0; for(const p of d.rot) latMax=Math.max(latMax, Math.abs(p.x-start.x));
-    const scX = latMax>0 ? Math.min(scY, halfW/latMax) : scY;
+    const spread = i - (previewData.length-1)/2;                     // -1 / 0 / +1: left, center, right
     const topY = flip ? botHub : topHub, dirY = flip ? -1 : 1;
-    const sx = x => cx + (x-start.x)*scX;
+    const sx = (x,y) => cx + spread*laneAmp*bow((y-start.y)/vspan) + (x-start.x)*wanderSc;
     const sy = y => topY + (y-start.y)*scY*dirY;
     d.sx=sx; d.sy=sy;  // stash for the number badge
     let path='';
     d.rot.forEach((p,j)=>{
-      const X=sx(p.x), Y=sy(p.y);
+      const X=sx(p.x,p.y), Y=sy(p.y);
       if(X<bMinX)bMinX=X; if(X>bMaxX)bMaxX=X; if(Y<bMinY)bMinY=Y; if(Y>bMaxY)bMaxY=Y;
       path += (j?'L':'M')+X.toFixed(1)+' '+Y.toFixed(1)+' ';
     });
@@ -1271,9 +1278,9 @@ function renderMap(){
       'opacity="'+(sel?1:0.5)+'" style="cursor:pointer"/>';
     // number badge at the road's midpoint
     const mid=d.rot[Math.floor(d.rot.length/2)];
-    out += '<circle class="mapRoute" data-i="'+i+'" cx="'+sx(mid.x).toFixed(1)+'" cy="'+sy(mid.y).toFixed(1)+'" r="9" '+
+    out += '<circle class="mapRoute" data-i="'+i+'" cx="'+sx(mid.x,mid.y).toFixed(1)+'" cy="'+sy(mid.y).toFixed(1)+'" r="9" '+
       'fill="var(--card)" stroke="'+(sel?'var(--lantern)':'var(--border)')+'" stroke-width="1.4" style="cursor:pointer"/>';
-    out += '<text class="mapRoute" data-i="'+i+'" x="'+sx(mid.x).toFixed(1)+'" y="'+(sy(mid.y)+3.5).toFixed(1)+'" '+
+    out += '<text class="mapRoute" data-i="'+i+'" x="'+sx(mid.x,mid.y).toFixed(1)+'" y="'+(sy(mid.y)+3.5).toFixed(1)+'" '+
       'text-anchor="middle" font-family="var(--font-mono)" font-weight="800" font-size="11" '+
       'fill="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" style="cursor:pointer;pointer-events:none">'+(i+1)+'</text>';
   });

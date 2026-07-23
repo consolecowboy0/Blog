@@ -165,11 +165,11 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night, <b>buy</b> jars back at that same price to restock the trunk, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Load heavier at the hideout and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
-    <div class="fine">Score is dollars earned · Prices swing at every barn · Trade jars for continues</div>
+    <div class="fine">Score is dollars earned · Every jar sold is pure profit · Trade jars for continues</div>
     <div class="fine">Top-left swaps lantern light for a full moon's gray wash</div>
   </div>
 </div>
@@ -236,17 +236,18 @@
     </div>
     <button class="go" id="sellBtn" style="display:block;width:100%;margin:8px 0;">SELL</button>
     <div class="rule"></div>
-    <div class="loadoutWeight" id="buyLabel"></div>
+    <div class="loadoutWeight" id="loadLabel"></div>
     <div class="loadoutStepper">
-      <button class="stepBtn" id="buyMinus" type="button">−</button>
-      <input type="range" id="buySlider" min="0" max="0" step="1" value="0">
-      <button class="stepBtn" id="buyPlus" type="button">+</button>
+      <button class="stepBtn" id="loadMinus" type="button">−</button>
+      <input type="range" id="loadSlider" min="0" max="20" step="1" value="0">
+      <button class="stepBtn" id="loadPlus" type="button">+</button>
     </div>
-    <button class="go" id="buyBtn" style="display:block;width:100%;margin:8px 0;">BUY</button>
+    <div class="copy" id="loadFeel" style="text-align:center;"></div>
+    <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     <div class="rule"></div>
     <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">TRADE FOR CONTINUE</button>
     <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
-    <div class="fine">Sell some or all, buy back what you can afford, or trade jars for another shot</div>
+    <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or trade jars for another shot</div>
   </div>
 </div>
 
@@ -349,7 +350,7 @@ const state = {
   v:0, vmax:0,
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
-  sellQty:0, buyQty:0, // chosen at the barn counter: how many jars to sell or buy this stop
+  sellQty:0, loadQty:0, // chosen at the barn counter: how many jars to sell, and how many to haul out
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   shake:0, flashT:0, flashMsg:'',
@@ -638,12 +639,10 @@ function openStore(){
   state.mode='store';
   state.price = rollPrice();
   state.sellQty = state.jars;
-  state.buyQty = 0;
+  state.loadQty = state.jars;
   renderStore();
   document.getElementById('store').classList.remove('hidden');
 }
-function buyRoom(s){ return Math.max(0, JARS_MAX - s.jars); }
-function buyAfford(s){ return s.price>0 ? Math.floor(s.cash/s.price) : buyRoom(s); }
 function renderStore(){
   const s=state;
   document.getElementById('storeStock').textContent = s.jars+' JARS IN THE TRUNK · $'+s.cash+' CASH';
@@ -666,20 +665,21 @@ function renderStore(){
     ? 'SELL '+s.sellQty+' JAR'+(s.sellQty===1?'':'S')+(sellBonus?' (FULL CASE +'+sellBonus+')':'')+' → $'+((s.sellQty+sellBonus)*s.price)
     : (sellMax>0 ? 'DIAL IN JARS TO SELL' : 'NOTHING LEFT TO SELL');
 
-  const buyMax = Math.min(buyRoom(s), buyAfford(s));
-  s.buyQty = Math.max(0, Math.min(s.buyQty, buyMax));
-  const buySlider = document.getElementById('buySlider');
-  buySlider.max = buyMax; buySlider.value = s.buyQty;
-  buySlider.disabled = buyMax<=0;
-  const buyBtn=document.getElementById('buyBtn');
-  document.getElementById('buyLabel').textContent = buyMax>0
-    ? s.buyQty+' JAR'+(s.buyQty===1?'':'S')+' TO BUY'
-    : (buyRoom(s)<=0 ? 'TRUNK IS FULL' : 'CAN\'T AFFORD MORE');
-  buyBtn.disabled = s.buyQty<=0;
-  buyBtn.style.opacity = s.buyQty>0 ? '1' : '0.4';
-  buyBtn.textContent = s.buyQty>0
-    ? 'BUY '+s.buyQty+' JAR'+(s.buyQty===1?'':'S')+' → $'+(s.buyQty*s.price)
-    : (buyMax>0 ? 'DIAL IN JARS TO BUY' : (buyRoom(s)<=0 ? 'TRUNK IS FULL' : 'CAN\'T AFFORD MORE'));
+  const loadSlider = document.getElementById('loadSlider');
+  s.loadQty = Math.max(0, Math.min(s.loadQty, JARS_MAX));
+  loadSlider.max = JARS_MAX; loadSlider.value = s.loadQty;
+  const loadDelta = s.loadQty - s.jars;
+  document.getElementById('loadLabel').textContent =
+    s.loadQty+' JAR'+(s.loadQty===1?'':'S')+' FOR THE NEXT STRETCH · '+carWeight(s.loadQty).toLocaleString()+' LBS';
+  document.getElementById('loadFeel').innerHTML = feelText(s.loadQty);
+  const loadBtn=document.getElementById('loadBtn');
+  loadBtn.disabled = loadDelta===0;
+  loadBtn.style.opacity = loadDelta===0 ? '0.4' : '1';
+  loadBtn.textContent = loadDelta===0
+    ? 'TRUNK SET'
+    : (loadDelta>0
+        ? 'LOAD '+loadDelta+' MORE JAR'+(loadDelta===1?'':'S')+' — FREE'
+        : 'LEAVE '+(-loadDelta)+' JAR'+((-loadDelta)===1?'':'S')+' BEHIND');
 
   const tradeBtn=document.getElementById('tradeBtn');
   const canTrade = s.jars>=TRADE_COST && s.continues<CONTINUES_CAP;
@@ -701,15 +701,11 @@ function storeSell(){
   s.sellQty = s.jars;
   renderStore();
 }
-function storeBuy(){
+function storeLoad(){
   const s=state;
-  const n = s.buyQty;
-  const cost = n*s.price;
-  if(n<=0 || n>buyRoom(s) || cost>s.cash) return;
-  s.jars += n;
-  s.cash -= cost;
-  cashDing();
-  s.buyQty = 0;
+  if(s.loadQty===s.jars) return;
+  s.jars = s.loadQty;
+  s.startJars = s.loadQty;
   renderStore();
 }
 function storeTrade(){
@@ -1443,17 +1439,17 @@ document.getElementById('sellMinus').addEventListener('click', function(){
 document.getElementById('sellPlus').addEventListener('click', function(){
   state.sellQty = Math.min(state.jars, state.sellQty+1); renderStore();
 });
-document.getElementById('buySlider').addEventListener('input', function(){
-  state.buyQty = parseInt(this.value,10); renderStore();
+document.getElementById('loadSlider').addEventListener('input', function(){
+  state.loadQty = parseInt(this.value,10); renderStore();
 });
-document.getElementById('buyMinus').addEventListener('click', function(){
-  state.buyQty = Math.max(0, state.buyQty-1); renderStore();
+document.getElementById('loadMinus').addEventListener('click', function(){
+  state.loadQty = Math.max(0, state.loadQty-1); renderStore();
 });
-document.getElementById('buyPlus').addEventListener('click', function(){
-  state.buyQty = Math.min(buyRoom(state), buyAfford(state), state.buyQty+1); renderStore();
+document.getElementById('loadPlus').addEventListener('click', function(){
+  state.loadQty = Math.min(JARS_MAX, state.loadQty+1); renderStore();
 });
 document.getElementById('sellBtn').addEventListener('click', storeSell);
-document.getElementById('buyBtn').addEventListener('click', storeBuy);
+document.getElementById('loadBtn').addEventListener('click', storeLoad);
 document.getElementById('tradeBtn').addEventListener('click', storeTrade);
 document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });

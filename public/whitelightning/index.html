@@ -694,7 +694,28 @@ const ENGINE_VOL = 0.07;
 const muteBtn = document.getElementById('mute');
 muteBtn.addEventListener('click',()=>{
   muted=!muted; muteBtn.textContent = muted?'SOUND OFF':'SOUND ON';
+  if(!muted) unlockAudio(); // unmuting should also wake a suspended context
 });
+
+// iOS routes Web Audio through the ringer channel and stays silent when the
+// mute switch is on; priming a muted media element once flips the session to
+// the media channel so the procedural engine is audible.
+const SILENT_WAV = 'data:audio/wav;base64,UklGRqQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
+let audioPrimed=false;
+function primeMediaSession(){
+  if(audioPrimed) return;
+  audioPrimed=true;
+  try{ const a=new Audio(SILENT_WAV); a.volume=0; a.play().catch(()=>{}); }catch(e){}
+}
+
+// Any interaction unlocks and resumes audio, not just the overlay buttons, so
+// a backgrounded tab or an odd entry point can't leave the game permanently
+// silent. Safe to call repeatedly.
+function unlockAudio(){
+  initAudio();
+  if(AC && AC.state==='suspended') AC.resume().catch(()=>{});
+  primeMediaSession();
+}
 
 // four-speed box: each gear covers a speed band, mapped to its own rev range
 const GEARS = [
@@ -2501,8 +2522,7 @@ function renderLoadout(){
   document.getElementById('loadoutFeel').innerHTML = feelText(jars);
 }
 function openLoadout(){
-  initAudio();
-  if(AC && AC.state==='suspended') AC.resume();
+  unlockAudio();
   state.mode='loadout';
   document.getElementById('menu').classList.add('hidden');
   document.getElementById('dead').classList.add('hidden');
@@ -2511,13 +2531,11 @@ function openLoadout(){
 }
 // from the loadout, head to the map to choose the first road out of the hideout
 function startFromOverlay(){
-  initAudio();
-  if(AC && AC.state==='suspended') AC.resume();
+  unlockAudio();
   openRoadMap('start');
 }
 function startRun(){
-  initAudio();
-  if(AC && AC.state==='suspended') AC.resume();
+  unlockAudio();
   clearInterval(continueInterval);
   document.getElementById('menu').classList.add('hidden');
   document.getElementById('loadout').classList.add('hidden');
@@ -2583,6 +2601,14 @@ document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });
 document.getElementById('initialsInput').addEventListener('input', function(){
   this.value = this.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,3);
+});
+
+// safety net: unlock audio on the first interaction anywhere, and re-resume
+// after the browser suspends the context on tab background (common on mobile)
+['pointerdown','touchend','keydown'].forEach(ev=>
+  window.addEventListener(ev, unlockAudio, {passive:true}));
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible' && AC && AC.state==='suspended') AC.resume().catch(()=>{});
 });
 
 // small screens open with the rundown folded so the start button is on screen

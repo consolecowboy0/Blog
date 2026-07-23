@@ -548,10 +548,10 @@ muteBtn.addEventListener('click',()=>{
 
 // four-speed box: each gear covers a speed band, mapped to its own rev range
 const GEARS = [
-  {top:45,  lo:38, hi:92},
-  {top:95,  lo:44, hi:104},
-  {top:145, lo:50, hi:118},
-  {top:999, lo:56, hi:150},
+  {top:45,  lo:65,  hi:150},
+  {top:95,  lo:75,  hi:170},
+  {top:145, lo:85,  hi:190},
+  {top:999, lo:95,  hi:225},
 ];
 let curGear = 0;
 function gearFreq(v){
@@ -578,12 +578,12 @@ function initAudio(){
     for(let i=0;i<256;i++){ const x=i/128-1; curve[i]=Math.tanh(x*2.8); }
     shaper.curve = curve; shaper.oversample='2x';
 
-    engFilter = AC.createBiquadFilter(); engFilter.type='lowpass'; engFilter.frequency.value=300; engFilter.Q.value=1.3;
+    engFilter = AC.createBiquadFilter(); engFilter.type='lowpass'; engFilter.frequency.value=420; engFilter.Q.value=1.3;
 
     // gurgle: slow LFO wobbles amplitude and cutoff together, like a lopey V8 idle
-    engTrem = AC.createGain(); engTrem.gain.value=0.8;
+    engTrem = AC.createGain(); engTrem.gain.value=0.86;
     engLFO = AC.createOscillator(); engLFO.type='sine'; engLFO.frequency.value=9;
-    const lfoDepth = AC.createGain(); lfoDepth.gain.value=0.22;
+    const lfoDepth = AC.createGain(); lfoDepth.gain.value=0.16;
     engLFO.connect(lfoDepth); lfoDepth.connect(engTrem.gain);
     engLFO.start();
 
@@ -591,7 +591,7 @@ function initAudio(){
 
     engOsc.connect(shaper); engOsc2.connect(shaper); engOsc3.connect(shaper);
     shaper.connect(engFilter); engFilter.connect(engTrem); engTrem.connect(engGain); engGain.connect(AC.destination);
-    engOsc.frequency.value=45; engOsc2.frequency.value=22.5; engOsc3.frequency.value=45;
+    engOsc.frequency.value=70; engOsc2.frequency.value=35; engOsc3.frequency.value=70;
     engOsc.start(); engOsc2.start(); engOsc3.start();
     engOsc._twin = engOsc2; engOsc._growl = engOsc3;
 
@@ -618,11 +618,11 @@ function audioTick(){
   if(!AC) return;
   const e = Math.abs(state.a - state.aReq);
   const flutter = Math.sin(AC.currentTime*9)*2 + Math.sin(AC.currentTime*23)*1;
-  const f = gearFreq(state.v) + e*70 + flutter;
+  const f = gearFreq(state.v) + e*90 + flutter;
   engOsc.frequency.value = f;
   engOsc._twin.frequency.value = f/2;
   engOsc._growl.frequency.value = f*1.003;
-  engFilter.frequency.value = 220 + f*2.2 + e*120;
+  engFilter.frequency.value = 260 + f*2.6 + e*140;
   engLFO.frequency.value = 6 + f*0.09;
   skidGain.gain.value = Math.min(0.07, Math.max(0,e-0.10)*0.3) * (state.mode==='run'?1:0);
   const want = (muted || state.mode!=='run') ? 0 : ENGINE_VOL;

@@ -786,33 +786,6 @@ function draw(){
     ctx.fillStyle='#8a564f';
     ctx.fill();
 
-    // one road gradient: packed dark center fading to loose pale edges
-    const layers = [
-      {f:0.85, c:'rgba(66,38,44,0.14)'},
-      {f:0.66, c:'rgba(56,31,40,0.18)'},
-      {f:0.48, c:'rgba(46,24,35,0.22)'},
-      {f:0.30, c:'rgba(36,18,30,0.26)'},
-      {f:0.14, c:'rgba(27,13,25,0.30)'},
-    ];
-    for(const ly of layers){
-      ctx.beginPath();
-      for(let i=0;i<p.length;i++){
-        const q=p[i];
-        const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
-        const pt=toScreen(T, q.x-nx*q.w*ly.f, q.y-ny*q.w*ly.f);
-        i?ctx.lineTo(pt[0],pt[1]):ctx.moveTo(pt[0],pt[1]);
-      }
-      for(let i=p.length-1;i>=0;i--){
-        const q=p[i];
-        const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
-        const pt=toScreen(T, q.x+nx*q.w*ly.f, q.y+ny*q.w*ly.f);
-        ctx.lineTo(pt[0],pt[1]);
-      }
-      ctx.closePath();
-      ctx.fillStyle=ly.c;
-      ctx.fill();
-    }
-
     // washboard cross-stripes: density responds to elevation slope
     ctx.strokeStyle='rgba(0,0,0,0.14)'; ctx.lineWidth=3*sc;
     let phase = 0;

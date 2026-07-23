@@ -771,6 +771,22 @@ function draw(){
     ctx.fillStyle='#8a564f';
     ctx.fill();
 
+    // road texture: packed dark center fading to loose pale edges, smooth per-segment gradient
+    for(let i=0;i<p.length-1;i++){
+      const grad = ctx.createLinearGradient(L[i][0],L[i][1], R[i][0],R[i][1]);
+      grad.addColorStop(0, 'rgba(66,38,44,0.14)');
+      grad.addColorStop(0.5, 'rgba(27,13,25,0.34)');
+      grad.addColorStop(1, 'rgba(66,38,44,0.14)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(L[i][0],L[i][1]);
+      ctx.lineTo(R[i][0],R[i][1]);
+      ctx.lineTo(R[i+1][0],R[i+1][1]);
+      ctx.lineTo(L[i+1][0],L[i+1][1]);
+      ctx.closePath();
+      ctx.fill();
+    }
+
     // washboard cross-stripes: density responds to elevation slope
     ctx.strokeStyle='rgba(0,0,0,0.14)'; ctx.lineWidth=3*sc;
     let phase = 0;

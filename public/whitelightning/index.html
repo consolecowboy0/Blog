@@ -151,6 +151,17 @@
   .upgradeName{ font-family:var(--font-mono); font-weight:700; font-size:12.5px; letter-spacing:0.03em; color:var(--fg); }
   .upgradeDesc{ font-size:11.5px; color:var(--fg-muted); margin-top:2px; }
   .upgradeBtn{ font-size:11px!important; padding:8px 12px!important; margin:0!important; white-space:nowrap; flex-shrink:0; }
+  .roadList{ display:flex; flex-direction:column; gap:8px; margin:12px auto; max-width:480px; }
+  .roadCard{
+    border:1px solid var(--border); background:var(--bg); padding:12px 14px; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:left;
+    font-family:inherit; color:inherit; width:100%; transition:border-color .12s, background .12s;
+  }
+  .roadCard:hover{ border-color:var(--lantern); background:var(--bg-lift, var(--bg)); }
+  .roadCard:active{ transform:translateY(2px); }
+  .roadName{ font-family:var(--font-mono); font-weight:700; font-size:13px; letter-spacing:0.04em; color:var(--fg); }
+  .roadHint{ font-size:11.5px; color:var(--fg-muted); margin-top:3px; }
+  .roadPick{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; color:var(--lantern); white-space:nowrap; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -254,6 +265,7 @@
     <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     <div class="rule"></div>
     <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">BUY CONTINUE</button>
+    <button class="go" id="mapBtn" style="display:none;width:100%;margin:8px 0;">STUDY THE MAP · PICK YOUR ROAD</button>
     <button class="go" id="garageBtn" style="display:none;width:100%;margin:8px 0;">VISIT THE GARAGE</button>
     <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
     <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or spend cash for another shot</div>
@@ -269,6 +281,17 @@
     <div class="upgradeList" id="upgradeList"></div>
     <button class="go" id="garageBackBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE COUNTER</button>
     <div class="fine">Upgrades coming soon — parts on order</div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="roadmap">
+  <div class="handbill">
+    <div class="eyebrow" id="mapEyebrow">The Hideout &nbsp;·&nbsp; Study the Map</div>
+    <div class="verdict" style="font-size:clamp(22px,6vw,30px);">PICK YOUR ROAD</div>
+    <div class="rule"></div>
+    <div class="copy" id="mapDest" style="text-align:center;">Three ways down to Atlanta tonight.</div>
+    <div class="roadList" id="roadList"></div>
+    <div class="fine">Every road runs the same way each time. Learn the curves and they never surprise you twice.</div>
   </div>
 </div>
 
@@ -385,6 +408,7 @@ const state = {
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
   safeT:0,        // grace period after spawn/respawn/store stop: can't spin out, car blinks
   theme:'lantern',  // 'lantern' (warm amber) or 'fullmoon' (gray, cool)
+  road:null,        // chosen predefined route for the current leg (set at the map)
 };
 const SAFE_PERIOD = 2.5;
 try{ state.best = parseFloat(localStorage.getItem('wl_best_usd')||'0'); }catch(e){}
@@ -396,31 +420,71 @@ let rutSeed = Math.random()*1000;
 function hash(n){ const x=Math.sin(n*127.1+rutSeed)*43758.5453; return x-Math.floor(x); }
 function noise1(t){ return Math.sin(t*1.7+rutSeed)*0.5 + Math.sin(t*3.9+rutSeed*2)*0.3 + Math.sin(t*9.3+rutSeed*3)*0.2; }
 
+// Seeded PRNG so a road's shape is a pure function of its seed: same road, same
+// curves, every single run. That's what makes a route learnable instead of luck.
+function mulberry32(a){
+  return function(){
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+let roadRng = mulberry32(1);
+
+// Predefined roads between the hideout and Atlanta. Each seed fixes the curve
+// sequence; the profile fixes the character (how twisty, how wide, how steep).
+// Nothing here is random once chosen -- run it enough and you'll know it cold.
+const ROADS = [
+  {name:'MOONSHINE MILE', seed:0x7a1105, hint:'Long straights, gentle bends',   curve:0.65, straightBias:0.45, width:1.15, elev:0.55},
+  {name:'OLD MILL ROAD',  seed:0x2c8d33, hint:'Rolling and forgiving',          curve:0.85, straightBias:0.34, width:1.10, elev:0.80},
+  {name:'RATTLER RIDGE',  seed:0xb6e701, hint:'Fast, loose, narrow shoulders',  curve:1.05, straightBias:0.24, width:0.80, elev:1.05},
+  {name:"WIDOW'S GRADE",  seed:0x9d0b17, hint:'Steep drops, sweeping bends',    curve:1.10, straightBias:0.22, width:0.95, elev:1.40},
+  {name:'THE HORSESHOE',  seed:0x3f4229, hint:'Hairpins stacked back to back',  curve:1.45, straightBias:0.14, width:0.90, elev:0.95},
+  {name:'COPPERHEAD CUT', seed:0x51ce5b, hint:'Tight, twisting, blind crests',  curve:1.55, straightBias:0.12, width:0.82, elev:1.25},
+];
+function pickRandomRoad(){ return ROADS[Math.floor(Math.random()*ROADS.length)]; }
+// three distinct roads offered on the map each time you reach a hub
+function drawThreeRoads(){
+  const pool = ROADS.slice(), out = [];
+  for(let n=0;n<3 && pool.length;n++) out.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  return out;
+}
+
 const road = { pts:[], ds:6, sGen:0, x:0, y:0, head:0, k:0, kT:0, segLeft:0, idx:0,
-               w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0 };
-function roadInit(){
+               w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0,
+               prof:ROADS[0] };
+// (re)build the ribbon for a chosen road, starting at world distance sStart.
+// Reseeding here is what makes the same road come out identical every time.
+function buildRoad(prof, sStart){
+  road.prof = prof || ROADS[0];
+  roadRng = mulberry32(road.prof.seed >>> 0);
   road.pts.length=0;
-  road.sGen=0; road.x=0; road.y=0; road.head=0;
+  const base = Math.floor(sStart/road.ds)*road.ds;
+  road.sGen=base; road.x=0; road.y=0; road.head=0;
   road.k=0; road.kT=0; road.segLeft=520; road.idx=0;   // opening straight
-  road.w=95; road.wT=95; road.wSeg=650;                // opening width holds steady
+  const w0 = 95*road.prof.width;
+  road.w=w0; road.wT=w0; road.wSeg=650;                // opening width holds steady
   road.z=0; road.zT=0; road.zSeg=900;                  // opening grade holds flat
   road.sh=26; road.shT=26; road.shSeg=700;             // opening shoulder: a forgiving gravel apron
-  ensureRoad(1400);
+  ensureRoad(sStart+1400);
 }
+function roadInit(){ buildRoad(state.road || pickRandomRoad(), 0); }
 function pickSegment(){
-  const dif = Math.min(1, state.time/100);
-  const kmax = 0.0016 + 0.0011*dif;
-  const r = Math.random();
-  if(r < 0.28){
-    road.kT = (Math.random()*2-1)*0.0002;              // near-straight breather
-    road.segLeft = 220 + Math.random()*260;
+  const pr = road.prof;
+  const kmax = 0.0016*pr.curve + 0.0009;
+  const r = roadRng();
+  if(r < pr.straightBias){
+    road.kT = (roadRng()*2-1)*0.0002;                  // near-straight breather
+    road.segLeft = 220 + roadRng()*260;
   } else {
-    const mag = (0.4 + Math.random()*0.6)*kmax;
-    road.kT = (Math.random()<0.5?-1:1)*mag;
-    road.segLeft = 240 + Math.random()*420;
+    const mag = (0.4 + roadRng()*0.6)*kmax;
+    road.kT = (roadRng()<0.5?-1:1)*mag;
+    road.segLeft = 240 + roadRng()*420;
   }
 }
 function ensureRoad(untilS){
+  const pr = road.prof;
   while(road.sGen < untilS){
     road.segLeft -= road.ds;
     if(road.segLeft <= 0) pickSegment();
@@ -429,8 +493,8 @@ function ensureRoad(untilS){
     // width breathes: wide sweepers down to tight cuts
     road.wSeg -= road.ds;
     if(road.wSeg <= 0){
-      road.wT = 58 + Math.random()*70;
-      road.wSeg = 300 + Math.random()*450;
+      road.wT = (58 + roadRng()*70)*pr.width;
+      road.wSeg = 300 + roadRng()*450;
     }
     road.w += (road.wT - road.w)*Math.min(1, road.ds/170);
 
@@ -439,16 +503,16 @@ function ensureRoad(untilS){
     // into the rough, so running wide doesn't punish the same way every time.
     road.shSeg -= road.ds;
     if(road.shSeg <= 0){
-      road.shT = Math.random()<0.3 ? 4+Math.random()*8 : 20+Math.random()*46;
-      road.shSeg = 260 + Math.random()*420;
+      road.shT = roadRng()<0.3 ? 4+roadRng()*8 : 20+roadRng()*46;
+      road.shSeg = 260 + roadRng()*420;
     }
     road.sh += (road.shT - road.sh)*Math.min(1, road.ds/140);
 
     // elevation breathes too: long easy grades, same ridge that bends the road now rises and falls under it
     road.zSeg -= road.ds;
     if(road.zSeg <= 0){
-      road.zT = -60 + Math.random()*240;
-      road.zSeg = 900 + Math.random()*1100;
+      road.zT = (-60 + roadRng()*240)*pr.elev;
+      road.zSeg = 900 + roadRng()*1100;
     }
     road.z += (road.zT - road.z)*Math.min(1, road.ds/420);
 
@@ -495,7 +559,8 @@ function reset(){
   s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
   s.safeT=SAFE_PERIOD;
-  roadInit();
+  if(!s.road) s.road = pickRandomRoad();
+  buildRoad(s.road, s.sCar);
 }
 
 // ---------- input ----------
@@ -506,6 +571,7 @@ function setKey(e,down){
   if(down && (e.code==='Space'||e.code==='Enter')){
     if(state.mode==='menu'||state.mode==='dead') openLoadout();
     else if(state.mode==='loadout') startFromOverlay();
+    else if(state.mode==='roadmap') chooseRoad(0);
     else if(state.mode==='continue') acceptContinue();
     else if(state.mode==='store') storeLeave();
     else if(state.mode==='garage') garageBack();
@@ -810,8 +876,9 @@ function renderStore(){
     ? 'TRUNK FULL OF CONTINUES'
     : 'BUY CONTINUE — $'+CONTINUE_CASH_COST;
 
-  document.getElementById('garageBtn').style.display =
-    (s.curStopType==='town' || s.curStopType==='hideout') ? 'block' : 'none';
+  const atHub = (s.curStopType==='town' || s.curStopType==='hideout');
+  document.getElementById('mapBtn').style.display = atHub ? 'block' : 'none';
+  document.getElementById('garageBtn').style.display = atHub ? 'block' : 'none';
 }
 function storeSell(){
   const s=state;
@@ -877,6 +944,51 @@ function garageBack(){
   document.getElementById('garage').classList.add('hidden');
   document.getElementById('store').classList.remove('hidden');
   state.mode='store';
+}
+
+// ---------- the map (hideout and Atlanta: choose one of three roads) ----------
+let mapChoices = [];
+let mapContext = 'start';   // 'start' = first leg out of the hideout, 'hub' = from a store stop
+function openRoadMap(context){
+  mapContext = context;
+  mapChoices = drawThreeRoads();
+  // heading down to Atlanta from the hideout, or back up to the hideout from Atlanta
+  const toAtlanta = context==='start' || state.curStopType==='hideout';
+  document.getElementById('mapEyebrow').innerHTML = toAtlanta
+    ? 'The Hideout &nbsp;·&nbsp; Study the Map'
+    : 'Atlanta &nbsp;·&nbsp; Study the Map';
+  document.getElementById('mapDest').textContent = toAtlanta
+    ? 'Three ways down to Atlanta tonight.'
+    : 'Three ways back up to the hideout tonight.';
+  document.getElementById('roadList').innerHTML = mapChoices.map((r,i)=>
+    '<button class="roadCard" data-i="'+i+'">'+
+      '<div><div class="roadName">'+r.name+'</div>'+
+      '<div class="roadHint">'+r.hint+'</div></div>'+
+      '<div class="roadPick">TAKE IT →</div></button>'
+  ).join('');
+  document.getElementById('store').classList.add('hidden');
+  document.getElementById('loadout').classList.add('hidden');
+  document.getElementById('roadmap').classList.remove('hidden');
+  state.mode='roadmap';
+}
+function applyRoad(prof){
+  state.road = prof;
+  buildRoad(prof, state.sCar);         // lay the chosen road out ahead of the car
+  state.sRev=state.sCar-300; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; // fresh chase
+}
+function chooseRoad(i){
+  const prof = mapChoices[i];
+  if(!prof) return;
+  document.getElementById('roadmap').classList.add('hidden');
+  if(mapContext==='start'){
+    state.road = prof;
+    startRun();
+  } else {
+    applyRoad(prof);
+    document.getElementById('store').classList.remove('hidden');
+    state.mode='store';
+    renderStore();
+  }
 }
 
 // ---------- run report + leaderboard ----------
@@ -1628,7 +1740,13 @@ function openLoadout(){
   renderLoadout();
   document.getElementById('loadout').classList.remove('hidden');
 }
+// from the loadout, head to the map to choose the first road out of the hideout
 function startFromOverlay(){
+  initAudio();
+  if(AC && AC.state==='suspended') AC.resume();
+  openRoadMap('start');
+}
+function startRun(){
   initAudio();
   if(AC && AC.state==='suspended') AC.resume();
   clearInterval(continueInterval);
@@ -1639,6 +1757,7 @@ function startFromOverlay(){
   document.getElementById('initials').classList.add('hidden');
   document.getElementById('store').classList.add('hidden');
   document.getElementById('garage').classList.add('hidden');
+  document.getElementById('roadmap').classList.add('hidden');
   reset();
   state.mode='run';
 }
@@ -1679,8 +1798,13 @@ document.getElementById('loadPlus').addEventListener('click', function(){
 document.getElementById('sellBtn').addEventListener('click', storeSell);
 document.getElementById('loadBtn').addEventListener('click', storeLoad);
 document.getElementById('tradeBtn').addEventListener('click', storeTrade);
+document.getElementById('mapBtn').addEventListener('click', ()=>openRoadMap('hub'));
 document.getElementById('garageBtn').addEventListener('click', openGarage);
 document.getElementById('garageBackBtn').addEventListener('click', garageBack);
+document.getElementById('roadList').addEventListener('click', e=>{
+  const card = e.target.closest('.roadCard');
+  if(card) chooseRoad(parseInt(card.getAttribute('data-i'),10));
+});
 document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });
 document.getElementById('initialsInput').addEventListener('input', function(){

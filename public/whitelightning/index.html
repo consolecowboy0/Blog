@@ -103,6 +103,15 @@
   #initialsInput:focus{ outline:none; border-color:var(--fg); }
   .board{ font-family:var(--font-mono); font-size:14px; text-align:left; max-width:260px; margin:0 auto 8px; color:var(--fg); }
   .board .row{ display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid var(--border); }
+  .loadoutWeight{ font-family:var(--font-mono); font-weight:700; font-size:15px; letter-spacing:0.04em; margin:10px 0 4px; color:var(--fg); }
+  .loadoutStepper{ display:flex; align-items:center; justify-content:center; gap:12px; margin:10px auto; max-width:340px; }
+  .loadoutStepper input[type=range]{ flex:1; accent-color:var(--lantern); }
+  .stepBtn{
+    font-family:var(--font-mono); font-weight:800; font-size:20px; width:38px; height:38px; line-height:1;
+    background:var(--bg); color:var(--fg); border:1px solid var(--border); cursor:pointer;
+  }
+  .stepBtn:active{ transform:translateY(1px); }
+  #loadoutFeel{ min-height:38px; }
   .board .row span{ color:var(--fg-muted); }
 </style>
 </head>
@@ -117,18 +126,37 @@
     <div class="sub">The Ridge Road Never Runs Straight</div>
     <div class="rule"></div>
     <div class="copy">
-      Twelve jars of shine in the trunk and a backroad that winds like a copperhead. Throttle is stuck wide open, same as always.<br><br>
+      A backroad that winds like a copperhead, and the throttle stuck wide open, same as always.<br><br>
       <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
       <b>HOLD RIGHT</b> side (or → / D) to throw it right.
     </div>
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dashed <b>contour lines</b> mapped across the hollow tell you which is coming: long green dashes for a downgrade, short red ticks for a climb. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash at whatever the keeper's paying that night, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case of twelve sells for a bonus. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dashed <b>contour lines</b> mapped across the hollow tell you which is coming: long green dashes for a downgrade, short red ticks for a climb. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> your shine for cash at whatever the keeper's paying that night, or <b>trade a run of jars for another continue</b>. Roll out with a full trunk either way. A full case sells for a bonus. Load heavier at the hideout and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
       </div>
     </details>
-    <button class="go" id="startBtn">FIRE THE ENGINE</button>
+    <button class="go" id="startBtn">LOAD THE TRUNK</button>
     <div class="fine">Score is dollars earned · Prices swing at every barn · Trade jars for continues</div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="loadout">
+  <div class="handbill">
+    <div class="eyebrow">The Hideout &nbsp;·&nbsp; Appalachian Wilderness</div>
+    <h1 style="font-size:clamp(24px,7vw,34px);">LOAD THE V8</h1>
+    <div class="sub">Every Jar's a Dollar — and a Pound</div>
+    <div class="rule"></div>
+    <div class="copy" style="text-align:center;">Before you crank her over, decide how many jars go in the trunk. More jars means more to sell down the ridge, but the Ford hauls it whether she likes it or not.</div>
+    <div class="loadoutWeight" id="loadoutWeight"></div>
+    <div class="loadoutStepper">
+      <button class="stepBtn" id="jarMinus" type="button">−</button>
+      <input type="range" id="jarSlider" min="4" max="20" step="1" value="12">
+      <button class="stepBtn" id="jarPlus" type="button">+</button>
+    </div>
+    <div class="copy" id="loadoutFeel" style="text-align:center;"></div>
+    <button class="go" id="loadoutBtn">FIRE THE ENGINE</button>
+    <div class="fine">Heavier trunk: slower off the line, sluggish on the wheel, more planted through the ruts</div>
   </div>
 </div>
 
@@ -213,6 +241,8 @@ const HUD = {
 
 // ---------- game state ----------
 const JARS = 12;
+const JARS_MIN = 4, JARS_MAX = 20;               // how light or heavy you can load the trunk at the hideout
+const CAR_BASE_LBS = 2500, JAR_LBS = 8;          // stripped-down Ford V8 coupe + a full gallon jug per jar
 const CONTINUES_MAX = 3;
 const BOARD_KEY = 'wl_board_usd', BOARD_MAX = 10;
 const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moonshine market
@@ -220,6 +250,7 @@ const E_SPIN = 0.55;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
 const state = {
   mode:'menu',
+  startJars:JARS,  // chosen at the hideout: how full the trunk rolls out
   a:0,            // signed drift angle: + = nose right (clockwise)
   aReq:0,         // drift the current curve demands
   steerAxis:0,    // ramped -1..1, fakes analog from digital input
@@ -314,11 +345,18 @@ function sampleRoad(s){
   };
 }
 
+// weight the trunk actually carries, and a -1..1 "how loaded" feel used to tune handling
+function carWeight(jars){ return CAR_BASE_LBS + jars*JAR_LBS; }
+function loadRatio(){
+  const j = state.startJars;
+  return j>=JARS ? (j-JARS)/(JARS_MAX-JARS) : (j-JARS)/(JARS-JARS_MIN);
+}
+
 function reset(){
   const s=state;
   s.a=0; s.aReq=0; s.lat=0; s.sCar=60; s.steerAxis=0;
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
-  s.jars=JARS; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0;
+  s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0;
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; particles.length=0;
@@ -333,7 +371,8 @@ function setKey(e,down){
   if(e.code==='ArrowLeft'||e.code==='KeyA'){input.left=down; e.preventDefault();}
   if(e.code==='ArrowRight'||e.code==='KeyD'){input.right=down; e.preventDefault();}
   if(down && (e.code==='Space'||e.code==='Enter')){
-    if(state.mode==='menu'||state.mode==='dead') startFromOverlay();
+    if(state.mode==='menu'||state.mode==='dead') openLoadout();
+    else if(state.mode==='loadout') startFromOverlay();
     else if(state.mode==='continue') acceptContinue();
     else if(state.mode==='store') storeLeave();
   }
@@ -518,7 +557,7 @@ function renderStore(){
   const tradeBtn=document.getElementById('tradeBtn');
   const canSell = s.jars>0;
   const canTrade = s.jars>=TRADE_COST && s.continues<CONTINUES_CAP;
-  const bonus = (s.jars===JARS) ? 2 : 0;
+  const bonus = (s.jars===s.startJars) ? 2 : 0;
   sellBtn.disabled = !canSell;
   tradeBtn.disabled = !canTrade;
   sellBtn.style.opacity = canSell ? '1' : '0.4';
@@ -533,7 +572,7 @@ function renderStore(){
 function storeSell(){
   const s=state;
   if(s.jars<=0) return;
-  const bonus=(s.jars===JARS)?2:0;
+  const bonus=(s.jars===s.startJars)?2:0;
   s.banked += s.jars+bonus;
   s.cash += (s.jars+bonus)*s.price;
   cashDing();
@@ -551,7 +590,7 @@ function storeTrade(){
 function storeLeave(){
   if(state.mode!=='store') return;
   document.getElementById('store').classList.add('hidden');
-  state.jars = JARS;   // roll out with a full trunk
+  state.jars = state.startJars;   // roll out with a full trunk
   state.safeT = SAFE_PERIOD;
   state.mode='run';
 }
@@ -645,17 +684,21 @@ function step(dt){
   s.grade = (ahead70.z - here.z) / 70;   // + climbing, - dropping
   s.elev = here.z;
 
+  // load out of the hideout: heavier trunk is slower to spool up and slower to answer
+  // the wheel but rides more planted; lighter trunk is nimble but twitchy.
+  const lr = loadRatio();
+
   // speed: green groove cruises, riding the ragged edge pulls up to +50%, grade does the rest
   const baseV = 190 + Math.min(130, s.time*2.6);
   const gradeMul = Math.max(0.6, Math.min(1.4, 1 - s.grade*3.6));
-  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul;
-  s.v += (s.vmax - s.v)*0.25*dt;
+  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05);
+  s.v += (s.vmax - s.v) * (0.25/(1+lr*0.4)) * dt;
 
   s.aReq = Math.max(-0.55, Math.min(0.55, here.k * s.v * 1.05));
 
   // drift: unstable equilibrium at aReq, twitchier with speed
   const instab = 0.55 + (s.v/260)*0.85 + s.time*0.004;
-  const bump = noise1(s.time*2.2) * (0.10 + s.v/1400) * (0.5+Math.min(1,s.time/60));
+  const bump = noise1(s.time*2.2) * (0.10 + s.v/1400) * (0.5+Math.min(1,s.time/60)) * (1 - lr*0.25);
   // packedness: one gradient, dark packed center fading to loose pale edges
   const dEdge = s.lat/(here.w*0.5);
   const pack = Math.exp(-dEdge*dEdge*1.2);
@@ -664,7 +707,7 @@ function step(dt){
   let steerTarget = 0;
   if(input.right) steerTarget += 1;
   if(input.left)  steerTarget -= 1;
-  const steerRate = 1/0.15; // ramp to full lock over 0.15s: taps nudge, holds lock
+  const steerRate = (1/0.15) / (1+lr*0.5); // ramp to full lock: taps nudge, holds lock — slower with a heavier trunk
   s.steerAxis += Math.max(-steerRate*dt, Math.min(steerRate*dt, steerTarget - s.steerAxis));
   s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + s.steerAxis*1.35 ) * dt;
 
@@ -1010,17 +1053,18 @@ function drawHUD(){
   const m=Math.min(W,H);
 
   // jar rack
+  const jn = s.startJars, jw = jn>16 ? 13 : (jn>12 ? 16 : 18), jsc = jw/18;
   const jx=14, jy=14, jh=34;
-  ctx.fillStyle=HUD.panel; ctx.fillRect(jx,jy,JARS*18+16,jh);
-  ctx.strokeStyle=HUD.border; ctx.lineWidth=2; ctx.strokeRect(jx,jy,JARS*18+16,jh);
-  for(let i=0;i<JARS;i++){
-    const x=jx+12+i*18, y=jy+8;
+  ctx.fillStyle=HUD.panel; ctx.fillRect(jx,jy,jn*jw+16,jh);
+  ctx.strokeStyle=HUD.border; ctx.lineWidth=2; ctx.strokeRect(jx,jy,jn*jw+16,jh);
+  for(let i=0;i<jn;i++){
+    const x=jx+12+i*jw, y=jy+8;
     const alive=i<s.jars;
     ctx.fillStyle= alive?'rgba(242,240,234,0.85)':HUD.dim;
-    ctx.fillRect(x,y+4,10,14);
+    ctx.fillRect(x,y+4,10*jsc,14);
     ctx.fillStyle= alive?HUD.lantern:HUD.dim;
-    ctx.fillRect(x-1,y,12,4);
-    if(alive){ ctx.fillStyle='rgba(242,240,234,0.5)'; ctx.fillRect(x+1,y+9,8,8); }
+    ctx.fillRect(x-1,y,12*jsc,4);
+    if(alive){ ctx.fillStyle='rgba(242,240,234,0.5)'; ctx.fillRect(x+1,y+9,8*jsc,8); }
     else{
       ctx.strokeStyle='rgba(120,120,120,0.8)'; ctx.lineWidth=1;
       ctx.beginPath(); ctx.moveTo(x+2,y+6); ctx.lineTo(x+6,y+11); ctx.lineTo(x+3,y+16); ctx.stroke();
@@ -1159,11 +1203,35 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 
+function feelText(jars){
+  if(jars<=6) return '<b>STRIPPED LIGHT.</b> She jumps off the line and darts through the curves, but every rut in the road will kick the tail loose.';
+  if(jars<=9) return '<b>LIGHT LOAD.</b> Quick and lively, a little twitchy on the rough stuff.';
+  if(jars<=15) return '<b>WORKING LOAD.</b> The balance she was built for.';
+  if(jars<=18) return '<b>HEAVY HAUL.</b> Planted and steady, but slower to answer the wheel.';
+  return '<b>OVERLOADED.</b> Every jar is a dollar, but she is sluggish off the line and slow to catch a slide.';
+}
+function renderLoadout(){
+  const jars = state.startJars;
+  document.getElementById('jarSlider').value = jars;
+  document.getElementById('loadoutWeight').textContent =
+    jars+' JARS · '+carWeight(jars).toLocaleString()+' LBS IN THE TRUNK';
+  document.getElementById('loadoutFeel').innerHTML = feelText(jars);
+}
+function openLoadout(){
+  initAudio();
+  if(AC && AC.state==='suspended') AC.resume();
+  state.mode='loadout';
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('dead').classList.add('hidden');
+  renderLoadout();
+  document.getElementById('loadout').classList.remove('hidden');
+}
 function startFromOverlay(){
   initAudio();
   if(AC && AC.state==='suspended') AC.resume();
   clearInterval(continueInterval);
   document.getElementById('menu').classList.add('hidden');
+  document.getElementById('loadout').classList.add('hidden');
   document.getElementById('dead').classList.add('hidden');
   document.getElementById('continue').classList.add('hidden');
   document.getElementById('initials').classList.add('hidden');
@@ -1171,8 +1239,21 @@ function startFromOverlay(){
   reset();
   state.mode='run';
 }
-document.getElementById('startBtn').addEventListener('click', startFromOverlay);
-document.getElementById('againBtn').addEventListener('click', startFromOverlay);
+document.getElementById('startBtn').addEventListener('click', openLoadout);
+document.getElementById('againBtn').addEventListener('click', openLoadout);
+document.getElementById('loadoutBtn').addEventListener('click', startFromOverlay);
+document.getElementById('jarSlider').addEventListener('input', function(){
+  state.startJars = parseInt(this.value,10);
+  renderLoadout();
+});
+document.getElementById('jarMinus').addEventListener('click', function(){
+  state.startJars = Math.max(JARS_MIN, state.startJars-1);
+  renderLoadout();
+});
+document.getElementById('jarPlus').addEventListener('click', function(){
+  state.startJars = Math.min(JARS_MAX, state.startJars+1);
+  renderLoadout();
+});
 document.getElementById('continueBtn').addEventListener('click', acceptContinue);
 document.getElementById('sellBtn').addEventListener('click', storeSell);
 document.getElementById('tradeBtn').addEventListener('click', storeTrade);

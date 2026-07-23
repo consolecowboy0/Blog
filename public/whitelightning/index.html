@@ -6,6 +6,15 @@
 <title>White Lightning — Ridge Run</title>
 <!-- Shared site-wide pageview beacon (whole domain, not just the blog). -->
 <script src="/beacon.js"></script>
+<script>
+// Set day/night before first paint so there's no flash of the wrong theme.
+(function(){
+  try{
+    var t = localStorage.getItem('wl_theme')==='day' ? 'day' : 'night';
+    document.documentElement.setAttribute('data-theme', t);
+  }catch(e){ document.documentElement.setAttribute('data-theme','night'); }
+})();
+</script>
 <style>
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'); }
   @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'); }
@@ -18,8 +27,20 @@
     --fg-muted:#8c887f;
     --border:#2c2a25;
     --lantern:#c98f3f;
+    --overlay-grad:linear-gradient(180deg, #0d0d0d 0%, #060606 100%);
+    --star-op:1;
     --font-body:'Inter',-apple-system,sans-serif;
     --font-mono:'JetBrains Mono Variable','JetBrains Mono',monospace;
+  }
+  html[data-theme="day"]{
+    --bg:#e7dcc3;
+    --card:#fbf6ea;
+    --fg:#241d12;
+    --fg-muted:#7a6a4d;
+    --border:#d8c7a0;
+    --lantern:#a8631f;
+    --overlay-grad:linear-gradient(180deg, #bfe0ee 0%, #f2e4bd 100%);
+    --star-op:0;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);touch-action:none;font-family:var(--font-body);}
@@ -27,11 +48,12 @@
   .overlay{
     position:fixed;inset:0;display:flex;z-index:10;padding:18px;
     overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
-    background:linear-gradient(180deg, #0d0d0d 0%, #060606 100%);
+    background:var(--overlay-grad);
   }
-  /* Same restraint as the site's chrome, just a quiet scatter of stars to say it's night. */
+  /* Same restraint as the site's chrome, just a quiet scatter of stars to say it's night. Fades out for a day run. */
   .overlay::after{
     content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    opacity:var(--star-op);transition:opacity .2s;
     background-image:
       radial-gradient(circle at 10% 18%, rgba(242,240,234,0.5) 0 1px, transparent 1px),
       radial-gradient(circle at 82% 12%, rgba(242,240,234,0.35) 0 1px, transparent 1px),
@@ -48,6 +70,7 @@
   }
   .eyebrow{font-weight:600;letter-spacing:0.18em;font-size:11px;text-transform:uppercase;color:var(--fg-muted);}
   .eyebrow::before{content:"☾ ";opacity:0.7;}
+  html[data-theme="day"] .eyebrow::before{content:"☀ ";}
   h1{
     font-weight:800;font-size:clamp(30px,8vw,44px);line-height:1.05;letter-spacing:-0.02em;
     margin:8px 0 2px;color:var(--fg);text-transform:uppercase;
@@ -69,6 +92,11 @@
   .fine{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.1em;margin-top:14px;opacity:0.9;text-transform:uppercase;color:var(--fg-muted);}
   #mute{
     position:fixed;top:12px;right:12px;z-index:20;font-family:var(--font-mono);font-weight:700;
+    background:var(--card);color:var(--fg-muted);border:1px solid var(--border);
+    padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
+  }
+  #themeToggle{
+    position:fixed;top:12px;left:12px;z-index:20;font-family:var(--font-mono);font-weight:700;
     background:var(--card);color:var(--fg-muted);border:1px solid var(--border);
     padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
   }
@@ -117,6 +145,7 @@
 </head>
 <body>
 <canvas id="c"></canvas>
+<button id="themeToggle">NIGHT RUN</button>
 <button id="mute">SOUND ON</button>
 
 <div class="overlay" id="menu">
@@ -133,11 +162,12 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night, <b>buy</b> jars back at that same price to restock the trunk, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Load heavier at the hideout and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night, <b>buy</b> jars back at that same price to restock the trunk, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Load heavier at the hideout and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. Run it in daylight and the law drives a little harder to keep up.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
     <div class="fine">Score is dollars earned · Prices swing at every barn · Trade jars for continues</div>
+    <div class="fine">Top-left flips NIGHT RUN / DAY RUN · day runs draw faster revenuers</div>
   </div>
 </div>
 
@@ -254,6 +284,25 @@ const HUD = {
   lantern:'#c98f3f', danger:'#b5473f', safe:'#7a9b7e', dim:'rgba(120,120,120,0.3)',
 };
 
+// ---------- day/night: swaps the backdrop, treeline and sky light; day runs push the revenuers harder ----------
+const PALETTE = {
+  night:{ treeIn:'#181614', treeOut:'#08070a' },
+  day:  { treeIn:'#5c7a4a', treeOut:'#2e4324' },
+};
+const DAY_REVENUER_MULT = 1.07;
+function pal(){ return PALETTE[state.theme] || PALETTE.night; }
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(t){
+  t = t==='day' ? 'day' : 'night';
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('wl_theme', t); }catch(e){}
+  themeBtn.textContent = t==='day' ? 'DAY RUN' : 'NIGHT RUN';
+  state.theme = t;
+}
+themeBtn.addEventListener('click', ()=>{
+  applyTheme(state.theme==='day' ? 'night' : 'day');
+});
+
 // ---------- game state ----------
 const JARS = 12;
 const JARS_MIN = 4, JARS_MAX = 20;               // how light or heavy you can load the trunk at the hideout
@@ -281,6 +330,7 @@ const state = {
   spinAnim:0, deadReason:'',
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
   safeT:0,        // grace period after spawn/respawn/store stop: can't spin out, car blinks
+  theme:'night',  // 'night' or 'day' — day runs push the revenuers a little harder
 };
 const SAFE_PERIOD = 2.5;
 try{ state.best = parseFloat(localStorage.getItem('wl_best_usd')||'0'); }catch(e){}
@@ -805,7 +855,8 @@ function step(dt){
   const edge = 1.0 + Math.min(0.16, Math.max(0, s.time-8)/90*0.16); // his straightline advantage grows
   const closeF = Math.max(0, Math.min(1, 1 - dist/260));         // 1 = right on you
   const caution = Math.min(0.5, twist*420) * (0.35 + 0.65*closeF); // reckless when far, careful when close
-  let revTarget = baseCruise * edge * (1 - caution);
+  const dayMul = state.theme==='day' ? DAY_REVENUER_MULT : 1;       // daylight makes it easier for the law to keep pace
+  let revTarget = baseCruise * edge * (1 - caution) * dayMul;
   if(dist > 200) revTarget *= 1.3;                  // floors it to get back in the race
   if(dist > 340 && s.revSpinT<=0) s.sRev = s.sCar - 340;
   if(s.revSpinT > 0){
@@ -859,8 +910,14 @@ function draw(){
   ctx.save();
   if(s.shake>0) ctx.translate((Math.random()-0.5)*s.shake,(Math.random()-0.5)*s.shake);
 
-  // night woods backdrop
-  ctx.fillStyle='#0a0a0a';
+  // backdrop: night woods, or a day run's open sky
+  if(s.theme==='day'){
+    const skyG = ctx.createLinearGradient(0,-20,0,H*0.65);
+    skyG.addColorStop(0,'#bfe0ee'); skyG.addColorStop(1,'#eee0b6');
+    ctx.fillStyle=skyG;
+  } else {
+    ctx.fillStyle='#0a0a0a';
+  }
   ctx.fillRect(-20,-20,W+40,H+40);
 
   const T = worldTransform();
@@ -938,8 +995,9 @@ function draw(){
         const pt=toScreen(T, q.x+nx*off*side, q.y+ny*off*side);
         if(pt[0]<-60||pt[0]>W+60||pt[1]<-60||pt[1]>H+60) continue;
         const r=(9+hash(q.i*2.1)*14)*sc;
+        const P=pal();
         const tg=ctx.createRadialGradient(pt[0]-r*0.3,pt[1]-r*0.3,r*0.2,pt[0],pt[1],r);
-        tg.addColorStop(0,'#181614'); tg.addColorStop(1,'#08070a');
+        tg.addColorStop(0,P.treeIn); tg.addColorStop(1,P.treeOut);
         ctx.fillStyle=tg;
         ctx.beginPath(); ctx.arc(pt[0],pt[1],r,0,7); ctx.fill();
         if(hash(q.i*5.9)<0.05){  // a still tucked in the pines
@@ -951,11 +1009,17 @@ function draw(){
     }
   }
 
-  // moon
+  // moon, or the sun on a day run
   ctx.save();
-  const mg=ctx.createRadialGradient(W*0.86,H*0.10,4,W*0.86,H*0.10,60);
-  mg.addColorStop(0,'#f7f5ef'); mg.addColorStop(0.25,'#a8a396'); mg.addColorStop(1,'rgba(168,163,150,0)');
-  ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(W*0.86,H*0.10,60,0,7); ctx.fill();
+  if(s.theme==='day'){
+    const sg=ctx.createRadialGradient(W*0.86,H*0.12,4,W*0.86,H*0.12,72);
+    sg.addColorStop(0,'#fffaea'); sg.addColorStop(0.3,'#ffdf8a'); sg.addColorStop(1,'rgba(255,223,138,0)');
+    ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(W*0.86,H*0.12,72,0,7); ctx.fill();
+  } else {
+    const mg=ctx.createRadialGradient(W*0.86,H*0.10,4,W*0.86,H*0.10,60);
+    mg.addColorStop(0,'#f7f5ef'); mg.addColorStop(0.25,'#a8a396'); mg.addColorStop(1,'rgba(168,163,150,0)');
+    ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(W*0.86,H*0.10,60,0,7); ctx.fill();
+  }
   ctx.restore();
 
   // the revenuer's sedan, racing up the same dirt
@@ -1373,6 +1437,7 @@ if(matchMedia('(max-width:480px), (max-height:760px)').matches){
   document.getElementById('rundown').removeAttribute('open');
 }
 
+applyTheme(document.documentElement.getAttribute('data-theme'));
 resize();
 roadInit();
 requestAnimationFrame(loop);

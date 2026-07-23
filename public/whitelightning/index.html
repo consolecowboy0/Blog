@@ -751,8 +751,8 @@ function draw(){
       const reach = ww+170;
       const cl=toScreen(T, wx-nx*reach, wy-ny*reach);
       const cr=toScreen(T, wx+nx*reach, wy+ny*reach);
-      const climbing = B.z > A.z;   // color and dash both say which way the ridge is headed
-      ctx.strokeStyle = climbing ? 'rgba(255,46,95,0.55)' : 'rgba(46,230,166,0.5)';
+      const climbing = B.z > A.z;   // one color; dash frequency alone says which way the ridge is headed
+      ctx.strokeStyle = 'rgba(255,166,43,0.5)';
       ctx.setLineDash(climbing ? [4*sc,5*sc] : [13*sc,6*sc]);
       ctx.beginPath(); ctx.moveTo(cl[0],cl[1]); ctx.lineTo(cr[0],cr[1]); ctx.stroke();
     }

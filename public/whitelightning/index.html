@@ -511,12 +511,16 @@ function drawThreeRoads(){
 
 const road = { pts:[], ds:6, sGen:0, x:0, y:0, head:0, k:0, kT:0, segLeft:0, idx:0,
                w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0,
-               dir:1, prof:ROADS[0] };
+               dir:1, zDir:1, prof:ROADS[0] };
 // (re)build the ribbon for a chosen road, starting at world distance sStart.
 // Reseeding here is what makes the same road come out identical every time.
 function buildRoad(prof, sStart){
   road.prof = prof || ROADS[0];
-  road.dir = road.prof.reverse ? -1 : 1;   // reversed roads mirror every turn
+  // the ride home is the ride down taken the other way: every turn bends the
+  // opposite way and every climb becomes a drop. dir flips the handedness, zDir
+  // flips the grade. same seed, so it's the very same road, just run backwards.
+  road.dir = road.prof.reverse ? -1 : 1;
+  road.zDir = road.prof.reverse ? -1 : 1;
   roadRng = mulberry32(road.prof.seed >>> 0);
   road.pts.length=0;
   const base = Math.floor(sStart/road.ds)*road.ds;
@@ -579,7 +583,7 @@ function ensureRoad(untilS){
     road.head += road.k*road.ds;
     road.x += Math.cos(road.head)*road.ds;
     road.y += Math.sin(road.head)*road.ds;
-    road.pts.push({s:road.sGen, x:road.x, y:road.y, h:road.head, k:road.k, w:road.w, sh:road.sh, z:road.z, i:road.idx++});
+    road.pts.push({s:road.sGen, x:road.x, y:road.y, h:road.head, k:road.k, w:road.w, sh:road.sh, z:road.z*road.zDir, i:road.idx++});
     road.sGen += road.ds;
   }
 }
@@ -1092,7 +1096,9 @@ let selectedRoadIdx = 0;   // the road currently highlighted on the map / in the
 const PREVIEW_LEN = 5600;  // world units of road to lay out for the preview (a typical leg)
 function simulateRoad(prof, legLen){
   const rng = mulberry32(prof.seed>>>0);
-  const dir = prof.reverse ? -1 : 1;
+  // match the live ribbon: heading home flips every turn (dir) and every grade
+  // (zDir), so the preview draws the exact road you'll drive back up.
+  const dir = prof.reverse ? -1 : 1, zDir = prof.reverse ? -1 : 1;
   const ds = 6;
   const kmax = 0.0016*prof.curve + 0.0009;
   let x=0,y=0,head=0;
@@ -1118,7 +1124,7 @@ function simulateRoad(prof, legLen){
     z += (zT-z)*Math.min(1, ds/420);
     head += k*ds;
     x += Math.cos(head)*ds; y += Math.sin(head)*ds;
-    pts.push({s, x, y, z});
+    pts.push({s, x, y, z:z*zDir});
     s += ds;
   }
   return pts;
@@ -1199,8 +1205,8 @@ function renderElevation(){
   const boxW=VW-padL-padR, boxH=VH-padT-padB;
   const N=90, pts=d.pts, step=(pts.length-1)/(N-1);
   const lo=d.lo, hi=d.hi, span=Math.max(1,hi-lo);
-  // profile reads left->right in travel order; on the way home that's Atlanta->hideout
-  const order = mapToAtlanta ? (k=>k) : (k=>N-1-k);
+  // pts already run in travel order (reversed roads are pre-flipped), so read straight through
+  const order = k=>k;
   const sample=k=>pts[Math.round(k*step)].z;
   const px=k=>padL + (k/(N-1))*boxW;
   const py=z=>padT + (1-(z-lo)/span)*boxH;

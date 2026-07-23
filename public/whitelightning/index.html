@@ -177,9 +177,10 @@
     <div class="sub">The Ridge Road Never Runs Straight</div>
     <div class="rule"></div>
     <div class="copy">
-      A backroad that winds like a copperhead, and the throttle stuck wide open, same as always.<br><br>
+      A backroad that winds like a copperhead. The car works its own throttle and brake — <b>you only steer</b>.<br><br>
       <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
-      <b>HOLD RIGHT</b> side (or → / D) to throw it right.
+      <b>HOLD RIGHT</b> side (or → / D) to throw it right.<br><br>
+      Throttle stays pinned wide open; when a slide runs toward a spin the <b>auto-brake</b> scrubs speed for you. Steer it clean and the game hands you more top end — the better your line, the faster she runs.
     </div>
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
@@ -395,6 +396,9 @@ const state = {
   startJars:JARS,  // chosen at the hideout: how full the trunk rolls out
   a:0,            // signed drift angle: + = nose right (clockwise)
   aReq:0,         // drift the current curve demands
+  err:0,          // last frame's drift error (a - aReq), feeds the auto-brake
+  skill:0,        // 0..1 clean-steering bank: rises in the green, unlocks top end
+  braking:false,  // auto-brake currently scrubbing speed
   steerAxis:0,    // ramped -1..1, fakes analog from digital input
   lat:0,          // offset from centerline, + = right
   sCar:0,
@@ -564,7 +568,7 @@ function loadRatio(){
 
 function reset(){
   const s=state;
-  s.a=0; s.aReq=0; s.lat=0; s.sCar=60; s.steerAxis=0;
+  s.a=0; s.aReq=0; s.err=0; s.skill=0; s.braking=false; s.lat=0; s.sCar=60; s.steerAxis=0;
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.tiresOff=0; s.offEventT=0;
@@ -1157,13 +1161,36 @@ function step(dt){
   // the wheel but rides more planted; lighter trunk is nimble but twitchy.
   const lr = loadRatio();
 
-  // speed: green groove cruises, riding the ragged edge pulls up to +50%, grade does the rest
+  // speed: the game works throttle and brake for you — the driver only steers.
+  // The throttle sits pinned wide open; an auto-brake scrubs speed the moment the
+  // drift error climbs toward a spin. Hold it clean and skill banks up, unlocking
+  // more top end — the better you steer, the faster the game lets you run.
   // stroked crate motor (bought in Atlanta, installed at the hideout) lifts the top end and spools quicker
   const eng = s.engineInstalled ? 1.15 : 1;
   const baseV = (190 + Math.min(130, s.time*2.6)) * eng;
   const gradeMul = Math.max(0.6, Math.min(1.4, 1 - s.grade*3.6));
-  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05);
-  s.v += (s.vmax - s.v) * (0.25*(s.engineInstalled?1.3:1)/(1+lr*0.4)) * dt;
+
+  // instability from last frame's drift error: 0 = dead center, 1 = at the spin edge
+  const u = Math.min(1.5, Math.abs(s.err)/E_SPIN);
+  // skill banks while you hold it in the green and off the shoulder; it bleeds off
+  // fast the moment you get twitchy, so top speed is earned by steering, not luck.
+  const clean = u < 0.5 && s.tiresOff===0 && s.safeT<=0;
+  s.skill += ((clean?1:0) - s.skill) * (clean ? 0.5 : 1.6) * dt;
+  s.skill = Math.max(0, Math.min(1, s.skill));
+  const skillBoost = 1 + s.skill*0.35;            // clean steering unlocks up to +35% top end
+  s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05) * skillBoost;
+
+  // auto-brake: below the comfort band the throttle stays pinned; past it the brake
+  // ramps in hard and scrubs speed until the slide settles back inside the green.
+  const brakeStart = 0.55, brakeFull = 0.95;
+  const brakeAmt = Math.max(0, Math.min(1, (u - brakeStart)/(brakeFull - brakeStart)));
+  s.braking = brakeAmt > 0.02;
+  if(brakeAmt > 0){
+    s.v -= s.v * brakeAmt * 2.6 * dt;             // trail the brake proportional to how close you are to spinning
+  } else {
+    s.v += (s.vmax - s.v) * (0.25*(s.engineInstalled?1.3:1)/(1+lr*0.4)) * dt;
+  }
+  s.v = Math.max(60, s.v);                         // the brake eases off well before a full stop
 
   s.aReq = Math.max(-0.55, Math.min(0.55, here.k * s.v * 1.05));
 
@@ -1183,6 +1210,7 @@ function step(dt){
   s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + s.steerAxis*1.35 ) * dt;
 
   const err = s.a - s.aReq;
+  s.err = err;                          // feed next frame's auto-brake
   if(Math.abs(err) >= E_SPIN && s.safeT<=0){
     s.overT += dt;
     s.shake = Math.max(s.shake, s.overT*45);
@@ -1768,8 +1796,15 @@ function drawHUD(){
   ctx.font='700 15px "JetBrains Mono Variable", monospace';
   ctx.fillStyle=HUD.fgMuted; ctx.textAlign='left';
   ctx.fillText(s.miles.toFixed(2)+' MI', jx+4, jy+jh+22);
-  ctx.fillStyle = s.heat>0.5 ? HUD.danger : (s.heat>0.12 ? HUD.lantern : HUD.fgMuted);
-  ctx.fillText(Math.round(s.v*0.45)+' MPH', jx+4, jy+jh+40);
+  ctx.fillStyle = s.braking ? HUD.danger : (s.heat>0.5 ? HUD.danger : (s.heat>0.12 ? HUD.lantern : HUD.fgMuted));
+  const mphTxt = Math.round(s.v*0.45)+' MPH';
+  ctx.fillText(mphTxt, jx+4, jy+jh+40);
+  if(s.mode==='run' && s.braking){
+    ctx.fillStyle=HUD.danger;
+    ctx.font='700 12px "JetBrains Mono Variable", monospace';
+    ctx.fillText('◄ BRAKE', jx+4+ctx.measureText(mphTxt).width+10, jy+jh+40);
+    ctx.font='700 15px "JetBrains Mono Variable", monospace';
+  }
   ctx.fillStyle=HUD.lantern;
   ctx.fillText('$'+s.cash+' · '+s.banked+' SOLD', jx+4, jy+jh+58);
   const gsteep = Math.max(1, Math.min(3, Math.ceil((Math.abs(s.grade)-0.03)/0.02)));
@@ -1851,6 +1886,10 @@ function drawHUD(){
     ctx.fillStyle = s.heat>0.5 ? HUD.danger : HUD.lantern;
     ctx.font='700 12px "JetBrains Mono Variable", monospace';
     ctx.fillText('RUNNING HOT +'+Math.round(s.heat*50)+'%', 0, -gr-24);
+  } else if(s.mode==='run' && s.safeT<=0 && s.skill>0.15){
+    ctx.fillStyle = s.skill>0.6 ? HUD.safe : HUD.fgMuted;
+    ctx.font='700 12px "JetBrains Mono Variable", monospace';
+    ctx.fillText('CLEAN LINE +'+Math.round(s.skill*35)+'%', 0, -gr-24);
   }
   if(s.mode==='run' && s.safeT>0 && Math.floor(s.time*10)%2===0){
     ctx.fillStyle=HUD.safe;

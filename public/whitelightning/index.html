@@ -885,7 +885,7 @@ function draw(){
   drawHUD();
 }
 
-function drawAuto(x,y,rot,body,roof,badge){
+function drawAuto(x,y,rot,body,roof,badge,deuce){
   ctx.save();
   ctx.translate(x,y);
   ctx.rotate(rot);
@@ -895,11 +895,18 @@ function drawAuto(x,y,rot,body,roof,badge){
   ctx.fillStyle='#1c1410';
   ctx.fillRect(-9.5*u,-9*u,2.4*u,18*u);
   ctx.fillRect( 7.1*u,-9*u,2.4*u,18*u);
-  ctx.fillStyle=roof;
-  ctx.beginPath(); ctx.ellipse(-7.6*u,-10*u,2.6*u,4.6*u,0,0,7); ctx.fill();
-  ctx.beginPath(); ctx.ellipse( 7.6*u,-10*u,2.6*u,4.6*u,0,0,7); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(-7.6*u, 10*u,2.6*u,4.6*u,0,0,7); ctx.fill();
-  ctx.beginPath(); ctx.ellipse( 7.6*u, 10*u,2.6*u,4.6*u,0,0,7); ctx.fill();
+  // swept fenders over each wheel, black regardless of body color like a real Deuce coupe
+  const fenderColor = deuce ? '#171210' : roof;
+  [[-7.6,-10],[7.6,-10],[-7.6,10],[7.6,10]].forEach(([fx,fy])=>{
+    ctx.fillStyle=fenderColor;
+    ctx.beginPath(); ctx.ellipse(fx*u,fy*u, deuce?2.9*u:2.6*u, deuce?5.2*u:4.6*u,0,0,7); ctx.fill();
+    if(deuce){
+      ctx.fillStyle='#0d0b09';
+      ctx.beginPath(); ctx.ellipse(fx*u,fy*u,1.9*u,3.6*u,0,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(230,224,210,0.55)'; ctx.lineWidth=0.9;
+      ctx.beginPath(); ctx.ellipse(fx*u,fy*u,1.25*u,2.5*u,0,0,7); ctx.stroke();
+    }
+  });
   ctx.fillStyle=body;
   ctx.beginPath();
   ctx.moveTo(-6*u,-13*u);
@@ -913,6 +920,20 @@ function drawAuto(x,y,rot,body,roof,badge){
   for(let i=0;i<4;i++){
     ctx.beginPath(); ctx.moveTo(-4*u,-11.5*u+i*1.6*u); ctx.lineTo(4*u,-11.5*u+i*1.6*u); ctx.stroke();
   }
+  if(deuce){
+    // chrome grille shell on the rounded Ford nose
+    ctx.fillStyle='rgba(214,210,200,0.9)';
+    ctx.beginPath(); ctx.ellipse(0,-13.6*u,3.6*u,2*u,0,0,7); ctx.fill();
+    ctx.strokeStyle='rgba(40,32,22,0.55)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.strokeStyle='rgba(50,40,28,0.55)'; ctx.lineWidth=0.8;
+    for(let i=-2;i<=2;i++){
+      ctx.beginPath(); ctx.moveTo(i*1.1*u,-15*u); ctx.lineTo(i*1.1*u,-12.4*u); ctx.stroke();
+    }
+    // chrome bumpers front and rear
+    ctx.fillStyle='rgba(214,210,200,0.85)';
+    ctx.fillRect(-6*u,-16.9*u,12*u,1.1*u);
+    ctx.fillRect(-6.4*u,15*u,12.8*u,1.1*u);
+  }
   ctx.fillStyle=roof;
   ctx.beginPath();
   ctx.moveTo(-5*u,-2*u);
@@ -923,6 +944,15 @@ function drawAuto(x,y,rot,body,roof,badge){
   ctx.fillStyle='rgba(210,206,196,0.3)';
   ctx.beginPath(); ctx.moveTo(-4.4*u,-2*u); ctx.quadraticCurveTo(0,-4*u,4.4*u,-2*u);
   ctx.lineTo(4*u,-1*u); ctx.quadraticCurveTo(0,-2.8*u,-4*u,-1*u); ctx.closePath(); ctx.fill();
+  if(deuce){
+    // spare tire slung on the rear deck, same as every Deuce that ever ran shine
+    ctx.fillStyle='#0d0b09';
+    ctx.beginPath(); ctx.arc(0,16*u,2.6*u,0,7); ctx.fill();
+    ctx.strokeStyle='rgba(230,224,210,0.5)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(0,16*u,1.7*u,0,7); ctx.stroke();
+    ctx.fillStyle='rgba(180,176,166,0.6)';
+    ctx.beginPath(); ctx.arc(0,16*u,0.8*u,0,7); ctx.fill();
+  }
   if(badge){
     ctx.fillStyle='#e6f4ff';
     ctx.beginPath();
@@ -951,7 +981,7 @@ function drawCar(){
     s.spinAnim=Math.max(0,s.spinAnim-0.016);
     rot += (1.2-s.spinAnim)*9*Math.sign(s.a||1);
   }
-  drawAuto(carX,carY,rot,'#a5352c','#241a10',false);
+  drawAuto(carX,carY,rot,'#a5352c','#241a10',false,true);
 }
 function drawDrops(T){
   const s=state;

@@ -1131,7 +1131,11 @@ let selectedRoadIdx = 0;   // the road currently highlighted on the map / in the
 // Replay the road generator for a road profile, off to the side, without touching
 // the live road. Same seed in means the same curves and grades out, so the map is
 // an honest preview of what you'll actually drive.
-const PREVIEW_LEN = 5600;  // world units of road to lay out for the preview (a typical leg)
+// The map spans the whole hideout<->Atlanta run, not one barn-to-barn leg: the
+// first drop sits ~3400 out and the two after it average ~6100 apart, so the full
+// trip to Atlanta is roughly three legs. Lay out that whole distance so the studied
+// map shows every curve you'll actually drive, start to finish.
+const PREVIEW_LEN = 3400 + 2*6100;  // ~15,600 world units: hideout all the way to Atlanta
 // Lay a road out forward from its seed, start to `legLen`. Deterministic: the same
 // seed always yields the same curves and grades, which is what lets one road be
 // driven down and then walked back up as the very same stretch. Full per-point

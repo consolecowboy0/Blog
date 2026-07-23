@@ -1166,14 +1166,11 @@ function layoutRoad(prof, legLen){
   }
   return pts;
 }
-// Preview sample. A reversed road is drawn as the same road walked back the other
-// way: read end-to-start, heading swung round, so climbs become the drops they were.
+// Preview sample -- always the road's own forward geometry. The return trip is the
+// SAME line (hideout still up top), so the map draws it identically whichever way
+// you're running; only the grade profile and the direction arrow flip.
 function simulateRoad(prof, legLen){
-  const fwd = layoutRoad(prof, legLen);
-  if(!prof.reverse) return fwd.map(p=>({s:p.s, x:p.x, y:p.y, z:p.z}));
-  const N=fwd.length, out=[];
-  for(let j=0;j<N;j++){ const f=fwd[N-1-j]; out.push({s:j*6, x:f.x, y:f.y, z:f.z}); }
-  return out;
+  return layoutRoad(prof, legLen).map(p=>({s:p.s, x:p.x, y:p.y, z:p.z}));
 }
 // Build the plan-view path (rotated so the run reads top-to-bottom) and the
 // climb/drop tallies for each candidate road.
@@ -1190,6 +1187,8 @@ function buildPreviews(){
       const z=pts[i].z; if(z>hi)hi=z; if(z<lo)lo=z;
       if(i>0){ const d=pts[i].z-pts[i-1].z; if(d>0)climb+=d; else drop-=d; }
     }
+    // driving the same road the other way swaps every climb for a drop
+    if(prof.reverse){ const t=climb; climb=drop; drop=t; }
     return {prof, pts, rot, hi, lo, climb:Math.round(climb), drop:Math.round(drop)};
   });
 }
@@ -1202,8 +1201,9 @@ function renderMap(){
   // Rotation left every route's start->end vector pointing straight down, so start.x
   // and end.x coincide. That lets each road be anchored start-to-top-hub and
   // end-to-bottom-hub while its own lateral wander stays to scale (twistier roads
-  // visibly swing wider). On the way home the run reads bottom-to-top, so flip.
-  const flip = !mapToAtlanta;
+  // visibly swing wider). Hideout stays up top both ways, so the run home draws the
+  // exact same line you came down on -- only the direction arrow and grade flip.
+  const flip = false;
   let out='';
   // faint dashed spine from hub to hub
   out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
@@ -1251,8 +1251,9 @@ function renderElevation(){
   const boxW=VW-padL-padR, boxH=VH-padT-padB;
   const N=90, pts=d.pts, step=(pts.length-1)/(N-1);
   const lo=d.lo, hi=d.hi, span=Math.max(1,hi-lo);
-  // pts already run in travel order (reversed roads are pre-flipped), so read straight through
-  const order = k=>k;
+  // pts are the forward geometry; heading home you drive it end-to-start, so read
+  // the profile in reverse -- what you dropped down now climbs
+  const order = mapToAtlanta ? (k=>k) : (k=>N-1-k);
   const sample=k=>pts[Math.round(k*step)].z;
   const px=k=>padL + (k/(N-1))*boxW;
   const py=z=>padT + (1-(z-lo)/span)*boxH;

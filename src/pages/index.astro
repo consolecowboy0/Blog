@@ -19,7 +19,6 @@ import '@fontsource/inter/600.css';
       <p class="wordmark">dustinlanders.com</p>
       <a href="/posts" class="blog-link">blog</a>
       <a href="/racing" class="blog-link">motorsport</a>
-      <a href="/whitelightning" class="blog-link">white lightning</a>
       <div class="social-icons">
         <a href="https://instagram.com/LandersDustin" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-link">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -35,7 +34,7 @@ import '@fontsource/inter/600.css';
         </a>
       </div>
     </main>
-    <footer>&copy; {new Date().getFullYear()} dustinlanders.com</footer>
+    <footer>&copy; {new Date().getFullYear()} dustinlanders.com <span class="footer-sep">&middot;</span> <a href="/whitelightning" class="footer-link" aria-label="White Lightning game">&#9889;</a></footer>
   </body>
 </html>
 
@@ -115,5 +114,19 @@ import '@fontsource/inter/600.css';
     text-align: center;
     font-size: 0.75rem;
     color: #6b6b6b;
+  }
+
+  .footer-sep {
+    margin: 0 0.15rem;
+  }
+
+  .footer-link {
+    color: #6b6b6b;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover {
+    color: #1a1a1a;
   }
 </style>

@@ -324,7 +324,7 @@ const state = {
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
   sellQty:0, buyQty:0, // chosen at the barn counter: how many jars to sell or buy this stop
-  gap:999, heat:0, pack:0, elev:0, grade:0,
+  gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'',
@@ -422,7 +422,7 @@ function reset(){
   const s=state;
   s.a=0; s.aReq=0; s.lat=0; s.sCar=60; s.steerAxis=0;
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
-  s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0;
+  s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; particles.length=0;
@@ -789,6 +789,7 @@ function step(dt){
   const ahead70 = sampleRoad(s.sCar + 70);
   s.grade = (ahead70.z - here.z) / 70;   // + climbing, - dropping
   s.elev = here.z;
+  s.elevCam += (s.elev - s.elevCam) * Math.min(1, 1.2*dt);   // camera altitude lags the climb/drop
 
   // load out of the hideout: heavier trunk is slower to spool up and slower to answer
   // the wheel but rides more planted; lighter trunk is nimble but twitchy.
@@ -1048,11 +1049,17 @@ function draw(){
   drawHUD();
 }
 
-function drawAuto(x,y,rot,body,roof,badge,deuce){
+// cars pitch up hills and away from a camera that lags the climb/drop: higher than the
+// lagged baseline reads as farther off and shrinks, lower reads as closer and grows.
+const ELEV_SCALE_K = 0.0035, ELEV_SCALE_MIN = 0.8, ELEV_SCALE_MAX = 1.2;
+function elevScale(z){
+  return Math.max(ELEV_SCALE_MIN, Math.min(ELEV_SCALE_MAX, 1 - (z - state.elevCam)*ELEV_SCALE_K));
+}
+function drawAuto(x,y,rot,body,roof,badge,deuce,scaleMul){
   ctx.save();
   ctx.translate(x,y);
   ctx.rotate(rot);
-  const u=2.1*sc;
+  const u=2.1*sc*(scaleMul||1);
   ctx.fillStyle='rgba(0,0,0,0.35)';
   ctx.beginPath(); ctx.ellipse(2*u,2*u,9*u,15*u,0,0,7); ctx.fill();
   ctx.fillStyle='#1c1410';
@@ -1144,7 +1151,7 @@ function drawCar(){
     s.spinAnim=Math.max(0,s.spinAnim-0.016);
     rot += (1.2-s.spinAnim)*9*Math.sign(s.a||1);
   }
-  drawAuto(carX,carY,rot,'#a5352c','#241a10',false,true);
+  drawAuto(carX,carY,rot,'#a5352c','#241a10',false,true,elevScale(s.elev));
 }
 function drawDrops(T){
   const s=state;
@@ -1194,7 +1201,7 @@ function drawRevenuer(T){
   hg.addColorStop(0,'rgba(150,160,180,0.18)');
   hg.addColorStop(1,'rgba(150,160,180,0)');
   ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(pt[0],pt[1],110*sc,0,7); ctx.fill();
-  drawAuto(pt[0],pt[1],rot,'#232a33','#12161c',true);
+  drawAuto(pt[0],pt[1],rot,'#232a33','#12161c',true,false,elevScale(q.z));
 }
 
 // ---------- HUD ----------

@@ -780,16 +780,16 @@ function draw(){
     for(let i=1;i<L.length;i++) ctx.lineTo(L[i][0],L[i][1]);
     for(let i=R.length-1;i>=0;i--) ctx.lineTo(R[i][0],R[i][1]);
     ctx.closePath();
-    ctx.fillStyle='#8a564f';
+    ctx.fillStyle='#4a443c';
     ctx.fill();
 
     // one road gradient: packed dark center fading to loose pale edges
     const layers = [
-      {f:0.85, c:'rgba(66,38,44,0.14)'},
-      {f:0.66, c:'rgba(56,31,40,0.18)'},
-      {f:0.48, c:'rgba(46,24,35,0.22)'},
-      {f:0.30, c:'rgba(36,18,30,0.26)'},
-      {f:0.14, c:'rgba(27,13,25,0.30)'},
+      {f:0.85, c:'rgba(58,52,44,0.14)'},
+      {f:0.66, c:'rgba(48,43,36,0.18)'},
+      {f:0.48, c:'rgba(38,34,28,0.22)'},
+      {f:0.30, c:'rgba(28,25,20,0.26)'},
+      {f:0.14, c:'rgba(20,18,14,0.30)'},
     ];
     for(const ly of layers){
       ctx.beginPath();
@@ -819,7 +819,7 @@ function draw(){
     }
 
     // edge scatter: rocks / posts
-    ctx.fillStyle='#241531';
+    ctx.fillStyle='#1a1815';
     for(let i=0;i<p.length;i++){
       if(p[i].i % 6 !== 0) continue;
       ctx.beginPath(); ctx.arc(L[i][0],L[i][1],2.6*sc,0,7); ctx.fill();
@@ -837,12 +837,12 @@ function draw(){
         if(pt[0]<-60||pt[0]>W+60||pt[1]<-60||pt[1]>H+60) continue;
         const r=(9+hash(q.i*2.1)*14)*sc;
         const tg=ctx.createRadialGradient(pt[0]-r*0.3,pt[1]-r*0.3,r*0.2,pt[0],pt[1],r);
-        tg.addColorStop(0,'#221b44'); tg.addColorStop(1,'#0d0823');
+        tg.addColorStop(0,'#181614'); tg.addColorStop(1,'#08070a');
         ctx.fillStyle=tg;
         ctx.beginPath(); ctx.arc(pt[0],pt[1],r,0,7); ctx.fill();
         if(hash(q.i*5.9)<0.05){  // a still tucked in the pines
           const lg=ctx.createRadialGradient(pt[0],pt[1],2,pt[0],pt[1],52*sc);
-          lg.addColorStop(0,'rgba(255,166,43,0.5)'); lg.addColorStop(1,'rgba(255,166,43,0)');
+          lg.addColorStop(0,'rgba(201,143,63,0.5)'); lg.addColorStop(1,'rgba(201,143,63,0)');
           ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],52*sc,0,7); ctx.fill();
         }
       }
@@ -852,7 +852,7 @@ function draw(){
   // moon
   ctx.save();
   const mg=ctx.createRadialGradient(W*0.86,H*0.10,4,W*0.86,H*0.10,60);
-  mg.addColorStop(0,'#eaffff'); mg.addColorStop(0.25,'#9be8ff'); mg.addColorStop(1,'rgba(155,232,255,0)');
+  mg.addColorStop(0,'#f7f5ef'); mg.addColorStop(0.25,'#a8a396'); mg.addColorStop(1,'rgba(168,163,150,0)');
   ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(W*0.86,H*0.10,60,0,7); ctx.fill();
   ctx.restore();
 
@@ -863,7 +863,7 @@ function draw(){
   // dust
   for(const pd of particles){
     ctx.globalAlpha=Math.max(0,1-pd.age/pd.life)*0.5;
-    ctx.fillStyle='#a06a86';
+    ctx.fillStyle='#5a5148';
     ctx.beginPath(); ctx.arc(pd.x,pd.y,pd.sz*sc*0.6,0,7); ctx.fill();
   }
   ctx.globalAlpha=1;
@@ -917,7 +917,7 @@ function drawAuto(x,y,rot,body,roof,badge){
   ctx.lineTo(5*u,5*u);
   ctx.quadraticCurveTo(0,7*u,-5*u,5*u);
   ctx.closePath(); ctx.fill();
-  ctx.fillStyle='rgba(155,232,255,0.35)';
+  ctx.fillStyle='rgba(210,206,196,0.3)';
   ctx.beginPath(); ctx.moveTo(-4.4*u,-2*u); ctx.quadraticCurveTo(0,-4*u,4.4*u,-2*u);
   ctx.lineTo(4*u,-1*u); ctx.quadraticCurveTo(0,-2.8*u,-4*u,-1*u); ctx.closePath(); ctx.fill();
   if(badge){
@@ -962,15 +962,15 @@ function drawDrops(T){
     const eR=toScreen(T, q.x+nx*q.w, q.y+ny*q.w);
     ctx.save();
     ctx.setLineDash([8*sc,6*sc]);
-    ctx.strokeStyle='rgba(210,245,255,0.55)'; ctx.lineWidth=4*sc;
+    ctx.strokeStyle='rgba(242,240,234,0.5)'; ctx.lineWidth=4*sc;
     ctx.beginPath(); ctx.moveTo(eL[0],eL[1]); ctx.lineTo(eR[0],eR[1]); ctx.stroke();
     ctx.restore();
     // barn with a lantern out front, right-hand side
     const bx=q.x+nx*(q.w+62), by=q.y+ny*(q.w+62);
     const pt=toScreen(T,bx,by);
     const lg=ctx.createRadialGradient(pt[0],pt[1],4,pt[0],pt[1],95*sc);
-    lg.addColorStop(0,'rgba(255,166,43,0.5)');
-    lg.addColorStop(1,'rgba(255,166,43,0)');
+    lg.addColorStop(0,'rgba(201,143,63,0.5)');
+    lg.addColorStop(1,'rgba(201,143,63,0)');
     ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],95*sc,0,7); ctx.fill();
     ctx.save();
     ctx.translate(pt[0],pt[1]);
@@ -981,7 +981,7 @@ function drawDrops(T){
     ctx.strokeStyle='#241a10'; ctx.lineWidth=2;
     ctx.strokeRect(-22*u,-16*u,44*u,32*u);
     ctx.beginPath(); ctx.moveTo(-22*u,0); ctx.lineTo(22*u,0); ctx.stroke();   // roof ridge
-    ctx.fillStyle='#ffa62b';
+    ctx.fillStyle='#c98f3f';
     ctx.beginPath(); ctx.arc(-26*u,0,3.5*u,0,7); ctx.fill();                  // the lantern
     ctx.restore();
   }
@@ -995,8 +995,8 @@ function drawRevenuer(T){
   let rot=q.h + T.phi + Math.PI/2 + s.revDrift;
   if(s.revSpinT>0) rot += (1.6-s.revSpinT)*8;
   const hg=ctx.createRadialGradient(pt[0],pt[1],6,pt[0],pt[1],110*sc);
-  hg.addColorStop(0,'rgba(150,190,255,0.22)');
-  hg.addColorStop(1,'rgba(150,190,255,0)');
+  hg.addColorStop(0,'rgba(150,160,180,0.18)');
+  hg.addColorStop(1,'rgba(150,160,180,0)');
   ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(pt[0],pt[1],110*sc,0,7); ctx.fill();
   drawAuto(pt[0],pt[1],rot,'#232a33','#12161c',true);
 }

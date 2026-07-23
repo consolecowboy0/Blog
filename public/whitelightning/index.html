@@ -518,8 +518,7 @@ function buildRoad(prof, sStart){
   road.pts.length=0;
   const base = Math.floor(sStart/road.ds)*road.ds;
   if(road.rev){
-    // run home: same seed forward to Atlanta, then read it backwards
-    road.locked = true;
+    // run home: same seed forward to Atlanta, then read it backwards for an exact retrace
     const legLen = downAtlLocal>0 ? downAtlLocal : PREVIEW_LEN;
     const fwd = layoutRoad(road.prof, legLen + 1440);   // a little margin past the turnaround
     let idx = Math.round(legLen/road.ds);
@@ -528,9 +527,22 @@ function buildRoad(prof, sStart){
       const f = fwd[idx-j];
       road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h+Math.PI, k:-f.k, w:f.w, sh:f.sh, z:f.z, i:j});
     }
-    road.sGen = base + road.pts.length*road.ds;
-    road.idx = road.pts.length;
     buildLegMap(road.prof, base, true, idx*road.ds);
+    // The retrace ends at the physical hideout, but the home drops are placed by an
+    // independent counter that can overshoot that turnaround. Keep the ribbon
+    // extendable past the end (procedurally, continuing from the reversed end) so a
+    // long run home never drives off the road into black. The driven retrace stays
+    // exact; only the buffer beyond the hideout is freshly generated.
+    road.locked = false;
+    road.dir = -1; road.zDir = 1;    // continue with the reversed road's mirrored handedness
+    roadRng = mulberry32((road.prof.seed ^ 0x9e3779b9) >>> 0);
+    const last = road.pts[road.pts.length-1];
+    road.x = last.x; road.y = last.y; road.head = last.h; road.z = last.z;
+    road.k = last.k; road.kT = last.k; road.segLeft = 200;
+    road.w = last.w; road.wT = last.w; road.wSeg = 400;
+    road.sh = last.sh; road.shT = last.sh; road.shSeg = 400;
+    road.zT = last.z; road.zSeg = 900;
+    road.sGen = last.s + road.ds; road.idx = last.i + 1;
     return;
   }
   // heading down: live procedural generation, reseeded so the road is identical every time

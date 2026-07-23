@@ -873,15 +873,6 @@ function draw(){
     }
   }
 
-  // grade wash: the hollow tints warm on a climb, cool on a drop, felt as much as read
-  if(s.mode==='run' && Math.abs(s.grade) > 0.01){
-    const gi = Math.min(1, Math.abs(s.grade)*10);
-    ctx.fillStyle = s.grade>0
-      ? 'rgba(255,46,95,'+(gi*0.12).toFixed(3)+')'
-      : 'rgba(46,230,166,'+(gi*0.10).toFixed(3)+')';
-    ctx.fillRect(-20,-20,W+40,H+40);
-  }
-
   // moon
   ctx.save();
   const mg=ctx.createRadialGradient(W*0.86,H*0.10,4,W*0.86,H*0.10,60);

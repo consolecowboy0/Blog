@@ -162,6 +162,28 @@
   .roadName{ font-family:var(--font-mono); font-weight:700; font-size:13px; letter-spacing:0.04em; color:var(--fg); }
   .roadHint{ font-size:11.5px; color:var(--fg-muted); margin-top:3px; }
   .roadPick{ font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; color:var(--lantern); white-space:nowrap; flex-shrink:0; }
+  /* the map itself: a top-down plan of tonight's three roads, hideout up top, Atlanta at the bottom */
+  .mapWrap{ max-width:360px; margin:12px auto 6px; }
+  #mapSvg{ width:100%; height:auto; display:block; border:1px solid var(--border); background:var(--bg); }
+  .mapLbl{ font-family:var(--font-mono); font-size:10px; letter-spacing:0.14em; fill:var(--fg-muted); text-transform:uppercase; }
+  .mapHub{ font-family:var(--font-mono); font-weight:700; font-size:11px; letter-spacing:0.12em; fill:var(--fg); text-transform:uppercase; }
+  /* the elevation strip under the map: the selected road's climb and drop, in feet */
+  .elevWrap{ max-width:360px; margin:8px auto 4px; }
+  .elevHead{ display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fg-muted); margin-bottom:5px; }
+  .elevHead .roadName{ font-size:12.5px; color:var(--fg); margin-top:0; }
+  #elevSvg{ width:100%; height:auto; display:block; border:1px solid var(--border); background:var(--bg); }
+  .elevAxis{ display:flex; justify-content:space-between; margin-top:4px;
+    font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--fg-muted); }
+  .roadCard.sel{ border-color:var(--lantern); background:rgba(201,143,63,0.09); }
+  html[data-theme="fullmoon"] .roadCard.sel{ background:rgba(159,176,192,0.10); }
+  .roadCardMain{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .roadNum{ font-family:var(--font-mono); font-weight:800; font-size:12px; color:var(--lantern);
+    border:1px solid var(--border); width:24px; height:24px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; }
+  .roadCard.sel .roadNum{ border-color:var(--lantern); }
+  .roadStat{ font-family:var(--font-mono); font-size:10px; color:var(--fg-muted); margin-top:4px; letter-spacing:0.02em; }
+  .roadStat .up{ color:var(--danger,#b5473f); } .roadStat .dn{ color:var(--safe,#7a9b7e); }
 </style>
 </head>
 <body>
@@ -291,8 +313,20 @@
     <div class="verdict" style="font-size:clamp(22px,6vw,30px);">PICK YOUR ROAD</div>
     <div class="rule"></div>
     <div class="copy" id="mapDest" style="text-align:center;">Three ways down to Atlanta tonight.</div>
+    <div class="mapWrap">
+      <svg id="mapSvg" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Route map from the hideout to Atlanta"></svg>
+    </div>
     <div class="roadList" id="roadList"></div>
-    <div class="fine">Every road runs the same way each time. Learn the curves and they never surprise you twice.</div>
+    <div class="elevWrap">
+      <div class="elevHead">
+        <span class="roadName" id="elevTitle">—</span>
+        <span id="elevStats"></span>
+      </div>
+      <svg id="elevSvg" viewBox="0 0 320 130" preserveAspectRatio="none" role="img" aria-label="Elevation profile of the selected road"></svg>
+      <div class="elevAxis"><span id="elevFrom">HIDEOUT</span><span id="elevTo">ATLANTA</span></div>
+    </div>
+    <button class="go" id="takeRoadBtn" style="display:block;width:100%;margin:12px 0 2px;">TAKE THIS ROAD →</button>
+    <div class="fine">Every road runs the same way each time. Learn the curves and the climbs and they never surprise you twice.</div>
   </div>
 </div>
 
@@ -600,7 +634,7 @@ function setKey(e,down){
   if(down && (e.code==='Space'||e.code==='Enter')){
     if(state.mode==='menu'||state.mode==='dead') openLoadout();
     else if(state.mode==='loadout') startFromOverlay();
-    else if(state.mode==='roadmap') chooseRoad(0);
+    else if(state.mode==='roadmap') chooseRoad(selectedRoadIdx);
     else if(state.mode==='continue') acceptContinue();
     else if(state.mode==='store') storeLeave();
     else if(state.mode==='garage') garageBack();
@@ -1048,10 +1082,176 @@ let mapChoices = [];
 let mapContext = 'start';   // 'start' = first leg out of the hideout, 'hub' = from a store stop
 let outboundTrio = [];   // the three roads offered heading down to Atlanta
 let trioStop = -1;       // the stop the outbound three were drawn for, so reopening keeps them
+let mapToAtlanta = true;   // this leg's heading: hideout->Atlanta (down) or Atlanta->hideout (up)
+let previewData = [];      // per-road simulated geometry + elevation, for the map and profile
+let selectedRoadIdx = 0;   // the road currently highlighted on the map / in the profile
+
+// Replay the road generator for a road profile, off to the side, without touching
+// the live road. Same seed in means the same curves and grades out, so the map is
+// an honest preview of what you'll actually drive.
+const PREVIEW_LEN = 5600;  // world units of road to lay out for the preview (a typical leg)
+function simulateRoad(prof, legLen){
+  const rng = mulberry32(prof.seed>>>0);
+  const dir = prof.reverse ? -1 : 1;
+  const ds = 6;
+  const kmax = 0.0016*prof.curve + 0.0009;
+  let x=0,y=0,head=0;
+  let k=0,kT=0,segLeft=520;
+  const w0=95*prof.width; let w=w0,wT=w0,wSeg=650;
+  let z=0,zT=0,zSeg=900;
+  let sh=26,shT=26,shSeg=700;
+  const pts=[]; let s=0;
+  function pickSeg(){
+    const r=rng();
+    if(r < prof.straightBias){ kT=(rng()*2-1)*0.0002; segLeft=220+rng()*260; }
+    else{ const mag=(0.4+rng()*0.6)*kmax; kT=(rng()<0.5?-1:1)*mag; segLeft=240+rng()*420; }
+    kT*=dir;
+  }
+  while(s < legLen){
+    segLeft-=ds; if(segLeft<=0) pickSeg();
+    k += (kT-k)*Math.min(1, ds/110);
+    wSeg-=ds; if(wSeg<=0){ wT=(58+rng()*70)*prof.width; wSeg=300+rng()*450; }
+    w += (wT-w)*Math.min(1, ds/170);
+    shSeg-=ds; if(shSeg<=0){ shT=rng()<0.3?4+rng()*8:20+rng()*46; shSeg=260+rng()*420; }
+    sh += (shT-sh)*Math.min(1, ds/140);
+    zSeg-=ds; if(zSeg<=0){ zT=(-60+rng()*240)*prof.elev; zSeg=900+rng()*1100; }
+    z += (zT-z)*Math.min(1, ds/420);
+    head += k*ds;
+    x += Math.cos(head)*ds; y += Math.sin(head)*ds;
+    pts.push({s, x, y, z});
+    s += ds;
+  }
+  return pts;
+}
+// Build the plan-view path (rotated so the run reads top-to-bottom) and the
+// climb/drop tallies for each candidate road.
+function buildPreviews(){
+  previewData = mapChoices.map(prof=>{
+    const pts = simulateRoad(prof, PREVIEW_LEN);
+    const p0=pts[0], pN=pts[pts.length-1];
+    // rotate the whole path so start->end points straight down the screen
+    const phi = Math.atan2(pN.y-p0.y, pN.x-p0.x);
+    const a = Math.PI/2 - phi, ca=Math.cos(a), sa=Math.sin(a);
+    const rot = pts.map(p=>({ x:p.x*ca - p.y*sa, y:p.x*sa + p.y*ca }));
+    let hi=-1e9, lo=1e9, climb=0, drop=0;
+    for(let i=0;i<pts.length;i++){
+      const z=pts[i].z; if(z>hi)hi=z; if(z<lo)lo=z;
+      if(i>0){ const d=pts[i].z-pts[i-1].z; if(d>0)climb+=d; else drop-=d; }
+    }
+    return {prof, pts, rot, hi, lo, climb:Math.round(climb), drop:Math.round(drop)};
+  });
+}
+function fmtFt(v){ return Math.round(v).toLocaleString(); }
+// Render the top-down map: three thin roads, the selected one thick and lit.
+function renderMap(){
+  const svg = document.getElementById('mapSvg');
+  const VW=320, VH=320, cx=VW/2, padTop=40, padBot=40;
+  const topHub=padTop, botHub=VH-padBot, boxH=botHub-topHub, halfW=cx-16;
+  // Rotation left every route's start->end vector pointing straight down, so start.x
+  // and end.x coincide. That lets each road be anchored start-to-top-hub and
+  // end-to-bottom-hub while its own lateral wander stays to scale (twistier roads
+  // visibly swing wider). On the way home the run reads bottom-to-top, so flip.
+  const flip = !mapToAtlanta;
+  let out='';
+  // faint dashed spine from hub to hub
+  out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
+  previewData.forEach((d,i)=>{
+    const sel = i===selectedRoadIdx;
+    const start=d.rot[0], end=d.rot[d.rot.length-1];
+    const vspan=Math.max(1, end.y-start.y);
+    // vertical always spans hub-to-hub so the road connects both towns; horizontal
+    // keeps true aspect unless the wander would overflow, then it's compressed to fit
+    const scY=boxH/vspan;
+    let latMax=0; for(const p of d.rot) latMax=Math.max(latMax, Math.abs(p.x-start.x));
+    const scX = latMax>0 ? Math.min(scY, halfW/latMax) : scY;
+    const topY = flip ? botHub : topHub, dirY = flip ? -1 : 1;
+    const sx = x => cx + (x-start.x)*scX;
+    const sy = y => topY + (y-start.y)*scY*dirY;
+    d.sx=sx; d.sy=sy;  // stash for the number badge
+    let path='';
+    d.rot.forEach((p,j)=>{ path += (j?'L':'M')+sx(p.x).toFixed(1)+' '+sy(p.y).toFixed(1)+' '; });
+    out += '<path class="mapRoute" data-i="'+i+'" d="'+path+'" fill="none" '+
+      'stroke="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" '+
+      'stroke-width="'+(sel?3.2:1.4)+'" stroke-linejoin="round" stroke-linecap="round" '+
+      'opacity="'+(sel?1:0.5)+'" style="cursor:pointer"/>';
+    // number badge at the road's midpoint
+    const mid=d.rot[Math.floor(d.rot.length/2)];
+    out += '<circle class="mapRoute" data-i="'+i+'" cx="'+sx(mid.x).toFixed(1)+'" cy="'+sy(mid.y).toFixed(1)+'" r="9" '+
+      'fill="var(--card)" stroke="'+(sel?'var(--lantern)':'var(--border)')+'" stroke-width="1.4" style="cursor:pointer"/>';
+    out += '<text class="mapRoute" data-i="'+i+'" x="'+sx(mid.x).toFixed(1)+'" y="'+(sy(mid.y)+3.5).toFixed(1)+'" '+
+      'text-anchor="middle" font-family="var(--font-mono)" font-weight="800" font-size="11" '+
+      'fill="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" style="cursor:pointer;pointer-events:none">'+(i+1)+'</text>';
+  });
+  // hub markers: hideout up top, Atlanta at the bottom
+  out += '<circle cx="'+(VW/2)+'" cy="'+padTop+'" r="4.5" fill="var(--fg)"/>';
+  out += '<text class="mapHub" x="'+(VW/2)+'" y="'+(padTop-9)+'" text-anchor="middle">HIDEOUT</text>';
+  out += '<circle cx="'+(VW/2)+'" cy="'+(VH-padBot)+'" r="4.5" fill="var(--fg)"/>';
+  out += '<text class="mapHub" x="'+(VW/2)+'" y="'+(VH-padBot+18)+'" text-anchor="middle">ATLANTA</text>';
+  // which way you're running tonight
+  out += '<text class="mapLbl" x="'+(VW-6)+'" y="'+(VH/2)+'" text-anchor="end">'+(mapToAtlanta?'▼ DOWNHILL RUN':'▲ RUN HOME')+'</text>';
+  svg.innerHTML = out;
+}
+// Render the selected road's elevation profile, colored like the dash: red climbs, green drops.
+function renderElevation(){
+  const d = previewData[selectedRoadIdx]; if(!d) return;
+  const svg=document.getElementById('elevSvg');
+  const VW=320, VH=130, padL=6, padR=6, padT=12, padB=14;
+  const boxW=VW-padL-padR, boxH=VH-padT-padB;
+  const N=90, pts=d.pts, step=(pts.length-1)/(N-1);
+  const lo=d.lo, hi=d.hi, span=Math.max(1,hi-lo);
+  // profile reads left->right in travel order; on the way home that's Atlanta->hideout
+  const order = mapToAtlanta ? (k=>k) : (k=>N-1-k);
+  const sample=k=>pts[Math.round(k*step)].z;
+  const px=k=>padL + (k/(N-1))*boxW;
+  const py=z=>padT + (1-(z-lo)/span)*boxH;
+  let out='';
+  // faint area fill under the whole profile
+  let area='M'+px(0).toFixed(1)+' '+(VH-padB).toFixed(1)+' ';
+  for(let k=0;k<N;k++){ area+='L'+px(k).toFixed(1)+' '+py(sample(order(k))).toFixed(1)+' '; }
+  area+='L'+px(N-1).toFixed(1)+' '+(VH-padB).toFixed(1)+' Z';
+  out += '<path d="'+area+'" fill="var(--lantern)" opacity="0.10"/>';
+  // per-segment line, colored by whether the road climbs or drops as you drive it
+  for(let k=1;k<N;k++){
+    const z0=sample(order(k-1)), z1=sample(order(k));
+    const rising = z1>z0+0.4, falling = z1<z0-0.4;
+    const col = rising?'var(--danger,#b5473f)':(falling?'var(--safe,#7a9b7e)':'var(--fg-muted)');
+    out += '<line x1="'+px(k-1).toFixed(1)+'" y1="'+py(z0).toFixed(1)+'" x2="'+px(k).toFixed(1)+'" y2="'+py(z1).toFixed(1)+'" stroke="'+col+'" stroke-width="2.2" stroke-linecap="round"/>';
+  }
+  // high / low tide marks
+  out += '<text class="mapLbl" x="'+(padL+2)+'" y="'+(padT+2)+'" dominant-baseline="hanging">'+fmtFt(hi)+' FT</text>';
+  out += '<text class="mapLbl" x="'+(padL+2)+'" y="'+(VH-padB-3)+'">'+fmtFt(lo)+' FT</text>';
+  svg.innerHTML = out;
+  document.getElementById('elevTitle').textContent = d.prof.name;
+  document.getElementById('elevStats').innerHTML =
+    '<span style="color:var(--danger,#b5473f)">▲'+fmtFt(d.climb)+'</span> · '+
+    '<span style="color:var(--safe,#7a9b7e)">▼'+fmtFt(d.drop)+'</span> FT';
+  document.getElementById('elevFrom').textContent = mapToAtlanta ? 'HIDEOUT' : 'ATLANTA';
+  document.getElementById('elevTo').textContent = mapToAtlanta ? 'ATLANTA' : 'HIDEOUT';
+}
+function renderRoadCards(){
+  document.getElementById('roadList').innerHTML = mapChoices.map((r,i)=>{
+    const d=previewData[i]||{climb:0,drop:0,hi:0};
+    const sel = i===selectedRoadIdx ? ' sel' : '';
+    return '<button class="roadCard'+sel+'" data-i="'+i+'">'+
+      '<div class="roadCardMain">'+
+        '<div class="roadNum">'+(i+1)+'</div>'+
+        '<div style="min-width:0"><div class="roadName">'+r.name+'</div>'+
+        '<div class="roadHint">'+r.hint+'</div>'+
+        '<div class="roadStat"><span class="up">▲'+fmtFt(d.climb)+'</span> <span class="dn">▼'+fmtFt(d.drop)+'</span> ft · peak '+fmtFt(d.hi)+' ft</div></div>'+
+      '</div>'+
+      '<div class="roadPick">'+(i===selectedRoadIdx?'SELECTED':'VIEW →')+'</div></button>';
+  }).join('');
+}
+function selectRoad(i){
+  if(i<0 || i>=mapChoices.length) return;
+  selectedRoadIdx=i;
+  renderRoadCards(); renderMap(); renderElevation();
+}
 function openRoadMap(context){
   mapContext = context;
   // heading down to Atlanta from the hideout, or back up to the hideout from Atlanta
   const toAtlanta = context==='start' || state.curStopType==='hideout';
+  mapToAtlanta = toAtlanta;
   if(toAtlanta){
     // Draw the three once per departure and hold them. Reopening the map (after a
     // garage or store detour at the same hub) must show the SAME three -- otherwise
@@ -1070,14 +1270,13 @@ function openRoadMap(context){
     ? 'The Hideout &nbsp;·&nbsp; Study the Map'
     : 'Atlanta &nbsp;·&nbsp; Study the Map';
   document.getElementById('mapDest').textContent = toAtlanta
-    ? 'Three ways down to Atlanta tonight.'
-    : 'Three ways back up to the hideout tonight.';
-  document.getElementById('roadList').innerHTML = mapChoices.map((r,i)=>
-    '<button class="roadCard" data-i="'+i+'">'+
-      '<div><div class="roadName">'+r.name+'</div>'+
-      '<div class="roadHint">'+r.hint+'</div></div>'+
-      '<div class="roadPick">TAKE IT →</div></button>'
-  ).join('');
+    ? 'Three ways down to Atlanta tonight. Study the curves and the grade before you crank her.'
+    : 'Three ways back up to the hideout tonight. Study the curves and the grade before you crank her.';
+  selectedRoadIdx = 0;
+  buildPreviews();
+  renderRoadCards();
+  renderMap();
+  renderElevation();
   document.getElementById('store').classList.add('hidden');
   document.getElementById('loadout').classList.add('hidden');
   document.getElementById('roadmap').classList.remove('hidden');
@@ -1089,6 +1288,7 @@ function applyRoad(prof){
   rollChase(); // fresh leg: maybe a tail, maybe a clear road
 }
 function chooseRoad(i){
+  if(i==null) i=selectedRoadIdx;
   const prof = mapChoices[i];
   if(!prof) return;
   document.getElementById('roadmap').classList.add('hidden');
@@ -2113,8 +2313,13 @@ document.getElementById('garageBtn').addEventListener('click', openGarage);
 document.getElementById('garageBackBtn').addEventListener('click', garageBack);
 document.getElementById('roadList').addEventListener('click', e=>{
   const card = e.target.closest('.roadCard');
-  if(card) chooseRoad(parseInt(card.getAttribute('data-i'),10));
+  if(card) selectRoad(parseInt(card.getAttribute('data-i'),10));
 });
+document.getElementById('mapSvg').addEventListener('click', e=>{
+  const el = e.target.closest('.mapRoute');
+  if(el) selectRoad(parseInt(el.getAttribute('data-i'),10));
+});
+document.getElementById('takeRoadBtn').addEventListener('click', ()=>chooseRoad(selectedRoadIdx));
 document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });
 document.getElementById('initialsInput').addEventListener('input', function(){

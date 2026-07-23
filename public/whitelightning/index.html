@@ -207,7 +207,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the barn, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. You <b>only fill the trunk at the hideout</b> — load her once and that shine rides with you the whole run. At every barn you decide <b>how many jars to drop off</b> for cash, and the price climbs the <b>harder the road</b> you took and the <b>deeper you carry it</b> toward Atlanta. Sell your <b>whole untouched load in one shot</b> for a full-case bonus, so holding out for Atlanta pays the most — but a broken jar or a busted run down there costs you everything back there. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b>. Atlanta's rail yard is the only place to <b>buy V8 parts</b>; the hideout is where you <b>install them and reload the trunk</b>. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the barn, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. You <b>only fill the trunk at the hideout</b> — load her once and that shine rides with you the whole run. At every barn you decide <b>how many jars to drop off</b> for cash, but the roadside barns pay a <b>pittance</b> — dump there only when you're desperate for a continue. The real money is at the hubs, and the price climbs the <b>harder the road</b> you took and the <b>deeper you carry it</b> toward Atlanta. Sell your <b>whole untouched load in one shot</b> for a full-case bonus, so holding out for Atlanta pays the most — but a broken jar or a busted run down there costs you everything back there. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b>. Atlanta's rail yard is the only place to <b>buy V8 parts</b>; the hideout is where you <b>install them and reload the trunk</b>. Load heavier and she hauls more cash but drives like it. Run with an <b>empty trunk</b> and there's nothing to chase — no shine, no revenuer, so those legs run clear. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -837,7 +837,9 @@ function flash(msg){ state.flashMsg=msg; state.flashT=1.6; }
 // roll whether a revenuer picks up your tail for this leg; deeper runs run hotter
 function rollChase(){
   const s=state;
-  const p = 0.55 + Math.min(0.3, s.stopCount*0.05);
+  // an empty trunk is nothing to chase: no shine, no bust, no revenuer
+  const empty = s.jars<=0;
+  const p = empty ? 0 : 0.55 + Math.min(0.3, s.stopCount*0.05);
   s.revActive = Math.random() < p;
   s.gap=999; s.revSpinT=0; s.latRev=0; s.vRev=120; s.revDrift=0; s.escapeT=0;
   if(s.revActive){
@@ -845,7 +847,7 @@ function rollChase(){
     flash('REVENUER ON YOUR TAIL');
   } else {
     s.sRev=s.sCar-3000;
-    flash("ROAD'S CLEAR, NO TAIL");
+    flash(empty ? 'EMPTY TRUNK — NOTHING TO CHASE' : "ROAD'S CLEAR, NO TAIL");
   }
 }
 function breakJars(n,why){
@@ -922,8 +924,11 @@ function stopDepth(n){
   const m = ((n-1)%6)+1;
   return m<=3 ? m : 6-m;
 }
-// shine price for a stop: rises the deeper you carry it toward Atlanta and the harder the road you took
+// shine price for a stop. Roadside barns pay a pittance -- they're an emergency
+// dump when you need cash for a continue, not a payday. The real money is at the
+// hubs, and it climbs the deeper you carry it toward Atlanta and the harder the road.
 function priceFor(n, prof){
+  if(stopType(n)==='regular') return Math.max(PRICE_MIN, Math.round(PRICE_MIN + roadPay(prof)*0.35));
   return Math.max(PRICE_MIN, Math.round(PRICE_MIN + stopDepth(n)*0.8 + roadPay(prof)));
 }
 // stops cycle 6 deep: 2 barns out, a town (Atlanta), 2 barns back, then the hideout — repeat
@@ -982,7 +987,9 @@ function renderStore(){
   document.getElementById('loadSection').style.display = isHideout ? '' : 'none';
   document.getElementById('storeFine').textContent = isHideout
     ? 'Sell what\'s left, reload the trunk for the run back out, or spend cash on a continue.'
-    : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. You only reload the trunk back at the hideout.';
+    : (s.curStopType==='regular'
+        ? 'Roadside barns pay a pittance — dump a few jars here only if you need cash for a continue. Hold the load for Atlanta. Reload only at the hideout.'
+        : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. You only reload the trunk back at the hideout.');
 
   const loadSlider = document.getElementById('loadSlider');
   s.loadQty = Math.max(JARS_MIN, Math.min(s.loadQty, JARS_MAX));

@@ -447,6 +447,8 @@ const state = {
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, earned:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
   stopCount:0, curStopType:'regular', // every 3rd drop is a town (Atlanta), every 6th is back at the hideout — both open a garage
+  legDrops:0,       // drops passed on the current mapped leg (3rd is a hub); resets whenever a fresh leg is mapped
+  roadPicked:false, // did this hub stop rebuild the road via the map? if not, the leg rebases on the same road
   engineBought:false, engineInstalled:false, // crate motor: buy in Atlanta, install at the hideout, boost active once installed
   sellQty:0, loadQty:0, // chosen at the nip-joint counter: how many jars to sell, and how many to haul out
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
@@ -501,9 +503,65 @@ function reverseRoad(prof){ return Object.assign({}, prof, {reverse:true}); }
 // the three fixed roads, always offered in the same order at every hub
 function drawThreeRoads(){ return ROADS.slice(); }
 
+// Heading bound: how far (radians) the road may swing off the leg's overall axis.
+// Bounded heading means the road always makes forward progress, so it can never
+// double back over itself -- not on screen, not on the mini-map, not on the study
+// map. Hairpins still feel like hairpins through curvature; they just never loop.
+const HEAD_MAX  = 1.1;               // hard rail: past this, the road bends back no matter what
+const HEAD_SOFT = 0.75;              // past this, the next curve segment must steer back
+function angDiff(a,b){ let d=a-b; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; return d; }
+
+// One generator step, shared by the live road (ensureRoad) and the preview layout
+// (layoutRoad). A single implementation is what guarantees the road you study on
+// the map is bit-for-bit the road you drive.
+function stepRoad(st, rng, prof, ds){
+  const kmax = 0.0016*prof.curve + 0.0009;
+  st.segLeft -= ds;
+  if(st.segLeft <= 0){
+    const r = rng();
+    if(r < prof.straightBias){
+      st.kT = (rng()*2-1)*0.0002;                  // near-straight breather
+      st.segLeft = 220 + rng()*260;
+    } else {
+      const mag = (0.4 + rng()*0.6)*kmax;
+      let sgn = (rng()<0.5 ? -1 : 1)*st.dirMult;   // mirror handedness when reversed
+      st.segLeft = 240 + rng()*420;
+      // swung wide of the leg's axis? the next bend has to steer back toward it
+      const dev0 = angDiff(st.head, st.headBase);
+      if(Math.abs(dev0) > HEAD_SOFT) sgn = dev0 > 0 ? -1 : 1;
+      st.kT = sgn*mag;
+    }
+  }
+  // hard rail: out past the bound, override whatever was picked and bend back
+  const dev = angDiff(st.head, st.headBase);
+  if(dev >  HEAD_MAX) st.kT = -0.6*kmax;
+  else if(dev < -HEAD_MAX) st.kT = 0.6*kmax;
+  st.k += (st.kT - st.k)*Math.min(1, ds/110);
+
+  // width breathes: wide sweepers down to tight cuts
+  st.wSeg -= ds;
+  if(st.wSeg <= 0){ st.wT = (58 + rng()*70)*prof.width; st.wSeg = 300 + rng()*450; }
+  st.w += (st.wT - st.w)*Math.min(1, ds/170);
+
+  // shoulder breathes too: sometimes a wide forgiving gravel apron, sometimes
+  // almost nothing -- a sideskirt that drops straight into the rough
+  st.shSeg -= ds;
+  if(st.shSeg <= 0){ st.shT = rng()<0.3 ? 4+rng()*8 : 20+rng()*46; st.shSeg = 260 + rng()*420; }
+  st.sh += (st.shT - st.sh)*Math.min(1, ds/140);
+
+  // elevation breathes: long easy grades under the same ridge that bends the road
+  st.zSeg -= ds;
+  if(st.zSeg <= 0){ st.zT = (-60 + rng()*240)*prof.elev; st.zSeg = 900 + rng()*1100; }
+  st.z += (st.zT - st.z)*Math.min(1, ds/420);
+
+  st.head += st.k*ds;
+  st.x += Math.cos(st.head)*ds;
+  st.y += Math.sin(st.head)*ds;
+}
+
 const road = { pts:[], ds:6, sGen:0, x:0, y:0, head:0, k:0, kT:0, segLeft:0, idx:0,
                w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0,
-               dir:1, zDir:1, locked:false, prof:ROADS[0] };
+               dirMult:1, headBase:0, zDir:1, base:0, prof:ROADS[0] };
 
 // You pick a fresh road at each hub. Heading down to Atlanta it runs forward under
 // the live generator (endless, so a long chase can't run off the end). Heading home
@@ -518,7 +576,8 @@ function buildRoad(prof, sStart){
   road.pts.length=0;
   const base = Math.floor(sStart/road.ds)*road.ds;
   if(road.rev){
-    // run home: same seed forward to Atlanta, then read it backwards for an exact retrace
+    // run home: same seed forward to where you are, then read it backwards for an
+    // exact retrace of everything you drove down -- however many legs that took
     const legLen = downAtlLocal>0 ? downAtlLocal : PREVIEW_LEN;
     const fwd = layoutRoad(road.prof, legLen + 1440);   // a little margin past the turnaround
     let idx = Math.round(legLen/road.ds);
@@ -527,29 +586,29 @@ function buildRoad(prof, sStart){
       const f = fwd[idx-j];
       road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h+Math.PI, k:-f.k, w:f.w, sh:f.sh, z:f.z, i:j});
     }
-    buildLegMap(road.prof, base, true, idx*road.ds);
-    // fresh leg out of this hub: first drop DROP_FIRST ahead, matching the map length
-    state.nextDrop = base + DROP_FIRST;
-    // The retrace ends at the physical hideout, but the home drops are placed by an
-    // independent counter that can overshoot that turnaround. Keep the ribbon
-    // extendable past the end (procedurally, continuing from the reversed end) so a
-    // long run home never drives off the road into black. The driven retrace stays
-    // exact; only the buffer beyond the hideout is freshly generated.
-    road.locked = false;
-    road.dir = -1; road.zDir = 1;    // continue with the reversed road's mirrored handedness
+    // The retrace ends at the physical hideout, but a run home can push past it
+    // (blow-bys). Keep the ribbon extendable past the end (procedurally, continuing
+    // from the reversed end) so a long run home never drives off the road into black.
+    road.zDir = 1;
+    road.dirMult = -1;                                  // mirrored handedness for the buffer
     roadRng = mulberry32((road.prof.seed ^ 0x9e3779b9) >>> 0);
     const last = road.pts[road.pts.length-1];
     road.x = last.x; road.y = last.y; road.head = last.h; road.z = last.z;
+    road.headBase = last.h;                             // buffer keeps trending the way the retrace ends
     road.k = last.k; road.kT = last.k; road.segLeft = 200;
     road.w = last.w; road.wT = last.w; road.wSeg = 400;
     road.sh = last.sh; road.shT = last.sh; road.shSeg = 400;
     road.zT = last.z; road.zSeg = 900;
     road.sGen = last.s + road.ds; road.idx = last.i + 1;
+    road.base = base;
+    // fresh leg out of this hub: first drop DROP_FIRST ahead, matching the map length
+    state.nextDrop = base + DROP_FIRST;
+    state.legDrops = 0;
+    buildLegMap(base, PREVIEW_LEN);                     // exact copy of the ribbon for the mini-map
     return;
   }
   // heading down: live procedural generation, reseeded so the road is identical every time
-  road.locked = false;
-  road.dir = 1; road.zDir = 1;
+  road.dirMult = 1; road.zDir = 1; road.headBase = 0;
   roadRng = mulberry32(road.prof.seed >>> 0);
   road.sGen=base; road.x=0; road.y=0; road.head=0;
   road.k=0; road.kT=0; road.segLeft=520; road.idx=0;   // opening straight
@@ -557,64 +616,18 @@ function buildRoad(prof, sStart){
   road.w=w0; road.wT=w0; road.wSeg=650;                // opening width holds steady
   road.z=0; road.zT=0; road.zSeg=900;                  // opening grade holds flat
   road.sh=26; road.shT=26; road.shSeg=700;             // opening shoulder: a forgiving gravel apron
+  road.base = base;                                    // world s where this road's generator starts
   downStart = base;                                    // clock the run so we know where Atlanta lands
   // fresh leg out of this hub: first drop DROP_FIRST ahead, matching the map length
   state.nextDrop = base + DROP_FIRST;
-  ensureRoad(sStart+1400);
-  buildLegMap(road.prof, base, false, PREVIEW_LEN);    // plan-view + elevation for the on-screen mini-map
+  state.legDrops = 0;
+  buildLegMap(base, PREVIEW_LEN);                      // exact copy of the ribbon for the mini-map
 }
 function roadInit(){ buildRoad(state.road || pickRandomRoad(), 0); }
-function pickSegment(){
-  const pr = road.prof;
-  const kmax = 0.0016*pr.curve + 0.0009;
-  const r = roadRng();
-  if(r < pr.straightBias){
-    road.kT = (roadRng()*2-1)*0.0002;                  // near-straight breather
-    road.segLeft = 220 + roadRng()*260;
-  } else {
-    const mag = (0.4 + roadRng()*0.6)*kmax;
-    road.kT = (roadRng()<0.5?-1:1)*mag;
-    road.segLeft = 240 + roadRng()*420;
-  }
-  road.kT *= road.dir;                                  // mirror handedness when reversed
-}
 function ensureRoad(untilS){
-  if(road.locked) return;   // a locked road is laid out in full; nothing to extend
   const pr = road.prof;
   while(road.sGen < untilS){
-    road.segLeft -= road.ds;
-    if(road.segLeft <= 0) pickSegment();
-    road.k += (road.kT - road.k)*Math.min(1, road.ds/110);
-
-    // width breathes: wide sweepers down to tight cuts
-    road.wSeg -= road.ds;
-    if(road.wSeg <= 0){
-      road.wT = (58 + roadRng()*70)*pr.width;
-      road.wSeg = 300 + roadRng()*450;
-    }
-    road.w += (road.wT - road.w)*Math.min(1, road.ds/170);
-
-    // shoulder breathes too: sometimes a wide, forgiving gravel apron past the
-    // pavement edge, sometimes almost nothing -- a sideskirt that drops straight
-    // into the rough, so running wide doesn't punish the same way every time.
-    road.shSeg -= road.ds;
-    if(road.shSeg <= 0){
-      road.shT = roadRng()<0.3 ? 4+roadRng()*8 : 20+roadRng()*46;
-      road.shSeg = 260 + roadRng()*420;
-    }
-    road.sh += (road.shT - road.sh)*Math.min(1, road.ds/140);
-
-    // elevation breathes too: long easy grades, same ridge that bends the road now rises and falls under it
-    road.zSeg -= road.ds;
-    if(road.zSeg <= 0){
-      road.zT = (-60 + roadRng()*240)*pr.elev;
-      road.zSeg = 900 + roadRng()*1100;
-    }
-    road.z += (road.zT - road.z)*Math.min(1, road.ds/420);
-
-    road.head += road.k*road.ds;
-    road.x += Math.cos(road.head)*road.ds;
-    road.y += Math.sin(road.head)*road.ds;
+    stepRoad(road, roadRng, pr, road.ds);
     road.pts.push({s:road.sGen, x:road.x, y:road.y, h:road.head, k:road.k, w:road.w, sh:road.sh, z:road.z*road.zDir, i:road.idx++});
     road.sGen += road.ds;
   }
@@ -650,7 +663,7 @@ function reset(){
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.tiresOff=0; s.offEventT=0;
   s.banked=0; s.cash=0; s.earned=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+DROP_FIRST; s.prevDrop=-9999;
-  s.stopCount=0; s.curStopType='regular';
+  s.stopCount=0; s.curStopType='regular'; s.legDrops=0; s.roadPicked=false;
   s.engineBought=false; s.engineInstalled=false;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0; s.boostT=0;
   rollChase();
@@ -974,6 +987,7 @@ const STORE_COPY = {
 function openStore(){
   state.mode='store';
   state.stopCount++;
+  state.roadPicked = false;   // set when the map rebuilds the road at this stop
   state.curStopType = stopType(state.stopCount);
   state.price = priceFor(state.stopCount, state.road);
   state.sellQty = state.jars;
@@ -1077,6 +1091,10 @@ function storeTrade(){
 }
 function storeLeave(){
   if(state.mode!=='store') return;
+  // pulled out of a hub without studying the map? same road runs on, but the
+  // drops and mini-map re-anchor here so the map still spans the leg you drive
+  if((state.curStopType==='town'||state.curStopType==='hideout') && !state.roadPicked)
+    rebaseLeg(state.prevDrop);
   document.getElementById('store').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
   state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; state.escapeT=0;
@@ -1187,37 +1205,24 @@ let selectedRoadIdx = 0;   // the road currently highlighted on the map / in the
 const DROP_FIRST = 3400;            // hub to the first nip joint
 const DROP_STEP  = 6100;            // nip joint to nip joint, and on to the next hub
 const PREVIEW_LEN = DROP_FIRST + 2*DROP_STEP;  // 15,600 world units: hub all the way to the next hub
-// Lay a road out forward from its seed, start to `legLen`. Deterministic: the same
-// seed always yields the same curves and grades, which is what lets one road be
-// driven down and then walked back up as the very same stretch. Full per-point
-// fields (heading, curvature, width, shoulder, grade) so the live ribbon can drive it.
+// Lay a road out forward from its seed, start to `legLen`. Runs the exact same
+// stepper as the live road, so the same seed always yields the same curves and
+// grades -- what lets one road be studied on the map, driven down, and walked
+// back up as the very same stretch. Full per-point fields (heading, curvature,
+// width, shoulder, grade) so the live ribbon can drive it.
 function layoutRoad(prof, legLen){
   const rng = mulberry32(prof.seed>>>0);
   const ds = 6;
-  const kmax = 0.0016*prof.curve + 0.0009;
-  let x=0,y=0,head=0;
-  let k=0,kT=0,segLeft=520;
-  const w0=95*prof.width; let w=w0,wT=w0,wSeg=650;
-  let z=0,zT=0,zSeg=900;
-  let sh=26,shT=26,shSeg=700;
+  const w0 = 95*prof.width;
+  const st = { x:0, y:0, head:0, headBase:0, dirMult:1,
+               k:0, kT:0, segLeft:520,
+               w:w0, wT:w0, wSeg:650,
+               z:0, zT:0, zSeg:900,
+               sh:26, shT:26, shSeg:700 };
   const pts=[]; let s=0;
-  function pickSeg(){
-    const r=rng();
-    if(r < prof.straightBias){ kT=(rng()*2-1)*0.0002; segLeft=220+rng()*260; }
-    else{ const mag=(0.4+rng()*0.6)*kmax; kT=(rng()<0.5?-1:1)*mag; segLeft=240+rng()*420; }
-  }
   while(s < legLen){
-    segLeft-=ds; if(segLeft<=0) pickSeg();
-    k += (kT-k)*Math.min(1, ds/110);
-    wSeg-=ds; if(wSeg<=0){ wT=(58+rng()*70)*prof.width; wSeg=300+rng()*450; }
-    w += (wT-w)*Math.min(1, ds/170);
-    shSeg-=ds; if(shSeg<=0){ shT=rng()<0.3?4+rng()*8:20+rng()*46; shSeg=260+rng()*420; }
-    sh += (shT-sh)*Math.min(1, ds/140);
-    zSeg-=ds; if(zSeg<=0){ zT=(-60+rng()*240)*prof.elev; zSeg=900+rng()*1100; }
-    z += (zT-z)*Math.min(1, ds/420);
-    head += k*ds;
-    x += Math.cos(head)*ds; y += Math.sin(head)*ds;
-    pts.push({s, x, y, z, h:head, k, w, sh});
+    stepRoad(st, rng, prof, ds);
+    pts.push({s, x:st.x, y:st.y, z:st.z, h:st.head, k:st.k, w:st.w, sh:st.sh});
     s += ds;
   }
   return pts;
@@ -1232,7 +1237,18 @@ function simulateRoad(prof, legLen){
 // climb/drop tallies for each candidate road.
 function buildPreviews(){
   previewData = mapChoices.map(prof=>{
-    const pts = simulateRoad(prof, PREVIEW_LEN);
+    let pts;
+    if(prof.reverse){
+      // return trip: preview the stretch you'll actually retrace first -- the LAST
+      // leg's worth of everything driven down this road (blow-bys can make the way
+      // down longer than one leg). Kept in forward orientation so the hideout-side
+      // hub stays up top, same as the outbound map.
+      const legLen = downAtlLocal>0 ? downAtlLocal : PREVIEW_LEN;
+      const full = simulateRoad(prof, legLen);
+      pts = full.slice(Math.max(0, full.length - Math.round(PREVIEW_LEN/6)));
+    } else {
+      pts = simulateRoad(prof, PREVIEW_LEN);
+    }
     const p0=pts[0], pN=pts[pts.length-1];
     // rotate the whole path so start->end points straight down the screen
     const phi = Math.atan2(pN.y-p0.y, pN.x-p0.x);
@@ -1249,16 +1265,22 @@ function buildPreviews(){
   });
 }
 // ---------- live route mini-map (drawn on the HUD during a run) ----------
-// The road under the car, replayed off to the side from the same seed, rotated so it
-// reads top-to-bottom. Rebuilt every time a new leg is laid out so the mini-map always
-// shows the stretch you're actually driving, with the car's spot tracked along it.
+// A snapshot of the LIVE ribbon for the current leg, rotated so it reads
+// top-to-bottom from where the leg starts. Because it's cut straight from the
+// points the car actually drives over, the mini-map can never disagree with the
+// road under the wheels. Rebuilt every time a fresh leg is mapped.
 let legMap = null;
-// Snapshot the leg's plan-view + elevation for the on-screen mini-map. `span` is the
-// world distance this leg covers, so the car marker tracks along it. Heading home the
-// road is the forward geometry read end-to-start, matching what you drive.
-function buildLegMap(prof, startS, reverse, span){
-  let pts = simulateRoad(prof, span);
-  if(reverse) pts = pts.slice().reverse();
+// Snapshot [startS, startS+span] of the live road for the on-screen mini-map.
+// Generates the ribbon out that far first, so the whole leg is known up front.
+function buildLegMap(startS, span){
+  ensureRoad(startS + span + road.ds);
+  const pts=[];
+  for(const p of road.pts){
+    if(p.s < startS - 0.1) continue;
+    if(p.s > startS + span + 0.1) break;
+    pts.push({s:p.s, x:p.x, y:p.y, z:p.z});
+  }
+  if(pts.length < 2){ legMap=null; return; }
   const p0=pts[0], pN=pts[pts.length-1];
   const phi=Math.atan2(pN.y-p0.y, pN.x-p0.x);
   const a=Math.PI/2 - phi, ca=Math.cos(a), sa=Math.sin(a);
@@ -1270,6 +1292,16 @@ function buildLegMap(prof, startS, reverse, span){
     if(rx<minX)minX=rx; if(rx>maxX)maxX=rx; if(ry<minY)minY=ry; if(ry>maxY)maxY=ry;
   }
   legMap={ pts, rot, startS, span, lo, hi, minX, maxX, minY, maxY };
+}
+// Start a fresh mapped leg mid-run on the same road: used when you pass a hub
+// without rebuilding the road (blew past it with the law on you, or left the hub
+// counter without studying the map). Drops and mini-map re-anchor here, so the
+// map length always equals the leg you're actually driving.
+function rebaseLeg(hubS){
+  downStart = hubS;
+  state.legDrops = 0;
+  state.nextDrop = hubS + DROP_FIRST;
+  buildLegMap(hubS, PREVIEW_LEN);
 }
 function fmtFt(v){ return Math.round(v).toLocaleString(); }
 // Render the top-down map: three thin roads, the selected one thick and lit.
@@ -1287,28 +1319,36 @@ function renderMap(){
   let bMinX=0, bMaxX=VW, bMinY=0, bMaxY=VH;
   // faint dashed spine from hub to hub
   out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
-  // Draw the three roads so they never cross, using two tricks:
-  //  1) the vertical axis is arc-length along the road (always descending). A road
-  //     that doubles back in space never loops on the map -- every line reads cleanly
-  //     top to bottom, hideout to Atlanta.
-  //  2) each road sits in its own column (left / center / right). The column offset
-  //     tapers to zero at both hubs, so the lines meet only at the two towns.
-  // Each road's own wander is scaled to fill a fixed band that's narrower than the gap
-  // between columns, so the curves stay legible and neighboring roads can't touch.
-  const laneAmp = 70;                  // horizontal gap between adjacent columns
-  const bandHalf = 26;                 // each road's wander half-width (< laneAmp/2, so no overlap)
+  // Draw the three roads as TRUE plan geometry -- the same bird's-eye line the
+  // run's mini-map draws, so the road you study is the shape you'll see driving.
+  // The generator's heading bound means no road ever doubles back, so the honest
+  // geometry reads cleanly top to bottom on its own. Legibility comes from one
+  // presentation trick only: each road sits in its own column (left/center/right),
+  // and that column offset tapers to zero at both hubs so the lines meet only at
+  // the two towns. The road's own wander is drawn to scale, never squashed.
   const smooth = u => u*u*(3-2*u);
   const env = t => { t = t<0?0:t>1?1:t; const e=0.26; return t<e ? smooth(t/e) : t>1-e ? smooth((1-t)/e) : 1; };
+  // uniform per-road scale (same for wander and distance), and a column gap wide
+  // enough that the widest-wandering road can't touch its neighbor
+  let maxWander=0;
+  previewData.forEach(d=>{
+    const rot=d.rot, x0=rot[0].x, y0=rot[0].y;
+    const sc=boxH/Math.max(1, rot[rot.length-1].y-y0);
+    for(const p of rot) maxWander=Math.max(maxWander, Math.abs(p.x-x0)*sc);
+  });
+  const laneAmp = Math.max(70, maxWander*2 + 14);
   previewData.forEach((d,i)=>{
     const sel = i===selectedRoadIdx;
     const spread = i - (previewData.length-1)/2;                     // -1 / 0 / +1: left, center, right
-    const x0 = d.rot[0].x, totS = d.pts[d.pts.length-1].s || 1;
-    let mlat=0; for(const p of d.rot) mlat=Math.max(mlat, Math.abs(p.x-x0));
-    const wsc = mlat>0 ? bandHalf/mlat : 0;                          // normalize this road's wander into its band
-    const px = j => { const e=env(d.pts[j].s/totS); return cx + spread*laneAmp*e + (d.rot[j].x-x0)*wsc*e; };
-    const py = j => topHub + (d.pts[j].s/totS)*boxH;
+    const rot=d.rot, x0=rot[0].x, y0=rot[0].y;
+    const spanY = Math.max(1, rot[rot.length-1].y - y0);
+    const wsc = boxH/spanY;                                          // one uniform scale, true shape
+    // the same envelope tapers both the column offset and the wander into the hubs,
+    // so the three lines funnel cleanly into the two towns instead of crossing there
+    const px = j => { const e=env((rot[j].y-y0)/spanY); return cx + spread*laneAmp*e + (rot[j].x-x0)*wsc*e; };
+    const py = j => topHub + (rot[j].y-y0)*wsc;
     let path='';
-    d.rot.forEach((p,j)=>{
+    rot.forEach((p,j)=>{
       const X=px(j), Y=py(j);
       if(X<bMinX)bMinX=X; if(X>bMaxX)bMaxX=X; if(Y<bMinY)bMinY=Y; if(Y>bMaxY)bMaxY=Y;
       path += (j?'L':'M')+X.toFixed(1)+' '+Y.toFixed(1)+' ';
@@ -1317,8 +1357,8 @@ function renderMap(){
       'stroke="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" '+
       'stroke-width="'+(sel?3.2:1.6)+'" stroke-linejoin="round" stroke-linecap="round" '+
       'opacity="'+(sel?1:0.6)+'" style="cursor:pointer"/>';
-    // number badge on the mid-run row, sitting in this road's column
-    let jm=0, bd=1e9; for(let j=0;j<d.pts.length;j++){ const dd=Math.abs(d.pts[j].s/totS-0.5); if(dd<bd){bd=dd;jm=j;} }
+    // number badge at the road's vertical midpoint, sitting in this road's column
+    let jm=0, bd=1e9; for(let j=0;j<rot.length;j++){ const dd=Math.abs((rot[j].y-y0)/spanY-0.5); if(dd<bd){bd=dd;jm=j;} }
     const bx=px(jm).toFixed(1), by=py(jm).toFixed(1);
     out += '<circle class="mapRoute" data-i="'+i+'" cx="'+bx+'" cy="'+by+'" r="9" '+
       'fill="var(--card)" stroke="'+(sel?'var(--lantern)':'var(--border)')+'" stroke-width="1.4" style="cursor:pointer"/>';
@@ -1415,7 +1455,9 @@ function openRoadMap(context){
   } else {
     // the roads you came down on, offered reversed -- pick your way back up. Take the
     // same one you drove down and it's an exact retrace; take another for a new way home.
-    downAtlLocal = state.sCar - downStart;
+    // Measured from where this road's generator started (not the last rebased leg), so
+    // the retrace covers everything driven since the road was laid, blow-bys included.
+    downAtlLocal = state.sCar - road.base;
     mapChoices = (outboundTrio.length ? outboundTrio : drawThreeRoads()).map(reverseRoad);
   }
   document.getElementById('mapEyebrow').innerHTML = toAtlanta
@@ -1441,6 +1483,7 @@ function openRoadMap(context){
 }
 function applyRoad(prof){
   state.road = prof;
+  state.roadPicked = true;
   buildRoad(prof, state.sCar);         // lay the chosen road out ahead of the car
   rollChase(); // fresh leg: maybe a tail, maybe a clear road
 }
@@ -1680,6 +1723,7 @@ function step(dt){
   if(s.sCar >= s.nextDrop){
     s.prevDrop = s.nextDrop;
     s.nextDrop += DROP_STEP;   // fixed so the drops always line up with the studied map
+    s.legDrops++;
     // law on your tail? no stopping to sell -- you blow past the drop, and the run
     // past the lantern hands you a boost to shake him. no sale this drop, but a
     // full head of steam to open the gap. clear road: pull up and sell as usual.
@@ -1688,6 +1732,9 @@ function step(dt){
       s.v += 90;                 // instant kick off the lantern
       flash('BLEW PAST '+BLOWBY_NAME[stopType(s.stopCount+1)]+' — BOOST');
       cashDing();
+      // blew past the hub itself: the road runs on, so re-anchor the drops and the
+      // mini-map right here -- the next mapped leg starts at the hub you just shot past
+      if(s.legDrops >= 3) rebaseLeg(s.prevDrop);
     } else {
       openStore();
       return;

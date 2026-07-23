@@ -207,7 +207,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the barn, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the barn, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. You <b>only fill the trunk at the hideout</b> — load her once and that shine rides with you the whole run. At every barn you decide <b>how many jars to drop off</b> for cash, and the price climbs the <b>harder the road</b> you took and the <b>deeper you carry it</b> toward Atlanta. Sell your <b>whole untouched load in one shot</b> for a full-case bonus, so holding out for Atlanta pays the most — but a broken jar or a busted run down there costs you everything back there. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b>. Atlanta's rail yard is the only place to <b>buy V8 parts</b>; the hideout is where you <b>install them and reload the trunk</b>. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -222,7 +222,7 @@
     <h1 style="font-size:clamp(24px,7vw,34px);">LOAD THE V8</h1>
     <div class="sub">Every Jar's a Dollar — and a Pound</div>
     <div class="rule"></div>
-    <div class="copy" style="text-align:center;">Before you crank her over, decide how many jars go in the trunk. More jars means more to sell down the ridge, but the Ford hauls it whether she likes it or not.</div>
+    <div class="copy" style="text-align:center;">The hideout is the only place you fill the trunk, so load her for the whole run. More jars means more to drop off down the ridge, but the Ford hauls it whether she likes it or not.</div>
     <div class="loadoutWeight" id="loadoutWeight"></div>
     <div class="loadoutStepper">
       <button class="stepBtn" id="jarMinus" type="button">−</button>
@@ -277,21 +277,23 @@
       <button class="stepBtn" id="sellPlus" type="button">+</button>
     </div>
     <button class="go" id="sellBtn" style="display:block;width:100%;margin:8px 0;">SELL</button>
-    <div class="rule"></div>
-    <div class="loadoutWeight" id="loadLabel"></div>
-    <div class="loadoutStepper">
-      <button class="stepBtn" id="loadMinus" type="button">−</button>
-      <input type="range" id="loadSlider" min="4" max="20" step="1" value="4">
-      <button class="stepBtn" id="loadPlus" type="button">+</button>
+    <div id="loadSection">
+      <div class="rule"></div>
+      <div class="loadoutWeight" id="loadLabel"></div>
+      <div class="loadoutStepper">
+        <button class="stepBtn" id="loadMinus" type="button">−</button>
+        <input type="range" id="loadSlider" min="4" max="20" step="1" value="4">
+        <button class="stepBtn" id="loadPlus" type="button">+</button>
+      </div>
+      <div class="copy" id="loadFeel" style="text-align:center;"></div>
+      <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     </div>
-    <div class="copy" id="loadFeel" style="text-align:center;"></div>
-    <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     <div class="rule"></div>
     <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">BUY CONTINUE</button>
     <button class="go" id="mapBtn" style="display:none;width:100%;margin:8px 0;">STUDY THE MAP · PICK YOUR ROAD</button>
     <button class="go" id="garageBtn" style="display:none;width:100%;margin:8px 0;">VISIT THE GARAGE</button>
     <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
-    <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or spend cash for another shot</div>
+    <div class="fine" id="storeFine">Drop off some or all for cash — a full untouched case sold at once pays a bonus. You only reload the trunk back at the hideout.</div>
   </div>
 </div>
 
@@ -418,7 +420,8 @@ const JARS_MIN = 4, JARS_MAX = 20;               // how light or heavy you can l
 const CAR_BASE_LBS = 2500, JAR_LBS = 8;          // stripped-down Ford V8 coupe + a full gallon jug per jar
 const CONTINUES_MAX = 3;
 const BOARD_KEY = 'wl_board_usd', BOARD_MAX = 10;
-const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moonshine market
+const PRICE_MIN = 2;                 // floor price per jar: an easy road sold near the hideout
+const FULL_CASE_MULT = 0.5;          // sell your whole untouched load in one shot: half again on top
 const E_SPIN = 0.65;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
 const SPIN_GRACE = 0.32;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
@@ -923,8 +926,19 @@ function declineContinue(){
 // ---------- store (the barn keeper's counter at each drop) ----------
 const CONTINUE_CASH_COST = 20, CONTINUES_CAP = 9;
 const ENGINE_COST = 60; // stroked V8 crate motor: bought in Atlanta, installed back at the hideout
-function rollPrice(){
-  return PRICE_MIN + Math.floor(Math.random()*(PRICE_MAX-PRICE_MIN+1));
+// harder roads pay more per jar: the twistier and steeper the run you just made, the better the price
+function roadPay(prof){
+  const p = prof || ROADS[0];
+  return (p.curve-0.65)*2.2 + (p.elev-0.55)*1.6;
+}
+// distance from the hideout, measured in drops: 1,2 heading out · 3 at Atlanta (deepest) · 2,1 back · 0 home
+function stopDepth(n){
+  const m = ((n-1)%6)+1;
+  return m<=3 ? m : 6-m;
+}
+// shine price for a stop: rises the deeper you carry it toward Atlanta and the harder the road you took
+function priceFor(n, prof){
+  return Math.max(PRICE_MIN, Math.round(PRICE_MIN + stopDepth(n)*0.8 + roadPay(prof)));
 }
 // stops cycle 6 deep: 2 barns out, a town (Atlanta), 2 barns back, then the hideout — repeat
 function stopType(n){
@@ -944,7 +958,7 @@ function openStore(){
   state.mode='store';
   state.stopCount++;
   state.curStopType = stopType(state.stopCount);
-  state.price = rollPrice();
+  state.price = priceFor(state.stopCount, state.road);
   state.sellQty = state.jars;
   state.loadQty = state.jars;
   const copy = STORE_COPY[state.curStopType];
@@ -964,7 +978,9 @@ function renderStore(){
   const sellSlider = document.getElementById('sellSlider');
   sellSlider.max = sellMax; sellSlider.value = s.sellQty;
   sellSlider.disabled = sellMax<=0;
-  const sellBonus = (s.sellQty>0 && s.sellQty===s.jars && s.jars===s.startJars) ? 2 : 0;
+  // full case: selling your entire, untouched hideout load in one shot pays a cash bonus that scales with price
+  const isFullCase = (s.sellQty>0 && s.sellQty===s.jars && s.jars===s.startJars);
+  const sellBonus = isFullCase ? Math.round(s.sellQty*s.price*FULL_CASE_MULT) : 0;
   const sellBtn=document.getElementById('sellBtn');
   document.getElementById('sellLabel').textContent = sellMax>0
     ? s.sellQty+' JAR'+(s.sellQty===1?'':'S')+' TO SELL'
@@ -972,8 +988,15 @@ function renderStore(){
   sellBtn.disabled = s.sellQty<=0;
   sellBtn.style.opacity = s.sellQty>0 ? '1' : '0.4';
   sellBtn.textContent = s.sellQty>0
-    ? 'SELL '+s.sellQty+' JAR'+(s.sellQty===1?'':'S')+(sellBonus?' (FULL CASE +'+sellBonus+')':'')+' → $'+((s.sellQty+sellBonus)*s.price)
+    ? 'SELL '+s.sellQty+' JAR'+(s.sellQty===1?'':'S')+(sellBonus?' (FULL CASE +$'+sellBonus+')':'')+' → $'+(s.sellQty*s.price+sellBonus)
     : (sellMax>0 ? 'DIAL IN JARS TO SELL' : 'NOTHING LEFT TO SELL');
+
+  // trunk reloads only at the hideout; every other drop is drop-off only
+  const isHideout = (s.curStopType==='hideout');
+  document.getElementById('loadSection').style.display = isHideout ? '' : 'none';
+  document.getElementById('storeFine').textContent = isHideout
+    ? 'Sell what\'s left, reload the trunk for the run back out, or spend cash on a continue.'
+    : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. You only reload the trunk back at the hideout.';
 
   const loadSlider = document.getElementById('loadSlider');
   s.loadQty = Math.max(JARS_MIN, Math.min(s.loadQty, JARS_MAX));
@@ -1007,9 +1030,10 @@ function storeSell(){
   const s=state;
   const n = s.sellQty;
   if(n<=0 || n>s.jars) return;
-  const bonus = (n===s.jars && s.jars===s.startJars) ? 2 : 0;
-  s.banked += n+bonus;
-  s.cash += (n+bonus)*s.price;
+  const fullCase = (n===s.jars && s.jars===s.startJars);
+  const bonus = fullCase ? Math.round(n*s.price*FULL_CASE_MULT) : 0;
+  s.banked += n;
+  s.cash += n*s.price + bonus;
   cashDing();
   s.jars -= n;
   s.sellQty = s.jars;
@@ -1017,6 +1041,7 @@ function storeSell(){
 }
 function storeLoad(){
   const s=state;
+  if(s.curStopType!=='hideout') return;   // the trunk only fills at the hideout
   if(s.loadQty===s.jars) return;
   s.jars = s.loadQty;
   s.startJars = s.loadQty;

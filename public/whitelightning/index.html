@@ -2192,6 +2192,53 @@ function drawDrops(T){
         ctx.beginPath(); ctx.arc(lx*u,27*u,1.8*u,0,7); ctx.fill();
       }
       ctx.restore();
+    } else if(isHideout){
+      // THE HIDEOUT: the terminus of the run home. A broad shake-roofed homestead
+      // cabin with lit porch lamps and a warm stone chimney, so pulling up here reads
+      // as home and not just another roadside barn — plus the copper still and mash
+      // barrels of the moonshine distillery out back.
+      const lg=ctx.createRadialGradient(pt[0],pt[1],6,pt[0],pt[1],150*sc);
+      lg.addColorStop(0,'rgba(224,150,70,0.5)');
+      lg.addColorStop(1,'rgba(224,150,70,0)');
+      ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],150*sc,0,7); ctx.fill();
+      ctx.save();
+      ctx.translate(pt[0],pt[1]);
+      ctx.rotate(q.h + T.phi);
+      const u=sc;
+      // cabin footprint, broader and deeper than a barn
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.fillRect(-30*u+3*u,-21*u+3*u,60*u,42*u);
+      ctx.fillStyle='#3f3320';                        // weathered log wall
+      ctx.fillRect(-30*u,-21*u,60*u,42*u);
+      ctx.strokeStyle='#1c140a'; ctx.lineWidth=2;
+      ctx.strokeRect(-30*u,-21*u,60*u,42*u);
+      ctx.fillStyle='#4d3f27';                        // shake roof catching light
+      ctx.fillRect(-30*u,-21*u,60*u,4*u);
+      ctx.strokeStyle='rgba(20,14,8,0.6)'; ctx.lineWidth=1.2;   // shake courses
+      for(let r=-14;r<=14;r+=7){
+        ctx.beginPath(); ctx.moveTo(-30*u,r*u); ctx.lineTo(30*u,r*u); ctx.stroke();
+      }
+      ctx.strokeStyle='#241a10'; ctx.lineWidth=1.6;            // ridge down the roof
+      ctx.beginPath(); ctx.moveTo(0,-21*u); ctx.lineTo(0,21*u); ctx.stroke();
+      // stone chimney with a warm hearth glow, back corner
+      ctx.fillStyle='#4a4640'; ctx.fillRect(22*u,-19*u,7*u,8*u);
+      ctx.strokeStyle='#201d18'; ctx.lineWidth=1; ctx.strokeRect(22*u,-19*u,7*u,8*u);
+      const hg=ctx.createRadialGradient(25.5*u,-15*u,1,25.5*u,-15*u,10*u);
+      hg.addColorStop(0,'rgba(240,150,70,0.7)'); hg.addColorStop(1,'rgba(240,150,70,0)');
+      ctx.fillStyle=hg; ctx.beginPath(); ctx.arc(25.5*u,-15*u,10*u,0,7); ctx.fill();
+      // lit porch lamps glowing over the road-facing eave
+      ctx.fillStyle='#f0c46e';
+      for(let lx=-20;lx<=20;lx+=20){ ctx.beginPath(); ctx.arc(lx*u,25*u,2*u,0,7); ctx.fill(); }
+      ctx.fillStyle='#c98f3f';
+      ctx.beginPath(); ctx.arc(-34*u,0,3.8*u,0,7); ctx.fill();                  // the drop-point lantern
+      ctx.restore();
+      // the distillery out back: copper still fired up and mash barrels in the pines
+      const tx=Math.cos(q.h), ty=Math.sin(q.h);
+      drawStill(T, bx+tx*40+nx*24, by+ty*40+ny*24, q.h, s.stopCount*7+1);
+      drawBarrel(T, bx-tx*26+nx*14, by-ty*26+ny*14, s.stopCount*3+2);
+      drawBarrel(T, bx-tx*34+nx*26, by-ty*34+ny*26, s.stopCount*3+5);
+      drawPine(T, bx+tx*52+nx*34, by+ty*52+ny*34, s.stopCount*9+4);
+      drawPine(T, bx-tx*50+nx*38, by-ty*50+ny*38, s.stopCount*9+7);
     } else {
       // barn with a lantern out front, right-hand side
       const lg=ctx.createRadialGradient(pt[0],pt[1],4,pt[0],pt[1],95*sc);
@@ -2210,16 +2257,6 @@ function drawDrops(T){
       ctx.fillStyle='#c98f3f';
       ctx.beginPath(); ctx.arc(-26*u,0,3.5*u,0,7); ctx.fill();                  // the lantern
       ctx.restore();
-      if(isHideout){
-        // the hideout is a moonshine distillery in the woods: the barn plus a copper
-        // still fired up out back and mash barrels stacked in the pines
-        const tx=Math.cos(q.h), ty=Math.sin(q.h);
-        drawStill(T, bx+tx*34+nx*20, by+ty*34+ny*20, q.h, s.stopCount*7+1);
-        drawBarrel(T, bx-tx*22+nx*12, by-ty*22+ny*12, s.stopCount*3+2);
-        drawBarrel(T, bx-tx*30+nx*24, by-ty*30+ny*24, s.stopCount*3+5);
-        drawPine(T, bx+tx*46+nx*30, by+ty*46+ny*30, s.stopCount*9+4);
-        drawPine(T, bx-tx*44+nx*34, by-ty*44+ny*34, s.stopCount*9+7);
-      }
     }
   });
 }

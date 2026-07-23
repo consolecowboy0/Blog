@@ -528,6 +528,8 @@ function buildRoad(prof, sStart){
       road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h+Math.PI, k:-f.k, w:f.w, sh:f.sh, z:f.z, i:j});
     }
     buildLegMap(road.prof, base, true, idx*road.ds);
+    // fresh leg out of this hub: first drop DROP_FIRST ahead, matching the map length
+    state.nextDrop = base + DROP_FIRST;
     // The retrace ends at the physical hideout, but the home drops are placed by an
     // independent counter that can overshoot that turnaround. Keep the ribbon
     // extendable past the end (procedurally, continuing from the reversed end) so a
@@ -556,6 +558,8 @@ function buildRoad(prof, sStart){
   road.z=0; road.zT=0; road.zSeg=900;                  // opening grade holds flat
   road.sh=26; road.shT=26; road.shSeg=700;             // opening shoulder: a forgiving gravel apron
   downStart = base;                                    // clock the run so we know where Atlanta lands
+  // fresh leg out of this hub: first drop DROP_FIRST ahead, matching the map length
+  state.nextDrop = base + DROP_FIRST;
   ensureRoad(sStart+1400);
   buildLegMap(road.prof, base, false, PREVIEW_LEN);    // plan-view + elevation for the on-screen mini-map
 }
@@ -645,7 +649,7 @@ function reset(){
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.tiresOff=0; s.offEventT=0;
-  s.banked=0; s.cash=0; s.earned=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
+  s.banked=0; s.cash=0; s.earned=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+DROP_FIRST; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
   s.engineBought=false; s.engineInstalled=false;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0; s.boostT=0;
@@ -1173,10 +1177,16 @@ let selectedRoadIdx = 0;   // the road currently highlighted on the map / in the
 // the live road. Same seed in means the same curves and grades out, so the map is
 // an honest preview of what you'll actually drive.
 // The map spans the whole hideout<->Atlanta run, not one nip-joint-to-nip-joint leg: the
-// first drop sits ~3400 out and the two after it average ~6100 apart, so the full
-// trip to Atlanta is roughly three legs. Lay out that whole distance so the studied
+// first drop sits DROP_FIRST out and the two after it are DROP_STEP apart, so the full
+// trip to Atlanta is exactly three drops. Lay out that whole distance so the studied
 // map shows every curve you'll actually drive, start to finish.
-const PREVIEW_LEN = 3400 + 2*6100;  // ~15,600 world units: hideout all the way to Atlanta
+// Spacing is FIXED (no jitter): the map is drawn once at a fixed length, so the drops
+// have to land at that same length every leg or the plotted line won't match the road
+// under the car and would run out before the hub. Fixed spacing also keeps the promise
+// on the map screen -- "every road runs the same way each time."
+const DROP_FIRST = 3400;            // hub to the first nip joint
+const DROP_STEP  = 6100;            // nip joint to nip joint, and on to the next hub
+const PREVIEW_LEN = DROP_FIRST + 2*DROP_STEP;  // 15,600 world units: hub all the way to the next hub
 // Lay a road out forward from its seed, start to `legLen`. Deterministic: the same
 // seed always yields the same curves and grades, which is what lets one road be
 // driven down and then walked back up as the very same stretch. Full per-point
@@ -1669,7 +1679,7 @@ function step(dt){
   // drop point: roll past the lantern and pull up at the nip-joint keeper's counter
   if(s.sCar >= s.nextDrop){
     s.prevDrop = s.nextDrop;
-    s.nextDrop += 5200 + Math.random()*1800;
+    s.nextDrop += DROP_STEP;   // fixed so the drops always line up with the studied map
     // law on your tail? no stopping to sell -- you blow past the drop, and the run
     // past the lantern hands you a boost to shake him. no sale this drop, but a
     // full head of steam to open the gap. clear road: pull up and sell as usual.

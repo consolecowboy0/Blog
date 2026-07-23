@@ -10,7 +10,7 @@ import { checkRate } from '../../lib/rate-limit.js';
 // (see api/subscribe.js). Auth: scope "analytics".
 
 const METHODS = 'GET, POST, PATCH, DELETE, OPTIONS';
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 // Doc id derived from the email, matching api/subscribe.js so the homepage and
 // the dashboard address the same documents.
@@ -36,9 +36,12 @@ function unauthorized(corsHeaders) {
   return json({ error: 'Unauthorized' }, 401, corsHeaders);
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = corsHeadersFor(request, METHODS);
   if (!requireAuth(request, 'analytics')) return unauthorized(corsHeaders);
+  const ip = clientAddress || 'unknown';
+  const rl = checkRate(`subs-read:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) return json({ error: 'Rate limited' }, 429, corsHeaders);
 
   try {
     const db = getDb();

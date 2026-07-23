@@ -814,7 +814,8 @@ function draw(){
     }
 
     // washboard cross-stripes: density responds to elevation slope
-    ctx.strokeStyle='rgba(0,0,0,0.14)';
+    ctx.strokeStyle='rgba(0,0,0,0.14)'; ctx.lineWidth=3*sc;
+    let phase = 0;
     for(let i=0;i<p.length;i++){
       // elevation slope compression: steep climbs squeeze lines, descents spread them
       let freq = 3;  // base frequency: every 3 points
@@ -823,11 +824,12 @@ function draw(){
         const slope = dz / (6 * 5.28);  // normalize by road point spacing and convert to grade
         freq = Math.max(1.5, Math.min(5, 3 - slope*8));  // compress when climbing, stretch when descending
       }
-      if(Math.floor(i/freq) !== i/freq) continue;
-
-      ctx.lineWidth = 3*sc;
-      ctx.beginPath();
-      ctx.moveTo(L[i][0],L[i][1]); ctx.lineTo(R[i][0],R[i][1]); ctx.stroke();
+      phase += 1/freq;
+      if(phase >= 1){
+        ctx.beginPath();
+        ctx.moveTo(L[i][0],L[i][1]); ctx.lineTo(R[i][0],R[i][1]); ctx.stroke();
+        phase -= 1;
+      }
     }
 
     // edge scatter: rocks / posts

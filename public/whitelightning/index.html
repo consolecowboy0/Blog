@@ -932,6 +932,9 @@ function storeTrade(){
 function storeLeave(){
   if(state.mode!=='store') return;
   document.getElementById('store').classList.add('hidden');
+  state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
+  state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
+  state.v=Math.min(state.v,160);
   state.safeT = SAFE_PERIOD;
   state.mode='run';
 }

@@ -1267,53 +1267,52 @@ function renderMap(){
   const svg = document.getElementById('mapSvg');
   const VW=320, VH=320, cx=VW/2, padTop=40, padBot=40;
   const topHub=padTop, botHub=VH-padBot, boxH=botHub-topHub, halfW=cx-16;
-  // Rotation left every route's start->end vector pointing straight down, so start.x
-  // and end.x coincide. That lets each road be anchored start-to-top-hub and
-  // end-to-bottom-hub while its own lateral wander stays to scale (twistier roads
-  // visibly swing wider). Hideout stays up top both ways, so the run home draws the
-  // exact same line you came down on -- only the direction arrow and grade flip.
-  const flip = false;
+  // Rotation left every route's start->end vector pointing straight down, so the
+  // rotated x is each road's sideways deviation from a straight hideout-to-Atlanta
+  // line. Hideout stays up top both ways, so the run home draws the exact same line
+  // you came down on -- only the direction arrow and grade flip.
   let out='';
   // track the extent of every plotted road point so the viewBox can grow to fit a
   // twisty road that wanders past the hubs -- otherwise its line clips off-screen
   let bMinX=0, bMaxX=VW, bMinY=0, bMaxY=VH;
   // faint dashed spine from hub to hub
   out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
-  // Fan the three roads into their own lanes so they never cross: each bows to its
-  // own side (left / center / right) and the lanes only meet at the two hubs. The
-  // bow is zero at both hubs and widest in the middle, so every line still runs
-  // hideout-to-Atlanta while staying clear of its neighbors. Each road's own wander
-  // rides on top of its lane at a shared scale, so twistier roads still read wider.
-  let latMaxAll=0;
-  previewData.forEach(d=>{ let m=0; const s0=d.rot[0]; for(const p of d.rot) m=Math.max(m, Math.abs(p.x-s0.x)); d._lat=m; if(m>latMaxAll)latMaxAll=m; });
-  const laneAmp = halfW*0.62;                                        // how far the outer lanes bow out
-  const wanderSc = latMaxAll>0 ? (halfW*0.16)/latMaxAll : 0;         // shared, capped so no lane escapes its band
-  const bow = t => Math.sin(Math.PI*(t<0?0:t>1?1:t));               // 0 at both hubs, 1 at mid-run
+  // Draw the three roads so they never cross, using two tricks:
+  //  1) the vertical axis is arc-length along the road (always descending). A road
+  //     that doubles back in space never loops on the map -- every line reads cleanly
+  //     top to bottom, hideout to Atlanta.
+  //  2) each road sits in its own column (left / center / right). The column offset
+  //     tapers to zero at both hubs, so the lines meet only at the two towns.
+  // Each road's own wander is scaled to fill a fixed band that's narrower than the gap
+  // between columns, so the curves stay legible and neighboring roads can't touch.
+  const laneAmp = 70;                  // horizontal gap between adjacent columns
+  const bandHalf = 26;                 // each road's wander half-width (< laneAmp/2, so no overlap)
+  const smooth = u => u*u*(3-2*u);
+  const env = t => { t = t<0?0:t>1?1:t; const e=0.26; return t<e ? smooth(t/e) : t>1-e ? smooth((1-t)/e) : 1; };
   previewData.forEach((d,i)=>{
     const sel = i===selectedRoadIdx;
-    const start=d.rot[0], end=d.rot[d.rot.length-1];
-    const vspan=Math.max(1, end.y-start.y);
-    const scY=boxH/vspan;
     const spread = i - (previewData.length-1)/2;                     // -1 / 0 / +1: left, center, right
-    const topY = flip ? botHub : topHub, dirY = flip ? -1 : 1;
-    const sx = (x,y) => cx + spread*laneAmp*bow((y-start.y)/vspan) + (x-start.x)*wanderSc;
-    const sy = y => topY + (y-start.y)*scY*dirY;
-    d.sx=sx; d.sy=sy;  // stash for the number badge
+    const x0 = d.rot[0].x, totS = d.pts[d.pts.length-1].s || 1;
+    let mlat=0; for(const p of d.rot) mlat=Math.max(mlat, Math.abs(p.x-x0));
+    const wsc = mlat>0 ? bandHalf/mlat : 0;                          // normalize this road's wander into its band
+    const px = j => { const e=env(d.pts[j].s/totS); return cx + spread*laneAmp*e + (d.rot[j].x-x0)*wsc*e; };
+    const py = j => topHub + (d.pts[j].s/totS)*boxH;
     let path='';
     d.rot.forEach((p,j)=>{
-      const X=sx(p.x,p.y), Y=sy(p.y);
+      const X=px(j), Y=py(j);
       if(X<bMinX)bMinX=X; if(X>bMaxX)bMaxX=X; if(Y<bMinY)bMinY=Y; if(Y>bMaxY)bMaxY=Y;
       path += (j?'L':'M')+X.toFixed(1)+' '+Y.toFixed(1)+' ';
     });
     out += '<path class="mapRoute" data-i="'+i+'" d="'+path+'" fill="none" '+
       'stroke="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" '+
-      'stroke-width="'+(sel?3.2:1.4)+'" stroke-linejoin="round" stroke-linecap="round" '+
-      'opacity="'+(sel?1:0.5)+'" style="cursor:pointer"/>';
-    // number badge at the road's midpoint
-    const mid=d.rot[Math.floor(d.rot.length/2)];
-    out += '<circle class="mapRoute" data-i="'+i+'" cx="'+sx(mid.x,mid.y).toFixed(1)+'" cy="'+sy(mid.y).toFixed(1)+'" r="9" '+
+      'stroke-width="'+(sel?3.2:1.6)+'" stroke-linejoin="round" stroke-linecap="round" '+
+      'opacity="'+(sel?1:0.6)+'" style="cursor:pointer"/>';
+    // number badge on the mid-run row, sitting in this road's column
+    let jm=0, bd=1e9; for(let j=0;j<d.pts.length;j++){ const dd=Math.abs(d.pts[j].s/totS-0.5); if(dd<bd){bd=dd;jm=j;} }
+    const bx=px(jm).toFixed(1), by=py(jm).toFixed(1);
+    out += '<circle class="mapRoute" data-i="'+i+'" cx="'+bx+'" cy="'+by+'" r="9" '+
       'fill="var(--card)" stroke="'+(sel?'var(--lantern)':'var(--border)')+'" stroke-width="1.4" style="cursor:pointer"/>';
-    out += '<text class="mapRoute" data-i="'+i+'" x="'+sx(mid.x,mid.y).toFixed(1)+'" y="'+(sy(mid.y)+3.5).toFixed(1)+'" '+
+    out += '<text class="mapRoute" data-i="'+i+'" x="'+bx+'" y="'+(parseFloat(by)+3.5).toFixed(1)+'" '+
       'text-anchor="middle" font-family="var(--font-mono)" font-weight="800" font-size="11" '+
       'fill="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" style="cursor:pointer;pointer-events:none">'+(i+1)+'</text>';
   });

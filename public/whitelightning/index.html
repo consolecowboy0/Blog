@@ -1059,11 +1059,11 @@ function draw(){
   drawHUD();
 }
 
-// cars pitch up hills and away from a camera that lags the climb/drop: higher than the
-// lagged baseline reads as farther off and shrinks, lower reads as closer and grows.
+// overhead camera altitude lags the climb/drop: cars higher than the lagged
+// baseline are closer to camera and grow, lower ones are farther and shrink.
 const ELEV_SCALE_K = 0.0035, ELEV_SCALE_MIN = 0.8, ELEV_SCALE_MAX = 1.2;
 function elevScale(z){
-  return Math.max(ELEV_SCALE_MIN, Math.min(ELEV_SCALE_MAX, 1 - (z - state.elevCam)*ELEV_SCALE_K));
+  return Math.max(ELEV_SCALE_MIN, Math.min(ELEV_SCALE_MAX, 1 + (z - state.elevCam)*ELEV_SCALE_K));
 }
 const antlerImg = new Image();
 antlerImg.src = '/images/antler-mark.png';

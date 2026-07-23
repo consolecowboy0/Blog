@@ -185,7 +185,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -1333,8 +1333,12 @@ function step(dt){
     if(dist > 200) revTarget *= 1.3;                  // floors it to get back in the race
     // outrun him: hold a real lead long enough and he loses your dust and gives up the chase.
     // ride the needle and take the curves clean and you can open the gap faster than he floors it.
+    // the twistier the road -- and the deeper the bend he's fighting right now, where he has to
+    // lift -- the quicker he loses you, so a hard road shakes the law far sooner than an easy one.
     if(dist > ESCAPE_GAP){
-      s.escapeT += dt;
+      const roadCurve = (s.road && s.road.curve) || 1;
+      const gainRate = roadCurve * (1 + Math.min(1.5, twist*550));
+      s.escapeT += dt * gainRate;
       if(s.escapeT >= ESCAPE_HOLD){
         s.revActive=false; s.gap=999; s.sRev=s.sCar-4000; s.escapeT=0;
         flash('LOST HIM IN THE HILLS'); cashDing();

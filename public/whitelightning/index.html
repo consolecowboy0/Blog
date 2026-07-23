@@ -331,11 +331,14 @@ const PALETTE = {
     treeIn:'#181614', treeOut:'#08070a', sky:'#0a0a0a',
     moonCore:'#f7f5ef', moonHalo:'#a8a396', moonFade:'rgba(168,163,150,0)', moonR:60,
     accent:'#c98f3f',
+    // Atlanta: brick-and-concrete rooftops seen from overhead, warm sodium-lit windows
+    roof:'#2c2620', roofHi:'#3a332a', bldgEdge:'#100d0a', win:'rgba(240,196,110,0.9)', pavement:'#1b1916',
   },
   fullmoon: {
     treeIn:'#232a30', treeOut:'#0a0d10', sky:'#12151a',
     moonCore:'#ffffff', moonHalo:'#cfd9e2', moonFade:'rgba(207,217,226,0)', moonR:76,
     accent:'#9fb0c8',
+    roof:'#262c33', roofHi:'#333b44', bldgEdge:'#0b0e12', win:'rgba(198,214,236,0.85)', pavement:'#191d22',
   },
 };
 function pal(){ return PALETTE[state.theme] || PALETTE.lantern; }
@@ -1131,6 +1134,60 @@ function toScreen(T,wx,wy){
   return [carX + (rx*T.cos - ry*T.sin)*sc, carY + (rx*T.sin + ry*T.cos)*sc];
 }
 
+// ---------- Atlanta: the town drops sit inside an urban belt ----------
+// Roads out of the ridge run through pines; as you close on a town drop the pines
+// give way to city blocks, and pull back to woods once you're past it.
+const URBAN_R = 3000;   // world units of urban sprawl on either side of a town drop
+function urbanAt(sPos){
+  let u=0;
+  if(state.prevDrop > -9000 && stopType(state.stopCount)==='town')
+    u=Math.max(u, 1 - Math.abs(sPos-state.prevDrop)/URBAN_R);
+  if(stopType(state.stopCount+1)==='town')
+    u=Math.max(u, 1 - Math.abs(sPos-state.nextDrop)/URBAN_R);
+  return Math.max(0, u);
+}
+// a flat-roofed block seen from above: rooftop slab, lit edge, rooftop vents, a few windows
+function drawBuilding(T, wx, wy, rot, seed, u){
+  const pt=toScreen(T,wx,wy);
+  if(pt[0]<-120||pt[0]>W+120||pt[1]<-120||pt[1]>H+120) return;
+  const P=pal();
+  const bw=(20+hash(seed*1.7)*30)*sc*(0.7+0.6*u);
+  const bh=(24+hash(seed*2.3)*40)*sc*(0.7+0.6*u);
+  ctx.save();
+  ctx.translate(pt[0],pt[1]);
+  ctx.rotate(rot + T.phi);
+  // drop shadow to lift the roof off the pavement
+  ctx.fillStyle='rgba(0,0,0,0.4)';
+  ctx.fillRect(-bw/2+3*sc,-bh/2+3*sc,bw,bh);
+  // rooftop slab
+  ctx.fillStyle=P.roof;
+  ctx.fillRect(-bw/2,-bh/2,bw,bh);
+  ctx.strokeStyle=P.bldgEdge; ctx.lineWidth=1.5*sc;
+  ctx.strokeRect(-bw/2,-bh/2,bw,bh);
+  // parapet highlight along one side
+  ctx.fillStyle=P.roofHi;
+  ctx.fillRect(-bw/2,-bh/2,bw,2.5*sc);
+  ctx.fillRect(-bw/2,-bh/2,2.5*sc,bh);
+  // rooftop vents / HVAC boxes
+  ctx.fillStyle=P.bldgEdge;
+  const vents=1+Math.floor(hash(seed*3.1)*3);
+  for(let v=0;v<vents;v++){
+    const vx=(hash(seed*4.1+v)-0.5)*bw*0.6, vy=(hash(seed*5.3+v)-0.5)*bh*0.6;
+    const vs=(2.4+hash(seed*6.7+v)*2)*sc;
+    ctx.fillRect(vx-vs,vy-vs,vs*2,vs*2);
+  }
+  // warm windows glowing over the roof edge on the taller blocks
+  if(u>0.35 && hash(seed*7.9)<0.75){
+    ctx.fillStyle=P.win;
+    const cols=1+Math.floor(hash(seed*8.3)*3);
+    for(let c=0;c<cols;c++){
+      const wxo=-bw/2 + 3*sc + c*(3.5*sc);
+      ctx.fillRect(wxo, bh/2-1.5*sc, 2*sc, 2.6*sc);
+    }
+  }
+  ctx.restore();
+}
+
 function draw(){
   const s=state;
   ctx.clearRect(0,0,W,H);
@@ -1226,26 +1283,42 @@ function draw(){
       ctx.beginPath(); ctx.arc(R[i][0],R[i][1],2.6*sc,0,7); ctx.fill();
     }
 
-    // pines and lanterns along the road (world-fixed, top-down)
+    // roadside, world-fixed and top-down: pines out on the ridge, city blocks near a town
     for(let i=0;i<p.length;i++){
       const q=p[i];
-      if(q.i % 4 === 0){
-        const side = (q.i % 8 === 0)? -1 : 1;
-        const off = q.w + 34 + hash(q.i*1.3)*130;
-        const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
-        const pt=toScreen(T, q.x+nx*off*side, q.y+ny*off*side);
-        if(pt[0]<-60||pt[0]>W+60||pt[1]<-60||pt[1]>H+60) continue;
-        const r=(9+hash(q.i*2.1)*14)*sc;
-        const P=pal();
-        const tg=ctx.createRadialGradient(pt[0]-r*0.3,pt[1]-r*0.3,r*0.2,pt[0],pt[1],r);
-        tg.addColorStop(0,P.treeIn); tg.addColorStop(1,P.treeOut);
-        ctx.fillStyle=tg;
-        ctx.beginPath(); ctx.arc(pt[0],pt[1],r,0,7); ctx.fill();
-        if(hash(q.i*5.9)<0.05){  // a still tucked in the pines
-          const lg=ctx.createRadialGradient(pt[0],pt[1],2,pt[0],pt[1],52*sc);
-          lg.addColorStop(0,'rgba(201,143,63,0.5)'); lg.addColorStop(1,'rgba(201,143,63,0)');
-          ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],52*sc,0,7); ctx.fill();
+      if(q.i % 4 !== 0) continue;
+      const u=urbanAt(q.s);
+      const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
+      if(u>0.12){
+        // Atlanta belt: buildings crowd both shoulders, tighter and taller downtown
+        for(const side of [-1,1]){
+          if(hash(q.i*9.1+side)>0.35+0.5*u) continue;  // denser blocks as u rises
+          const off = q.w + 30 + hash(q.i*1.3+side)*(150-70*u);
+          drawBuilding(T, q.x+nx*off*side, q.y+ny*off*side, q.h, q.i*13+side*7, u);
         }
+        // an occasional street lamp glow between the blocks
+        if(hash(q.i*5.9)<0.06){
+          const off=q.w+20; const pt=toScreen(T, q.x+nx*off, q.y+ny*off);
+          const lg=ctx.createRadialGradient(pt[0],pt[1],2,pt[0],pt[1],40*sc);
+          lg.addColorStop(0,'rgba(240,196,110,0.45)'); lg.addColorStop(1,'rgba(240,196,110,0)');
+          ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],40*sc,0,7); ctx.fill();
+        }
+        continue;
+      }
+      const side = (q.i % 8 === 0)? -1 : 1;
+      const off = q.w + 34 + hash(q.i*1.3)*130;
+      const pt=toScreen(T, q.x+nx*off*side, q.y+ny*off*side);
+      if(pt[0]<-60||pt[0]>W+60||pt[1]<-60||pt[1]>H+60) continue;
+      const r=(9+hash(q.i*2.1)*14)*sc;
+      const P=pal();
+      const tg=ctx.createRadialGradient(pt[0]-r*0.3,pt[1]-r*0.3,r*0.2,pt[0],pt[1],r);
+      tg.addColorStop(0,P.treeIn); tg.addColorStop(1,P.treeOut);
+      ctx.fillStyle=tg;
+      ctx.beginPath(); ctx.arc(pt[0],pt[1],r,0,7); ctx.fill();
+      if(hash(q.i*5.9)<0.05){  // a still tucked in the pines
+        const lg=ctx.createRadialGradient(pt[0],pt[1],2,pt[0],pt[1],52*sc);
+        lg.addColorStop(0,'rgba(201,143,63,0.5)'); lg.addColorStop(1,'rgba(201,143,63,0)');
+        ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],52*sc,0,7); ctx.fill();
       }
     }
   }
@@ -1398,8 +1471,10 @@ function drawCar(){
 function drawDrops(T){
   const s=state;
   if(s.mode==='menu') return;
-  for(const d of [s.prevDrop, s.nextDrop]){
-    if(d < s.sCar-400 || d > s.sCar+1300) continue;
+  const dropTypes = [stopType(s.stopCount), stopType(s.stopCount+1)];
+  [s.prevDrop, s.nextDrop].forEach((d, di)=>{
+    if(d < s.sCar-400 || d > s.sCar+1300) return;
+    const isTown = dropTypes[di]==='town';
     const q=sampleRoad(d);
     const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
     // chalk line across the road at the drop
@@ -1410,26 +1485,62 @@ function drawDrops(T){
     ctx.strokeStyle='rgba(242,240,234,0.5)'; ctx.lineWidth=4*sc;
     ctx.beginPath(); ctx.moveTo(eL[0],eL[1]); ctx.lineTo(eR[0],eR[1]); ctx.stroke();
     ctx.restore();
-    // barn with a lantern out front, right-hand side
     const bx=q.x+nx*(q.w+62), by=q.y+ny*(q.w+62);
     const pt=toScreen(T,bx,by);
-    const lg=ctx.createRadialGradient(pt[0],pt[1],4,pt[0],pt[1],95*sc);
-    lg.addColorStop(0,'rgba(201,143,63,0.5)');
-    lg.addColorStop(1,'rgba(201,143,63,0)');
-    ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],95*sc,0,7); ctx.fill();
-    ctx.save();
-    ctx.translate(pt[0],pt[1]);
-    ctx.rotate(q.h + T.phi);
-    const u=sc;
-    ctx.fillStyle='#5c2320';
-    ctx.fillRect(-22*u,-16*u,44*u,32*u);
-    ctx.strokeStyle='#241a10'; ctx.lineWidth=2;
-    ctx.strokeRect(-22*u,-16*u,44*u,32*u);
-    ctx.beginPath(); ctx.moveTo(-22*u,0); ctx.lineTo(22*u,0); ctx.stroke();   // roof ridge
-    ctx.fillStyle='#c98f3f';
-    ctx.beginPath(); ctx.arc(-26*u,0,3.5*u,0,7); ctx.fill();                  // the lantern
-    ctx.restore();
-  }
+    const P=pal();
+    if(isTown){
+      // Atlanta: the Union Station rail depot — a long brick shed with a lit platform
+      const lg=ctx.createRadialGradient(pt[0],pt[1],4,pt[0],pt[1],130*sc);
+      lg.addColorStop(0,'rgba(240,196,110,0.4)'); lg.addColorStop(1,'rgba(240,196,110,0)');
+      ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],130*sc,0,7); ctx.fill();
+      ctx.save();
+      ctx.translate(pt[0],pt[1]);
+      ctx.rotate(q.h + T.phi);
+      const u=sc;
+      // depot footprint, running along the road
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.fillRect(-46*u+3*u,-22*u+3*u,92*u,44*u);
+      ctx.fillStyle='#4a2b22';                 // weathered brick
+      ctx.fillRect(-46*u,-22*u,92*u,44*u);
+      ctx.strokeStyle='#1c120c'; ctx.lineWidth=2;
+      ctx.strokeRect(-46*u,-22*u,92*u,44*u);
+      ctx.fillStyle=P.roofHi;                  // parapet edge catching light
+      ctx.fillRect(-46*u,-22*u,92*u,3*u);
+      // barrel-vault ribs across the shed roof
+      ctx.strokeStyle='rgba(20,14,10,0.7)'; ctx.lineWidth=1.4;
+      for(let r=-40;r<=40;r+=8){
+        ctx.beginPath(); ctx.moveTo(r*u,-22*u); ctx.lineTo(r*u,22*u); ctx.stroke();
+      }
+      // twin rail lines and lit platform lamps out the far side
+      ctx.strokeStyle='rgba(150,146,138,0.5)'; ctx.lineWidth=1.6;
+      for(const ry of [30,36]){
+        ctx.beginPath(); ctx.moveTo(-46*u,ry*u); ctx.lineTo(46*u,ry*u); ctx.stroke();
+      }
+      ctx.fillStyle=P.win;
+      for(let lx=-38;lx<=38;lx+=19){
+        ctx.beginPath(); ctx.arc(lx*u,27*u,1.8*u,0,7); ctx.fill();
+      }
+      ctx.restore();
+    } else {
+      // barn with a lantern out front, right-hand side
+      const lg=ctx.createRadialGradient(pt[0],pt[1],4,pt[0],pt[1],95*sc);
+      lg.addColorStop(0,'rgba(201,143,63,0.5)');
+      lg.addColorStop(1,'rgba(201,143,63,0)');
+      ctx.fillStyle=lg; ctx.beginPath(); ctx.arc(pt[0],pt[1],95*sc,0,7); ctx.fill();
+      ctx.save();
+      ctx.translate(pt[0],pt[1]);
+      ctx.rotate(q.h + T.phi);
+      const u=sc;
+      ctx.fillStyle='#5c2320';
+      ctx.fillRect(-22*u,-16*u,44*u,32*u);
+      ctx.strokeStyle='#241a10'; ctx.lineWidth=2;
+      ctx.strokeRect(-22*u,-16*u,44*u,32*u);
+      ctx.beginPath(); ctx.moveTo(-22*u,0); ctx.lineTo(22*u,0); ctx.stroke();   // roof ridge
+      ctx.fillStyle='#c98f3f';
+      ctx.beginPath(); ctx.arc(-26*u,0,3.5*u,0,7); ctx.fill();                  // the lantern
+      ctx.restore();
+    }
+  });
 }
 function drawRevenuer(T){
   const s=state;

@@ -445,7 +445,7 @@ const state = {
   sCar:0,
   v:0, vmax:0,
   miles:0, time:0,
-  jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
+  jars:JARS, banked:0, cash:0, earned:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
   stopCount:0, curStopType:'regular', // every 3rd drop is a town (Atlanta), every 6th is back at the hideout — both open a garage
   engineBought:false, engineInstalled:false, // crate motor: buy in Atlanta, install at the hideout, boost active once installed
   sellQty:0, loadQty:0, // chosen at the barn counter: how many jars to sell, and how many to haul out
@@ -644,7 +644,7 @@ function reset(){
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.tiresOff=0; s.offEventT=0;
-  s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
+  s.banked=0; s.cash=0; s.earned=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
   s.engineBought=false; s.engineInstalled=false;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0; s.boostT=0;
@@ -1020,6 +1020,7 @@ function storeSell(){
   const bonus = fullCase ? Math.round(n*s.price*FULL_CASE_MULT) : 0;
   s.banked += n;
   s.cash += n*s.price + bonus;
+  s.earned += n*s.price + bonus;
   cashDing();
   s.jars -= n;
   s.sellQty = s.jars;
@@ -1458,16 +1459,16 @@ function submitInitials(){
   }).catch(()=>{});
 }
 function showReport(reason){
-  const isBest = state.cash > state.best;
-  if(isBest){ state.best=state.cash; try{localStorage.setItem('wl_best_usd',String(state.best));}catch(e){} }
+  const isBest = state.earned > state.best;
+  if(isBest){ state.best=state.earned; try{localStorage.setItem('wl_best_usd',String(state.best));}catch(e){} }
   document.getElementById('verdict').textContent = REASONS[reason].v;
   document.getElementById('epitaph').textContent = REASONS[reason].e;
   document.getElementById('tally').textContent =
-    state.banked+' jars sold · $'+state.cash+' · '+state.miles.toFixed(2)+' miles';
+    state.banked+' jars sold · $'+state.earned+' earned · $'+state.cash+' in pocket · '+state.miles.toFixed(2)+' miles';
   document.getElementById('bestLine').textContent =
     (isBest?'New hollow record — $':'Hollow record — $')+state.best+' earned';
-  if(qualifiesForBoard(state.cash)){
-    openInitialsEntry(state.cash);
+  if(qualifiesForBoard(state.earned)){
+    openInitialsEntry(state.earned);
   } else {
     renderBoard();
     document.getElementById('dead').classList.remove('hidden');

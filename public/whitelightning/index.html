@@ -513,51 +513,36 @@ const road = { pts:[], ds:6, sGen:0, x:0, y:0, head:0, k:0, kT:0, segLeft:0, idx
                w:95, wT:95, wSeg:0, z:0, zT:0, zSeg:0, sh:26, shT:26, shSeg:0,
                dir:1, zDir:1, locked:false, prof:ROADS[0] };
 
-// One road, locked in for the whole session. It gets set the first time you pick
-// a road and never reshuffles after that: you run it down to Atlanta, then run the
-// very same road back up, just reversed. Laid out once, start to finish.
-const SESSION_LEN = 30000;   // a one-way run fits inside this with room for a long chase
-let sessionProf = null;      // the locked road's profile (name/seed/difficulty)
-let sessionBuf = null;       // its full geometry, forward, from the hideout out
-let downStartLocal = 0;      // where the current downhill run began along that geometry
-let downAtlLocal = 0;        // how far along it Atlanta sat -- where the run home turns around
-function lockSession(prof){
-  if(sessionProf) return;
-  sessionProf = prof;
-  sessionBuf = layoutRoad(prof, SESSION_LEN);
-}
+// You pick a fresh road at each hub. Heading down to Atlanta it runs forward under
+// the live generator (endless, so a long chase can't run off the end). Heading home
+// it's the same road walked back the way you came: laid out to where Atlanta sat,
+// then read end-to-start so curves and grade truly reverse.
+let downStart = 0;      // world distance where the current downhill run began
+let downAtlLocal = 0;   // how far you drove to reach Atlanta -- the run home turns around here
 // (re)build the ribbon for a chosen road, starting at world distance sStart.
 function buildRoad(prof, sStart){
   road.prof = prof || ROADS[0];
+  road.rev = !!road.prof.reverse;
   road.pts.length=0;
   const base = Math.floor(sStart/road.ds)*road.ds;
-  if(sessionBuf){
-    // drive the locked road: forward on the way down, the same stretch walked
-    // end-to-start on the way home. curves and grade come out reversed, so tonight's
-    // climb home is the run you dropped down earlier.
+  if(road.rev){
+    // run home: same seed forward to Atlanta, then read it backwards
     road.locked = true;
-    road.rev = !!road.prof.reverse;
-    const N = sessionBuf.length;
-    if(road.rev){
-      let idx = Math.round(downAtlLocal/road.ds);        // turn around where Atlanta sat
-      if(idx < 1 || idx >= N) idx = N-1;
-      for(let j=0;j<=idx;j++){
-        const f = sessionBuf[idx-j];
-        road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h+Math.PI, k:-f.k, w:f.w, sh:f.sh, z:f.z, i:j});
-      }
-    } else {
-      for(let j=0;j<N;j++){
-        const f = sessionBuf[j];
-        road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h, k:f.k, w:f.w, sh:f.sh, z:f.z, i:j});
-      }
-      downStartLocal = base;   // clock the downhill run so we know where Atlanta lands
+    const legLen = downAtlLocal>0 ? downAtlLocal : PREVIEW_LEN;
+    const fwd = layoutRoad(road.prof, legLen + 1440);   // a little margin past the turnaround
+    let idx = Math.round(legLen/road.ds);
+    if(idx < 1 || idx >= fwd.length) idx = fwd.length-1;
+    for(let j=0;j<=idx;j++){
+      const f = fwd[idx-j];
+      road.pts.push({s:base+j*road.ds, x:f.x, y:f.y, h:f.h+Math.PI, k:-f.k, w:f.w, sh:f.sh, z:f.z, i:j});
     }
     road.sGen = base + road.pts.length*road.ds;
     road.idx = road.pts.length;
+    buildLegMap(road.prof, base, true, idx*road.ds);
     return;
   }
-  // no locked road yet (menu backdrop): fall back to live procedural generation
-  road.locked = false; road.rev = false;
+  // heading down: live procedural generation, reseeded so the road is identical every time
+  road.locked = false;
   road.dir = 1; road.zDir = 1;
   roadRng = mulberry32(road.prof.seed >>> 0);
   road.sGen=base; road.x=0; road.y=0; road.head=0;
@@ -566,8 +551,9 @@ function buildRoad(prof, sStart){
   road.w=w0; road.wT=w0; road.wSeg=650;                // opening width holds steady
   road.z=0; road.zT=0; road.zSeg=900;                  // opening grade holds flat
   road.sh=26; road.shT=26; road.shSeg=700;             // opening shoulder: a forgiving gravel apron
+  downStart = base;                                    // clock the run so we know where Atlanta lands
   ensureRoad(sStart+1400);
-  buildLegMap(road.prof, base);                        // stash a plan-view + elevation for the on-screen mini-map
+  buildLegMap(road.prof, base, false, PREVIEW_LEN);    // plan-view + elevation for the on-screen mini-map
 }
 function roadInit(){ buildRoad(state.road || pickRandomRoad(), 0); }
 function pickSegment(){
@@ -1202,8 +1188,12 @@ function buildPreviews(){
 // reads top-to-bottom. Rebuilt every time a new leg is laid out so the mini-map always
 // shows the stretch you're actually driving, with the car's spot tracked along it.
 let legMap = null;
-function buildLegMap(prof, startS){
-  const pts = simulateRoad(prof, PREVIEW_LEN);
+// Snapshot the leg's plan-view + elevation for the on-screen mini-map. `span` is the
+// world distance this leg covers, so the car marker tracks along it. Heading home the
+// road is the forward geometry read end-to-start, matching what you drive.
+function buildLegMap(prof, startS, reverse, span){
+  let pts = simulateRoad(prof, span);
+  if(reverse) pts = pts.slice().reverse();
   const p0=pts[0], pN=pts[pts.length-1];
   const phi=Math.atan2(pN.y-p0.y, pN.x-p0.x);
   const a=Math.PI/2 - phi, ca=Math.cos(a), sa=Math.sin(a);
@@ -1214,7 +1204,7 @@ function buildLegMap(prof, startS){
     const rx=rot[i].x, ry=rot[i].y;
     if(rx<minX)minX=rx; if(rx>maxX)maxX=rx; if(ry<minY)minY=ry; if(ry>maxY)maxY=ry;
   }
-  legMap={ pts, rot, startS, lo, hi, minX, maxX, minY, maxY };
+  legMap={ pts, rot, startS, span, lo, hi, minX, maxX, minY, maxY };
 }
 function fmtFt(v){ return Math.round(v).toLocaleString(); }
 // Render the top-down map: three thin roads, the selected one thick and lit.
@@ -1330,33 +1320,32 @@ function openRoadMap(context){
   const toAtlanta = context==='start' || state.curStopType==='hideout';
   mapToAtlanta = toAtlanta;
   if(toAtlanta){
-    if(sessionProf){
-      // road's already set for the session -- you run the same one every night out
-      mapChoices = [sessionProf];
-    } else {
-      // first run of the session: pick your road once, and you're committed to it
-      if(state.stopCount !== trioStop || !outboundTrio.length){
-        outboundTrio = drawThreeRoads();
-        trioStop = state.stopCount;
-      }
-      mapChoices = outboundTrio;
+    // Draw the three once per departure and hold them. Reopening the map (after a
+    // garage or store detour at the same hub) shows the SAME three so the map stays
+    // something you can study.
+    if(state.stopCount !== trioStop || !outboundTrio.length){
+      outboundTrio = drawThreeRoads();
+      trioStop = state.stopCount;
     }
+    mapChoices = outboundTrio;
   } else {
-    // the run home is the road you came down on, taken backwards -- turn around
-    // where Atlanta sat and retrace it
-    downAtlLocal = state.sCar - downStartLocal;
-    mapChoices = [reverseRoad(sessionProf || state.road || pickRandomRoad())];
+    // the roads you came down on, offered reversed -- pick your way back up. Take the
+    // same one you drove down and it's an exact retrace; take another for a new way home.
+    downAtlLocal = state.sCar - downStart;
+    mapChoices = (outboundTrio.length ? outboundTrio : drawThreeRoads()).map(reverseRoad);
   }
-  const oneRoad = mapChoices.length===1;
   document.getElementById('mapEyebrow').innerHTML = toAtlanta
     ? 'The Hideout &nbsp;·&nbsp; Study the Map'
     : 'Atlanta &nbsp;·&nbsp; Study the Map';
   document.getElementById('mapDest').textContent = toAtlanta
-    ? (oneRoad
-        ? 'Your road down to Atlanta tonight. Study the curves and the grade before you crank her.'
-        : 'Three ways down to Atlanta tonight. Pick one -- you\'ll run the same road all night.')
-    : 'The same road back up to the hideout, reversed. Study the curves and the grade before you crank her.';
+    ? 'Three ways down to Atlanta tonight. Study the curves and the grade before you crank her.'
+    : 'Three ways back up to the hideout tonight. Study the curves and the grade before you crank her.';
+  // default to the road you drove down, so heading home starts on a straight retrace
   selectedRoadIdx = 0;
+  if(!toAtlanta && state.road){
+    const came = outboundTrio.findIndex(r => r.name===state.road.name);
+    if(came>=0) selectedRoadIdx = came;
+  }
   buildPreviews();
   renderRoadCards();
   renderMap();
@@ -1375,8 +1364,6 @@ function chooseRoad(i){
   if(i==null) i=selectedRoadIdx;
   const prof = mapChoices[i];
   if(!prof) return;
-  // first road you pick locks in for the whole session (skips reversed picks heading home)
-  if(!prof.reverse) lockSession(prof);
   document.getElementById('roadmap').classList.add('hidden');
   if(mapContext==='start'){
     state.road = prof;
@@ -2149,7 +2136,7 @@ function drawMiniMap(){
   ctx.fillStyle=HUD.fgMuted; ctx.textAlign='left';
   ctx.fillText(s.road && s.road.name ? s.road.name.toUpperCase() : 'ROUTE', panelX+4, by-6);
 
-  const frac=Math.max(0, Math.min(1, (s.sCar - lm.startS)/PREVIEW_LEN));
+  const frac=Math.max(0, Math.min(1, (s.sCar - lm.startS)/(lm.span||PREVIEW_LEN)));
   const ci=Math.round(frac*(lm.rot.length-1));
 
   // ---- plan view: full route faint, the part already run lit, a dot at the car ----

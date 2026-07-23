@@ -767,27 +767,6 @@ function draw(){
   const T = worldTransform();
   const p = road.pts;
   if(p.length>2){
-    // topo contour lines: the ridge's elevation channel rides the same point grid as
-    // curvature and width, so a crossed CONTOUR_STEP band gets a mapped line across the hollow
-    ctx.save();
-    ctx.lineWidth = 2.6*sc;
-    for(let i=1;i<p.length;i++){
-      const A=p[i-1], B=p[i];
-      const lvlA=Math.floor(A.z/CONTOUR_STEP), lvlB=Math.floor(B.z/CONTOUR_STEP);
-      if(lvlA===lvlB) continue;
-      const lvl = Math.max(lvlA,lvlB)*CONTOUR_STEP;
-      const f = (lvl - A.z)/((B.z-A.z)||1);
-      const wx=A.x+(B.x-A.x)*f, wy=A.y+(B.y-A.y)*f, hh=A.h+(B.h-A.h)*f, ww=A.w+(B.w-A.w)*f;
-      const nx=Math.cos(hh+Math.PI/2), ny=Math.sin(hh+Math.PI/2);
-      const reach = ww+170;
-      const cl=toScreen(T, wx-nx*reach, wy-ny*reach);
-      const cr=toScreen(T, wx+nx*reach, wy+ny*reach);
-      const climbing = B.z > A.z;   // one color; dash frequency alone says which way the ridge is headed
-      ctx.strokeStyle = 'rgba(255,166,43,0.5)';
-      ctx.setLineDash(climbing ? [4*sc,5*sc] : [13*sc,6*sc]);
-      ctx.beginPath(); ctx.moveTo(cl[0],cl[1]); ctx.lineTo(cr[0],cr[1]); ctx.stroke();
-    }
-    ctx.restore();
 
     // precompute screen edges
     const L=[], R=[];
@@ -834,10 +813,19 @@ function draw(){
       ctx.fill();
     }
 
-    // washboard cross-stripes for speed feel
-    ctx.strokeStyle='rgba(0,0,0,0.14)'; ctx.lineWidth=3*sc;
+    // washboard cross-stripes: density responds to elevation slope
+    ctx.strokeStyle='rgba(0,0,0,0.14)';
     for(let i=0;i<p.length;i++){
-      if(p[i].i % 3 !== 0) continue;
+      // elevation slope compression: steep climbs squeeze lines, descents spread them
+      let freq = 3;  // base frequency: every 3 points
+      if(i < p.length-1){
+        const dz = p[i+1].z - p[i].z;
+        const slope = dz / (6 * 5.28);  // normalize by road point spacing and convert to grade
+        freq = Math.max(1.5, Math.min(5, 3 - slope*8));  // compress when climbing, stretch when descending
+      }
+      if(Math.floor(i/freq) !== i/freq) continue;
+
+      ctx.lineWidth = 3*sc;
       ctx.beginPath();
       ctx.moveTo(L[i][0],L[i][1]); ctx.lineTo(R[i][0],R[i][1]); ctx.stroke();
     }

@@ -173,11 +173,11 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
-    <div class="fine">Score is dollars earned · Every jar sold is pure profit · Trade jars for continues</div>
+    <div class="fine">Score is dollars earned · Every jar sold is pure profit · Buy continues with cash</div>
     <div class="fine">Top-left swaps lantern light for a full moon's gray wash</div>
   </div>
 </div>
@@ -253,10 +253,10 @@
     <div class="copy" id="loadFeel" style="text-align:center;"></div>
     <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     <div class="rule"></div>
-    <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">TRADE FOR CONTINUE</button>
+    <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">BUY CONTINUE</button>
     <button class="go" id="garageBtn" style="display:none;width:100%;margin:8px 0;">VISIT THE GARAGE</button>
     <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
-    <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or trade jars for another shot</div>
+    <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or spend cash for another shot</div>
   </div>
 </div>
 
@@ -691,7 +691,7 @@ function declineContinue(){
 }
 
 // ---------- store (the barn keeper's counter at each drop) ----------
-const TRADE_COST = 8, CONTINUES_CAP = 9;
+const CONTINUE_CASH_COST = 20, CONTINUES_CAP = 9;
 function rollPrice(){
   return PRICE_MIN + Math.floor(Math.random()*(PRICE_MAX-PRICE_MIN+1));
 }
@@ -759,12 +759,12 @@ function renderStore(){
         : 'LEAVE '+(-loadDelta)+' JAR'+((-loadDelta)===1?'':'S')+' BEHIND');
 
   const tradeBtn=document.getElementById('tradeBtn');
-  const canTrade = s.jars>=TRADE_COST && s.continues<CONTINUES_CAP;
+  const canTrade = s.cash>=CONTINUE_CASH_COST && s.continues<CONTINUES_CAP;
   tradeBtn.disabled = !canTrade;
   tradeBtn.style.opacity = canTrade ? '1' : '0.4';
   tradeBtn.textContent = s.continues>=CONTINUES_CAP
     ? 'TRUNK FULL OF CONTINUES'
-    : 'TRADE '+TRADE_COST+' JARS → +1 CONTINUE';
+    : 'BUY CONTINUE — $'+CONTINUE_CASH_COST;
 
   document.getElementById('garageBtn').style.display =
     (s.curStopType==='town' || s.curStopType==='hideout') ? 'block' : 'none';
@@ -790,8 +790,8 @@ function storeLoad(){
 }
 function storeTrade(){
   const s=state;
-  if(s.jars<TRADE_COST || s.continues>=CONTINUES_CAP) return;
-  s.jars -= TRADE_COST;
+  if(s.cash<CONTINUE_CASH_COST || s.continues>=CONTINUES_CAP) return;
+  s.cash -= CONTINUE_CASH_COST;
   s.continues += 1;
   cashDing();
   renderStore();

@@ -360,6 +360,7 @@ const BOARD_KEY = 'wl_board_usd', BOARD_MAX = 10;
 const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moonshine market
 const E_SPIN = 0.55;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
+const SPIN_GRACE = 0.18;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
 // four-tire footprint, in world units, matching the fender positions drawn in drawAuto
 const CAR_HALF_TRACK = 16;    // center to a wheel's centerline, left/right
 const CAR_HALF_WB = 21;       // center to an axle, front/rear
@@ -380,7 +381,7 @@ const state = {
   tiresOff:0, offEventT:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   shake:0, flashT:0, flashMsg:'',
-  spinAnim:0, deadReason:'',
+  spinAnim:0, deadReason:'', overT:0,
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
   safeT:0,        // grace period after spawn/respawn/store stop: can't spin out, car blinks
   theme:'lantern',  // 'lantern' (warm amber) or 'fullmoon' (gray, cool)
@@ -491,7 +492,7 @@ function reset(){
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
-  s.spinAnim=0; particles.length=0;
+  s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
   s.safeT=SAFE_PERIOD;
   roadInit();
@@ -721,7 +722,7 @@ function acceptContinue(){
   clearInterval(continueInterval);
   state.continues--;
   document.getElementById('continue').classList.add('hidden');
-  state.a=0; state.lat=0; state.shake=0; state.spinAnim=0;
+  state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
   state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
   state.v=Math.min(state.v,160);
   state.safeT=SAFE_PERIOD;
@@ -996,7 +997,13 @@ function step(dt){
   s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + s.steerAxis*1.35 ) * dt;
 
   const err = s.a - s.aReq;
-  if(Math.abs(err) >= E_SPIN && s.safeT<=0){ die('spin'); return; }
+  if(Math.abs(err) >= E_SPIN && s.safeT<=0){
+    s.overT += dt;
+    s.shake = Math.max(s.shake, s.overT*45);
+    if(s.overT >= SPIN_GRACE){ die('spin'); return; }
+  } else {
+    s.overT = Math.max(0, s.overT - dt*2);
+  }
 
   // lateral wash: drift error pushes you off line
   s.lat += err * s.v * 0.9 * dt;

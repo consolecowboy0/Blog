@@ -225,7 +225,9 @@ const state = {
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'',
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
+  safeT:0,        // grace period after spawn/respawn: can't spin out, car blinks
 };
+const SAFE_PERIOD = 2.5;
 try{ state.best = parseFloat(localStorage.getItem('wl_best_usd')||'0'); }catch(e){}
 
 const input = {left:false,right:false};
@@ -314,6 +316,7 @@ function reset(){
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; particles.length=0;
   s.continues=CONTINUES_MAX;
+  s.safeT=SAFE_PERIOD;
   roadInit();
 }
 
@@ -479,6 +482,7 @@ function acceptContinue(){
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0;
   state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
   state.v=Math.min(state.v,160);
+  state.safeT=SAFE_PERIOD;
   state.mode='run';
 }
 function declineContinue(){
@@ -621,6 +625,7 @@ function showReport(reason){
 function step(dt){
   const s=state;
   s.time += dt;
+  s.safeT = Math.max(0, s.safeT - dt);
 
   // heat: how close to a spin you're riding (uses last frame's target)
   const rawHeat = Math.max(0, Math.min(1, (Math.abs(s.a - s.aReq) - ZONE_G)/(E_SPIN - ZONE_G)));
@@ -654,7 +659,7 @@ function step(dt){
   s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + steer*1.35 ) * dt;
 
   const err = s.a - s.aReq;
-  if(Math.abs(err) >= E_SPIN){ die('spin'); return; }
+  if(Math.abs(err) >= E_SPIN && s.safeT<=0){ die('spin'); return; }
 
   // lateral wash: drift error pushes you off line
   s.lat += err * s.v * 0.9 * dt;
@@ -914,6 +919,7 @@ function drawAuto(x,y,rot,body,roof,badge){
 }
 function drawCar(){
   const s=state;
+  if(s.safeT>0 && Math.floor(s.time*10)%2===0) return;   // blink during the safe period
   let rot=s.a;
   if(s.mode==='dead' && s.deadReason==='spin'){
     s.spinAnim=Math.max(0,s.spinAnim-0.016);
@@ -1075,10 +1081,15 @@ function drawHUD(){
   ctx.fillText('SPIN', -gr+16, 4);
   ctx.fillText('SPIN', gr-16, 4);
   ctx.fillText('D R I F T', 0, -gr-8);
-  if(s.mode==='run' && s.heat>0.12){
+  if(s.mode==='run' && s.safeT<=0 && s.heat>0.12){
     ctx.fillStyle = s.heat>0.5 ? '#ff2e5f' : '#ffb02e';
     ctx.font='700 12px "JetBrains Mono Variable", monospace';
     ctx.fillText('RUNNING HOT +'+Math.round(s.heat*50)+'%', 0, -gr-24);
+  }
+  if(s.mode==='run' && s.safeT>0 && Math.floor(s.time*10)%2===0){
+    ctx.fillStyle='#2ee6a6';
+    ctx.font='700 12px "Courier Prime", monospace';
+    ctx.fillText('SAFE', 0, -gr-24);
   }
   const err=Math.max(-E_SPIN,Math.min(E_SPIN,s.a-s.aReq));
   const nAng=Math.PI + ((err+E_SPIN)/(2*E_SPIN))*Math.PI;

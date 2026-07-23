@@ -1225,6 +1225,9 @@ function renderMap(){
   // exact same line you came down on -- only the direction arrow and grade flip.
   const flip = false;
   let out='';
+  // track the extent of every plotted road point so the viewBox can grow to fit a
+  // twisty road that wanders past the hubs -- otherwise its line clips off-screen
+  let bMinX=0, bMaxX=VW, bMinY=0, bMaxY=VH;
   // faint dashed spine from hub to hub
   out += '<line x1="'+cx+'" y1="'+(topHub-14)+'" x2="'+cx+'" y2="'+(botHub+14)+'" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 5"/>';
   previewData.forEach((d,i)=>{
@@ -1241,7 +1244,11 @@ function renderMap(){
     const sy = y => topY + (y-start.y)*scY*dirY;
     d.sx=sx; d.sy=sy;  // stash for the number badge
     let path='';
-    d.rot.forEach((p,j)=>{ path += (j?'L':'M')+sx(p.x).toFixed(1)+' '+sy(p.y).toFixed(1)+' '; });
+    d.rot.forEach((p,j)=>{
+      const X=sx(p.x), Y=sy(p.y);
+      if(X<bMinX)bMinX=X; if(X>bMaxX)bMaxX=X; if(Y<bMinY)bMinY=Y; if(Y>bMaxY)bMaxY=Y;
+      path += (j?'L':'M')+X.toFixed(1)+' '+Y.toFixed(1)+' ';
+    });
     out += '<path class="mapRoute" data-i="'+i+'" d="'+path+'" fill="none" '+
       'stroke="'+(sel?'var(--lantern)':'var(--fg-muted)')+'" '+
       'stroke-width="'+(sel?3.2:1.4)+'" stroke-linejoin="round" stroke-linecap="round" '+
@@ -1259,8 +1266,14 @@ function renderMap(){
   out += '<text class="mapHub" x="'+(VW/2)+'" y="'+(padTop-9)+'" text-anchor="middle">HIDEOUT</text>';
   out += '<circle cx="'+(VW/2)+'" cy="'+(VH-padBot)+'" r="4.5" fill="var(--fg)"/>';
   out += '<text class="mapHub" x="'+(VW/2)+'" y="'+(VH-padBot+18)+'" text-anchor="middle">ATLANTA</text>';
-  // which way you're running tonight
-  out += '<text class="mapLbl" x="'+(VW-6)+'" y="'+(VH/2)+'" text-anchor="end">'+(mapToAtlanta?'▼ DOWNHILL RUN':'▲ RUN HOME')+'</text>';
+  // grow the viewBox to enclose any road line that wandered past the hubs, plus a
+  // small margin, so every curve stays visible no matter how twisty tonight's road is
+  const m=10;
+  const vx=Math.min(0,bMinX)-m, vy=Math.min(0,bMinY)-m;
+  const vw=Math.max(VW,bMaxX)+m-vx, vh=Math.max(VH,bMaxY)+m-vy;
+  // which way you're running tonight (pinned to the visible right edge)
+  out += '<text class="mapLbl" x="'+(vx+vw-6)+'" y="'+(VH/2)+'" text-anchor="end">'+(mapToAtlanta?'▼ DOWNHILL RUN':'▲ RUN HOME')+'</text>';
+  svg.setAttribute('viewBox', vx.toFixed(1)+' '+vy.toFixed(1)+' '+vw.toFixed(1)+' '+vh.toFixed(1));
   svg.innerHTML = out;
 }
 // Render the selected road's elevation profile, colored like the dash: red climbs, green drops.

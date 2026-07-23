@@ -185,7 +185,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>spend cash for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -388,6 +388,8 @@ const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moons
 const E_SPIN = 0.65;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
 const SPIN_GRACE = 0.32;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
+const ESCAPE_GAP = 500;       // world units of lead that starts shaking the tail
+const ESCAPE_HOLD = 2.6;      // seconds you must hold that lead before he loses your dust
 // four-tire footprint, in world units, matching the fender positions drawn in drawAuto
 const CAR_HALF_TRACK = 16;    // center to a wheel's centerline, left/right
 const CAR_HALF_WB = 21;       // center to an axle, front/rear
@@ -412,6 +414,7 @@ const state = {
   tiresOff:0, offEventT:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
   revActive:true,   // a revenuer only rides your tail some legs; other nights the road's clear
+  escapeT:0,        // seconds you've held a shaking-distance lead; runs it out and the tail drops off
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'', overT:0,
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
@@ -576,7 +579,7 @@ function reset(){
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
   s.engineBought=false; s.engineInstalled=false;
-  s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
+  s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0;
   rollChase();
   s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
@@ -768,7 +771,7 @@ function rollChase(){
   const s=state;
   const p = 0.55 + Math.min(0.3, s.stopCount*0.05);
   s.revActive = Math.random() < p;
-  s.gap=999; s.revSpinT=0; s.latRev=0; s.vRev=120; s.revDrift=0;
+  s.gap=999; s.revSpinT=0; s.latRev=0; s.vRev=120; s.revDrift=0; s.escapeT=0;
   if(s.revActive){
     s.sRev=s.sCar-300;
     flash('REVENUER ON YOUR TAIL');
@@ -826,7 +829,7 @@ function acceptContinue(){
   state.continues--;
   document.getElementById('continue').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
-  if(state.revActive){ state.sRev=state.sCar-320; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; }
+  if(state.revActive){ state.sRev=state.sCar-320; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; state.escapeT=0; }
   else { state.gap=999; }
   state.v=Math.min(state.v,200);
   state.safeT=SAFE_PERIOD;
@@ -950,7 +953,7 @@ function storeLeave(){
   if(state.mode!=='store') return;
   document.getElementById('store').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
-  state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
+  state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; state.escapeT=0;
   state.v=Math.min(state.v,160);
   state.safeT = SAFE_PERIOD;
   state.mode='run';
@@ -1328,7 +1331,22 @@ function step(dt){
     const caution = Math.min(0.5, twist*420) * (0.35 + 0.65*closeF); // reckless when far, careful when close
     let revTarget = baseCruise * edge * (1 - caution);
     if(dist > 200) revTarget *= 1.3;                  // floors it to get back in the race
-    if(dist > 340 && s.revSpinT<=0) s.sRev = s.sCar - 340;
+    // outrun him: hold a real lead long enough and he loses your dust and gives up the chase.
+    // ride the needle and take the curves clean and you can open the gap faster than he floors it.
+    // the twistier the road -- and the deeper the bend he's fighting right now, where he has to
+    // lift -- the quicker he loses you, so a hard road shakes the law far sooner than an easy one.
+    if(dist > ESCAPE_GAP){
+      const roadCurve = (s.road && s.road.curve) || 1;
+      const gainRate = roadCurve * (1 + Math.min(1.5, twist*550));
+      s.escapeT += dt * gainRate;
+      if(s.escapeT >= ESCAPE_HOLD){
+        s.revActive=false; s.gap=999; s.sRev=s.sCar-4000; s.escapeT=0;
+        flash('LOST HIM IN THE HILLS'); cashDing();
+        return;
+      }
+    } else {
+      s.escapeT = Math.max(0, s.escapeT - dt*1.5);    // he claws back into sight, lead resets
+    }
     if(s.revSpinT > 0){
       s.revSpinT -= dt; revTarget = 40;
     } else if(dist < 320 && twist*s.vRev > 0.62 && s.vRev > 240 && Math.random() < 0.22*dt){
@@ -1949,12 +1967,20 @@ function drawHUD(){
   const bw=Math.min(120,W*0.28), bx=W-bw-16-SAFE.right, by=H-30-SAFE.bottom;
   if(s.revActive){
     ctx.fillStyle=HUD.panel; ctx.fillRect(bx,by,bw,10);
-    const frac=Math.min(1,Math.max(0,s.gap/400));
+    const frac=Math.min(1,Math.max(0,s.gap/ESCAPE_GAP));
     ctx.fillStyle= frac<0.3 ? HUD.danger:HUD.safe;
     ctx.fillRect(bx,by,bw*frac,10);
+    // once the lead clears shaking distance a brighter overlay creeps in as the escape counts down
+    if(s.escapeT>0){
+      const ef=Math.min(1,s.escapeT/ESCAPE_HOLD);
+      ctx.fillStyle=HUD.safe;
+      ctx.fillRect(bx,by-4,bw*ef,3);
+    }
     ctx.strokeStyle=HUD.border; ctx.strokeRect(bx,by,bw,10);
     ctx.font='700 10px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.fgMuted;
-    ctx.textAlign='right'; ctx.fillText('LEAD ON THE LAW', bx+bw, by-5);
+    ctx.textAlign='right';
+    const label = s.escapeT>0.2 ? 'SHAKING HIM — HOLD IT' : 'LEAD ON THE LAW';
+    ctx.fillText(label, bx+bw, by-5);
   } else {
     ctx.font='700 10px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.fgMuted;
     ctx.textAlign='right'; ctx.fillText('ROAD\'S CLEAR', bx+bw, by+9);

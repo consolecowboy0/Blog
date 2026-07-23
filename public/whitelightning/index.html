@@ -143,6 +143,14 @@
   .stepBtn:active{ transform:translateY(1px); }
   #loadoutFeel{ min-height:38px; }
   .board .row span{ color:var(--fg-muted); }
+  .upgradeList{ display:flex; flex-direction:column; gap:8px; margin:10px auto; max-width:480px; }
+  .upgradeCard{
+    border:1px solid var(--border); background:var(--bg); padding:10px 12px;
+    display:flex; align-items:center; justify-content:space-between; gap:10px; text-align:left;
+  }
+  .upgradeName{ font-family:var(--font-mono); font-weight:700; font-size:12.5px; letter-spacing:0.03em; color:var(--fg); }
+  .upgradeDesc{ font-size:11.5px; color:var(--fg-muted); margin-top:2px; }
+  .upgradeBtn{ font-size:11px!important; padding:8px 12px!important; margin:0!important; white-space:nowrap; flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -165,7 +173,7 @@
     <details class="rundown" id="rundown">
       <summary>THE FULL RUNDOWN</summary>
       <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
+        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit barns</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. <b>Sell</b> as many jars as you want for cash at whatever the keeper's paying that night — every jar sold is pure profit, it's your own shine, never bought. Then pick how many jars to <b>haul to the next stretch</b>, free, or <b>trade a run of jars for another continue</b>. A full case, sold all at once, earns a bonus. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b> — both have a garage where V8 upgrades go on sale. Load heavier and she hauls more cash but drives like it. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over.
       </div>
     </details>
     <button class="go" id="startBtn">LOAD THE TRUNK</button>
@@ -222,8 +230,8 @@
 
 <div class="overlay hidden" id="store">
   <div class="handbill">
-    <div class="eyebrow">Copper Creek Barn &nbsp;·&nbsp; Drop Point</div>
-    <div class="verdict" style="font-size:clamp(22px,6vw,30px);">THE COUNTER</div>
+    <div class="eyebrow" id="storeEyebrow">Copper Creek Barn &nbsp;·&nbsp; Drop Point</div>
+    <div class="verdict" style="font-size:clamp(22px,6vw,30px);" id="storeTitle">THE COUNTER</div>
     <div class="rule"></div>
     <div class="tally" id="storeStock"></div>
     <div class="copy" id="storeLedger" style="text-align:center;margin-bottom:8px;"></div>
@@ -246,8 +254,21 @@
     <button class="go" id="loadBtn" style="display:block;width:100%;margin:8px 0;">LOAD</button>
     <div class="rule"></div>
     <button class="go" id="tradeBtn" style="display:block;width:100%;margin:8px 0;">TRADE FOR CONTINUE</button>
+    <button class="go" id="garageBtn" style="display:none;width:100%;margin:8px 0;">VISIT THE GARAGE</button>
     <button class="go" id="leaveBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE ROAD</button>
     <div class="fine">Sell some or all for pure profit, then pick how many jars to haul next — free, or trade jars for another shot</div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="garage">
+  <div class="handbill">
+    <div class="eyebrow" id="garageEyebrow">Atlanta &nbsp;·&nbsp; Union Station Rail Yard</div>
+    <div class="verdict" style="font-size:clamp(22px,6vw,30px);" id="garageTitle">THE GARAGE</div>
+    <div class="rule"></div>
+    <div class="copy" style="text-align:center;">Ford V8 parts laid out on the bench. Word is more will turn up down the road.</div>
+    <div class="upgradeList" id="upgradeList"></div>
+    <button class="go" id="garageBackBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE COUNTER</button>
+    <div class="fine">Upgrades coming soon — parts on order</div>
   </div>
 </div>
 
@@ -350,6 +371,7 @@ const state = {
   v:0, vmax:0,
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
+  stopCount:0, curStopType:'regular', // every 3rd drop is a town (Atlanta), every 6th is back at the hideout — both open a garage
   sellQty:0, loadQty:0, // chosen at the barn counter: how many jars to sell, and how many to haul out
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
@@ -451,6 +473,7 @@ function reset(){
   s.v=140; s.vmax=200; s.miles=0; s.time=0;
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
+  s.stopCount=0; s.curStopType='regular';
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; particles.length=0;
   s.continues=CONTINUES_MAX;
@@ -468,6 +491,7 @@ function setKey(e,down){
     else if(state.mode==='loadout') startFromOverlay();
     else if(state.mode==='continue') acceptContinue();
     else if(state.mode==='store') storeLeave();
+    else if(state.mode==='garage') garageBack();
   }
 }
 window.addEventListener('keydown',e=>setKey(e,true));
@@ -635,11 +659,28 @@ const TRADE_COST = 8, CONTINUES_CAP = 9;
 function rollPrice(){
   return PRICE_MIN + Math.floor(Math.random()*(PRICE_MAX-PRICE_MIN+1));
 }
+// stops cycle 6 deep: 2 barns out, a town (Atlanta), 2 barns back, then the hideout — repeat
+function stopType(n){
+  const m = ((n-1)%6)+1;
+  if(m===3) return 'town';
+  if(m===6) return 'hideout';
+  return 'regular';
+}
+const STORE_COPY = {
+  regular:{eyebrow:'Copper Creek Barn &nbsp;·&nbsp; Drop Point', title:'THE COUNTER'},
+  town:   {eyebrow:'Atlanta &nbsp;·&nbsp; Union Station Rail Yard', title:'THE ATLANTA DROP'},
+  hideout:{eyebrow:'The Hideout &nbsp;·&nbsp; Appalachian Wilderness', title:'BACK AT THE HIDEOUT'},
+};
 function openStore(){
   state.mode='store';
+  state.stopCount++;
+  state.curStopType = stopType(state.stopCount);
   state.price = rollPrice();
   state.sellQty = state.jars;
   state.loadQty = state.jars;
+  const copy = STORE_COPY[state.curStopType];
+  document.getElementById('storeEyebrow').innerHTML = copy.eyebrow;
+  document.getElementById('storeTitle').textContent = copy.title;
   renderStore();
   document.getElementById('store').classList.remove('hidden');
 }
@@ -688,6 +729,9 @@ function renderStore(){
   tradeBtn.textContent = s.continues>=CONTINUES_CAP
     ? 'TRUNK FULL OF CONTINUES'
     : 'TRADE '+TRADE_COST+' JARS → +1 CONTINUE';
+
+  document.getElementById('garageBtn').style.display =
+    (s.curStopType==='town' || s.curStopType==='hideout') ? 'block' : 'none';
 }
 function storeSell(){
   const s=state;
@@ -721,6 +765,38 @@ function storeLeave(){
   document.getElementById('store').classList.add('hidden');
   state.safeT = SAFE_PERIOD;
   state.mode='run';
+}
+
+// ---------- garage (Atlanta and the hideout: where car upgrades will go on sale) ----------
+const UPGRADES = [
+  {name:'BORED & STROKED FLATHEAD', desc:'More cubic inches, more top end.'},
+  {name:'DUAL CARB MANIFOLD', desc:'Cleaner breathing through the curves.'},
+  {name:'HEAVY-DUTY LEAF SPRINGS', desc:'Keeps her planted with a full trunk.'},
+  {name:'RACING COMPOUND WRAPS', desc:'More bite on the packed dirt.'},
+  {name:'HIGH-SPEED GEAR SET', desc:'Quicker off the line, less strain at speed.'},
+];
+function renderGarage(){
+  document.getElementById('upgradeList').innerHTML = UPGRADES.map(u=>
+    '<div class="upgradeCard"><div><div class="upgradeName">'+u.name+'</div>'+
+    '<div class="upgradeDesc">'+u.desc+'</div></div>'+
+    '<button class="go upgradeBtn" disabled>SOON</button></div>'
+  ).join('');
+}
+function openGarage(){
+  const isTown = state.curStopType==='town';
+  document.getElementById('garageEyebrow').innerHTML = isTown
+    ? STORE_COPY.town.eyebrow : STORE_COPY.hideout.eyebrow;
+  document.getElementById('garageTitle').textContent = isTown ? 'THE GARAGE' : 'THE HOMESTEAD SHOP';
+  renderGarage();
+  document.getElementById('store').classList.add('hidden');
+  document.getElementById('garage').classList.remove('hidden');
+  state.mode='garage';
+}
+function garageBack(){
+  if(state.mode!=='garage') return;
+  document.getElementById('garage').classList.add('hidden');
+  document.getElementById('store').classList.remove('hidden');
+  state.mode='store';
 }
 
 // ---------- run report + leaderboard ----------
@@ -1264,9 +1340,11 @@ function drawHUD(){
   if(s.mode==='run'){
     const dd = s.nextDrop - s.sCar;
     if(dd < 900 && Math.floor(s.time*3)%3 !== 0){
+      const upcoming = stopType(s.stopCount+1);
+      const label = upcoming==='town' ? 'ATLANTA AHEAD' : (upcoming==='hideout' ? 'HIDEOUT AHEAD' : 'DROP AHEAD');
       ctx.font='700 '+Math.round(Math.max(13,m*0.03))+'px "JetBrains Mono Variable", monospace';
       ctx.fillStyle=HUD.lantern; ctx.textAlign='center';
-      ctx.fillText('DROP AHEAD', W/2, H*0.17);
+      ctx.fillText(label, W/2, H*0.17);
     }
   }
 
@@ -1411,6 +1489,7 @@ function startFromOverlay(){
   document.getElementById('continue').classList.add('hidden');
   document.getElementById('initials').classList.add('hidden');
   document.getElementById('store').classList.add('hidden');
+  document.getElementById('garage').classList.add('hidden');
   reset();
   state.mode='run';
 }
@@ -1451,6 +1530,8 @@ document.getElementById('loadPlus').addEventListener('click', function(){
 document.getElementById('sellBtn').addEventListener('click', storeSell);
 document.getElementById('loadBtn').addEventListener('click', storeLoad);
 document.getElementById('tradeBtn').addEventListener('click', storeTrade);
+document.getElementById('garageBtn').addEventListener('click', openGarage);
+document.getElementById('garageBackBtn').addEventListener('click', garageBack);
 document.getElementById('leaveBtn').addEventListener('click', storeLeave);
 document.getElementById('initialsForm').addEventListener('submit', e=>{ e.preventDefault(); submitInitials(); });
 document.getElementById('initialsInput').addEventListener('input', function(){

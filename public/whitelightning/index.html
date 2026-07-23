@@ -1048,6 +1048,8 @@ const ELEV_SCALE_K = 0.0035, ELEV_SCALE_MIN = 0.8, ELEV_SCALE_MAX = 1.2;
 function elevScale(z){
   return Math.max(ELEV_SCALE_MIN, Math.min(ELEV_SCALE_MAX, 1 - (z - state.elevCam)*ELEV_SCALE_K));
 }
+const antlerImg = new Image();
+antlerImg.src = '/images/antler-mark.png';
 function drawAuto(x,y,rot,body,roof,badge,deuce,scaleMul){
   ctx.save();
   ctx.translate(x,y);
@@ -1096,6 +1098,11 @@ function drawAuto(x,y,rot,body,roof,badge,deuce,scaleMul){
     ctx.fillStyle='rgba(214,210,200,0.85)';
     ctx.fillRect(-6*u,-16.9*u,12*u,1.1*u);
     ctx.fillRect(-6.4*u,15*u,12.8*u,1.1*u);
+    // hood ornament: the dustinlanders.com antler mark, mounted above the grille
+    if(antlerImg.complete && antlerImg.naturalWidth){
+      const ow=3.6*u, oh=3.6*u;
+      ctx.drawImage(antlerImg, -ow/2, -18.6*u, ow, oh);
+    }
   }
   ctx.fillStyle=roof;
   ctx.beginPath();
@@ -1144,7 +1151,7 @@ function drawCar(){
     s.spinAnim=Math.max(0,s.spinAnim-0.016);
     rot += (1.2-s.spinAnim)*9*Math.sign(s.a||1);
   }
-  drawAuto(carX,carY,rot,'#a5352c','#241a10',false,true,elevScale(s.elev));
+  drawAuto(carX,carY,rot,'#161616','#0a0a0a',false,true,elevScale(s.elev));
 }
 function drawDrops(T){
   const s=state;

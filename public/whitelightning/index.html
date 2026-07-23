@@ -232,7 +232,7 @@ const state = {
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'',
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
-  safeT:0,        // grace period after spawn/respawn: can't spin out, car blinks
+  safeT:0,        // grace period after spawn/respawn/store stop: can't spin out, car blinks
 };
 const SAFE_PERIOD = 2.5;
 try{ state.best = parseFloat(localStorage.getItem('wl_best_usd')||'0'); }catch(e){}
@@ -552,6 +552,7 @@ function storeLeave(){
   if(state.mode!=='store') return;
   document.getElementById('store').classList.add('hidden');
   state.jars = JARS;   // roll out with a full trunk
+  state.safeT = SAFE_PERIOD;
   state.mode='run';
 }
 

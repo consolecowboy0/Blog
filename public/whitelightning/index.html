@@ -247,7 +247,7 @@
     <div class="loadoutWeight" id="loadLabel"></div>
     <div class="loadoutStepper">
       <button class="stepBtn" id="loadMinus" type="button">−</button>
-      <input type="range" id="loadSlider" min="0" max="20" step="1" value="0">
+      <input type="range" id="loadSlider" min="4" max="20" step="1" value="4">
       <button class="stepBtn" id="loadPlus" type="button">+</button>
     </div>
     <div class="copy" id="loadFeel" style="text-align:center;"></div>
@@ -787,8 +787,8 @@ function renderStore(){
     : (sellMax>0 ? 'DIAL IN JARS TO SELL' : 'NOTHING LEFT TO SELL');
 
   const loadSlider = document.getElementById('loadSlider');
-  s.loadQty = Math.max(0, Math.min(s.loadQty, JARS_MAX));
-  loadSlider.max = JARS_MAX; loadSlider.value = s.loadQty;
+  s.loadQty = Math.max(JARS_MIN, Math.min(s.loadQty, JARS_MAX));
+  loadSlider.min = JARS_MIN; loadSlider.max = JARS_MAX; loadSlider.value = s.loadQty;
   const loadDelta = s.loadQty - s.jars;
   document.getElementById('loadLabel').textContent =
     s.loadQty+' JAR'+(s.loadQty===1?'':'S')+' FOR THE NEXT STRETCH · '+carWeight(s.loadQty).toLocaleString()+' LBS';
@@ -1671,7 +1671,7 @@ document.getElementById('loadSlider').addEventListener('input', function(){
   state.loadQty = parseInt(this.value,10); renderStore();
 });
 document.getElementById('loadMinus').addEventListener('click', function(){
-  state.loadQty = Math.max(0, state.loadQty-1); renderStore();
+  state.loadQty = Math.max(JARS_MIN, state.loadQty-1); renderStore();
 });
 document.getElementById('loadPlus').addEventListener('click', function(){
   state.loadQty = Math.min(JARS_MAX, state.loadQty+1); renderStore();

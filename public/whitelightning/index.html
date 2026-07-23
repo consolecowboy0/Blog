@@ -411,6 +411,7 @@ const state = {
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   tiresOff:0, offEventT:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
+  revActive:true,   // a revenuer only rides your tail some legs; other nights the road's clear
   shake:0, flashT:0, flashMsg:'',
   spinAnim:0, deadReason:'', overT:0,
   best:0, continues:CONTINUES_MAX, continueTimer:0, pendingScore:0,
@@ -576,6 +577,7 @@ function reset(){
   s.stopCount=0; s.curStopType='regular';
   s.engineBought=false; s.engineInstalled=false;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
+  rollChase();
   s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
   s.safeT=SAFE_PERIOD;
@@ -761,6 +763,20 @@ function spawnDust(x,y,amt,spd){
 }
 
 function flash(msg){ state.flashMsg=msg; state.flashT=1.6; }
+// roll whether a revenuer picks up your tail for this leg; deeper runs run hotter
+function rollChase(){
+  const s=state;
+  const p = 0.55 + Math.min(0.3, s.stopCount*0.05);
+  s.revActive = Math.random() < p;
+  s.gap=999; s.revSpinT=0; s.latRev=0; s.vRev=120; s.revDrift=0;
+  if(s.revActive){
+    s.sRev=s.sCar-300;
+    flash('REVENUER ON YOUR TAIL');
+  } else {
+    s.sRev=s.sCar-3000;
+    flash("ROAD'S CLEAR, NO TAIL");
+  }
+}
 function breakJars(n,why){
   const before = state.jars;
   state.jars = Math.max(0, state.jars-n);
@@ -810,7 +826,8 @@ function acceptContinue(){
   state.continues--;
   document.getElementById('continue').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
-  state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0;
+  if(state.revActive){ state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; }
+  else { state.gap=999; }
   state.v=Math.min(state.v,160);
   state.safeT=SAFE_PERIOD;
   state.mode='run';
@@ -1058,7 +1075,7 @@ function openRoadMap(context){
 function applyRoad(prof){
   state.road = prof;
   buildRoad(prof, state.sCar);         // lay the chosen road out ahead of the car
-  state.sRev=state.sCar-300; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; // fresh chase
+  rollChase(); // fresh leg: maybe a tail, maybe a clear road
 }
 function chooseRoad(i){
   const prof = mapChoices[i];
@@ -1298,31 +1315,35 @@ function step(dt){
     return;
   }
 
-  // revenuers race you down the same road
-  const dist = s.sCar - s.sRev;
-  const twist = Math.abs(sampleRoad(s.sRev + 40).k);
-  const baseCruise = 190 + Math.min(130, s.time*2.6);            // your green-groove pace
-  const edge = 1.0 + Math.min(0.16, Math.max(0, s.time-8)/90*0.16); // his straightline advantage grows
-  const closeF = Math.max(0, Math.min(1, 1 - dist/260));         // 1 = right on you
-  const caution = Math.min(0.5, twist*420) * (0.35 + 0.65*closeF); // reckless when far, careful when close
-  let revTarget = baseCruise * edge * (1 - caution);
-  if(dist > 200) revTarget *= 1.3;                  // floors it to get back in the race
-  if(dist > 340 && s.revSpinT<=0) s.sRev = s.sCar - 340;
-  if(s.revSpinT > 0){
-    s.revSpinT -= dt; revTarget = 40;
-  } else if(dist < 320 && twist*s.vRev > 0.62 && s.vRev > 240 && Math.random() < 0.22*dt){
-    s.revSpinT = 1.6; flash('REVENUER IN THE DITCH');
+  // revenuers race you down the same road, but only on legs where one picked up your tail
+  if(s.revActive){
+    const dist = s.sCar - s.sRev;
+    const twist = Math.abs(sampleRoad(s.sRev + 40).k);
+    const baseCruise = 190 + Math.min(130, s.time*2.6);            // your green-groove pace
+    const edge = 1.0 + Math.min(0.16, Math.max(0, s.time-8)/90*0.16); // his straightline advantage grows
+    const closeF = Math.max(0, Math.min(1, 1 - dist/260));         // 1 = right on you
+    const caution = Math.min(0.5, twist*420) * (0.35 + 0.65*closeF); // reckless when far, careful when close
+    let revTarget = baseCruise * edge * (1 - caution);
+    if(dist > 200) revTarget *= 1.3;                  // floors it to get back in the race
+    if(dist > 340 && s.revSpinT<=0) s.sRev = s.sCar - 340;
+    if(s.revSpinT > 0){
+      s.revSpinT -= dt; revTarget = 40;
+    } else if(dist < 320 && twist*s.vRev > 0.62 && s.vRev > 240 && Math.random() < 0.22*dt){
+      s.revSpinT = 1.6; flash('REVENUER IN THE DITCH');
+    }
+    s.vRev += (revTarget - s.vRev)*0.5*dt;
+    s.sRev += s.vRev*dt;
+    const revHere = sampleRoad(s.sRev);
+    s.latRev += (s.lat - s.latRev)*0.9*dt;            // he hunts your line, with lag
+    const rband = revHere.w - 20;
+    s.latRev = Math.max(-rband, Math.min(rband, s.latRev));
+    s.revDrift += (Math.max(-0.5,Math.min(0.5, revHere.k*s.vRev*1.05)) - s.revDrift)*3*dt;
+    s.gap = dist;
+    if(dist < 22 && Math.abs(s.latRev - s.lat) < 30){ die('busted'); return; }
+    if(dist < -30){ die('busted'); return; }
+  } else {
+    s.gap = 999;   // clear road, no tail to outrun
   }
-  s.vRev += (revTarget - s.vRev)*0.5*dt;
-  s.sRev += s.vRev*dt;
-  const revHere = sampleRoad(s.sRev);
-  s.latRev += (s.lat - s.latRev)*0.9*dt;            // he hunts your line, with lag
-  const rband = revHere.w - 20;
-  s.latRev = Math.max(-rband, Math.min(rband, s.latRev));
-  s.revDrift += (Math.max(-0.5,Math.min(0.5, revHere.k*s.vRev*1.05)) - s.revDrift)*3*dt;
-  s.gap = dist;
-  if(dist < 22 && Math.abs(s.latRev - s.lat) < 30){ die('busted'); return; }
-  if(dist < -30){ die('busted'); return; }
 
   // dust from the rear
   const heat = Math.abs(err);
@@ -1763,7 +1784,7 @@ function drawDrops(T){
 }
 function drawRevenuer(T){
   const s=state;
-  if(s.mode==='menu' || s.gap>400) return;
+  if(s.mode==='menu' || !s.revActive || s.gap>400) return;
   const q=sampleRoad(s.sRev);
   const nx=Math.cos(q.h+Math.PI/2), ny=Math.sin(q.h+Math.PI/2);
   const pt=toScreen(T, q.x+nx*s.latRev, q.y+ny*s.latRev);
@@ -1912,17 +1933,22 @@ function drawHUD(){
   ctx.fillStyle=HUD.fg; ctx.beginPath(); ctx.arc(0,4,5,0,7); ctx.fill();
   ctx.restore();
 
-  // revenuer gap bar
+  // revenuer gap bar (only when a tail is on you; otherwise the road's clear)
   const bw=Math.min(120,W*0.28), bx=W-bw-16-SAFE.right, by=H-30-SAFE.bottom;
-  ctx.fillStyle=HUD.panel; ctx.fillRect(bx,by,bw,10);
-  const frac=Math.min(1,Math.max(0,s.gap/400));
-  ctx.fillStyle= frac<0.3 ? HUD.danger:HUD.safe;
-  ctx.fillRect(bx,by,bw*frac,10);
-  ctx.strokeStyle=HUD.border; ctx.strokeRect(bx,by,bw,10);
-  ctx.font='700 10px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.fgMuted;
-  ctx.textAlign='right'; ctx.fillText('LEAD ON THE LAW', bx+bw, by-5);
+  if(s.revActive){
+    ctx.fillStyle=HUD.panel; ctx.fillRect(bx,by,bw,10);
+    const frac=Math.min(1,Math.max(0,s.gap/400));
+    ctx.fillStyle= frac<0.3 ? HUD.danger:HUD.safe;
+    ctx.fillRect(bx,by,bw*frac,10);
+    ctx.strokeStyle=HUD.border; ctx.strokeRect(bx,by,bw,10);
+    ctx.font='700 10px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.fgMuted;
+    ctx.textAlign='right'; ctx.fillText('LEAD ON THE LAW', bx+bw, by-5);
+  } else {
+    ctx.font='700 10px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.fgMuted;
+    ctx.textAlign='right'; ctx.fillText('ROAD\'S CLEAR', bx+bw, by+9);
+  }
 
-  if(s.mode==='run' && s.gap<140 && Math.floor(s.time*4)%2===0){
+  if(s.mode==='run' && s.revActive && s.gap<140 && Math.floor(s.time*4)%2===0){
     ctx.font='700 '+Math.round(Math.max(14,m*0.035))+'px "JetBrains Mono Variable", monospace';
     ctx.fillStyle=HUD.danger; ctx.textAlign='center';
     ctx.fillText('REVENUERS ON YOUR TAIL', W/2, H*0.22);

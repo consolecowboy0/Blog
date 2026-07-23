@@ -268,7 +268,7 @@
     <div class="copy" style="text-align:center;">Ford V8 parts laid out on the bench. Word is more will turn up down the road.</div>
     <div class="upgradeList" id="upgradeList"></div>
     <button class="go" id="garageBackBtn" style="display:block;width:100%;margin:8px 0;">BACK TO THE COUNTER</button>
-    <div class="fine">Upgrades coming soon — parts on order</div>
+    <div class="fine">Buy the crate motor in Atlanta — install it at the hideout</div>
   </div>
 </div>
 
@@ -376,6 +376,7 @@ const state = {
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
   stopCount:0, curStopType:'regular', // every 3rd drop is a town (Atlanta), every 6th is back at the hideout — both open a garage
+  engineBought:false, engineInstalled:false, // crate motor: buy in Atlanta, install at the hideout, boost active once installed
   sellQty:0, loadQty:0, // chosen at the barn counter: how many jars to sell, and how many to haul out
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   tiresOff:0, offEventT:0,
@@ -491,6 +492,7 @@ function reset(){
   s.tiresOff=0; s.offEventT=0;
   s.banked=0; s.cash=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+3400; s.prevDrop=-9999;
   s.stopCount=0; s.curStopType='regular';
+  s.engineBought=false; s.engineInstalled=false;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0;
   s.spinAnim=0; s.overT=0; particles.length=0;
   s.continues=CONTINUES_MAX;
@@ -736,6 +738,7 @@ function declineContinue(){
 
 // ---------- store (the barn keeper's counter at each drop) ----------
 const CONTINUE_CASH_COST = 20, CONTINUES_CAP = 9;
+const ENGINE_COST = 60; // stroked V8 crate motor: bought in Atlanta, installed back at the hideout
 function rollPrice(){
   return PRICE_MIN + Math.floor(Math.random()*(PRICE_MAX-PRICE_MIN+1));
 }
@@ -847,20 +850,67 @@ function storeLeave(){
   state.mode='run';
 }
 
-// ---------- garage (Atlanta and the hideout: where car upgrades will go on sale) ----------
+// ---------- garage (Atlanta and the hideout: where car upgrades go on sale) ----------
+// The crate motor is the one real upgrade: the block only turns up in the Atlanta
+// rail yard, but it takes a proper bench to drop in, so it installs back at the
+// hideout. Bought in town, installed in the hollow, boost live once it's in.
 const UPGRADES = [
-  {name:'BORED & STROKED FLATHEAD', desc:'More cubic inches, more top end.'},
   {name:'DUAL CARB MANIFOLD', desc:'Cleaner breathing through the curves.'},
   {name:'HEAVY-DUTY LEAF SPRINGS', desc:'Keeps her planted with a full trunk.'},
   {name:'RACING COMPOUND WRAPS', desc:'More bite on the packed dirt.'},
-  {name:'HIGH-SPEED GEAR SET', desc:'Quicker off the line, less strain at speed.'},
 ];
+function engineCard(){
+  const s=state, isTown = s.curStopType==='town';
+  let btn, note;
+  if(s.engineInstalled){
+    btn = '<button class="go upgradeBtn" disabled>INSTALLED</button>';
+    note = 'Dropped in and breathing. She pulls harder everywhere now.';
+  } else if(s.engineBought){
+    if(isTown){
+      btn = '<button class="go upgradeBtn" disabled>ON ORDER</button>';
+      note = 'Paid for and crated. Haul it back to the hideout to drop it in.';
+    } else {
+      btn = '<button class="go upgradeBtn" id="engineInstallBtn">INSTALL</button>';
+      note = 'The block\'s on the trailer. Bench is free — bolt her in.';
+    }
+  } else if(isTown){
+    const canBuy = s.cash>=ENGINE_COST;
+    btn = '<button class="go upgradeBtn" id="engineBuyBtn"'+(canBuy?'':' disabled')+'>BUY $'+ENGINE_COST+'</button>';
+    note = canBuy ? 'Crate it here, install it at the hideout.' : 'Need $'+ENGINE_COST+' cash. Sell more shine.';
+  } else {
+    btn = '<button class="go upgradeBtn" disabled>ATLANTA ONLY</button>';
+    note = 'This block only turns up in the Atlanta rail yard.';
+  }
+  return '<div class="upgradeCard"><div><div class="upgradeName">STROKED V8 CRATE MOTOR</div>'+
+    '<div class="upgradeDesc">'+note+'</div></div>'+btn+'</div>';
+}
 function renderGarage(){
-  document.getElementById('upgradeList').innerHTML = UPGRADES.map(u=>
+  const rest = UPGRADES.map(u=>
     '<div class="upgradeCard"><div><div class="upgradeName">'+u.name+'</div>'+
     '<div class="upgradeDesc">'+u.desc+'</div></div>'+
     '<button class="go upgradeBtn" disabled>SOON</button></div>'
   ).join('');
+  document.getElementById('upgradeList').innerHTML = engineCard() + rest;
+  const buyBtn = document.getElementById('engineBuyBtn');
+  if(buyBtn) buyBtn.addEventListener('click', buyEngine);
+  const installBtn = document.getElementById('engineInstallBtn');
+  if(installBtn) installBtn.addEventListener('click', installEngine);
+}
+function buyEngine(){
+  const s=state;
+  if(s.curStopType!=='town' || s.engineBought || s.engineInstalled) return;
+  if(s.cash<ENGINE_COST) return;
+  s.cash -= ENGINE_COST;
+  s.engineBought = true;
+  cashDing();
+  renderGarage();
+}
+function installEngine(){
+  const s=state;
+  if(s.curStopType!=='hideout' || !s.engineBought || s.engineInstalled) return;
+  s.engineInstalled = true;
+  cashDing();
+  renderGarage();
 }
 function openGarage(){
   const isTown = state.curStopType==='town';
@@ -974,10 +1024,12 @@ function step(dt){
   const lr = loadRatio();
 
   // speed: green groove cruises, riding the ragged edge pulls up to +50%, grade does the rest
-  const baseV = 190 + Math.min(130, s.time*2.6);
+  // stroked crate motor (bought in Atlanta, installed at the hideout) lifts the top end and spools quicker
+  const eng = s.engineInstalled ? 1.15 : 1;
+  const baseV = (190 + Math.min(130, s.time*2.6)) * eng;
   const gradeMul = Math.max(0.6, Math.min(1.4, 1 - s.grade*3.6));
   s.vmax = baseV * (1 + s.heat*0.5) * gradeMul * (1 - lr*0.05);
-  s.v += (s.vmax - s.v) * (0.25/(1+lr*0.4)) * dt;
+  s.v += (s.vmax - s.v) * (0.25*(s.engineInstalled?1.3:1)/(1+lr*0.4)) * dt;
 
   s.aReq = Math.max(-0.55, Math.min(0.55, here.k * s.v * 1.05));
 

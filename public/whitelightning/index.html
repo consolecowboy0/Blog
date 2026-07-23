@@ -358,9 +358,9 @@ const CAR_BASE_LBS = 2500, JAR_LBS = 8;          // stripped-down Ford V8 coupe 
 const CONTINUES_MAX = 3;
 const BOARD_KEY = 'wl_board_usd', BOARD_MAX = 10;
 const PRICE_MIN = 2, PRICE_MAX = 5; // shine price per jar swings with the moonshine market
-const E_SPIN = 0.55;          // drift error that spins you
+const E_SPIN = 0.65;          // drift error that spins you
 const ZONE_G = 0.17, ZONE_A = 0.34;
-const SPIN_GRACE = 0.18;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
+const SPIN_GRACE = 0.32;      // seconds past E_SPIN before it's unrecoverable -- a snap you can still catch
 // four-tire footprint, in world units, matching the fender positions drawn in drawAuto
 const CAR_HALF_TRACK = 16;    // center to a wheel's centerline, left/right
 const CAR_HALF_WB = 21;       // center to an axle, front/rear
@@ -982,7 +982,7 @@ function step(dt){
   s.aReq = Math.max(-0.55, Math.min(0.55, here.k * s.v * 1.05));
 
   // drift: unstable equilibrium at aReq, twitchier with speed
-  const instab = 0.55 + (s.v/260)*0.85 + s.time*0.004;
+  const instab = 0.45 + (s.v/300)*0.7 + s.time*0.003;
   const bump = noise1(s.time*2.2) * (0.10 + s.v/1400) * (0.5+Math.min(1,s.time/60)) * (1 - lr*0.25);
   // packedness: one gradient, dark packed center fading to loose pale edges
   const dEdge = s.lat/(here.w*0.5);
@@ -992,7 +992,7 @@ function step(dt){
   let steerTarget = 0;
   if(input.right) steerTarget += 1;
   if(input.left)  steerTarget -= 1;
-  const steerRate = (1/0.15) / (1+lr*0.5); // ramp to full lock: taps nudge, holds lock — slower with a heavier trunk
+  const steerRate = (1/0.10) / (1+lr*0.5); // ramp to full lock: taps nudge, holds lock — slower with a heavier trunk
   s.steerAxis += Math.max(-steerRate*dt, Math.min(steerRate*dt, steerTarget - s.steerAxis));
   s.a += ( instab*(s.a - s.aReq) + bump*2.2*gMul + s.steerAxis*1.35 ) * dt;
 

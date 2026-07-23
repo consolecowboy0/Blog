@@ -527,6 +527,7 @@ function buildRoad(prof, sStart){
   road.z=0; road.zT=0; road.zSeg=900;                  // opening grade holds flat
   road.sh=26; road.shT=26; road.shSeg=700;             // opening shoulder: a forgiving gravel apron
   ensureRoad(sStart+1400);
+  buildLegMap(road.prof, base);                        // stash a plan-view + elevation for the on-screen mini-map
 }
 function roadInit(){ buildRoad(state.road || pickRandomRoad(), 0); }
 function pickSegment(){
@@ -1140,6 +1141,25 @@ function buildPreviews(){
     }
     return {prof, pts, rot, hi, lo, climb:Math.round(climb), drop:Math.round(drop)};
   });
+}
+// ---------- live route mini-map (drawn on the HUD during a run) ----------
+// The road under the car, replayed off to the side from the same seed, rotated so it
+// reads top-to-bottom. Rebuilt every time a new leg is laid out so the mini-map always
+// shows the stretch you're actually driving, with the car's spot tracked along it.
+let legMap = null;
+function buildLegMap(prof, startS){
+  const pts = simulateRoad(prof, PREVIEW_LEN);
+  const p0=pts[0], pN=pts[pts.length-1];
+  const phi=Math.atan2(pN.y-p0.y, pN.x-p0.x);
+  const a=Math.PI/2 - phi, ca=Math.cos(a), sa=Math.sin(a);
+  const rot=pts.map(p=>({ x:p.x*ca - p.y*sa, y:p.x*sa + p.y*ca }));
+  let lo=1e9,hi=-1e9, minX=1e9,maxX=-1e9, minY=1e9,maxY=-1e9;
+  for(let i=0;i<pts.length;i++){
+    const z=pts[i].z; if(z<lo)lo=z; if(z>hi)hi=z;
+    const rx=rot[i].x, ry=rot[i].y;
+    if(rx<minX)minX=rx; if(rx>maxX)maxX=rx; if(ry<minY)minY=ry; if(ry>maxY)maxY=ry;
+  }
+  legMap={ pts, rot, startS, lo, hi, minX, maxX, minY, maxY };
 }
 function fmtFt(v){ return Math.round(v).toLocaleString(); }
 // Render the top-down map: three thin roads, the selected one thick and lit.
@@ -2045,6 +2065,68 @@ function drawRevenuer(T){
 }
 
 // ---------- HUD ----------
+// Small top-down route map + elevation strip, pinned to the right edge, tracking the
+// car live: the run you're on, where you sit on it, and the grade under you right now.
+function drawMiniMap(){
+  const s=state, lm=legMap; if(!lm) return;
+  const pad=6;
+  const mapW=Math.round(Math.max(64, Math.min(88, W*0.13)));
+  const planH=Math.round(mapW*1.25);
+  const elevH=Math.round(Math.max(24, mapW*0.4));
+  const gap=6, headH=12;
+  const bx=W-mapW-12-SAFE.right;
+  const by=Math.max(Math.round(H*0.30), 100+SAFE.top);
+  const panelX=bx-pad, panelY=by-headH-4, panelW=mapW+pad*2, panelH=headH+4+planH+gap+elevH+pad;
+  ctx.fillStyle=HUD.panel; ctx.fillRect(panelX,panelY,panelW,panelH);
+  ctx.strokeStyle=HUD.border; ctx.lineWidth=1.5; ctx.strokeRect(panelX,panelY,panelW,panelH);
+  ctx.font='700 8.5px "JetBrains Mono Variable", monospace';
+  ctx.fillStyle=HUD.fgMuted; ctx.textAlign='left';
+  ctx.fillText(s.road && s.road.name ? s.road.name.toUpperCase() : 'ROUTE', panelX+4, by-6);
+
+  const frac=Math.max(0, Math.min(1, (s.sCar - lm.startS)/PREVIEW_LEN));
+  const ci=Math.round(frac*(lm.rot.length-1));
+
+  // ---- plan view: full route faint, the part already run lit, a dot at the car ----
+  const spanX=Math.max(1, lm.maxX-lm.minX), spanY=Math.max(1, lm.maxY-lm.minY);
+  const sc=Math.min((mapW-pad*2)/spanX, (planH-pad*2)/spanY);
+  const midX=(lm.minX+lm.maxX)/2;
+  const ox=bx+mapW/2, oy=by+(planH - spanY*sc)/2;
+  const mapPt=i=>{ const r=lm.rot[i]; return [ox+(r.x-midX)*sc, oy+(r.y-lm.minY)*sc]; };
+  ctx.lineJoin='round'; ctx.lineCap='round';
+  ctx.beginPath();
+  for(let i=0;i<lm.rot.length;i+=2){ const q=mapPt(i); i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]); }
+  ctx.strokeStyle=HUD.fgFaint; ctx.lineWidth=1.4; ctx.stroke();
+  if(ci>0){
+    ctx.beginPath();
+    for(let i=0;i<=ci;i++){ const q=mapPt(i); i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]); }
+    ctx.strokeStyle=HUD.lantern; ctx.lineWidth=1.9; ctx.stroke();
+  }
+  const st=mapPt(0), en=mapPt(lm.rot.length-1);
+  ctx.fillStyle=HUD.fgMuted;
+  ctx.beginPath(); ctx.arc(st[0],st[1],2,0,7); ctx.fill();
+  ctx.beginPath(); ctx.arc(en[0],en[1],2,0,7); ctx.fill();
+  const cp=mapPt(ci);
+  ctx.fillStyle=HUD.fg; ctx.beginPath(); ctx.arc(cp[0],cp[1],3.2,0,7); ctx.fill();
+  ctx.strokeStyle=HUD.lantern; ctx.lineWidth=1.6; ctx.stroke();
+
+  // ---- elevation strip: climb red, drop green, a marker riding the current grade ----
+  const ey=by+planH+gap;
+  const espan=Math.max(1, lm.hi-lm.lo);
+  const N=Math.min(lm.pts.length, 72), stepE=(lm.pts.length-1)/(N-1);
+  const epx=k=>bx+pad + (k/(N-1))*(mapW-pad*2);
+  const epy=z=>ey+2 + (1-(z-lm.lo)/espan)*(elevH-4);
+  ctx.lineCap='round';
+  for(let k=1;k<N;k++){
+    const z0=lm.pts[Math.round((k-1)*stepE)].z, z1=lm.pts[Math.round(k*stepE)].z;
+    ctx.strokeStyle = z1>z0+0.4?HUD.danger:(z1<z0-0.4?HUD.safe:HUD.fgMuted);
+    ctx.lineWidth=1.7; ctx.beginPath(); ctx.moveTo(epx(k-1),epy(z0)); ctx.lineTo(epx(k),epy(z1)); ctx.stroke();
+  }
+  const mx=bx+pad + frac*(mapW-pad*2), mz=lm.pts[Math.round(frac*(lm.pts.length-1))].z, my=epy(mz);
+  ctx.strokeStyle=HUD.fgFaint; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(mx,ey+1); ctx.lineTo(mx,ey+elevH-1); ctx.stroke();
+  ctx.fillStyle=HUD.fg; ctx.beginPath(); ctx.arc(mx,my,2.6,0,7); ctx.fill();
+}
+
 function drawHUD(){
   const s=state;
   const m=Math.min(W,H);
@@ -2089,6 +2171,9 @@ function drawHUD(){
   ctx.fillStyle = s.grade>0.03?HUD.danger:(s.grade<-0.03?HUD.safe:HUD.fgMuted);
   ctx.font = (Math.abs(s.grade)>0.05?'700 18px':'700 15px')+' "JetBrains Mono Variable", monospace';
   ctx.fillText(gradeArrow+' '+Math.round(s.elev)+' FT'+gradeWord, jx+4, jy+jh+76);
+
+  // live route map + elevation strip, tracking the car down the run
+  if(s.mode==='run') drawMiniMap();
 
   // drop coming up
   if(s.mode==='run'){

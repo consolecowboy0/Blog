@@ -36,7 +36,12 @@ export async function POST({ request, clientAddress }) {
   }
 
   const rl = checkRate(`subscribe:${ip}`, 5, 10 * 60 * 1000);
-  if (!rl.ok) return json({ error: 'Rate limited' }, 429);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: 'Rate limited' }), {
+      status: 429,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Retry-After': String(rl.retryAfter) },
+    });
+  }
 
   const db = getDb();
   const docId = email.replace(/[^A-Za-z0-9_.-]/g, '_');

@@ -28,7 +28,7 @@ function normEmail(raw) {
 function json(data, status, corsHeaders) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   });
 }
 

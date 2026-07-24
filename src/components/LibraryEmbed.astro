@@ -17,7 +17,7 @@ const { src, title } = Astro.props;
         <p class="library-loading-text">Loading</p>
       </div>
     </div>
-    <iframe data-src={src} title={title} loading="lazy"></iframe>
+    <iframe data-src={src} title={title} loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
   </div>
 </div>
 

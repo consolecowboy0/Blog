@@ -41,7 +41,7 @@ export async function POST({ request, clientAddress }) {
     'unknown';
   const rl = checkRate(`wlscore:${ip}`, 10, 60 * 1000);
   if (!rl.ok) {
-    return new Response(JSON.stringify({ ok: false }), { status: 429, headers: corsHeaders });
+    return new Response(JSON.stringify({ ok: false }), { status: 429, headers: { ...corsHeaders, 'Retry-After': String(rl.retryAfter) } });
   }
 
   const ct = request.headers.get('Content-Type') || '';

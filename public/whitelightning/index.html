@@ -263,13 +263,15 @@
     <div class="tally" id="storeStock"></div>
     <div class="copy" id="storeLedger" style="text-align:center;margin-bottom:8px;"></div>
     <div class="rule"></div>
-    <div class="loadoutWeight" id="sellLabel"></div>
-    <div class="loadoutStepper">
-      <button class="stepBtn" id="sellMinus" type="button">−</button>
-      <input type="range" id="sellSlider" min="0" max="0" step="1" value="0">
-      <button class="stepBtn" id="sellPlus" type="button">+</button>
+    <div id="sellSection">
+      <div class="loadoutWeight" id="sellLabel"></div>
+      <div class="loadoutStepper">
+        <button class="stepBtn" id="sellMinus" type="button">−</button>
+        <input type="range" id="sellSlider" min="0" max="0" step="1" value="0">
+        <button class="stepBtn" id="sellPlus" type="button">+</button>
+      </div>
+      <button class="go" id="sellBtn" style="display:block;width:100%;margin:8px 0;">SELL</button>
     </div>
-    <button class="go" id="sellBtn" style="display:block;width:100%;margin:8px 0;">SELL</button>
     <div id="loadSection">
       <div class="rule"></div>
       <div class="loadoutWeight" id="loadLabel"></div>
@@ -1034,11 +1036,12 @@ function renderStore(){
     ? 'SELL '+s.sellQty+' JAR'+(s.sellQty===1?'':'S')+(sellBonus?' (FULL CASE +$'+sellBonus+')':'')+' → $'+(s.sellQty*s.price+sellBonus)
     : (sellMax>0 ? 'DIAL IN JARS TO SELL' : 'NOTHING LEFT TO SELL');
 
-  // trunk reloads only at the hideout; every other drop is drop-off only
+  // trunk reloads only at the hideout; selling only happens at the Atlanta drop
   const isHideout = (s.curStopType==='hideout');
   document.getElementById('loadSection').style.display = isHideout ? '' : 'none';
+  document.getElementById('sellSection').style.display = isHideout ? 'none' : '';
   document.getElementById('storeFine').textContent = isHideout
-    ? 'Sell what\'s left, reload the trunk for the run back out, or spend cash on a continue.'
+    ? 'Reload the trunk for the run back out, or spend cash on a continue.'
     : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. The road between hubs is all drive-bys: every nip joint is a boost, no stopping until the hideout.';
 
   const loadSlider = document.getElementById('loadSlider');

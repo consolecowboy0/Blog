@@ -91,6 +91,12 @@
   }
   button.go:active{transform:translateY(3px);box-shadow:none;}
   button.go:disabled{opacity:0.35;cursor:default;}
+  button.go.ghost{color:var(--fg);background:transparent;}
+  #tutSkip{
+    position:fixed;top:calc(46px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:20;font-family:var(--font-mono);font-weight:700;
+    background:var(--card);color:var(--fg-muted);border:1px solid var(--border);
+    padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
+  }
   .fine{font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.1em;margin-top:14px;opacity:0.9;text-transform:uppercase;color:var(--fg-muted);}
   #mute{
     position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));z-index:20;font-family:var(--font-mono);font-weight:700;
@@ -103,12 +109,6 @@
     padding:6px 10px;font-size:11px;cursor:pointer;letter-spacing:0.08em;text-transform:uppercase;
   }
   .hidden{display:none!important;}
-  .rundown{max-width:520px;margin:0 auto;text-align:left;}
-  .rundown summary{
-    font-family:var(--font-mono);font-weight:700;letter-spacing:0.14em;font-size:11px;
-    text-transform:uppercase;cursor:pointer;padding:6px 0;text-align:center;color:var(--fg-muted);
-  }
-  .rundown[open] summary{margin-bottom:4px;}
   @media (max-width:480px), (max-height:760px){
     .handbill{padding:18px 14px 14px;}
     h1{font-size:clamp(24px,7vw,34px);}
@@ -191,6 +191,7 @@
 <div id="safeProbe"></div>
 <button id="themeToggle">LANTERN LIGHT</button>
 <button id="mute">SOUND ON</button>
+<button id="tutSkip" class="hidden">SKIP LESSON ›</button>
 
 <div class="overlay" id="menu">
   <div class="handbill">
@@ -198,20 +199,12 @@
     <h1>WHITE<br>LIGHTNING</h1>
     <div class="sub">The Ridge Road Never Runs Straight</div>
     <div class="rule"></div>
-    <div class="copy">
-      A backroad that winds like a copperhead. The car works its own throttle and brake — <b>you only steer</b>.<br><br>
-      <b>HOLD LEFT</b> side of the screen (or ← / A) to throw the car left.<br>
-      <b>HOLD RIGHT</b> side (or → / D) to throw it right.<br><br>
-      Throttle stays pinned wide open; when a slide runs toward a spin the <b>auto-brake</b> scrubs speed for you. Steer it clean and the game hands you more top end — the better your line, the faster she runs.
+    <div class="copy" style="text-align:center;">
+      A backroad that winds like a copperhead. The car works its own throttle and brake — <b>you only steer</b>. Hang the tail into every curve and hold your line.
     </div>
-    <details class="rundown" id="rundown">
-      <summary>THE FULL RUNDOWN</summary>
-      <div class="copy">
-        Hang the tail out to match every curve. Green is <b>safe but slow</b>; ride the needle toward the edge and she pulls up to half again harder. The <b>packed dark middle</b> of the road holds her steady; the pale loose stuff toward the edges rattles the needle. The ridge itself rolls under you: <b>downgrades</b> hand you free speed, <b>climbs</b> bleed it off, and the dash reads it plain: red arrows climbing, green arrows dropping, elevation in feet alongside. A painted plank warns of the curve ahead before you're in it. <b>Lantern-lit nip joints</b> along the ridge are drop points: cross the chalk line and the keeper opens his counter. You can't stop to sell with the law on your tail, so when a revenuer's chasing you <b>blow past the drop</b> — the nip joint, Atlanta, even the hideout — and the run past the lantern kicks in a <b>boost</b> to help you shake him. No sale that drop, but a full head of steam. You <b>only fill the trunk at the hideout</b> — load her once and that shine rides with you the whole run. At every nip joint you decide <b>how many jars to drop off</b> for cash, but the roadside nip joints pay a <b>pittance</b> — dump there only when you're desperate for a continue. The real money is at the hubs, and the price climbs the <b>harder the road</b> you took and the <b>deeper you carry it</b> toward Atlanta. Sell your <b>whole untouched load in one shot</b> for a full-case bonus, so holding out for Atlanta pays the most — but a broken jar or a busted run down there costs you everything back there. Every third drop rolls you into a <b>town like Atlanta</b>, then three drops carry you back to the <b>hideout</b>. Atlanta's rail yard is the only place to <b>buy V8 parts</b>; the hideout is where you <b>install them and reload the trunk</b>. Load heavier and she hauls more cash but drives like it. Run with an <b>empty trunk</b> and there's nothing to chase — no shine, no revenuer, so those legs run clear. The <b>revenuers</b> race the same road behind you, faster on the straights, weaker in the curves. Bumper to bumper and it's over. But open a big enough lead and <b>hold it</b> — through the curves where he has to lift — and he loses your dust and drops the chase. The <b>tighter the road, the quicker he loses you</b>: a hairpin stretch like the Horseshoe shakes the law far sooner than the open Moonshine Mile. The gap bar reads <b>SHAKING HIM</b> when you're pulling clear. The <b>run home never stops</b> at a roadside nip joint: you shoot past every lantern with the drive-by boost, no stopping until the hideout.
-      </div>
-    </details>
-    <button class="go" id="startBtn">LOAD THE TRUNK</button>
-    <div class="fine">Score is dollars earned · Every jar sold is pure profit · Buy continues with cash</div>
+    <button class="go" id="tutorialBtn">LEARN THE ROAD</button>
+    <button class="go ghost" id="startBtn">STRAIGHT TO THE RUN</button>
+    <div class="fine">First time out? Take the lesson — you drive it, you don't read it</div>
     <div class="fine">Top-left swaps lantern light for a full moon's gray wash</div>
   </div>
 </div>
@@ -833,7 +826,8 @@ function audioTick(){
   // Self-heal mid-run: a context knocked out of 'running' (phone call, bluetooth
   // swap, OS interruption) stays silent if the player is holding a steer and
   // never fires a fresh unlock gesture. Nudge it back about once a second.
-  if(state.mode==='run' && AC.state!=='running' && performance.now()>resumeNudgeT){
+  const rolling = state.mode==='run' || state.mode==='tutorial';
+  if(rolling && AC.state!=='running' && performance.now()>resumeNudgeT){
     resumeNudgeT = performance.now()+1000;
     AC.resume().catch(()=>{});
   }
@@ -845,8 +839,8 @@ function audioTick(){
   engOsc._growl.frequency.value = f*1.003;
   engFilter.frequency.value = 260 + f*2.6 + e*140;
   engLFO.frequency.value = 6 + f*0.09;
-  skidGain.gain.value = Math.min(0.07, Math.max(0,e-0.10)*0.3) * (state.mode==='run'?1:0);
-  const want = (muted || state.mode!=='run') ? 0 : ENGINE_VOL;
+  skidGain.gain.value = Math.min(0.07, Math.max(0,e-0.10)*0.3) * (rolling?1:0);
+  const want = (muted || !rolling) ? 0 : ENGINE_VOL;
   engGain.gain.setTargetAtTime(want, AC.currentTime, 0.09);
 }
 function thunk(){
@@ -925,6 +919,7 @@ const REASONS = {
   cargo: {v:'DRY TRUNK',   e:'Made every curve, but every jar back there is broken glass and regret. Nothing left worth hauling.'},
 };
 function die(reason){
+  if(state.mode==='tutorial'){ tutRecover(reason); return; }
   state.mode='dead'; state.deadReason=reason;
   if(reason==='spin') state.spinAnim=1.2;
   setTimeout(()=>{
@@ -1737,6 +1732,7 @@ function step(dt){
   if(nDeep >= 2 && s.offEventT<=0){
     s.offEventT = 0.8;
     s.v *= 0.82;
+    if(state.mode==='tutorial'){ flash('EASE BACK ONTO THE PACKED LINE'); return; }
     breakJars(1, nDeep>=4 ? 'IN THE ROUGH — JAR GONE' : 'TWO WHEELS IN THE ROUGH — JAR GONE');
     if(state.mode!=='run') return;
     if(s.v < 90 || Math.random() < (nDeep>=4?0.22:0.08)){ die('ditch'); return; }
@@ -2154,6 +2150,7 @@ function draw(){
   drawCar();
   ctx.restore();
   drawHUD();
+  if(state.mode==='tutorial') drawTutorial();
 }
 
 // overhead camera altitude lags the climb/drop: cars higher than the lagged
@@ -2648,7 +2645,8 @@ function drawHUD(){
 let last=performance.now();
 function loop(now){
   const dt=Math.min(0.033,(now-last)/1000); last=now;
-  if(state.mode==='run') step(dt);
+  if(state.mode==='run' || state.mode==='tutorial') step(dt);
+  if(state.mode==='tutorial') tutStep(dt);
   draw();
   audioTick();
   requestAnimationFrame(loop);
@@ -2695,7 +2693,155 @@ function startRun(){
   reset();
   state.mode='run';
 }
+// ---------- tutorial: a guided first run you play through ----------
+// The real driving engine, run on the gentlest road with the law and the drops
+// switched off and spins made forgiving, plus staged lessons that watch what you
+// do and advance when you've got the feel of each one.
+const tutSkipBtn = document.getElementById('tutSkip');
+const tut = {
+  i:0,          // current lesson
+  t:0,          // seconds on the current lesson
+  prog:0,       // 0..1 progress toward the lesson's goal
+  confirmT:0,   // brief "GOT IT" flash between lessons
+  steerL:false, steerR:false,   // seen a left / right steer yet (lesson 1)
+  centerT:0,    // seconds held near the packed center (lesson 3)
+  gradeSeen:0,  // felt a real grade yet (lesson 4)
+};
+// Each lesson: a title, a line of coaching, and a goal(dt) that returns 0..1.
+// A goal at 1 (held a beat) advances. `hold:true` waits for the player to have
+// done the thing rather than just survived time.
+const LESSONS = [
+  {
+    title:'YOU ONLY STEER',
+    body:'The car works its own throttle and brake. Try it now: hold LEFT, then RIGHT — arrow keys, A / D, or tap the left and right halves of the screen.',
+    goal:(dt)=>{
+      if(input.left) tut.steerL=true;
+      if(input.right) tut.steerR=true;
+      return (tut.steerL?0.5:0) + (tut.steerR?0.5:0);
+    },
+  },
+  {
+    title:'HANG THE TAIL OUT',
+    body:'That gauge bottom-left is your DRIFT. Match each curve and keep the needle out of the red. Ride it toward the amber and she pulls up harder — the closer to the edge, the faster she runs.',
+    goal:(dt)=>{ return Math.min(1, tut.t/11); },   // survive a curvy stretch
+  },
+  {
+    title:'HOLD THE PACKED LINE',
+    body:'The dark packed middle of the road grips. The pale loose stuff at the edges rattles the needle and drags you down. Keep her near the center of the track.',
+    goal:(dt)=>{
+      const here=sampleRoad(state.sCar);
+      if(Math.abs(state.lat) < here.w*0.5) tut.centerT += dt;
+      return Math.min(1, tut.centerT/6);
+    },
+  },
+  {
+    title:'READ THE RIDGE',
+    body:'The road rolls under you. A DOWNGRADE hands you free speed; a CLIMB bleeds it off. Watch the dash: green arrows dropping, red arrows climbing, feet alongside.',
+    goal:(dt)=>{
+      if(Math.abs(state.grade) > 0.05) tut.gradeSeen += dt;
+      return Math.min(1, Math.max(tut.gradeSeen/2.2, (tut.t-10)/8));   // feel a grade, or time out
+    },
+  },
+  {
+    title:"THAT'S THE RUN",
+    body:'Steer clean, ride the needle, hold the packed line. Out on a real run there are jars to drop for cash and revenuers to shake — but it all rides on this. Loading the trunk now.',
+    goal:(dt)=>{ return Math.min(1, tut.t/4.5); },
+    last:true,
+  },
+];
+function startTutorial(){
+  unlockAudio();
+  ['menu','dead','loadout','continue','initials','store','garage','roadmap']
+    .forEach(id=>document.getElementById(id).classList.add('hidden'));
+  clearInterval(continueInterval);
+  state.road = ROADS[0];            // MOONSHINE MILE: long straights, gentle bends
+  reset();
+  // switch off everything that isn't the driving itself
+  state.revActive=false; state.gap=999; state.sRev=state.sCar-8000;
+  state.nextDrop=1e12; state.prevDrop=-9999; state.legDrops=0;
+  state.safeT=1.2;
+  tut.i=0; tut.t=0; tut.prog=0; tut.confirmT=0;
+  tut.steerL=false; tut.steerR=false; tut.centerT=0; tut.gradeSeen=0;
+  tutSkipBtn.classList.remove('hidden');
+  state.mode='tutorial';
+}
+// a spin or a wide slide during the lesson: don't end it, just gather her back up
+function tutRecover(reason){
+  const s=state;
+  s.a=0; s.lat=Math.max(-40,Math.min(40,s.lat)); s.overT=0; s.spinAnim=0;
+  s.v=Math.min(s.v, 150); s.shake=Math.max(s.shake,6); s.safeT=1.4;
+  flash(reason==='spin' ? 'CAUGHT IT — EASE THE WHEEL' : 'BACK ON THE ROAD');
+}
+function tutStep(dt){
+  const s=state;
+  tut.t += dt;
+  if(tut.confirmT>0){ tut.confirmT-=dt; return; }
+  const lesson = LESSONS[tut.i];
+  if(!lesson) return;
+  tut.prog = Math.max(0, Math.min(1, lesson.goal(dt)));
+  if(tut.prog >= 1){
+    if(lesson.last){ endTutorial(); return; }
+    tut.i++; tut.t=0; tut.prog=0; tut.confirmT=0.9;
+    // reset per-lesson accumulators as each begins
+    tut.centerT=0; tut.gradeSeen=0;
+  }
+}
+function endTutorial(){
+  tutSkipBtn.classList.add('hidden');
+  openLoadout();
+}
+tutSkipBtn.addEventListener('click', endTutorial);
+// on-canvas coaching banner: title, one line, and a progress bar for the goal
+function drawTutorial(){
+  const s=state, m=Math.min(W,H);
+  const lesson = LESSONS[tut.i];
+  const pw = Math.min(460, W-32);
+  const px = (W-pw)/2, py = Math.max(52, H*0.06)+SAFE.top;
+  const pad = 14;
+  ctx.textAlign='left';
+  ctx.font='800 15px "JetBrains Mono Variable", monospace';
+  // wrap the body text to the panel width
+  ctx.font='600 13px "Inter", sans-serif';
+  const words = (lesson?lesson.body:'').split(' ');
+  const lines=[]; let cur='';
+  for(const w of words){
+    const test = cur?cur+' '+w:w;
+    if(ctx.measureText(test).width > pw-pad*2){ lines.push(cur); cur=w; } else cur=test;
+  }
+  if(cur) lines.push(cur);
+  const bodyH = lines.length*18;
+  const ph = pad + 22 + 8 + bodyH + 14 + 8 + pad;
+  ctx.fillStyle=HUD.panel; ctx.fillRect(px,py,pw,ph);
+  ctx.strokeStyle=HUD.border; ctx.lineWidth=2; ctx.strokeRect(px,py,pw,ph);
+  // step counter + title
+  ctx.font='700 10px "JetBrains Mono Variable", monospace';
+  ctx.fillStyle=HUD.fgMuted;
+  ctx.fillText('LESSON '+(tut.i+1)+' / '+LESSONS.length, px+pad, py+pad+8);
+  ctx.font='800 17px "JetBrains Mono Variable", monospace';
+  ctx.fillStyle=HUD.lantern;
+  ctx.textAlign='right';
+  ctx.fillText(lesson?lesson.title:'', px+pw-pad, py+pad+9);
+  ctx.textAlign='left';
+  // body
+  ctx.font='600 13px "Inter", sans-serif';
+  ctx.fillStyle=HUD.fg;
+  let ty = py+pad+22+16;
+  for(const ln of lines){ ctx.fillText(ln, px+pad, ty); ty+=18; }
+  // progress bar / confirm
+  const barY = ty+2, barW = pw-pad*2, barH=8;
+  ctx.fillStyle='rgba(242,240,234,0.12)'; ctx.fillRect(px+pad,barY,barW,barH);
+  if(tut.confirmT>0){
+    ctx.fillStyle=HUD.safe; ctx.fillRect(px+pad,barY,barW,barH);
+    ctx.font='700 11px "JetBrains Mono Variable", monospace'; ctx.fillStyle=HUD.safe;
+    ctx.textAlign='center'; ctx.fillText('GOT IT', W/2, barY+barH+16); ctx.textAlign='left';
+  } else {
+    ctx.fillStyle = tut.prog>0.66?HUD.safe:HUD.lantern;
+    ctx.fillRect(px+pad,barY,barW*tut.prog,barH);
+  }
+}
+
 document.getElementById('startBtn').addEventListener('click', openLoadout);
+document.getElementById('tutorialBtn').addEventListener('click', startTutorial);
 document.getElementById('againBtn').addEventListener('click', openLoadout);
 document.getElementById('loadoutBtn').addEventListener('click', startFromOverlay);
 document.getElementById('jarSlider').addEventListener('input', function(){
@@ -2757,11 +2903,6 @@ document.getElementById('initialsInput').addEventListener('input', function(){
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible' && AC && AC.state!=='running') AC.resume().catch(()=>{});
 });
-
-// small screens open with the rundown folded so the start button is on screen
-if(matchMedia('(max-width:480px), (max-height:760px)').matches){
-  document.getElementById('rundown').removeAttribute('open');
-}
 
 applyTheme(document.documentElement.getAttribute('data-theme'));
 resize();

@@ -734,19 +734,30 @@ muteBtn.addEventListener('click',()=>{
 // mute switch is on; priming a muted media element once flips the session to
 // the media channel so the procedural engine is audible.
 const SILENT_WAV = 'data:audio/wav;base64,UklGRqQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==';
-let audioPrimed=false;
+// One persistent element, re-played on every unlock: a single one-shot prime can
+// fail (or the session can revert after an interruption) and would never retry.
+let mediaKeeper=null, audioPrimed=false;
 function primeMediaSession(){
-  if(audioPrimed) return;
-  audioPrimed=true;
-  try{ const a=new Audio(SILENT_WAV); a.volume=0; a.play().catch(()=>{}); }catch(e){}
+  try{
+    if(!mediaKeeper){
+      mediaKeeper=new Audio(SILENT_WAV);
+      mediaKeeper.volume=0;
+      mediaKeeper.setAttribute('playsinline','');
+    }
+    if(!audioPrimed || mediaKeeper.paused || mediaKeeper.ended){
+      const p=mediaKeeper.play();
+      if(p && p.then) p.then(()=>{ audioPrimed=true; }).catch(()=>{ audioPrimed=false; });
+    }
+  }catch(e){}
 }
 
 // Any interaction unlocks and resumes audio, not just the overlay buttons, so
 // a backgrounded tab or an odd entry point can't leave the game permanently
-// silent. Safe to call repeatedly.
+// silent. Safe to call repeatedly. Resumes on ANY non-running state: iOS parks
+// an interrupted context in 'interrupted', which a 'suspended'-only check missed.
 function unlockAudio(){
   initAudio();
-  if(AC && AC.state==='suspended') AC.resume().catch(()=>{});
+  if(AC && AC.state!=='running') AC.resume().catch(()=>{});
   primeMediaSession();
 }
 
@@ -818,8 +829,16 @@ function initAudio(){
     src.start();
   }catch(e){ AC=null; }
 }
+let resumeNudgeT=0;
 function audioTick(){
   if(!AC) return;
+  // Self-heal mid-run: a context knocked out of 'running' (phone call, bluetooth
+  // swap, OS interruption) stays silent if the player is holding a steer and
+  // never fires a fresh unlock gesture. Nudge it back about once a second.
+  if(state.mode==='run' && AC.state!=='running' && performance.now()>resumeNudgeT){
+    resumeNudgeT = performance.now()+1000;
+    AC.resume().catch(()=>{});
+  }
   const e = Math.abs(state.a - state.aReq);
   const flutter = Math.sin(AC.currentTime*9)*2 + Math.sin(AC.currentTime*23)*1;
   const f = gearFreq(state.v) + e*90 + flutter;
@@ -1133,12 +1152,16 @@ function storeSafePassage(){
 }
 function storeLeave(){
   if(state.mode!=='store') return;
-  // pulled out of a hub without studying the map? same road runs on, but the
-  // drops and mini-map re-anchor here so the map still spans the leg you drive,
-  // and a fresh leg out of a hub rolls a fresh chase, map or no map
-  if((state.curStopType==='town'||state.curStopType==='hideout') && !state.roadPicked){
+  // The road runs on past this stop without a rebuild in two cases: a hub stop
+  // where the map never got studied, and a nip-joint stop sitting on the mapped
+  // leg's last drop (a blow-by earlier in the leg shifts the hub cycle one drop
+  // past the map's end, so the map would run out before the hub). Either way the
+  // drops and mini-map re-anchor here so the map spans the leg you drive. Only a
+  // fresh leg out of a hub rolls a fresh chase, map or no map.
+  const hubStop = state.curStopType==='town' || state.curStopType==='hideout';
+  if(!state.roadPicked && (hubStop || state.legDrops>=3)){
     rebaseLeg(state.prevDrop);
-    rollChase();
+    if(hubStop) rollChase();
   }
   document.getElementById('store').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
@@ -2766,7 +2789,7 @@ document.getElementById('initialsInput').addEventListener('input', function(){
 ['pointerdown','touchend','keydown'].forEach(ev=>
   window.addEventListener(ev, unlockAudio, {passive:true}));
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible' && AC && AC.state==='suspended') AC.resume().catch(()=>{});
+  if(document.visibilityState==='visible' && AC && AC.state!=='running') AC.resume().catch(()=>{});
 });
 
 // small screens open with the rundown folded so the start button is on screen

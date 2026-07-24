@@ -2197,31 +2197,6 @@ function drawAuto(x,y,rot,body,roof,badge,deuce,scaleMul){
     ctx.fillStyle='rgba(110,106,98,0.5)';
     ctx.fillRect(-6*u,-16.9*u,12*u,1.1*u);
     ctx.fillRect(-6.4*u,15*u,12.8*u,1.1*u);
-    // the dustinlanders.com antler, painted white on the hood the same way the
-    // revenuer wears his star: two beams sweeping up from a shared V, tines forking out.
-    ctx.save();
-    ctx.strokeStyle='#e6f4ff';
-    ctx.lineWidth=1.0*u;
-    ctx.lineCap='round';
-    ctx.lineJoin='round';
-    for(const side of [-1,1]){
-      // main beam
-      ctx.beginPath();
-      ctx.moveTo(0,-5.4*u);
-      ctx.quadraticCurveTo(side*2.4*u,-8.6*u, side*2.0*u,-12.8*u);
-      ctx.stroke();
-      // lower tine, hooking upward at the tip
-      ctx.beginPath();
-      ctx.moveTo(side*2.2*u,-9.0*u);
-      ctx.quadraticCurveTo(side*4.4*u,-9.4*u, side*4.8*u,-11.0*u);
-      ctx.stroke();
-      // upper tine
-      ctx.beginPath();
-      ctx.moveTo(side*1.9*u,-11.1*u);
-      ctx.quadraticCurveTo(side*3.3*u,-11.6*u, side*3.5*u,-13.1*u);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
   ctx.fillStyle=roof;
   ctx.beginPath();

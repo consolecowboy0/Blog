@@ -534,7 +534,11 @@ function stepRoad(st, rng, prof, ds){
 
   // width breathes: wide sweepers down to tight cuts
   st.wSeg -= ds;
-  if(st.wSeg <= 0){ st.wT = (58 + rng()*70)*prof.width; st.wSeg = 300 + rng()*450; }
+  if(st.wSeg <= 0){
+    const wide = rng() < 0.28 ? 45 + rng()*55 : 0;   // occasional extra-wide packed stretch
+    st.wT = (58 + rng()*70 + wide)*prof.width;
+    st.wSeg = 300 + rng()*450;
+  }
   st.w += (st.wT - st.w)*Math.min(1, ds/170);
 
   // shoulder breathes too: sometimes a wide forgiving gravel apron, sometimes
@@ -1645,7 +1649,7 @@ function step(dt){
   const dEdge = s.lat/(here.w*0.5);
   const pack = Math.exp(-dEdge*dEdge*1.2);
   s.pack = pack;
-  const gMul = 1.25 - 0.75*pack;
+  const gMul = 0.85 - 0.35*pack;   // loose edges still rattle the needle, but far less than they used to
   let steerTarget = 0;
   if(input.right) steerTarget += 1;
   if(input.left)  steerTarget -= 1;

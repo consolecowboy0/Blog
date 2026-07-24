@@ -257,7 +257,7 @@
 
 <div class="overlay hidden" id="store">
   <div class="handbill">
-    <div class="eyebrow" id="storeEyebrow">Copper Creek Nip Joint &nbsp;·&nbsp; Drop Point</div>
+    <div class="eyebrow" id="storeEyebrow">Atlanta &nbsp;·&nbsp; Union Station Rail Yard</div>
     <div class="verdict" style="font-size:clamp(22px,6vw,30px);" id="storeTitle">THE COUNTER</div>
     <div class="rule"></div>
     <div class="tally" id="storeStock"></div>
@@ -439,12 +439,12 @@ const state = {
   v:0, vmax:0,
   miles:0, time:0,
   jars:JARS, banked:0, cash:0, earned:0, price:PRICE_MIN, nextDrop:0, prevDrop:-9999,
-  stopCount:0, curStopType:'regular', // every 3rd drop is a town (Atlanta), every 6th is back at the hideout — both open a garage
-  legDrops:0,       // drops passed on the current mapped leg (3rd is a hub); resets whenever a fresh leg is mapped
+  stopCount:0, curStopType:'hideout', // hub stops alternate: Atlanta, then the hideout — both open a garage
+  legDrops:0,       // drops passed on the current mapped leg (1,2 are nip-joint boosts, 3rd is a hub); resets whenever a fresh leg is mapped
   roadPicked:false, // did this hub stop rebuild the road via the map? if not, the leg rebases on the same road
+  prevHubType:'hideout', // the hub the current leg started from (every run starts at the hideout)
   engineBought:false, engineInstalled:false, // crate motor: buy in Atlanta, install at the hideout, boost active once installed
-  townS:-9999,       // world s of the last town stop, anchors Atlanta's trailing sprawl on the run home
-  sellQty:0, loadQty:0, // chosen at the nip-joint counter: how many jars to sell, and how many to haul out
+  sellQty:0, loadQty:0, // chosen at the hub counter: how many jars to sell, and how many to haul out
   gap:999, heat:0, pack:0, elev:0, grade:0, elevCam:0,
   tiresOff:0, offEventT:0,
   sRev:-220, latRev:0, vRev:120, revDrift:0, revSpinT:0,
@@ -657,9 +657,8 @@ function reset(){
   s.jars=s.startJars; s.gap=999; s.heat=0; s.shake=0; s.flashT=0; s.elev=0; s.grade=0; s.elevCam=0;
   s.tiresOff=0; s.offEventT=0;
   s.banked=0; s.cash=0; s.earned=0; s.price=PRICE_MIN; s.nextDrop=s.sCar+DROP_FIRST; s.prevDrop=-9999;
-  s.stopCount=0; s.curStopType='regular'; s.legDrops=0; s.roadPicked=false;
+  s.stopCount=0; s.curStopType='hideout'; s.legDrops=0; s.roadPicked=false; s.prevHubType='hideout';
   s.engineBought=false; s.engineInstalled=false;
-  s.townS=-9999;
   s.sRev=s.sCar-300; s.latRev=0; s.vRev=120; s.revDrift=0; s.revSpinT=0; s.escapeT=0; s.boostT=0;
   rollChase();
   s.spinAnim=0; s.overT=0; particles.length=0;
@@ -966,7 +965,7 @@ function declineContinue(){
   showReport(state.deadReason);
 }
 
-// ---------- store (the nip-joint keeper's counter at each drop) ----------
+// ---------- store (the counter at each hub: Atlanta's rail yard or the hideout) ----------
 const CONTINUE_CASH_COST = 20, CONTINUES_CAP = 9;
 const ENGINE_COST = 60; // stroked V8 crate motor: bought in Atlanta, installed back at the hideout
 // harder roads pay more per jar: the twistier and steeper the run you just made, the better the price
@@ -974,35 +973,22 @@ function roadPay(prof){
   const p = prof || ROADS[0];
   return (p.curve-0.65)*2.2 + (p.elev-0.55)*1.6;
 }
-// distance from the hideout, measured in drops: 1,2 heading out · 3 at Atlanta (deepest) · 2,1 back · 0 home
-function stopDepth(n){
-  const m = ((n-1)%6)+1;
-  return m<=3 ? m : 6-m;
-}
-// shine price for a stop. Roadside nip joints pay a pittance -- they're an emergency
-// dump when you need cash for a continue, not a payday. The real money is at the
-// hubs, and it climbs the deeper you carry it toward Atlanta and the harder the road.
+// shine price at a hub. Atlanta pays deepest; the hideout pays a base rate for
+// whatever made it back. Harder roads climb the price either way.
 function priceFor(n, prof){
-  if(stopType(n)==='regular') return Math.max(PRICE_MIN, Math.round(PRICE_MIN + roadPay(prof)*0.35));
-  return Math.max(PRICE_MIN, Math.round(PRICE_MIN + stopDepth(n)*0.8 + roadPay(prof)));
+  const depth = stopType(n)==='town' ? 3 : 0;
+  return Math.max(PRICE_MIN, Math.round(PRICE_MIN + depth*0.8 + roadPay(prof)));
 }
-// stops cycle 6 deep: 2 nip joints out, a town (Atlanta), 2 nip joints back, then the hideout — repeat
-function stopType(n){
-  const m = ((n-1)%6)+1;
-  if(m===3) return 'town';
-  if(m===6) return 'hideout';
-  return 'regular';
-}
-// the two roadside nip joints between Atlanta and the hideout: the run home
-// never pulls in at them, every one is a drive-by taken with the blow-past boost
-function isReturnNip(n){
-  const m = ((n-1)%6)+1;
-  return m===4 || m===5;
-}
+// The only stops are the hubs, and they alternate: leave the hideout and the next
+// counter is Atlanta; leave Atlanta and it's the hideout. n counts hub stops made;
+// 0 is the run's start at the hideout. Nip joints between them never stop you --
+// they're boost lanterns, both ways, every time. Because stops are keyed to the
+// hubs alone, the stop cycle can never drift off the geography: blow past a hub
+// and the same hub simply comes around again a full leg later.
+function stopType(n){ return (n%2)===1 ? 'town' : 'hideout'; }
 // what you shout past when the law won't let you stop to sell
-const BLOWBY_NAME = { regular:'THE NIP JOINT', town:'ATLANTA', hideout:'THE HIDEOUT' };
+const BLOWBY_NAME = { town:'ATLANTA', hideout:'THE HIDEOUT' };
 const STORE_COPY = {
-  regular:{eyebrow:'Copper Creek Nip Joint &nbsp;·&nbsp; Drop Point', title:'THE COUNTER'},
   town:   {eyebrow:'Atlanta &nbsp;·&nbsp; Union Station Rail Yard', title:'THE ATLANTA DROP'},
   hideout:{eyebrow:'The Hideout &nbsp;·&nbsp; Appalachian Wilderness', title:'BACK AT THE HIDEOUT'},
 };
@@ -1011,7 +997,6 @@ function openStore(){
   state.stopCount++;
   state.roadPicked = false;   // set when the map rebuilds the road at this stop
   state.curStopType = stopType(state.stopCount);
-  if(state.curStopType==='town') state.townS = state.prevDrop;   // anchor Atlanta's trailing sprawl
   state.price = priceFor(state.stopCount, state.road);
   state.sellQty = state.jars;
   state.loadQty = state.jars;
@@ -1050,9 +1035,7 @@ function renderStore(){
   document.getElementById('loadSection').style.display = isHideout ? '' : 'none';
   document.getElementById('storeFine').textContent = isHideout
     ? 'Sell what\'s left, reload the trunk for the run back out, or spend cash on a continue.'
-    : (s.curStopType==='regular'
-        ? 'Roadside nip joints pay a pittance — dump a few jars here only if you need cash for a continue. Hold the load for Atlanta. Reload only at the hideout.'
-        : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. The run home is all drive-bys: no stopping until the hideout.');
+    : 'Drop off some or all for cash — a full untouched case sold at once pays a bonus. The road between hubs is all drive-bys: every nip joint is a boost, no stopping until the hideout.';
 
   const loadSlider = document.getElementById('loadSlider');
   s.loadQty = Math.max(JARS_MIN, Math.min(s.loadQty, JARS_MAX));
@@ -1078,9 +1061,9 @@ function renderStore(){
     ? 'TRUNK FULL OF CONTINUES'
     : 'BUY CONTINUE — $'+CONTINUE_CASH_COST;
 
-  const atHub = (s.curStopType==='town' || s.curStopType==='hideout');
-  document.getElementById('mapBtn').style.display = atHub ? 'block' : 'none';
-  document.getElementById('garageBtn').style.display = atHub ? 'block' : 'none';
+  // every stop is a hub now, so the map and garage are always on offer
+  document.getElementById('mapBtn').style.display = 'block';
+  document.getElementById('garageBtn').style.display = 'block';
 }
 function storeSell(){
   const s=state;
@@ -1114,17 +1097,11 @@ function storeTrade(){
 }
 function storeLeave(){
   if(state.mode!=='store') return;
-  // The road runs on past this stop without a rebuild in two cases: a hub stop
-  // where the map never got studied, and a nip-joint stop sitting on the mapped
-  // leg's last drop (a blow-by earlier in the leg shifts the hub cycle one drop
-  // past the map's end, so the map would run out before the hub). Either way the
-  // drops and mini-map re-anchor here so the map spans the leg you drive. Only a
-  // fresh leg out of a hub rolls a fresh chase, map or no map.
-  const hubStop = state.curStopType==='town' || state.curStopType==='hideout';
-  if(!state.roadPicked && (hubStop || state.legDrops>=3)){
-    rebaseLeg(state.prevDrop);
-    if(hubStop) rollChase();
-  }
+  state.prevHubType = state.curStopType;   // the hub you're pulling out of
+  // pulled out without studying the map? same road runs on, but the drops and
+  // mini-map re-anchor here so the map still spans the leg you drive -- and a
+  // fresh leg still rolls fresh odds of a tail
+  if(!state.roadPicked){ rebaseLeg(state.prevDrop); rollChase(); }
   document.getElementById('store').classList.add('hidden');
   state.a=0; state.lat=0; state.shake=0; state.spinAnim=0; state.overT=0;
   state.sRev=state.sCar-260; state.latRev=0; state.vRev=120; state.revDrift=0; state.revSpinT=0; state.escapeT=0;
@@ -1750,29 +1727,33 @@ function step(dt){
   ensureRoad(s.sCar + Math.max(W,H)*1.3 + 200);
   dropRoad(s.sCar - 420);
 
-  // drop point: roll past the lantern and pull up at the nip-joint keeper's counter
+  // drop point: a nip-joint lantern or the hub at the end of the leg
   if(s.sCar >= s.nextDrop){
     s.prevDrop = s.nextDrop;
     s.nextDrop += DROP_STEP;   // fixed so the drops always line up with the studied map
     s.legDrops++;
-    // law on your tail? no stopping to sell -- you blow past the drop, and the run
-    // past the lantern hands you a boost to shake him. no sale this drop, but a
-    // full head of steam to open the gap. clear road: pull up and sell as usual.
-    // the run home never pulls in at a roadside nip joint either: every one is a
-    // drive-by with the same boost, and the stop cycle rolls on toward the hideout.
-    const returnNip = isReturnNip(s.stopCount+1);
-    if(s.revActive || returnNip){
+    if(s.legDrops >= 3){
+      // the hub itself: Atlanta or the hideout. Clear road: pull up at the counter.
+      // Law on your tail? no stopping to sell -- blow past with a boost, and the
+      // leg re-anchors here so the next mapped stretch starts at this hub.
+      if(s.revActive){
+        s.boostT = BOOST_TIME;
+        s.v += 90;               // instant kick off the lantern
+        flash('BLEW PAST '+BLOWBY_NAME[stopType(s.stopCount+1)]+' — BOOST');
+        cashDing();
+        s.prevHubType = stopType(s.stopCount+1);
+        rebaseLeg(s.prevDrop);
+      } else {
+        openStore();
+        return;
+      }
+    } else {
+      // nip joint: never a stop -- always a running boost past the lantern,
+      // law on your tail or not, heading down or heading home
       s.boostT = BOOST_TIME;
       s.v += 90;                 // instant kick off the lantern
-      flash('BLEW PAST '+BLOWBY_NAME[stopType(s.stopCount+1)]+' — BOOST');
+      flash('NIP JOINT — BOOST');
       cashDing();
-      if(returnNip) s.stopCount++;   // drive-by counts as the visit: next up is the next stop home
-      // blew past the hub itself: the road runs on, so re-anchor the drops and the
-      // mini-map right here -- the next mapped leg starts at the hub you just shot past
-      if(s.legDrops >= 3) rebaseLeg(s.prevDrop);
-    } else {
-      openStore();
-      return;
     }
   }
 
@@ -1867,17 +1848,19 @@ const URBAN_R = 3000;      // sprawl closing on Atlanta from the ridge (outbound
 const URBAN_TRAIL = 6800;  // return trip: Atlanta lets go slow, city trailing the whole climb home before it thins to wilderness
 function urbanAt(sPos){
   let u=0;
+  // Both belts are keyed to the leg's geography: the hub behind you sits at the leg
+  // start (downStart) and the hub ahead sits exactly one mapped leg past it, so the
+  // scenery always lands where the hubs actually are -- boosted-past drops included.
   // pulling out of Atlanta on the run home: the city trails a long way up the ridge,
-  // thinning block by block into Appalachian wilderness by the time you near the
-  // hideout. Anchored to the town stop itself so drive-by drops don't cut it short.
-  if(state.townS > -9000){
-    const d = sPos - state.townS;
+  // thinning block by block into Appalachian wilderness by the time you near the hideout
+  if(state.prevHubType==='town'){
+    const d = sPos - downStart;
     const r = d>=0 ? URBAN_TRAIL : URBAN_R;   // long fade heading home, tight fade behind
     u=Math.max(u, 1 - Math.abs(d)/r);
   }
   // closing on Atlanta from the ridge (outbound): pines give way to city blocks
   if(stopType(state.stopCount+1)==='town')
-    u=Math.max(u, 1 - Math.abs(sPos-state.nextDrop)/URBAN_R);
+    u=Math.max(u, 1 - Math.abs(sPos-(downStart+PREVIEW_LEN))/URBAN_R);
   return Math.max(0, u);
 }
 // the moonshine hollow: the woods tighten around the hideout — denser pines and a
@@ -1886,9 +1869,9 @@ const HOLLOW_R = 2800;
 function hollowAt(sPos){
   let h=0;
   if(stopType(state.stopCount+1)==='hideout')
-    h=Math.max(h, 1 - Math.abs(sPos-state.nextDrop)/HOLLOW_R);
-  if(state.prevDrop > -9000 && stopType(state.stopCount)==='hideout')
-    h=Math.max(h, 1 - Math.abs(sPos-state.prevDrop)/HOLLOW_R);
+    h=Math.max(h, 1 - Math.abs(sPos-(downStart+PREVIEW_LEN))/HOLLOW_R);
+  if(state.prevHubType==='hideout')
+    h=Math.max(h, 1 - Math.abs(sPos-downStart)/HOLLOW_R);
   return Math.max(0, h);
 }
 // a pine blob seen from overhead: dark core fading to near-black needles. Returns its
@@ -2267,7 +2250,13 @@ function drawCar(){
 function drawDrops(T){
   const s=state;
   if(s.mode==='menu') return;
-  const dropTypes = [stopType(s.stopCount), stopType(s.stopCount+1)];
+  // a drop is a hub only at the leg boundaries: the one behind you if the leg just
+  // started, the one ahead if two nip lanterns are already behind you. Everything
+  // else on the leg is a nip joint -- a boost lantern, never a counter.
+  const dropTypes = [
+    s.legDrops===0 ? s.prevHubType : 'nip',
+    s.legDrops>=2 ? stopType(s.stopCount+1) : 'nip'
+  ];
   [s.prevDrop, s.nextDrop].forEach((d, di)=>{
     if(d < s.sCar-400 || d > s.sCar+1300) return;
     const isTown = dropTypes[di]==='town';
@@ -2516,10 +2505,9 @@ function drawHUD(){
   if(s.mode==='run'){
     const dd = s.nextDrop - s.sCar;
     if(dd < 900 && Math.floor(s.time*3)%3 !== 0){
-      const upcoming = stopType(s.stopCount+1);
-      const label = upcoming==='town' ? 'ATLANTA AHEAD'
-        : (upcoming==='hideout' ? 'HIDEOUT AHEAD'
-        : (isReturnNip(s.stopCount+1) ? 'DRIVE-BY AHEAD' : 'DROP AHEAD'));
+      const label = s.legDrops>=2
+        ? (stopType(s.stopCount+1)==='town' ? 'ATLANTA AHEAD' : 'HIDEOUT AHEAD')
+        : 'BOOST AHEAD';
       ctx.font='700 '+Math.round(Math.max(13,m*0.03))+'px "JetBrains Mono Variable", monospace';
       ctx.fillStyle=HUD.lantern; ctx.textAlign='center';
       ctx.fillText(label, W/2, H*0.17);

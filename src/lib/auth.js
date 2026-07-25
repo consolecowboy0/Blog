@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 
 const SECRET = process.env.AUTH_SECRET;
 if (!SECRET) {
@@ -10,6 +10,9 @@ const HASHES = {
 };
 
 const TOKEN_TTL = 60 * 60 * 24 * 7; // 7 days
+
+const SCRYPT_KEYLEN = 64;
+const SCRYPT_OPTS = { N: 16384, r: 8, p: 1 };
 
 function sign(payload) {
   return createHmac('sha256', SECRET).update(payload).digest('hex');
@@ -24,11 +27,36 @@ function safeEqualHex(a, b) {
   }
 }
 
+function safeEqual(a, b) {
+  if (!Buffer.isBuffer(a) || !Buffer.isBuffer(b) || a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 export function verifyPassword(password, scope) {
-  const hash = HASHES[scope];
-  if (!hash) return false;
+  const stored = HASHES[scope];
+  if (!stored) return false;
+
+  // scrypt format: "scrypt:hex_salt:hex_derived_key"
+  if (stored.startsWith('scrypt:')) {
+    const parts = stored.split(':');
+    if (parts.length !== 3) return false;
+    const salt = Buffer.from(parts[1], 'hex');
+    const expected = Buffer.from(parts[2], 'hex');
+    if (salt.length === 0 || expected.length !== SCRYPT_KEYLEN) return false;
+    const derived = scryptSync(password, salt, SCRYPT_KEYLEN, SCRYPT_OPTS);
+    return safeEqual(derived, expected);
+  }
+
+  // Legacy SHA-256 format (plain hex digest). Still supported but should be
+  // migrated to scrypt using the generate-hash script.
   const attempt = createHash('sha256').update(password).digest('hex');
-  return safeEqualHex(attempt, hash);
+  return safeEqualHex(attempt, stored);
+}
+
+export function generateHash(password) {
+  const salt = randomBytes(32);
+  const derived = scryptSync(password, salt, SCRYPT_KEYLEN, SCRYPT_OPTS);
+  return `scrypt:${salt.toString('hex')}:${derived.toString('hex')}`;
 }
 
 export function createToken(scope) {

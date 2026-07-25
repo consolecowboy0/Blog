@@ -9,7 +9,7 @@ const DEFAULT_ALLOWED = [
 const envList = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
-  .filter(Boolean);
+  .filter(s => s && /^https?:\/\/[^/]+$/.test(s));
 
 const ALLOWED = new Set([...DEFAULT_ALLOWED, ...envList]);
 

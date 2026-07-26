@@ -30,9 +30,9 @@ Defined in `src/content.config.ts`. Two collections:
 - `src/pages/index.astro` - Homepage
 - `src/pages/posts/[...id].astro` - Dynamic post routes
 - `src/pages/library/` - Library section
-- `src/pages/rockoutwithyour/` - Interactive feature page
-- `src/pages/api/agent-chat.js` - Server-side API endpoint (SSR via Netlify adapter)
-- `src/pages/dev/` - Dev-only pages
+- `src/pages/racing.astro` - Motorsport placeholder
+- `src/pages/analytics/` - Password-gated analytics dashboard
+- `src/pages/404.astro` - Custom 404 page
 
 ### Layouts
 
@@ -47,46 +47,20 @@ Uses `@fontsource/inter` and `@fontsource-variable/jetbrains-mono`. Styles in `s
 
 - `chart.js` and `d3` for data visualization in posts/library items
 
-### Agents System
+### API Endpoints (SSR via Netlify adapter)
 
-Password-gated multi-agent chat at `src/pages/agents/index.astro`. Loads character JSON files, a room, and relationships, then runs rounds of conversation via Claude API.
+- `src/pages/api/track.js` - Pageview beacon ingest (Firebase)
+- `src/pages/api/auth.js` - Password authentication, token generation
+- `src/pages/api/analytics.js` - Aggregated pageview stats (auth-gated)
+- `src/pages/api/subscribe.js` - Email subscription
+- `src/pages/api/subscribers.js` - Subscriber CRUD (auth-gated)
+- `src/pages/api/whitelightning-scores.js` - Game leaderboard
 
-**Character sets** live in `characters/`. Each set is a directory:
+### Characters
+
+Character JSON files live in `characters/`. Each set is a directory with character files, relationships, and rooms:
+- `characters/analysts/` - Analyst characters
 - `characters/cyber/` - Cyberpunk Night City theme
 - `characters/diesel/` - Dieselpunk bunker theme
+- `characters/mathlab/` - Math/ML characters
 - `characters/modelthinker/` - Mental model problem-solvers
-
-**Character JSON format:**
-```json
-{
-  "name": "Name",
-  "age": 41,
-  "occupation": "...",
-  "appearance": "...",
-  "personality": { "core_traits": [], "flaws": [], "strengths": [] },
-  "model": "Model Name (modelthinker only)",
-  "model_description": "What the model does (modelthinker only)",
-  "speaking_style": { "tone": "", "habits": [], "vocabulary": "", "quirks": [] },
-  "backstory": "...",
-  "current_emotional_state": "...",
-  "secrets": "...",
-  "motivations": "...",
-  "physical_mannerisms": []
-}
-```
-
-**Relationships JSON:** `relationships_<theme>.json` -- array of pairings with `between`, `type`, `history`, `current_tension`, `shared_knowledge`. Every character pair should have an entry.
-
-**Room JSON:** `room_<name>.json` -- `name`, `location`, `time`, `weather`, `atmosphere` (lighting/sound/crowd/smell), `layout` (named areas), `objects_of_note`, `mood`.
-
-**Order modes** (dropdown in UI):
-- Default: fixed upload order
-- Random: Fisher-Yates shuffle per round
-- Priority: agents bid 1-10 urgency before each round, sorted by bid
-
-**Model Thinker characters** (12 total): Axiom (First Principles), Loop (Systems Thinking), Prior (Bayesian), Nash (Game Theory), Contra (Inversion), Bottleneck (Theory of Constraints), Darwin (Evolutionary), Tail (Power Laws/Fat Tails), Web (Network Theory), Margin (Marginal Thinking), Razor (Occam's Razor), Atlas (Map vs Territory). Each applies their mental model as a lens to problems. Tension comes from where models disagree.
-
-**API endpoints:**
-- `src/pages/api/agent-chat.js` - Direct Claude API calls
-- `src/pages/api/agent-sdk-chat.js` - Agent SDK mode
-- `src/pages/api/pixellab.js` - PixelLab pixel art illustration

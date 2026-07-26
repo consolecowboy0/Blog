@@ -131,18 +131,6 @@ th {
   color: var(--fg-muted);
 }
 
-.chart-container {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
-}
-
-.chart-container canvas {
-  width: 100% !important;
-  max-height: 400px;
-}
-
 /* Chart images: transparent background blends with page. */
 .chart-img {
   background: transparent;

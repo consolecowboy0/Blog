@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /api/
+Disallow: /analytics/
+Disallow: /whitelightning/
+Disallow: /desertrally/
+
+Sitemap: https://dustinlanders.com/sitemap-index.xml

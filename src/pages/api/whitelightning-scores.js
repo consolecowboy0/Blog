@@ -20,8 +20,18 @@ function cleanInitials(v) {
   return s.slice(0, 3);
 }
 
-export async function GET({ request }) {
+export async function GET({ request, clientAddress }) {
   const corsHeaders = { ...corsHeadersFor(request, 'GET, POST, OPTIONS'), 'Content-Type': 'application/json' };
+
+  const ip =
+    clientAddress ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'unknown';
+  const rl = checkRate(`wlread:${ip}`, 30, 60 * 1000);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ board: [] }), { status: 429, headers: corsHeaders });
+  }
+
   try {
     const db = getDb();
     const snap = await db.collection(COLLECTION).orderBy('s', 'desc').limit(BOARD_MAX).get();

@@ -3,6 +3,7 @@ export const prerender = false;
 import { getDb } from '../../lib/firebase.js';
 import { corsHeadersFor, preflight } from '../../lib/cors.js';
 import { checkRate } from '../../lib/rate-limit.js';
+import { safeJson } from '../../lib/body.js';
 
 // Public, global leaderboard for the White Lightning game (public/whitelightning).
 // Firestore collection "whitelightning_scores_usd": { i: initials, s: score, ts }.
@@ -49,10 +50,8 @@ export async function POST({ request, clientAddress }) {
     return new Response(JSON.stringify({ ok: false }), { status: 415, headers: corsHeaders });
   }
 
-  let body;
-  try {
-    body = await request.json();
-  } catch {
+  const body = await safeJson(request);
+  if (!body) {
     return new Response(JSON.stringify({ ok: false }), { status: 400, headers: corsHeaders });
   }
 

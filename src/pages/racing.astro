@@ -1,7 +1,12 @@
 ---
-import '@fontsource/inter/400.css';
 import '@fontsource/inter/600.css';
-import '@fontsource/inter/800.css';
+
+// Scheduled race/track days. Add entries here.
+// date: ISO "YYYY-MM-DD". type drives the accent color.
+// type: "race" | "practice" | "travel" | "event"
+const schedule = [
+  // { date: "2026-08-15", title: "Track day — COTA", type: "race", note: "Group B, 9am" },
+];
 ---
 
 <!doctype html>
@@ -9,525 +14,408 @@ import '@fontsource/inter/800.css';
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Learning to race a daily-driven VB WRX — an interactive field note." />
-    <title>Learning the Line — dustinlanders.com</title>
+    <meta name="description" content="dustinlanders.com — motorsport" />
+    <title>motorsport — dustinlanders.com</title>
     <link rel="icon" type="image/png" href="/falcon-favicon.png?v=5" />
+    <!-- Shared site-wide pageview beacon (whole domain, not just the blog). -->
     <script is:inline src="/beacon.js"></script>
   </head>
   <body>
-    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
-
-    <nav class="site-nav" aria-label="Site navigation">
-      <a href="/" class="back" aria-label="Back home">&larr;</a>
-      <span>motorsport / field note 001</span>
-      <span class="readout" id="sectionReadout">the car</span>
-    </nav>
-
     <main>
-      <section class="hero story-section" data-section="the car">
-        <div class="eyebrow">A DAILY DRIVER GOES RACING</div>
-        <h1>Learning<br />the <em>line.</em></h1>
-        <p class="dek">
-          One mostly stock VB WRX. Four different tires. A parking lot full of
-          cones. This is the beginning of learning what the car—and its driver—can do.
-        </p>
-        <div class="hero-car" aria-label="Illustration of a silver Subaru WRX">
-          <svg viewBox="0 0 1000 360" role="img" aria-labelledby="carTitle">
-            <title id="carTitle">Silver VB-generation Subaru WRX in profile</title>
-            <defs>
-              <linearGradient id="paint" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#f7f8f9"/>
-                <stop offset=".48" stop-color="#c9ced2"/>
-                <stop offset="1" stop-color="#858c91"/>
-              </linearGradient>
-              <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#52616a"/>
-                <stop offset="1" stop-color="#151b1f"/>
-              </linearGradient>
-            </defs>
-            <ellipse class="shadow" cx="500" cy="307" rx="390" ry="23"/>
-            <path class="car-body" d="M112 246 C128 205 181 185 267 171 L350 96 C373 74 402 64 449 63 L604 63 C644 66 676 85 705 116 L759 173 C836 183 883 203 905 236 L915 273 L856 285 C850 235 814 208 770 208 C724 208 688 239 684 288 L334 288 C330 239 293 208 248 208 C203 208 167 237 162 282 L100 273 Z"/>
-            <path class="glass" d="M363 104 C385 84 410 79 452 78 L507 78 L507 159 L296 159 Z"/>
-            <path class="glass" d="M525 78 L600 78 C633 82 656 96 681 124 L713 160 L525 160 Z"/>
-            <path class="trim" d="M282 174 L737 174"/>
-            <path class="door" d="M519 169 L519 272 M707 169 L690 270 M363 171 L348 267"/>
-            <path class="scoop" d="M210 185 L315 173 L344 182 L240 193 Z"/>
-            <path class="wing" d="M754 153 L868 150 L870 164 L773 170 Z"/>
-            <path class="bumper" d="M107 245 L168 241 M851 244 L909 241"/>
-            <g class="wheel wheel-rear" transform="translate(770 277)">
-              <circle class="tire" r="70"/><circle class="rim" r="47"/><circle class="hub" r="10"/>
-              <path class="spokes" d="M0-43V-12 M30-30L9-9 M43 0H12 M30 30L9 9 M0 43V12 M-30 30L-9 9 M-43 0H-12 M-30-30L-9-9"/>
-            </g>
-            <g class="wheel wheel-front" transform="translate(248 277)">
-              <circle class="tire" r="70"/><circle class="rim" r="47"/><circle class="hub" r="10"/>
-              <path class="spokes" d="M0-43V-12 M30-30L9-9 M43 0H12 M30 30L9 9 M0 43V12 M-30 30L-9 9 M-43 0H-12 M-30-30L-9-9"/>
-            </g>
-            <path class="ground" d="M55 348 H945"/>
-          </svg>
+      <header class="head">
+        <a href="/" class="back" aria-label="Home">&larr;</a>
+        <img class="falcon-mark" src="/images/falcon-mark.png?v=5" width="120" height="120" alt="" />
+        <div class="title-wrap">
+          <span class="flag" aria-hidden="true"></span>
+          <h1 class="wordmark">motorsport</h1>
         </div>
-        <div class="hero-meta">
-          <span>2022+ SUBARU WRX</span>
-          <span>VB CHASSIS</span>
-          <span>AWD / 6MT</span>
-        </div>
-        <div class="scroll-cue" aria-hidden="true"><span></span>scroll to wrench</div>
-      </section>
+        <p class="sub">schedule &amp; track days</p>
+      </header>
 
-      <section class="chapter story-section" data-section="the setup">
-        <div class="chapter-copy">
-          <div class="chapter-no">01 / THE SETUP</div>
-          <h2>Change less.<br /><em>Learn more.</em></h2>
-          <p>
-            The temptation is to start with power. But a stock-class car is an
-            experiment with fewer variables: learn the chassis, learn the surface,
-            and discover how much speed was hiding in the driver.
-          </p>
-          <p>
-            For the first event, the meaningful change happens where every input
-            finally reaches the ground: the tires.
-          </p>
+      <section class="cal" aria-label="Race calendar">
+        <div class="cal-bar">
+          <button class="nav" id="prev" aria-label="Previous month">&lsaquo;</button>
+          <div class="month-label" id="monthLabel" aria-live="polite"></div>
+          <button class="nav" id="next" aria-label="Next month">&rsaquo;</button>
         </div>
 
-        <div class="sticky-stage tire-stage">
-          <div class="stage-label">TAP TO COMPARE</div>
-          <button class="wheel-demo" id="wheelDemo" type="button" aria-pressed="false" aria-label="Swap between road and all-weather tire">
-            <svg viewBox="0 0 500 500" role="img" aria-label="Interactive wheel and tire">
-              <circle class="tire-outer" cx="250" cy="250" r="205"/>
-              <circle class="tire-inner" cx="250" cy="250" r="131"/>
-              <g class="tread road-tread">
-                <path d="M193 48l16 59M254 43l-2 62M316 53l-20 58M370 80l-36 51M414 122l-50 39M443 178l-58 20M455 240l-61 1M446 302l-59-17M419 359l-52-34M377 405l-39-48M323 437l-24-57M262 456l-5-61M200 450l14-59M142 426l32-53M94 389l47-41M61 337l56-25M45 278l61-7M46 215l60 12M66 156l54 30M101 105l43 44M150 68l28 55"/>
-              </g>
-              <g class="tread weather-tread">
-                <path d="M193 48l24 55-20 29M254 43l3 61-24 22M316 53l-15 58-31 14M370 80l-35 51-35 5M414 122l-49 39-35-5M443 178l-58 20-32-16M455 240l-61 1-26-27M446 302l-59-17-17-34M419 359l-52-34-5-37M377 405l-39-48 8-36M323 437l-24-57 19-31M262 456l-5-61 29-24M200 450l14-59 35-15M142 426l32-53 37-3M94 389l47-41 36 10M61 337l56-25 31 22M45 278l61-7 24 30M46 215l60 12 13 34M66 156l54 30 1 37M101 105l43 44-10 36M150 68l28 55-21 31"/>
-              </g>
-              <circle class="rim-large" cx="250" cy="250" r="126"/>
-              <circle class="rim-center" cx="250" cy="250" r="31"/>
-              <g class="rim-spokes">
-                <path d="M250 219V134 M272 228l60-60 M281 250h85 M272 272l60 60 M250 281v85 M228 272l-60 60 M219 250h-85 M228 228l-60-60"/>
-              </g>
-            </svg>
-          </button>
-          <div class="spec-card">
-            <div>
-              <span class="spec-kicker" id="tireKicker">BASELINE</span>
-              <strong id="tireName">Road tire</strong>
-            </div>
-            <p id="tireCopy">Known, predictable, and already on the car. The reference point.</p>
-          </div>
+        <div class="grid" id="grid" role="grid"></div>
+
+        <div class="legend">
+          <span class="lg"><i class="dot race"></i>race</span>
+          <span class="lg"><i class="dot practice"></i>practice</span>
+          <span class="lg"><i class="dot travel"></i>travel</span>
+          <span class="lg"><i class="dot event"></i>event</span>
         </div>
       </section>
 
-      <section class="classroom story-section" data-section="the rules">
-        <div class="chapter-no">02 / RUN WHAT YOU BRUNG</div>
-        <h2>What does<br /><em>“stock”</em> mean?</h2>
-        <p class="intro">
-          Not untouched. Stock-class competition limits the parts that can rewrite
-          the car’s behavior. The exact rulebook depends on the event, but the idea
-          is constant: keep the hardware close and make the driver the variable.
-        </p>
-        <div class="rules-grid">
-          <article class="rule-card yes">
-            <span class="rule-mark">✓</span>
-            <h3>Prepare</h3>
-            <ul>
-              <li>Appropriate tires</li>
-              <li>Fresh fluids</li>
-              <li>Safe brake pads</li>
-              <li>Pressure adjustments</li>
-            </ul>
-          </article>
-          <article class="rule-card no">
-            <span class="rule-mark">—</span>
-            <h3>Resist, for now</h3>
-            <ul>
-              <li>Chasing horsepower</li>
-              <li>Rewriting the suspension</li>
-              <li>Removing weight</li>
-              <li>Changing five things at once</li>
-            </ul>
-          </article>
-        </div>
-        <p class="rule-note">Always read the organizer’s current rulebook before entering a class.</p>
-      </section>
-
-      <section class="course-intro story-section" data-section="the course">
-        <div class="course-copy">
-          <div class="chapter-no">03 / READ THE COURSE</div>
-          <h2>A parking lot<br />becomes a <em>puzzle.</em></h2>
-          <p>
-            Autocross trades wheel-to-wheel racing for a temporary course and a
-            clock. One car runs at a time. The cones tell you where to go—but not
-            the fastest way to get there.
-          </p>
-        </div>
-        <div class="cone-field" aria-hidden="true">
-          <span style="--x:8%;--y:30%;--r:-8deg"></span><span style="--x:18%;--y:66%;--r:5deg"></span>
-          <span style="--x:35%;--y:21%;--r:9deg"></span><span style="--x:46%;--y:72%;--r:-4deg"></span>
-          <span style="--x:64%;--y:28%;--r:7deg"></span><span style="--x:78%;--y:64%;--r:-9deg"></span>
-          <span style="--x:91%;--y:32%;--r:3deg"></span>
-          <svg viewBox="0 0 900 250" preserveAspectRatio="none">
-            <path d="M12 129 C120 50 178 207 292 126 S465 48 572 128 S745 210 890 112"/>
-          </svg>
-        </div>
-      </section>
-
-      <section class="lesson story-section" data-section="the apex">
-        <div class="lesson-head">
-          <div class="chapter-no">04 / FIND THE APEX</div>
-          <h2>The shortest line<br />isn’t always the <em>fastest.</em></h2>
-          <p>
-            The apex is the innermost point of the path through a corner. Move it,
-            and you change what happens before and after it. Try the three lines.
-          </p>
-        </div>
-
-        <div class="apex-lab">
-          <div class="track-map">
-            <svg viewBox="0 0 720 620" role="img" aria-labelledby="apexTitle">
-              <title id="apexTitle">Interactive diagram comparing racing lines through a corner</title>
-              <path class="track-outer" d="M68 574 L68 385 C68 168 190 59 421 59 L663 59"/>
-              <path class="track-inner" d="M264 574 L264 399 C264 297 322 255 428 255 L663 255"/>
-              <path class="curb" d="M269 390 C281 304 330 266 426 258"/>
-              <path class="race-line early active" data-line="early" d="M161 585 C160 319 222 185 414 149 C506 132 577 149 684 170"/>
-              <path class="race-line geometric" data-line="geometric" d="M161 585 C161 365 242 174 427 157 C518 149 598 157 684 157"/>
-              <path class="race-line late" data-line="late" d="M161 585 C156 421 180 256 374 174 C466 136 566 128 684 144"/>
-              <circle class="car-dot" id="carDot" cx="161" cy="585" r="13"/>
-              <g class="apex-pin" id="apexPin" transform="translate(307 280)">
-                <circle r="18"/><path d="M0 18L-7 33H7Z"/><text x="28" y="6">APEX</text>
-              </g>
-              <text class="map-label" x="112" y="548">BRAKE</text>
-              <text class="map-label" x="561" y="112">ACCELERATE</text>
-            </svg>
-          </div>
-          <div class="line-controls" role="group" aria-label="Choose a racing line">
-            <button class="line-button active" data-choice="early" type="button">
-              <span>01</span><strong>Early</strong><small>Easy entry. Tight exit.</small>
-            </button>
-            <button class="line-button" data-choice="geometric" type="button">
-              <span>02</span><strong>Geometric</strong><small>Balanced, constant arc.</small>
-            </button>
-            <button class="line-button" data-choice="late" type="button">
-              <span>03</span><strong>Late</strong><small>Patient entry. Faster exit.</small>
-            </button>
-          </div>
-          <div class="lesson-result">
-            <span id="lineVerdict">EARLY APEX</span>
-            <p id="lineExplanation">You reach the inside too soon. The road runs out just as you want to accelerate.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="transfer story-section" data-section="weight transfer">
-        <div class="transfer-copy">
-          <div class="chapter-no">05 / MOVE THE WEIGHT</div>
-          <h2>The car is never<br />really <em>still.</em></h2>
-          <p>
-            Brake and load moves forward. Accelerate and it moves rearward. Turn
-            and the outside tires do more work. Smooth inputs keep that movement
-            useful instead of surprising.
-          </p>
-          <label for="inputSlider">DRIVER INPUT <output id="inputLabel">COAST</output></label>
-          <input id="inputSlider" type="range" min="-100" max="100" value="0" />
-          <div class="range-labels"><span>BRAKE</span><span>ACCELERATE</span></div>
-        </div>
-        <div class="transfer-viz" id="transferViz">
-          <svg viewBox="0 0 720 350" role="img" aria-label="Car diagram showing longitudinal weight transfer">
-            <path class="mini-body" d="M104 229 C130 177 199 163 281 150 L342 98 C363 79 385 72 425 72 H511 C548 75 577 92 605 123 L632 157 C678 170 699 192 704 226 L680 244 H105Z"/>
-            <path class="mini-glass" d="M294 146L357 91C371 80 390 79 426 79V146ZM441 79h67c31 3 53 17 77 45l19 22H441Z"/>
-            <g class="axle front" transform="translate(221 246)">
-              <circle class="load-ring" r="67"/><circle class="mini-wheel" r="48"/>
-              <text y="88" text-anchor="middle">FRONT LOAD</text>
-            </g>
-            <g class="axle rear" transform="translate(588 246)">
-              <circle class="load-ring" r="67"/><circle class="mini-wheel" r="48"/>
-              <text y="88" text-anchor="middle">REAR LOAD</text>
-            </g>
-            <path class="force-arrow" id="forceArrow" d="M405 42h0"/>
-          </svg>
-          <div class="balance"><span id="frontPct">50</span><i></i><span id="rearPct">50</span></div>
-        </div>
-      </section>
-
-      <section class="finale story-section" data-section="the start">
-        <div class="final-mark">001</div>
-        <div>
-          <div class="chapter-no">TO BE CONTINUED</div>
-          <h2>The first modification<br />is the <em>driver.</em></h2>
-          <p>
-            Next: the first course walk, the first timed run, and the long list of
-            things the cones will teach us.
-          </p>
-          <a class="home-link" href="/">back to dustinlanders.com <span>→</span></a>
-        </div>
-      </section>
+      <aside class="detail" id="detail" hidden>
+        <div class="detail-date" id="detailDate"></div>
+        <ul class="detail-list" id="detailList"></ul>
+      </aside>
     </main>
+    <footer>&copy; {new Date().getFullYear()} dustinlanders.com</footer>
 
-    <footer>
-      <span>© {new Date().getFullYear()} Dustin Landers</span>
-      <span>Field note 001 / prototype</span>
-    </footer>
+    <script is:inline define:vars={{ schedule }}>
+      const events = schedule;
+      const byDate = {};
+      for (const e of events) (byDate[e.date] ||= []).push(e);
 
-    <script>
-      const progressBar = document.getElementById('progressBar');
-      const readout = document.getElementById('sectionReadout');
-      const sections = [...document.querySelectorAll('.story-section')];
+      const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
+      const iso = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 
-      function updateScroll() {
-        const max = document.documentElement.scrollHeight - innerHeight;
-        progressBar.style.transform = `scaleX(${max ? scrollY / max : 0})`;
-        let current = sections[0];
-        for (const section of sections) {
-          if (section.getBoundingClientRect().top < innerHeight * .42) current = section;
+      const now = new Date();
+      const todayIso = iso(now.getFullYear(), now.getMonth(), now.getDate());
+      let viewY = now.getFullYear();
+      let viewM = now.getMonth();
+
+      const grid = document.getElementById("grid");
+      const monthLabel = document.getElementById("monthLabel");
+      const detail = document.getElementById("detail");
+      const detailDate = document.getElementById("detailDate");
+      const detailList = document.getElementById("detailList");
+
+      function showDetail(dateStr) {
+        const list = byDate[dateStr] || [];
+        const d = new Date(dateStr + "T00:00:00");
+        detailDate.textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+        detailList.innerHTML = "";
+        if (!list.length) {
+          const li = document.createElement("li");
+          li.className = "empty";
+          li.textContent = "nothing scheduled";
+          detailList.appendChild(li);
+        } else {
+          for (const e of list) {
+            const li = document.createElement("li");
+            li.className = "ev " + e.type;
+            li.innerHTML = `<span class="ev-tag">${e.type}</span><span class="ev-body"><b>${e.title || ""}</b>${e.note ? `<em>${e.note}</em>` : ""}</span>`;
+            detailList.appendChild(li);
+          }
         }
-        readout.textContent = current.dataset.section || '';
+        detail.hidden = false;
       }
-      addEventListener('scroll', updateScroll, { passive: true });
-      updateScroll();
 
-      const wheelDemo = document.getElementById('wheelDemo');
-      const tireKicker = document.getElementById('tireKicker');
-      const tireName = document.getElementById('tireName');
-      const tireCopy = document.getElementById('tireCopy');
-      wheelDemo.addEventListener('click', () => {
-        const changed = wheelDemo.getAttribute('aria-pressed') !== 'true';
-        wheelDemo.setAttribute('aria-pressed', String(changed));
-        wheelDemo.classList.toggle('changed', changed);
-        tireKicker.textContent = changed ? 'EVENT SETUP' : 'BASELINE';
-        tireName.textContent = changed ? 'All-weather tire' : 'Road tire';
-        tireCopy.textContent = changed
-          ? 'More edges and open channels: a practical first experiment for a loose or changeable surface.'
-          : 'Known, predictable, and already on the car. The reference point.';
+      function render() {
+        monthLabel.textContent = `${MONTHS[viewM]} ${viewY}`;
+        grid.innerHTML = "";
+
+        for (const d of DOW) {
+          const h = document.createElement("div");
+          h.className = "dow";
+          h.textContent = d;
+          grid.appendChild(h);
+        }
+
+        const first = new Date(viewY, viewM, 1);
+        const lead = (first.getDay() + 6) % 7; // Monday-start
+        const days = new Date(viewY, viewM + 1, 0).getDate();
+
+        for (let i = 0; i < lead; i++) {
+          const cell = document.createElement("div");
+          cell.className = "cell pad";
+          grid.appendChild(cell);
+        }
+
+        for (let d = 1; d <= days; d++) {
+          const dateStr = iso(viewY, viewM, d);
+          const list = byDate[dateStr] || [];
+          const cell = document.createElement("button");
+          cell.className = "cell day";
+          cell.setAttribute("role", "gridcell");
+          if (dateStr === todayIso) cell.classList.add("today");
+          if (list.length) cell.classList.add("has");
+
+          const num = document.createElement("span");
+          num.className = "num";
+          num.textContent = d;
+          cell.appendChild(num);
+
+          if (list.length) {
+            const dots = document.createElement("span");
+            dots.className = "dots";
+            const seen = new Set();
+            for (const e of list) {
+              if (seen.has(e.type)) continue;
+              seen.add(e.type);
+              const dot = document.createElement("i");
+              dot.className = "dot " + e.type;
+              dots.appendChild(dot);
+            }
+            cell.appendChild(dots);
+          }
+
+          cell.addEventListener("click", () => {
+            grid.querySelectorAll(".cell.sel").forEach((c) => c.classList.remove("sel"));
+            cell.classList.add("sel");
+            showDetail(dateStr);
+          });
+
+          grid.appendChild(cell);
+        }
+      }
+
+      document.getElementById("prev").addEventListener("click", () => {
+        viewM--; if (viewM < 0) { viewM = 11; viewY--; }
+        render();
+      });
+      document.getElementById("next").addEventListener("click", () => {
+        viewM++; if (viewM > 11) { viewM = 0; viewY++; }
+        render();
       });
 
-      const lineData = {
-        early: ['EARLY APEX', 'You reach the inside too soon. The road runs out just as you want to accelerate.', [307, 280]],
-        geometric: ['GEOMETRIC APEX', 'A balanced arc: useful when entry and exit matter about equally.', [339, 248]],
-        late: ['LATE APEX', 'Wait, rotate, then open the wheel. The straighter exit rewards earlier acceleration.', [384, 220]]
-      };
-      const lineButtons = [...document.querySelectorAll('.line-button')];
-      const raceLines = [...document.querySelectorAll('.race-line')];
-      const lineVerdict = document.getElementById('lineVerdict');
-      const lineExplanation = document.getElementById('lineExplanation');
-      const apexPin = document.getElementById('apexPin');
-      const carDot = document.getElementById('carDot');
-
-      lineButtons.forEach((button) => button.addEventListener('click', () => {
-        const choice = button.dataset.choice;
-        lineButtons.forEach((b) => b.classList.toggle('active', b === button));
-        raceLines.forEach((line) => line.classList.toggle('active', line.dataset.line === choice));
-        const [verdict, explanation, pin] = lineData[choice];
-        lineVerdict.textContent = verdict;
-        lineExplanation.textContent = explanation;
-        apexPin.setAttribute('transform', `translate(${pin[0]} ${pin[1]})`);
-        carDot.animate(
-          [{ transform: 'translate(0, 0)' }, { transform: 'translate(0, -110px)' }, { transform: 'translate(120px, -260px)' }],
-          { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' }
-        );
-      }));
-
-      const slider = document.getElementById('inputSlider');
-      const inputLabel = document.getElementById('inputLabel');
-      const transferViz = document.getElementById('transferViz');
-      const frontPct = document.getElementById('frontPct');
-      const rearPct = document.getElementById('rearPct');
-
-      function updateTransfer() {
-        const value = Number(slider.value);
-        const front = Math.round(50 - value * .16);
-        const rear = 100 - front;
-        frontPct.textContent = String(front);
-        rearPct.textContent = String(rear);
-        inputLabel.textContent = value < -8 ? 'BRAKING' : value > 8 ? 'ACCELERATING' : 'COAST';
-        transferViz.style.setProperty('--front-load', String(front / 50));
-        transferViz.style.setProperty('--rear-load', String(rear / 50));
-        transferViz.style.setProperty('--pitch', `${value * .025}deg`);
-        slider.style.setProperty('--slider-fill', `${(value + 100) / 2}%`);
-      }
-      slider.addEventListener('input', updateTransfer);
-      updateTransfer();
-
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) entry.target.classList.add('seen');
-          });
-        }, { threshold: .13 });
-        document.querySelectorAll('.chapter-copy, .classroom > *, .course-copy, .lesson-head, .transfer-copy, .finale > *')
-          .forEach((element) => observer.observe(element));
-      }
+      render();
     </script>
   </body>
 </html>
 
 <style is:global>
-  @font-face { font-family: Mono; src: url('/fonts/jetbrains-mono-latin-wght-normal.woff2') format('woff2'); font-display: swap; }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    min-height: 100%;
+  }
+
   :root {
-    --ink: #151719;
-    --paper: #f3f1eb;
-    --red: #df2e22;
-    --muted: #72716c;
-    --line: rgba(21, 23, 25, .16);
+    --ink: #1a1a1a;
+    --mute: #6b6b6b;
+    --line: #e6e6e6;
+    --race: #e10600;
+    --practice: #1a1a1a;
+    --travel: #9a9a9a;
+    --event: #c8a200;
   }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; background: var(--ink); overflow-x: hidden; }
-  body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, system-ui, sans-serif; overflow-x: hidden; }
-  button, input { font: inherit; }
-  .progress { position: fixed; inset: 0 0 auto; height: 3px; background: rgba(0,0,0,.08); z-index: 20; }
-  .progress span { display:block; width:100%; height:100%; background:var(--red); transform:scaleX(0); transform-origin:left; }
-  .site-nav { position: fixed; z-index: 15; top: 3px; left: 0; right: 0; height: 54px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 2rem; font: 600 10px/1 Mono, monospace; letter-spacing: .08em; text-transform: uppercase; mix-blend-mode: difference; color: #fff; }
-  .site-nav .back { color: inherit; text-decoration: none; font-size: 17px; justify-self: start; }
-  .site-nav .readout { justify-self: end; color: #aaa; }
-  .hero { min-height: 100svh; padding: 15vh 5vw 5vh; display:flex; flex-direction:column; align-items:center; background:var(--paper); }
-  .eyebrow, .chapter-no, .stage-label, .spec-kicker { font: 600 10px/1.2 Mono, monospace; letter-spacing:.13em; color:var(--red); }
-  .hero h1, h2 { margin:0; font-weight:800; letter-spacing:-.065em; line-height:.84; text-transform:uppercase; }
-  .hero h1 { font-size:clamp(72px, 12vw, 185px); text-align:center; }
-  h1 em, h2 em { color:var(--red); font-style:normal; }
-  .dek { max-width:630px; margin:2rem auto 0; text-align:center; font-size:clamp(16px,1.5vw,22px); line-height:1.55; }
-  .hero-car { width:min(980px, 90vw); margin-top:auto; }
-  .hero-car svg { display:block; width:100%; overflow:visible; }
-  .shadow { fill:rgba(0,0,0,.15); }
-  .car-body { fill:url(#paint); stroke:#454b4f; stroke-width:3; }
-  .glass { fill:url(#glass); stroke:#1d2428; stroke-width:2; }
-  .trim,.door,.scoop,.bumper { fill:none; stroke:#596064; stroke-width:3; }
-  .scoop,.wing { fill:#a7adb1; }
-  .wing { stroke:#454b4f; stroke-width:3; }
-  .tire { fill:#141516; stroke:#303235; stroke-width:4; }
-  .rim { fill:#555a5d; stroke:#d3d6d7; stroke-width:4; }
-  .hub { fill:#161719; }
-  .spokes { stroke:#d5d6d6; stroke-width:8; }
-  .ground { stroke:var(--ink); stroke-width:2; }
-  .hero-meta { width:min(900px,88vw); display:flex; justify-content:space-between; padding-top:1rem; border-top:1px solid var(--line); font:600 9px/1 Mono; letter-spacing:.1em; }
-  .scroll-cue { margin-top:3vh; display:flex; align-items:center; gap:9px; font:500 9px/1 Mono; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
-  .scroll-cue span { width:28px; height:1px; background:var(--red); animation:pulse 1.8s infinite; transform-origin:left; }
-  @keyframes pulse { 50% { transform:scaleX(.35); } }
 
-  .chapter { min-height:180vh; display:grid; grid-template-columns:1fr 1fr; background:#101214; color:#f3f1eb; }
-  .chapter-copy { padding:22vh 8vw; align-self:start; position:sticky; top:0; opacity:.25; transform:translateY(40px); transition:.8s; }
-  .chapter-copy.seen { opacity:1; transform:none; }
-  .chapter h2, .classroom h2, .course-intro h2, .lesson h2, .transfer h2, .finale h2 { margin:1.6rem 0 2rem; font-size:clamp(48px,7vw,110px); }
-  .chapter-copy p, .course-copy p, .lesson-head p, .transfer-copy p, .finale p { max-width:590px; font-size:clamp(17px,1.4vw,21px); line-height:1.65; color:#b4b3ae; }
-  .sticky-stage { height:100vh; position:sticky; top:0; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:8vh 7vw; border-left:1px solid rgba(255,255,255,.13); }
-  .stage-label { margin-bottom:1rem; }
-  .wheel-demo { appearance:none; border:0; background:transparent; color:inherit; width:min(520px,44vw); cursor:pointer; padding:0; }
-  .wheel-demo svg { width:100%; display:block; overflow:visible; transition:transform .7s cubic-bezier(.2,.8,.2,1); }
-  .wheel-demo:hover svg { transform:rotate(8deg) scale(1.02); }
-  .tire-outer { fill:#17191b; stroke:#3b3e41; stroke-width:5; }
-  .tire-inner { fill:#0d0e0f; }
-  .rim-large { fill:#4b5054; stroke:#d1d4d5; stroke-width:5; }
-  .rim-center { fill:#151719; stroke:#aeb2b4; stroke-width:4; }
-  .rim-spokes { stroke:#d3d5d5; stroke-width:16; stroke-linecap:round; }
-  .tread { fill:none; stroke:#767a7d; stroke-width:13; stroke-linecap:round; transition:opacity .4s; }
-  .weather-tread { stroke:var(--red); opacity:0; }
-  .wheel-demo.changed .road-tread { opacity:0; }
-  .wheel-demo.changed .weather-tread { opacity:1; }
-  .wheel-demo.changed svg { transform:rotate(18deg); }
-  .spec-card { width:min(500px,42vw); margin-top:1.5rem; padding:1.2rem 0; border-top:1px solid rgba(255,255,255,.18); display:grid; grid-template-columns:150px 1fr; gap:2rem; }
-  .spec-card div { display:flex; flex-direction:column; gap:.5rem; }
-  .spec-card strong { font-size:19px; }
-  .spec-card p { margin:0; color:#9b9b98; font-size:13px; line-height:1.5; }
-
-  .classroom { padding:18vh 9vw; min-height:100vh; }
-  .classroom > *,.course-copy,.lesson-head,.transfer-copy,.finale > * { opacity:.15; transform:translateY(34px); transition:.8s; }
-  .classroom > *.seen,.course-copy.seen,.lesson-head.seen,.transfer-copy.seen,.finale > *.seen { opacity:1; transform:none; }
-  .classroom h2 { max-width:1000px; }
-  .classroom .intro { max-width:800px; font-size:clamp(18px,2vw,28px); line-height:1.5; }
-  .rules-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); margin-top:5rem; border:1px solid var(--line); }
-  .rule-card { background:var(--paper); padding:clamp(2rem,5vw,5rem); position:relative; }
-  .rule-mark { position:absolute; top:2rem; right:2rem; width:40px; height:40px; display:grid; place-items:center; border:1px solid var(--ink); border-radius:50%; font-size:18px; }
-  .rule-card.yes .rule-mark { color:var(--red); border-color:var(--red); }
-  .rule-card h3 { margin:0 0 2rem; font-size:clamp(26px,3vw,44px); letter-spacing:-.04em; }
-  .rule-card ul { list-style:none; padding:0; margin:0; }
-  .rule-card li { padding:1rem 0; border-top:1px solid var(--line); font-size:15px; }
-  .rule-note { font:500 10px/1.4 Mono; color:var(--muted); text-transform:uppercase; margin-top:1rem; }
-
-  .course-intro { min-height:100vh; background:var(--red); color:#fff; padding:16vh 8vw 0; overflow:hidden; }
-  .course-copy { max-width:950px; }
-  .course-intro .chapter-no { color:#35100d; }
-  .course-copy p { color:#ffd9d3; }
-  .cone-field { height:42vh; position:relative; margin:7vh -8vw 0; }
-  .cone-field > span { position:absolute; left:var(--x); top:var(--y); width:0; height:0; border-left:18px solid transparent; border-right:18px solid transparent; border-bottom:55px solid #fff; transform:rotate(var(--r)); }
-  .cone-field > span:after { content:""; position:absolute; left:-24px; top:49px; width:48px; height:8px; background:#fff; }
-  .cone-field svg { position:absolute; inset:0; width:100%; height:100%; }
-  .cone-field path { fill:none; stroke:#35100d; stroke-width:3; stroke-dasharray:10 12; }
-
-  .lesson { padding:17vh 8vw; background:#e9e7df; }
-  .lesson-head { max-width:1020px; }
-  .lesson-head p { color:#5f605e; }
-  .apex-lab { display:grid; grid-template-columns:minmax(460px,1.4fr) minmax(260px,.6fr); gap:5vw; margin-top:6rem; align-items:center; }
-  .track-map svg { width:100%; display:block; overflow:visible; }
-  .track-outer,.track-inner { fill:none; stroke:#c7c5bd; stroke-width:5; }
-  .curb { fill:none; stroke:var(--red); stroke-width:16; stroke-dasharray:20 18; }
-  .race-line { fill:none; stroke:#8e8d88; stroke-width:4; stroke-dasharray:9 11; opacity:.15; transition:.45s; }
-  .race-line.active { opacity:1; stroke:var(--red); stroke-width:6; }
-  .car-dot { fill:var(--ink); stroke:#fff; stroke-width:5; }
-  .apex-pin { transition:transform .45s ease; }
-  .apex-pin circle,.apex-pin path { fill:var(--red); }
-  .apex-pin text,.map-label { font:600 12px Mono; letter-spacing:.1em; fill:var(--ink); }
-  .map-label { fill:#85847f; }
-  .line-controls { display:flex; flex-direction:column; border-top:1px solid var(--line); }
-  .line-button { appearance:none; border:0; border-bottom:1px solid var(--line); background:transparent; text-align:left; padding:1.3rem .2rem; display:grid; grid-template-columns:38px 1fr; color:var(--muted); cursor:pointer; transition:.2s; }
-  .line-button span { font:500 9px Mono; grid-row:1/3; padding-top:5px; }
-  .line-button strong { font-size:18px; color:inherit; }
-  .line-button small { margin-top:4px; }
-  .line-button:hover,.line-button.active { color:var(--red); padding-left:10px; }
-  .lesson-result { grid-column:2; padding-top:2rem; border-top:3px solid var(--ink); }
-  .lesson-result span { font:600 10px Mono; color:var(--red); letter-spacing:.1em; }
-  .lesson-result p { font-size:16px; line-height:1.55; }
-
-  .transfer { min-height:105vh; background:#101214; color:#f3f1eb; padding:15vh 8vw; display:grid; grid-template-columns:.8fr 1.2fr; gap:5vw; align-items:center; }
-  .transfer-copy p { color:#a9aaa7; }
-  .transfer-copy label { display:flex; justify-content:space-between; margin-top:4rem; font:600 10px Mono; letter-spacing:.1em; }
-  .transfer-copy output { color:var(--red); }
-  input[type=range] { --slider-fill:50%; width:100%; margin:1.5rem 0 .5rem; appearance:none; height:3px; background:linear-gradient(90deg,var(--red) var(--slider-fill),#484b4d var(--slider-fill)); }
-  input[type=range]::-webkit-slider-thumb { appearance:none; width:22px; height:22px; border-radius:50%; background:#f3f1eb; border:5px solid var(--red); cursor:grab; }
-  .range-labels { display:flex; justify-content:space-between; font:500 9px Mono; color:#707376; }
-  .transfer-viz { --front-load:1; --rear-load:1; --pitch:0deg; }
-  .transfer-viz svg { width:100%; display:block; overflow:visible; transform:rotate(var(--pitch)); transition:transform .15s; }
-  .mini-body { fill:#d1d4d5; stroke:#656a6d; stroke-width:3; }
-  .mini-glass { fill:#283138; }
-  .mini-wheel { fill:#17191b; stroke:#c9ccce; stroke-width:5; }
-  .load-ring { fill:none; stroke:var(--red); stroke-width:8; opacity:.75; transition:r .15s; }
-  .front .load-ring { transform:scale(var(--front-load)); }
-  .rear .load-ring { transform:scale(var(--rear-load)); }
-  .axle text { fill:#777a7b; font:600 9px Mono; letter-spacing:.1em; }
-  .balance { display:grid; grid-template-columns:50px 1fr 50px; align-items:center; gap:15px; margin:2rem auto 0; max-width:400px; font:600 24px Mono; text-align:center; }
-  .balance i { height:2px; background:linear-gradient(90deg,var(--red),#666); }
-
-  .finale { min-height:90vh; padding:16vh 8vw; display:grid; grid-template-columns:.6fr 1.4fr; align-items:center; gap:5vw; }
-  .final-mark { font:800 clamp(170px,26vw,420px)/.8 Inter; color:transparent; -webkit-text-stroke:2px var(--red); letter-spacing:-.1em; }
-  .finale p { color:#64645f; }
-  .home-link { display:inline-flex; gap:2rem; align-items:center; margin-top:2rem; padding-bottom:.7rem; border-bottom:1px solid var(--ink); color:var(--ink); text-decoration:none; font:600 11px Mono; text-transform:uppercase; letter-spacing:.08em; }
-  .home-link span { color:var(--red); }
-  footer { padding:2rem 4vw; background:var(--ink); color:#777; display:flex; justify-content:space-between; font:500 9px Mono; text-transform:uppercase; letter-spacing:.08em; }
-
-  @media (max-width: 760px) {
-    .site-nav { padding:0 1rem; grid-template-columns:1fr auto; }
-    .site-nav > span:nth-child(2) { display:none; }
-    .hero { padding-top:18vh; }
-    .hero h1 { font-size:20vw; }
-    .hero-car { width:115vw; margin-top:10vh; }
-    .hero-meta { font-size:7px; width:95vw; }
-    .chapter { display:block; min-height:auto; }
-    .chapter-copy { position:relative; padding:15vh 7vw 5vh; }
-    .sticky-stage { position:relative; border:0; height:auto; min-height:90vh; padding:4vh 7vw 12vh; }
-    .wheel-demo { width:min(420px,90vw); }
-    .spec-card { width:90vw; grid-template-columns:120px 1fr; gap:1rem; }
-    .classroom,.lesson,.transfer,.finale { padding-left:6vw; padding-right:6vw; }
-    .rules-grid { grid-template-columns:1fr; margin-top:3rem; }
-    .course-intro { padding-left:6vw; padding-right:6vw; }
-    .cone-field { margin-left:-6vw; margin-right:-6vw; }
-    .apex-lab { grid-template-columns:minmax(0,1fr); margin-top:3rem; min-width:0; }
-    .track-map { margin-left:-6vw; width:100vw; min-width:0; }
-    .line-controls,.lesson-result { min-width:0; }
-    .lesson-result { grid-column:1; }
-    .transfer { grid-template-columns:1fr; padding-top:12vh; padding-bottom:12vh; }
-    .transfer-viz { margin-top:2rem; }
-    .finale { grid-template-columns:1fr; }
-    .final-mark { font-size:45vw; order:2; overflow:hidden; }
-    footer { gap:2rem; }
+  body {
+    background: #ffffff;
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem 4rem;
   }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation:none!important; scroll-behavior:auto!important; transition:none!important; }
-    .chapter-copy,.classroom > *,.course-copy,.lesson-head,.transfer-copy,.finale > * { opacity:1; transform:none; }
+
+  main {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .head {
+    position: relative;
+    text-align: center;
+    margin-bottom: 1.6rem;
+    width: 100%;
+  }
+
+  .falcon-mark {
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 0.65rem;
+  }
+
+  .back {
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
+    color: var(--mute);
+    text-decoration: none;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .back:hover { color: var(--ink); }
+
+  .title-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .flag {
+    width: 16px;
+    height: 16px;
+    background-image:
+      linear-gradient(45deg, var(--ink) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--ink) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--ink) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--ink) 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    border-radius: 2px;
+  }
+
+  .wordmark {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .sub {
+    font-size: 0.75rem;
+    color: var(--mute);
+    margin-top: 0.35rem;
+  }
+
+  .cal { width: 100%; }
+
+  .cal-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.9rem;
+  }
+
+  .nav {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    color: var(--mute);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .nav:hover { color: var(--ink); border-color: var(--ink); }
+
+  .month-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .dow {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mute);
+    text-align: center;
+    padding-bottom: 0.35rem;
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+
+  .cell.day {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    color: var(--ink);
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  .cell.day:hover { border-color: var(--ink); }
+  .cell.day.sel { border-color: var(--ink); background: #f6f6f6; }
+  .cell.day.sel:active { transform: scale(0.97); }
+
+  .num { font-size: 0.8rem; font-weight: 500; }
+
+  .cell.today .num {
+    background: var(--race);
+    color: #fff;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .dots { display: flex; gap: 2px; height: 5px; }
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.race { background: var(--race); }
+  .dot.practice { background: var(--practice); }
+  .dot.travel { background: var(--travel); }
+  .dot.event { background: var(--event); }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    justify-content: center;
+    margin-top: 1.1rem;
+    font-size: 0.7rem;
+    color: var(--mute);
+  }
+  .lg { display: inline-flex; align-items: center; gap: 0.3rem; }
+
+  .detail {
+    width: 100%;
+    max-width: 460px;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.1rem;
+  }
+
+  .detail-date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.7rem;
+  }
+
+  .detail-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .detail-list .empty { font-size: 0.8rem; color: var(--mute); }
+
+  .ev {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    border-left: 2px solid var(--line);
+    padding-left: 0.6rem;
+  }
+  .ev.race { border-left-color: var(--race); }
+  .ev.practice { border-left-color: var(--practice); }
+  .ev.travel { border-left-color: var(--travel); }
+  .ev.event { border-left-color: var(--event); }
+
+  .ev-tag {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mute);
+    padding-top: 0.15rem;
+    min-width: 48px;
+  }
+  .ev-body { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.82rem; }
+  .ev-body em { font-style: normal; color: var(--mute); font-size: 0.75rem; }
+
+  footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--mute);
   }
 </style>

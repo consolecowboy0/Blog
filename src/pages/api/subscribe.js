@@ -29,6 +29,7 @@ export async function POST({ request, clientAddress }) {
   }
 
   let { email } = body;
+  const source = body.source === 'falcon' ? 'falcon' : 'homepage';
   if (typeof email !== 'string') return json({ error: 'Missing email' }, 400);
   email = email.trim().toLowerCase();
   if (email.length > 254 || !EMAIL_RE.test(email)) {
@@ -49,7 +50,7 @@ export async function POST({ request, clientAddress }) {
   await ref.set({
     email,
     created: now,
-    source: 'homepage',
+    source,
   });
 
   return json({ ok: true });

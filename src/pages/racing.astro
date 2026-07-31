@@ -21,9 +21,6 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     <script is:inline src="/beacon.js"></script>
   </head>
   <body>
-    <div class="ambient ambient-one" aria-hidden="true"></div>
-    <div class="ambient ambient-two" aria-hidden="true"></div>
-
     <header class="nav-shell">
       <nav aria-label="Primary navigation">
         <a href="/" class="home-link" aria-label="Back to dustinlanders.com">
@@ -184,15 +181,13 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
 
 <style is:global>
   :root {
-    --bg: #05070b;
-    --panel: #0b0f17;
-    --panel-soft: #101622;
-    --line: rgba(255, 255, 255, 0.1);
-    --ink: #f4f7fb;
-    --muted: #8f9bad;
-    --cyan: #30dcff;
-    --blue: #2869ff;
-    --violet: #8a43ff;
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel-soft: #f7f7f7;
+    --line: #e5e5e5;
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #1a1a1a;
     --mono: 'JetBrains Mono Variable', monospace;
   }
 
@@ -210,37 +205,10 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   body {
     min-height: 100vh;
     overflow-x: hidden;
-    background:
-      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-      var(--bg);
-    background-size: 64px 64px;
+    background: var(--bg);
     color: var(--ink);
     font-family: 'Inter', system-ui, sans-serif;
     line-height: 1.5;
-  }
-
-  .ambient {
-    position: fixed;
-    width: 36rem;
-    height: 36rem;
-    border-radius: 50%;
-    filter: blur(120px);
-    opacity: 0.12;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .ambient-one {
-    top: -20rem;
-    right: -8rem;
-    background: var(--violet);
-  }
-
-  .ambient-two {
-    top: 42rem;
-    left: -25rem;
-    background: var(--cyan);
   }
 
   .nav-shell,
@@ -309,7 +277,6 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     width: 92px;
     height: 92px;
     object-fit: contain;
-    filter: drop-shadow(0 0 24px rgba(48, 220, 255, 0.22));
   }
 
   .eyebrow,
@@ -324,7 +291,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .eyebrow {
-    color: #b6c0cd;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.13em;
     font-size: 0.7rem;
@@ -336,8 +303,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   .eyebrow span {
     width: 26px;
     height: 1px;
-    background: var(--cyan);
-    box-shadow: 0 0 8px var(--cyan);
+    background: var(--accent);
   }
 
   h1 {
@@ -348,15 +314,14 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   h1 em {
-    color: transparent;
+    color: var(--muted);
     font-style: normal;
-    -webkit-text-stroke: 1px rgba(244, 247, 251, 0.55);
   }
 
   .lede {
     max-width: 680px;
     margin-top: 2rem;
-    color: #aab4c2;
+    color: var(--muted);
     font-size: clamp(1.05rem, 2vw, 1.3rem);
     line-height: 1.65;
   }
@@ -382,13 +347,13 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .button.primary {
-    background: linear-gradient(110deg, #245dff, #7b3eff);
-    box-shadow: 0 12px 40px rgba(62, 72, 255, 0.22);
+    background: var(--ink);
+    color: var(--bg);
   }
 
   .button.secondary {
     border: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg);
   }
 
   .status {
@@ -402,7 +367,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .status strong {
-    color: #bfeeff;
+    color: var(--ink);
     font-weight: 500;
   }
 
@@ -411,15 +376,14 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: var(--cyan);
-    box-shadow: 0 0 10px var(--cyan);
+    background: var(--accent);
   }
 
   .telemetry-card {
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: rgba(8, 12, 19, 0.88);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    background: var(--bg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
     overflow: hidden;
   }
 
@@ -430,7 +394,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: #647083;
+    color: var(--muted);
     font-size: 0.62rem;
     letter-spacing: 0.12em;
   }
@@ -439,7 +403,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    color: #b2bdca;
+    color: var(--ink);
   }
 
   .pulse {
@@ -470,7 +434,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
 
   .metric .label {
     margin-bottom: auto;
-    color: #5f6b7c;
+    color: var(--muted);
     font-size: 0.6rem;
     letter-spacing: 0.12em;
   }
@@ -483,13 +447,12 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .metric.speed strong {
-    color: var(--cyan);
-    text-shadow: 0 0 24px rgba(48, 220, 255, 0.3);
+    color: var(--ink);
   }
 
   .unit {
     margin-top: 0.35rem;
-    color: #5f6b7c;
+    color: var(--muted);
     font-size: 0.56rem;
   }
 
@@ -499,17 +462,17 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     display: flex;
     gap: 1rem;
     align-items: baseline;
-    background: rgba(38, 105, 255, 0.055);
+    background: var(--panel-soft);
   }
 
   .prompt {
-    color: var(--violet);
+    color: var(--ink);
     font-size: 0.62rem;
     letter-spacing: 0.12em;
   }
 
   .radio-line p {
-    color: #b8c3d0;
+    color: var(--muted);
     font-family: var(--mono);
     font-size: 0.72rem;
   }
@@ -520,7 +483,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .section-label {
-    color: var(--cyan);
+    color: var(--ink);
     font-size: 0.62rem;
     letter-spacing: 0.16em;
     margin-bottom: 1.3rem;
@@ -567,7 +530,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   .number {
     display: block;
     margin-bottom: 4rem;
-    color: #4d5869;
+    color: var(--muted);
     font-size: 0.65rem;
   }
 
@@ -599,14 +562,14 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   .capabilities li {
     padding: 1.25rem 0;
     border-bottom: 1px solid var(--line);
-    color: #bac4d1;
+    color: var(--ink);
     font-size: 0.9rem;
   }
 
   .capabilities li span {
     display: inline-block;
     width: 3rem;
-    color: #4f5a6b;
+    color: var(--muted);
     font-family: var(--mono);
     font-size: 0.62rem;
   }
@@ -615,9 +578,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     padding: 4.5rem;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background:
-      radial-gradient(circle at 100% 0%, rgba(128, 64, 255, 0.12), transparent 35%),
-      var(--panel);
+    background: var(--panel);
   }
 
   .direction-copy {
@@ -640,18 +601,18 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     border-radius: 5px;
     color: var(--ink);
     text-decoration: none;
-    background: rgba(255, 255, 255, 0.018);
+    background: var(--bg);
     transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
   }
 
   .paths a:hover {
     transform: translateY(-3px);
-    border-color: rgba(48, 220, 255, 0.38);
-    background: rgba(48, 220, 255, 0.035);
+    border-color: var(--ink);
+    background: var(--panel-soft);
   }
 
   .path-tag {
-    color: var(--cyan);
+    color: var(--ink);
     font-size: 0.58rem;
     letter-spacing: 0.13em;
   }
@@ -680,7 +641,6 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     width: 72px;
     height: 72px;
     margin-bottom: 1.5rem;
-    filter: drop-shadow(0 0 22px rgba(48, 220, 255, 0.22));
   }
 
   .closing p {
@@ -690,7 +650,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
   }
 
   .closing a {
-    color: var(--cyan);
+    color: var(--ink);
     font-family: var(--mono);
     font-size: 0.72rem;
     text-decoration: none;
@@ -703,7 +663,7 @@ const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
     border-top: 1px solid var(--line);
     display: flex;
     justify-content: space-between;
-    color: #505b6b;
+    color: var(--muted);
     font-family: var(--mono);
     font-size: 0.6rem;
     letter-spacing: 0.05em;

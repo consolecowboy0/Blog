@@ -1,12 +1,10 @@
 ---
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
+import '@fontsource-variable/jetbrains-mono';
 
-// Scheduled race/track days. Add entries here.
-// date: ISO "YYYY-MM-DD". type drives the accent color.
-// type: "race" | "practice" | "travel" | "event"
-const schedule = [
-  // { date: "2026-08-15", title: "Track day — COTA", type: "race", note: "Group B, 9am" },
-];
+const githubUrl = 'https://github.com/consolecowboy0/iracing-mcp-server';
 ---
 
 <!doctype html>
@@ -14,408 +12,785 @@ const schedule = [
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="dustinlanders.com — motorsport" />
-    <title>motorsport — dustinlanders.com</title>
+    <meta
+      name="description"
+      content="Paragon Falcon Motorsport. Open tools for connecting iRacing telemetry to AI."
+    />
+    <title>motorsport | Paragon Falcon</title>
     <link rel="icon" type="image/png" href="/falcon-favicon.png?v=5" />
-    <!-- Shared site-wide pageview beacon (whole domain, not just the blog). -->
     <script is:inline src="/beacon.js"></script>
   </head>
   <body>
+    <div class="ambient ambient-one" aria-hidden="true"></div>
+    <div class="ambient ambient-two" aria-hidden="true"></div>
+
+    <header class="nav-shell">
+      <nav aria-label="Primary navigation">
+        <a href="/" class="home-link" aria-label="Back to dustinlanders.com">
+          <span aria-hidden="true">←</span>
+          <span>dustinlanders.com</span>
+        </a>
+        <a href={githubUrl} class="nav-cta" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </header>
+
     <main>
-      <header class="head">
-        <a href="/" class="back" aria-label="Home">&larr;</a>
-        <img class="falcon-mark" src="/images/falcon-mark.png?v=5" width="120" height="120" alt="" />
-        <div class="title-wrap">
-          <span class="flag" aria-hidden="true"></span>
-          <h1 class="wordmark">motorsport</h1>
-        </div>
-        <p class="sub">schedule &amp; track days</p>
-      </header>
-
-      <section class="cal" aria-label="Race calendar">
-        <div class="cal-bar">
-          <button class="nav" id="prev" aria-label="Previous month">&lsaquo;</button>
-          <div class="month-label" id="monthLabel" aria-live="polite"></div>
-          <button class="nav" id="next" aria-label="Next month">&rsaquo;</button>
+      <section class="hero">
+        <div class="identity">
+          <img
+            class="falcon-mark"
+            src="/images/falcon-mark.png?v=5"
+            width="168"
+            height="168"
+            alt="Paragon Falcon sigil"
+          />
+          <div class="eyebrow"><span></span> Paragon Falcon Motorsport</div>
         </div>
 
-        <div class="grid" id="grid" role="grid"></div>
+        <h1>Your race data.<br /><em>Now it can talk.</em></h1>
+        <p class="lede">
+          An open bridge between iRacing telemetry and AI. Give a voice agent live
+          access to the car, the session, and the fight happening around you.
+        </p>
 
-        <div class="legend">
-          <span class="lg"><i class="dot race"></i>race</span>
-          <span class="lg"><i class="dot practice"></i>practice</span>
-          <span class="lg"><i class="dot travel"></i>travel</span>
-          <span class="lg"><i class="dot event"></i>event</span>
+        <div class="actions">
+          <a href={githubUrl} class="button primary" target="_blank" rel="noreferrer">
+            View the project
+            <span aria-hidden="true">↗</span>
+          </a>
+          <a href="#how-it-works" class="button secondary">How it works</a>
+        </div>
+
+        <div class="status">
+          <span class="status-light" aria-hidden="true"></span>
+          <span><strong>Early build</strong> · Windows · Python · MIT licensed</span>
         </div>
       </section>
 
-      <aside class="detail" id="detail" hidden>
-        <div class="detail-date" id="detailDate"></div>
-        <ul class="detail-list" id="detailList"></ul>
-      </aside>
+      <section class="telemetry-card" aria-label="Sample live telemetry">
+        <div class="terminal-head">
+          <div class="terminal-title">
+            <span class="pulse" aria-hidden="true"></span>
+            LIVE TELEMETRY
+          </div>
+          <span>IRACING / MCP</span>
+        </div>
+        <div class="telemetry-grid">
+          <div class="metric speed">
+            <span class="label">SPEED</span>
+            <strong>247</strong>
+            <span class="unit">KM/H</span>
+          </div>
+          <div class="metric">
+            <span class="label">GEAR</span>
+            <strong>6</strong>
+          </div>
+          <div class="metric">
+            <span class="label">POSITION</span>
+            <strong>P4</strong>
+          </div>
+          <div class="metric">
+            <span class="label">GAP AHEAD</span>
+            <strong>0.42</strong>
+            <span class="unit">SEC</span>
+          </div>
+        </div>
+        <div class="radio-line">
+          <span class="prompt">AGENT</span>
+          <p>Car ahead is losing time under braking. Gap is down two tenths this lap.</p>
+        </div>
+      </section>
+
+      <section class="manifesto">
+        <p class="section-label">THE IDEA</p>
+        <h2>The sim already knows everything.<br />Your AI should too.</h2>
+        <p>
+          iRacing produces a constant stream of useful data. The iRacing MCP Server
+          turns that data into tools an AI client can understand and use in real time.
+          Connect a voice agent and build a spotter, engineer, strategist, narrator,
+          or something nobody has named yet.
+        </p>
+      </section>
+
+      <section class="feature-grid" id="how-it-works">
+        <article>
+          <span class="number">01</span>
+          <h3>Connect</h3>
+          <p>Read live telemetry from iRacing through the proven pyirsdk interface.</p>
+        </article>
+        <article>
+          <span class="number">02</span>
+          <h3>Translate</h3>
+          <p>Expose speed, fuel, lap data, position, surroundings, and session context as MCP tools.</p>
+        </article>
+        <article>
+          <span class="number">03</span>
+          <h3>Build</h3>
+          <p>Plug the server into ElevenLabs or another MCP client and create your own race intelligence.</p>
+        </article>
+      </section>
+
+      <section class="capabilities">
+        <div>
+          <p class="section-label">WHAT IT SEES</p>
+          <h2>Race context,<br />not just numbers.</h2>
+        </div>
+        <ul>
+          <li><span>01</span> Live speed, RPM, gear, inputs, and fuel</li>
+          <li><span>02</span> Track, weather, session, and car information</li>
+          <li><span>03</span> Position, lap times, and relative gaps</li>
+          <li><span>04</span> Nearby cars ahead and behind</li>
+          <li><span>05</span> Live pass events for immediate reactions</li>
+        </ul>
+      </section>
+
+      <section class="direction">
+        <div class="direction-copy">
+          <p class="section-label">BUILDING IN PUBLIC</p>
+          <h2>The final shape is still open.</h2>
+          <p>
+            The core server is available now under the MIT license. The next question
+            is what should exist around it: a better installer, hosted infrastructure,
+            premium race agents, or a community-built toolkit.
+          </p>
+        </div>
+        <div class="paths">
+          <a href={githubUrl} target="_blank" rel="noreferrer">
+            <span class="path-tag">FOR BUILDERS</span>
+            <strong>Fork it. Test it. Break it.</strong>
+            <span class="path-link">Open the repository ↗</span>
+          </a>
+          <a href={`${githubUrl}/issues`} target="_blank" rel="noreferrer">
+            <span class="path-tag">FOR RACERS</span>
+            <strong>Tell me what would help.</strong>
+            <span class="path-link">Share an idea ↗</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="closing">
+        <img src="/images/falcon-mark.png?v=5" width="72" height="72" alt="" />
+        <p>Make the machine legible.</p>
+        <a href={githubUrl} target="_blank" rel="noreferrer">Get started on GitHub ↗</a>
+      </section>
     </main>
-    <footer>&copy; {new Date().getFullYear()} dustinlanders.com</footer>
 
-    <script is:inline define:vars={{ schedule }}>
-      const events = schedule;
-      const byDate = {};
-      for (const e of events) (byDate[e.date] ||= []).push(e);
-
-      const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      const DOW = ["Mo","Tu","We","Th","Fr","Sa","Su"];
-      const iso = (y, m, d) => `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-
-      const now = new Date();
-      const todayIso = iso(now.getFullYear(), now.getMonth(), now.getDate());
-      let viewY = now.getFullYear();
-      let viewM = now.getMonth();
-
-      const grid = document.getElementById("grid");
-      const monthLabel = document.getElementById("monthLabel");
-      const detail = document.getElementById("detail");
-      const detailDate = document.getElementById("detailDate");
-      const detailList = document.getElementById("detailList");
-
-      function showDetail(dateStr) {
-        const list = byDate[dateStr] || [];
-        const d = new Date(dateStr + "T00:00:00");
-        detailDate.textContent = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-        detailList.innerHTML = "";
-        if (!list.length) {
-          const li = document.createElement("li");
-          li.className = "empty";
-          li.textContent = "nothing scheduled";
-          detailList.appendChild(li);
-        } else {
-          for (const e of list) {
-            const li = document.createElement("li");
-            li.className = "ev " + e.type;
-            li.innerHTML = `<span class="ev-tag">${e.type}</span><span class="ev-body"><b>${e.title || ""}</b>${e.note ? `<em>${e.note}</em>` : ""}</span>`;
-            detailList.appendChild(li);
-          }
-        }
-        detail.hidden = false;
-      }
-
-      function render() {
-        monthLabel.textContent = `${MONTHS[viewM]} ${viewY}`;
-        grid.innerHTML = "";
-
-        for (const d of DOW) {
-          const h = document.createElement("div");
-          h.className = "dow";
-          h.textContent = d;
-          grid.appendChild(h);
-        }
-
-        const first = new Date(viewY, viewM, 1);
-        const lead = (first.getDay() + 6) % 7; // Monday-start
-        const days = new Date(viewY, viewM + 1, 0).getDate();
-
-        for (let i = 0; i < lead; i++) {
-          const cell = document.createElement("div");
-          cell.className = "cell pad";
-          grid.appendChild(cell);
-        }
-
-        for (let d = 1; d <= days; d++) {
-          const dateStr = iso(viewY, viewM, d);
-          const list = byDate[dateStr] || [];
-          const cell = document.createElement("button");
-          cell.className = "cell day";
-          cell.setAttribute("role", "gridcell");
-          if (dateStr === todayIso) cell.classList.add("today");
-          if (list.length) cell.classList.add("has");
-
-          const num = document.createElement("span");
-          num.className = "num";
-          num.textContent = d;
-          cell.appendChild(num);
-
-          if (list.length) {
-            const dots = document.createElement("span");
-            dots.className = "dots";
-            const seen = new Set();
-            for (const e of list) {
-              if (seen.has(e.type)) continue;
-              seen.add(e.type);
-              const dot = document.createElement("i");
-              dot.className = "dot " + e.type;
-              dots.appendChild(dot);
-            }
-            cell.appendChild(dots);
-          }
-
-          cell.addEventListener("click", () => {
-            grid.querySelectorAll(".cell.sel").forEach((c) => c.classList.remove("sel"));
-            cell.classList.add("sel");
-            showDetail(dateStr);
-          });
-
-          grid.appendChild(cell);
-        }
-      }
-
-      document.getElementById("prev").addEventListener("click", () => {
-        viewM--; if (viewM < 0) { viewM = 11; viewY--; }
-        render();
-      });
-      document.getElementById("next").addEventListener("click", () => {
-        viewM++; if (viewM > 11) { viewM = 0; viewY++; }
-        render();
-      });
-
-      render();
-    </script>
+    <footer>
+      <span>© {new Date().getFullYear()} Dustin Landers</span>
+      <span>Paragon Falcon Motorsport</span>
+    </footer>
   </body>
 </html>
 
 <style is:global>
+  :root {
+    --bg: #05070b;
+    --panel: #0b0f17;
+    --panel-soft: #101622;
+    --line: rgba(255, 255, 255, 0.1);
+    --ink: #f4f7fb;
+    --muted: #8f9bad;
+    --cyan: #30dcff;
+    --blue: #2869ff;
+    --violet: #8a43ff;
+    --mono: 'JetBrains Mono Variable', monospace;
+  }
+
   * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
   }
 
-  html, body {
-    min-height: 100%;
-  }
-
-  :root {
-    --ink: #1a1a1a;
-    --mute: #6b6b6b;
-    --line: #e6e6e6;
-    --race: #e10600;
-    --practice: #1a1a1a;
-    --travel: #9a9a9a;
-    --event: #c8a200;
+  html {
+    scroll-behavior: smooth;
+    background: var(--bg);
   }
 
   body {
-    background: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+      var(--bg);
+    background-size: 64px 64px;
     color: var(--ink);
-    font-family: 'Inter', -apple-system, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 3rem 1rem 4rem;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
   }
 
-  main {
-    width: 100%;
-    max-width: 460px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .ambient {
+    position: fixed;
+    width: 36rem;
+    height: 36rem;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
   }
 
-  .head {
+  .ambient-one {
+    top: -20rem;
+    right: -8rem;
+    background: var(--violet);
+  }
+
+  .ambient-two {
+    top: 42rem;
+    left: -25rem;
+    background: var(--cyan);
+  }
+
+  .nav-shell,
+  main,
+  footer {
     position: relative;
-    text-align: center;
-    margin-bottom: 1.6rem;
-    width: 100%;
+    z-index: 1;
   }
 
-  .falcon-mark {
-    display: block;
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 0.65rem;
+  .nav-shell {
+    border-bottom: 1px solid var(--line);
   }
 
-  .back {
-    position: absolute;
-    left: 0;
-    top: 0.2rem;
-    color: var(--mute);
-    text-decoration: none;
-    font-size: 1.1rem;
-    line-height: 1;
-    transition: color 0.15s;
-  }
-  .back:hover { color: var(--ink); }
-
-  .title-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-  }
-
-  .flag {
-    width: 16px;
-    height: 16px;
-    background-image:
-      linear-gradient(45deg, var(--ink) 25%, transparent 25%),
-      linear-gradient(-45deg, var(--ink) 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, var(--ink) 75%),
-      linear-gradient(-45deg, transparent 75%, var(--ink) 75%);
-    background-size: 8px 8px;
-    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
-    border-radius: 2px;
-  }
-
-  .wordmark {
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  .sub {
-    font-size: 0.75rem;
-    color: var(--mute);
-    margin-top: 0.35rem;
-  }
-
-  .cal { width: 100%; }
-
-  .cal-bar {
+  nav {
+    width: min(1120px, calc(100% - 40px));
+    height: 72px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.9rem;
   }
 
-  .nav {
-    background: none;
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    width: 30px;
-    height: 30px;
-    font-size: 1rem;
-    color: var(--mute);
-    cursor: pointer;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .nav:hover { color: var(--ink); border-color: var(--ink); }
-
-  .month-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-
-  .dow {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-family: var(--mono);
     letter-spacing: 0.04em;
-    color: var(--mute);
-    text-align: center;
-    padding-bottom: 0.35rem;
+    transition: color 160ms ease;
   }
 
-  .cell {
-    aspect-ratio: 1;
-    border: none;
-    background: none;
-    font-family: inherit;
-  }
-
-  .cell.day {
-    border: 1px solid var(--line);
-    border-radius: 7px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    cursor: pointer;
+  nav a:hover {
     color: var(--ink);
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
   }
-  .cell.day:hover { border-color: var(--ink); }
-  .cell.day.sel { border-color: var(--ink); background: #f6f6f6; }
-  .cell.day.sel:active { transform: scale(0.97); }
 
-  .num { font-size: 0.8rem; font-weight: 500; }
-
-  .cell.today .num {
-    background: var(--race);
-    color: #fff;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: inline-flex;
+  .home-link {
+    display: flex;
+    gap: 0.65rem;
     align-items: center;
-    justify-content: center;
+  }
+
+  .nav-cta {
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+
+  main {
+    width: min(1120px, calc(100% - 40px));
+    margin: 0 auto;
+  }
+
+  .hero {
+    max-width: 880px;
+    padding: 7rem 0 5rem;
+  }
+
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 2.2rem;
+  }
+
+  .falcon-mark {
+    width: 92px;
+    height: 92px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 24px rgba(48, 220, 255, 0.22));
+  }
+
+  .eyebrow,
+  .section-label,
+  .label,
+  .unit,
+  .terminal-head,
+  .prompt,
+  .number,
+  .path-tag {
+    font-family: var(--mono);
+  }
+
+  .eyebrow {
+    color: #b6c0cd;
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .eyebrow span {
+    width: 26px;
+    height: 1px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  h1 {
+    font-size: clamp(3.4rem, 8vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: -0.065em;
     font-weight: 600;
   }
 
-  .dots { display: flex; gap: 2px; height: 5px; }
-
-  .dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    display: inline-block;
+  h1 em {
+    color: transparent;
+    font-style: normal;
+    -webkit-text-stroke: 1px rgba(244, 247, 251, 0.55);
   }
-  .dot.race { background: var(--race); }
-  .dot.practice { background: var(--practice); }
-  .dot.travel { background: var(--travel); }
-  .dot.event { background: var(--event); }
 
-  .legend {
+  .lede {
+    max-width: 680px;
+    margin-top: 2rem;
+    color: #aab4c2;
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    line-height: 1.65;
+  }
+
+  .actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.8rem;
-    justify-content: center;
-    margin-top: 1.1rem;
-    font-size: 0.7rem;
-    color: var(--mute);
-  }
-  .lg { display: inline-flex; align-items: center; gap: 0.3rem; }
-
-  .detail {
-    width: 100%;
-    max-width: 460px;
-    margin-top: 1.5rem;
-    border-top: 1px solid var(--line);
-    padding-top: 1.1rem;
+    margin-top: 2.3rem;
   }
 
-  .detail-date {
-    font-size: 0.8rem;
+  .button {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.75rem 1.1rem;
+    border-radius: 4px;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.82rem;
     font-weight: 600;
-    margin-bottom: 0.7rem;
   }
 
-  .detail-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .button.primary {
+    background: linear-gradient(110deg, #245dff, #7b3eff);
+    box-shadow: 0 12px 40px rgba(62, 72, 255, 0.22);
+  }
 
-  .detail-list .empty { font-size: 0.8rem; color: var(--mute); }
+  .button.secondary {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.02);
+  }
 
-  .ev {
+  .status {
+    margin-top: 1.5rem;
     display: flex;
+    align-items: center;
     gap: 0.6rem;
-    align-items: flex-start;
-    border-left: 2px solid var(--line);
-    padding-left: 0.6rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
   }
-  .ev.race { border-left-color: var(--race); }
-  .ev.practice { border-left-color: var(--practice); }
-  .ev.travel { border-left-color: var(--travel); }
-  .ev.event { border-left-color: var(--event); }
 
-  .ev-tag {
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--mute);
-    padding-top: 0.15rem;
-    min-width: 48px;
+  .status strong {
+    color: #bfeeff;
+    font-weight: 500;
   }
-  .ev-body { display: flex; flex-direction: column; gap: 0.15rem; font-size: 0.82rem; }
-  .ev-body em { font-style: normal; color: var(--mute); font-size: 0.75rem; }
+
+  .status-light,
+  .pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+  }
+
+  .telemetry-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(8, 12, 19, 0.88);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+  }
+
+  .terminal-head {
+    height: 48px;
+    padding: 0 1.2rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #647083;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
+  .terminal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #b2bdca;
+  }
+
+  .pulse {
+    animation: signal 1.8s ease-in-out infinite;
+  }
+
+  @keyframes signal {
+    50% { opacity: 0.35; }
+  }
+
+  .telemetry-grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+  }
+
+  .metric {
+    min-height: 138px;
+    padding: 1.25rem;
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .metric:last-child {
+    border-right: 0;
+  }
+
+  .metric .label {
+    margin-bottom: auto;
+    color: #5f6b7c;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+  }
+
+  .metric strong {
+    font-family: var(--mono);
+    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .metric.speed strong {
+    color: var(--cyan);
+    text-shadow: 0 0 24px rgba(48, 220, 255, 0.3);
+  }
+
+  .unit {
+    margin-top: 0.35rem;
+    color: #5f6b7c;
+    font-size: 0.56rem;
+  }
+
+  .radio-line {
+    padding: 1rem 1.2rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+    background: rgba(38, 105, 255, 0.055);
+  }
+
+  .prompt {
+    color: var(--violet);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+  }
+
+  .radio-line p {
+    color: #b8c3d0;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+
+  .manifesto {
+    max-width: 840px;
+    padding: 10rem 0 6rem;
+  }
+
+  .section-label {
+    color: var(--cyan);
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    margin-bottom: 1.3rem;
+  }
+
+  h2 {
+    color: var(--ink);
+    font-size: clamp(2.2rem, 5vw, 4.2rem);
+    line-height: 1.06;
+    letter-spacing: -0.05em;
+    font-weight: 500;
+  }
+
+  .manifesto > p:last-child,
+  .direction-copy > p:last-child {
+    max-width: 700px;
+    margin-top: 1.8rem;
+    color: var(--muted);
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .feature-grid article {
+    min-height: 260px;
+    padding: 2rem;
+    border-right: 1px solid var(--line);
+  }
+
+  .feature-grid article:first-child {
+    padding-left: 0;
+  }
+
+  .feature-grid article:last-child {
+    border-right: 0;
+  }
+
+  .number {
+    display: block;
+    margin-bottom: 4rem;
+    color: #4d5869;
+    font-size: 0.65rem;
+  }
+
+  h3 {
+    margin-bottom: 0.8rem;
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .feature-grid p {
+    color: var(--muted);
+    font-size: 0.87rem;
+    line-height: 1.7;
+  }
+
+  .capabilities {
+    padding: 9rem 0;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 7rem;
+    align-items: start;
+  }
+
+  .capabilities ul {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .capabilities li {
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+    color: #bac4d1;
+    font-size: 0.9rem;
+  }
+
+  .capabilities li span {
+    display: inline-block;
+    width: 3rem;
+    color: #4f5a6b;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+  }
+
+  .direction {
+    padding: 4.5rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(128, 64, 255, 0.12), transparent 35%),
+      var(--panel);
+  }
+
+  .direction-copy {
+    max-width: 720px;
+  }
+
+  .paths {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 3.5rem;
+  }
+
+  .paths a {
+    min-height: 180px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    color: var(--ink);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.018);
+    transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+  }
+
+  .paths a:hover {
+    transform: translateY(-3px);
+    border-color: rgba(48, 220, 255, 0.38);
+    background: rgba(48, 220, 255, 0.035);
+  }
+
+  .path-tag {
+    color: var(--cyan);
+    font-size: 0.58rem;
+    letter-spacing: 0.13em;
+  }
+
+  .paths strong {
+    margin-top: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+
+  .path-link {
+    margin-top: auto;
+    color: var(--muted);
+    font-size: 0.75rem;
+  }
+
+  .closing {
+    padding: 10rem 0 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .closing img {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 22px rgba(48, 220, 255, 0.22));
+  }
+
+  .closing p {
+    margin-bottom: 1rem;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    letter-spacing: -0.045em;
+  }
+
+  .closing a {
+    color: var(--cyan);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+  }
 
   footer {
-    margin-top: 3rem;
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--mute);
+    width: min(1120px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 1.5rem 0 2.5rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    color: #505b6b;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-top: 4.5rem;
+    }
+
+    .identity {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .telemetry-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .metric {
+      min-height: 120px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric:nth-child(2) {
+      border-right: 0;
+    }
+
+    .metric:nth-child(3),
+    .metric:nth-child(4) {
+      border-bottom: 0;
+    }
+
+    .radio-line {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .manifesto {
+      padding: 7rem 0 4rem;
+    }
+
+    .feature-grid,
+    .capabilities,
+    .paths {
+      grid-template-columns: 1fr;
+    }
+
+    .feature-grid article,
+    .feature-grid article:first-child {
+      min-height: 0;
+      padding: 2rem 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-grid article:last-child {
+      border-bottom: 0;
+    }
+
+    .number {
+      margin-bottom: 2rem;
+    }
+
+    .capabilities {
+      padding: 7rem 0;
+      gap: 3rem;
+    }
+
+    .direction {
+      padding: 2.25rem 1.25rem;
+    }
+
+    footer {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    .pulse {
+      animation: none;
+    }
   }
 </style>

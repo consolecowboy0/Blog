@@ -1,0 +1,896 @@
+---
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
+import '@fontsource/inter/800.css';
+import '@fontsource-variable/jetbrains-mono';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Dustin Landers documents the road from rally sim training to rallycross in a 2025 Subaru WRX."
+    />
+    <meta property="og:title" content="Rallycross | Dustin Landers" />
+    <meta
+      property="og:description"
+      content="A WRX, rally sims, and a plan to learn what happens when the surface stops cooperating."
+    />
+    <meta property="og:type" content="website" />
+    <title>Rallycross | Dirt is data</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=5" />
+    <script is:inline src="/beacon.js"></script>
+  </head>
+  <body>
+    <header class="nav-shell">
+      <nav aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Rallycross home">
+          <img src="/images/antler-mark-v2.png?v=5" width="40" height="40" alt="" />
+          <span>RALLYCROSS</span>
+        </a>
+        <div class="nav-links">
+          <a href="#plan">The plan</a>
+          <a href="#journal">Journal</a>
+          <a href="/">dustinlanders.com ↗</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> WRX / SIM / DIRT</p>
+          <h1>Dirt is<br /><em>data.</em></h1>
+          <p class="lede">
+            A 2025 Subaru WRX, a rally sim, and a plan to learn what happens
+            when the surface stops cooperating. This is the field journal.
+          </p>
+          <a class="hero-link" href="#plan">See the starting line <span>↓</span></a>
+        </div>
+
+        <div class="course-window" aria-label="A rallycross course moving between simulation and real driving">
+          <div class="window-top">
+            <span>FIELD NOTE / 000</span>
+            <span class="status"><i></i> PRE-STAGE</span>
+          </div>
+          <div class="course-map">
+            <svg viewBox="0 0 640 440" role="img" aria-labelledby="course-title course-desc">
+              <title id="course-title">Rallycross training course</title>
+              <desc id="course-desc">A course line crosses from a digital grid into loose dirt.</desc>
+              <defs>
+                <linearGradient id="course-line" x1="95" y1="355" x2="535" y2="75" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#23d5ff" />
+                  <stop offset="0.48" stop-color="#8f57ff" />
+                  <stop offset="0.51" stop-color="#ff7448" />
+                  <stop offset="1" stop-color="#ffd43b" />
+                </linearGradient>
+                <filter id="line-glow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="8" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                  <path d="M32 0H0V32" fill="none" stroke="#eef1e8" stroke-opacity="0.09" stroke-width="1" />
+                </pattern>
+                <pattern id="gravel" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <circle cx="7" cy="8" r="1.4" fill="#f1e7d0" fill-opacity="0.17" />
+                  <circle cx="27" cy="17" r="1" fill="#f1e7d0" fill-opacity="0.12" />
+                  <path d="M13 29l5-2M33 35l3-4" stroke="#f1e7d0" stroke-opacity="0.12" />
+                </pattern>
+              </defs>
+              <rect width="320" height="440" fill="url(#grid)" />
+              <rect x="320" width="320" height="440" fill="url(#gravel)" />
+              <path class="surface-split" d="M320 0V440" />
+              <text class="surface-label" x="32" y="42">SIM</text>
+              <text class="surface-label dirt-label" x="568" y="42">DIRT</text>
+              <path
+                class="course-glow"
+                d="M98 346C139 379 191 368 217 331C240 298 224 270 194 248C161 224 164 180 195 158C231 131 270 146 298 177C327 208 357 198 375 163C395 124 428 84 480 91C530 98 559 140 548 184C535 233 478 229 449 259C417 292 441 352 493 354C524 356 548 337 558 312"
+              />
+              <path
+                class="course-line"
+                d="M98 346C139 379 191 368 217 331C240 298 224 270 194 248C161 224 164 180 195 158C231 131 270 146 298 177C327 208 357 198 375 163C395 124 428 84 480 91C530 98 559 140 548 184C535 233 478 229 449 259C417 292 441 352 493 354C524 356 548 337 558 312"
+              />
+              <g class="cones" aria-hidden="true">
+                <path d="M172 275l8-18 8 18z" />
+                <path d="M357 182l8-18 8 18z" />
+                <path d="M454 109l8-18 8 18z" />
+                <path d="M475 292l8-18 8 18z" />
+              </g>
+              <circle class="start-ring" cx="98" cy="346" r="13" />
+              <circle class="start-dot" cx="98" cy="346" r="5" />
+              <g class="finish" transform="translate(558 312) rotate(23)">
+                <path d="M0-16V17" />
+                <path d="M0-15h24v18H0z" />
+                <path d="M0-15h6v6H0M12-15h6v6h-6M6-9h6v6H6M18-9h6v6h-6" />
+              </g>
+            </svg>
+          </div>
+          <div class="window-stats">
+            <div><span>CAR</span><strong>2025 WRX</strong></div>
+            <div><span>GEARBOX</span><strong>6-SPEED</strong></div>
+            <div><span>NEXT NOTE</span><strong>SOON</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="surface-strip" aria-label="The rallycross project in four parts">
+        <span><strong>01</strong> Learn</span>
+        <span><strong>02</strong> Prepare</span>
+        <span><strong>03</strong> Drive</span>
+        <span><strong>04</strong> Debrief</span>
+      </section>
+
+      <section class="manifesto" id="plan">
+        <p class="section-label">THE STARTING LINE</p>
+        <div class="manifesto-grid">
+          <h2>Learn it in the sim.<br />Prove it in the dirt.</h2>
+          <div>
+            <p>
+              Rallycross compresses a lot of driving into a small piece of ground.
+              Grip changes. Weight moves. A good line disappears by the next run.
+            </p>
+            <p>
+              I am using Richard Burns Rally and other sims to build the habits,
+              then taking the WRX out to find which lessons survive contact with a real course.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="program" aria-label="Rallycross learning program">
+        <article>
+          <div class="card-head">
+            <span class="card-number">01</span>
+            <span class="card-state">IN THE RIG</span>
+          </div>
+          <h3>Sim lab</h3>
+          <p>RBR, rally sims, drills, stage notes, and the slow work of making car control automatic.</p>
+          <ul>
+            <li>Vision and placement</li>
+            <li>Weight transfer</li>
+            <li>Loose-surface rotation</li>
+          </ul>
+        </article>
+        <article>
+          <div class="card-head">
+            <span class="card-number">02</span>
+            <span class="card-state">IN THE GARAGE</span>
+          </div>
+          <h3>WRX prep</h3>
+          <p>The practical path from daily driver to first event, with every choice and compromise recorded.</p>
+          <ul>
+            <li>Baseline and inspection</li>
+            <li>Tires and pressures</li>
+            <li>Event-day checklist</li>
+          </ul>
+        </article>
+        <article>
+          <div class="card-head">
+            <span class="card-number">03</span>
+            <span class="card-state">ON THE CLOCK</span>
+          </div>
+          <h3>Event log</h3>
+          <p>Runs, results, mistakes, repairs, and the honest answer to what actually made the car faster.</p>
+          <ul>
+            <li>Course walk</li>
+            <li>Run-by-run notes</li>
+            <li>Next-session goals</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="journal" id="journal">
+        <div class="journal-mark">
+          <img src="/images/antler-mark-v2.png?v=5" width="180" height="180" alt="" />
+        </div>
+        <div class="journal-copy">
+          <p class="section-label">FIELD JOURNAL / ENTRY 000</p>
+          <h2>The page is staged.<br />The story starts next.</h2>
+          <p>
+            This space will grow with the project. Expect training logs, event notes,
+            car setup decisions, video, data, and the occasional expensive lesson.
+          </p>
+          <div class="journal-meta">
+            <span><strong>CAR</strong> 2025 Subaru WRX Premium</span>
+            <span><strong>SIM</strong> Richard Burns Rally + others</span>
+            <span><strong>STATUS</strong> Building the baseline</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="footer-brand" href="#top">
+        <img src="/images/antler-mark-v2.png?v=5" width="34" height="34" alt="" />
+        <span>RALLYCROSS</span>
+      </a>
+      <span>© {new Date().getFullYear()} Dustin Landers</span>
+      <a href="/">dustinlanders.com ↗</a>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --ink: #11120f;
+    --ink-soft: #191b16;
+    --paper: #f3f0e7;
+    --paper-muted: #bcb9ae;
+    --line: rgba(243, 240, 231, 0.16);
+    --cyan: #23d5ff;
+    --violet: #8f57ff;
+    --orange: #ff7448;
+    --yellow: #ffd43b;
+    --mono: 'JetBrains Mono Variable', 'JetBrains Mono', monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Inter', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  .nav-shell {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    border-bottom: 1px solid var(--line);
+    background: rgba(17, 18, 15, 0.9);
+    backdrop-filter: blur(18px);
+  }
+
+  nav {
+    width: min(1180px, calc(100% - 48px));
+    height: 76px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand,
+  .footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--paper);
+    font-size: 0.86rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+  }
+
+  .brand img,
+  .footer-brand img,
+  .journal-mark img {
+    object-fit: contain;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .nav-links a,
+  footer > a:last-child {
+    color: var(--paper-muted);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 160ms ease;
+  }
+
+  .nav-links a:hover,
+  footer > a:last-child:hover {
+    color: var(--paper);
+  }
+
+  main {
+    overflow: hidden;
+  }
+
+  .hero {
+    width: min(1180px, calc(100% - 48px));
+    min-height: 670px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    align-items: center;
+    gap: 5.5rem;
+    padding: 6rem 0 5.25rem;
+  }
+
+  .eyebrow,
+  .section-label,
+  .window-top,
+  .window-stats span,
+  .card-state,
+  .journal-meta strong {
+    font-family: var(--mono);
+    font-size: 0.69rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--cyan);
+    margin-bottom: 1.4rem;
+  }
+
+  .eyebrow span {
+    width: 32px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--violet));
+  }
+
+  h1 {
+    font-size: clamp(4.25rem, 7vw, 7.2rem);
+    font-weight: 800;
+    letter-spacing: -0.075em;
+    line-height: 0.84;
+  }
+
+  h1 em {
+    background: linear-gradient(110deg, var(--orange), var(--yellow));
+    color: transparent;
+    font-style: normal;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .lede {
+    max-width: 31rem;
+    margin-top: 2rem;
+    color: var(--paper-muted);
+    font-size: 1.06rem;
+    line-height: 1.7;
+  }
+
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--paper);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+
+  .hero-link span {
+    color: var(--yellow);
+  }
+
+  .course-window {
+    border: 1px solid var(--line);
+    background:
+      radial-gradient(circle at 76% 22%, rgba(255, 116, 72, 0.12), transparent 38%),
+      #151713;
+    box-shadow: 26px 26px 0 rgba(255, 255, 255, 0.025);
+  }
+
+  .window-top {
+    height: 49px;
+    padding: 0 1.1rem;
+    border-bottom: 1px solid var(--line);
+    color: #8e9186;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--yellow);
+  }
+
+  .status i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 10px var(--yellow);
+  }
+
+  .course-map {
+    aspect-ratio: 640 / 440;
+  }
+
+  .course-map svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .surface-split {
+    stroke: var(--line);
+    stroke-dasharray: 5 8;
+  }
+
+  .surface-label {
+    fill: var(--cyan);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+
+  .dirt-label {
+    fill: var(--orange);
+    text-anchor: end;
+  }
+
+  .course-glow {
+    fill: none;
+    stroke: url(#course-line);
+    stroke-width: 12;
+    opacity: 0.24;
+    filter: url(#line-glow);
+  }
+
+  .course-line {
+    fill: none;
+    stroke: url(#course-line);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .cones path {
+    fill: var(--orange);
+    stroke: var(--paper);
+    stroke-width: 1;
+  }
+
+  .start-ring {
+    fill: rgba(35, 213, 255, 0.1);
+    stroke: var(--cyan);
+    stroke-width: 2;
+  }
+
+  .start-dot {
+    fill: var(--cyan);
+  }
+
+  .finish path:first-child {
+    fill: none;
+    stroke: var(--paper);
+    stroke-width: 2;
+  }
+
+  .finish path:nth-child(2) {
+    fill: var(--paper);
+  }
+
+  .finish path:last-child {
+    fill: var(--ink);
+  }
+
+  .window-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+  }
+
+  .window-stats div {
+    min-width: 0;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+
+  .window-stats div + div {
+    border-left: 1px solid var(--line);
+  }
+
+  .window-stats span {
+    display: block;
+    color: #777b70;
+    margin-bottom: 0.4rem;
+  }
+
+  .window-stats strong {
+    font-family: var(--mono);
+    font-size: 0.81rem;
+    letter-spacing: 0.02em;
+  }
+
+  .surface-strip {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .surface-strip span {
+    padding: 1.15rem 2rem;
+    color: var(--paper-muted);
+    font-family: var(--mono);
+    font-size: 0.69rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .surface-strip span + span {
+    border-left: 1px solid var(--line);
+  }
+
+  .surface-strip strong {
+    color: var(--orange);
+    margin-right: 0.6rem;
+  }
+
+  .manifesto,
+  .program,
+  .journal {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  .manifesto {
+    padding: 8rem 0 4.5rem;
+  }
+
+  .section-label {
+    color: var(--orange);
+    margin-bottom: 1.5rem;
+  }
+
+  .manifesto-grid {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  h2 {
+    font-size: clamp(2.6rem, 5vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+  }
+
+  .manifesto-grid p,
+  .journal-copy > p {
+    color: var(--paper-muted);
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  .manifesto-grid p + p {
+    margin-top: 1.2rem;
+  }
+
+  .program {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 0 8rem;
+  }
+
+  .program article {
+    min-height: 390px;
+    padding: 2rem;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .program article + article {
+    border-left: 0;
+  }
+
+  .program article:nth-child(2) {
+    background: #151713;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-number {
+    color: var(--yellow);
+    font-family: var(--mono);
+    font-size: 1.2rem;
+  }
+
+  .card-state {
+    color: #777b70;
+  }
+
+  .program h3 {
+    margin-top: 5rem;
+    font-size: 1.65rem;
+    letter-spacing: -0.04em;
+  }
+
+  .program p {
+    min-height: 5.5rem;
+    margin-top: 0.85rem;
+    color: var(--paper-muted);
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .program ul {
+    margin-top: auto;
+    list-style: none;
+  }
+
+  .program li {
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--line);
+    color: #d6d4cb;
+    font-family: var(--mono);
+    font-size: 0.71rem;
+  }
+
+  .program li::before {
+    content: '↳';
+    color: var(--orange);
+    margin-right: 0.6rem;
+  }
+
+  .journal {
+    margin-bottom: 8rem;
+    border: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 0.72fr 1.28fr;
+    background:
+      linear-gradient(135deg, rgba(35, 213, 255, 0.06), transparent 50%),
+      #151713;
+  }
+
+  .journal-mark {
+    min-height: 480px;
+    border-right: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .journal-mark::before,
+  .journal-mark::after {
+    content: '';
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .journal-mark::after {
+    width: 260px;
+    height: 260px;
+  }
+
+  .journal-mark img {
+    z-index: 1;
+    filter: drop-shadow(0 0 36px rgba(35, 213, 255, 0.18));
+  }
+
+  .journal-copy {
+    padding: clamp(2.5rem, 6vw, 5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .journal-copy h2 {
+    font-size: clamp(2.4rem, 4.3vw, 4.5rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .journal-meta {
+    margin-top: 2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .journal-meta span {
+    display: block;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--paper-muted);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+
+  .journal-meta strong {
+    display: inline-block;
+    width: 5.25rem;
+    color: var(--cyan);
+  }
+
+  footer {
+    width: min(1180px, calc(100% - 48px));
+    min-height: 112px;
+    margin: 0 auto;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #777b70;
+    font-family: var(--mono);
+    font-size: 0.69rem;
+  }
+
+  @media (max-width: 940px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 3.5rem;
+      padding-top: 5rem;
+    }
+
+    .hero-copy {
+      max-width: 640px;
+    }
+
+    .manifesto-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+    }
+
+    .program {
+      grid-template-columns: 1fr;
+    }
+
+    .program article {
+      min-height: 330px;
+    }
+
+    .program article + article {
+      border-left: 1px solid var(--line);
+      border-top: 0;
+    }
+
+    .program h3 {
+      margin-top: 3.5rem;
+    }
+
+    .journal {
+      grid-template-columns: 1fr;
+    }
+
+    .journal-mark {
+      min-height: 320px;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+  }
+
+  @media (max-width: 680px) {
+    nav,
+    .hero,
+    .manifesto,
+    .program,
+    .journal,
+    footer {
+      width: min(100% - 32px, 1180px);
+    }
+
+    nav {
+      height: 68px;
+    }
+
+    .brand img {
+      width: 34px;
+      height: 34px;
+    }
+
+    .nav-links a:not(:last-child) {
+      display: none;
+    }
+
+    .hero {
+      min-height: auto;
+      padding: 4rem 0;
+    }
+
+    h1 {
+      font-size: clamp(4rem, 20vw, 6rem);
+    }
+
+    .course-window {
+      box-shadow: 12px 12px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .window-top {
+      font-size: 0.59rem;
+    }
+
+    .window-stats div {
+      padding: 0.8rem;
+    }
+
+    .window-stats strong {
+      font-size: 0.68rem;
+    }
+
+    .surface-strip {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .surface-strip span:nth-child(3) {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .surface-strip span:nth-child(4) {
+      border-top: 1px solid var(--line);
+    }
+
+    .manifesto {
+      padding-top: 6rem;
+    }
+
+    .program {
+      padding-bottom: 6rem;
+    }
+
+    .program article {
+      padding: 1.5rem;
+    }
+
+    .journal {
+      margin-bottom: 5rem;
+    }
+
+    .journal-mark {
+      min-height: 280px;
+    }
+
+    .journal-copy {
+      padding: 2rem 1.5rem;
+    }
+
+    footer {
+      min-height: 130px;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 2rem 0;
+    }
+
+    footer > span {
+      order: 3;
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+</style>

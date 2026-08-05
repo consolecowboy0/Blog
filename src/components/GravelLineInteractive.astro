@@ -12,7 +12,7 @@
   <div class="line-lab__toolbar">
     <button id="line-play" type="button">Play</button>
     <label for="line-progress">Corner progress</label>
-    <input id="line-progress" type="range" min="0" max="100" value="0" step="1" />
+    <input id="line-progress" type="range" min="0" max="100" value="0" step="0.1" />
     <output id="line-phase">Braking</output>
   </div>
 
@@ -46,7 +46,7 @@
       <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Maximize radius. Keep the tire working cleanly.</text>
       <rect class="panel-bg tarmac-bg" x="18" y="72" width="464" height="370" rx="18" />
       <path class="road tarmac-road" d="M55 380 H205 C330 380 415 295 415 170 V105" />
-      <path id="tarmac-path" class="guide-line" d="M55 395 C155 395 235 395 285 365 C360 320 405 265 415 190 C420 155 418 130 415 105" />
+      <path id="tarmac-path" class="guide-line" d="M55 395 C165 395 245 395 300 360 C365 318 402 265 408 215 C411 188 413 150 415 105" />
       <line id="tarmac-velocity" class="velocity-vector" />
       <line id="tarmac-heading" class="heading-vector" />
       <g id="tarmac-car" class="car tarmac-car">
@@ -61,7 +61,7 @@
       <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Use weight transfer to rotate, then drive out.</text>
       <rect class="panel-bg gravel-bg" x="18" y="72" width="464" height="370" rx="18" />
       <path class="road gravel-road" d="M55 380 H205 C330 380 415 295 415 170 V105" />
-      <path id="gravel-path" class="guide-line" d="M55 395 C150 395 225 392 275 365 C340 330 390 280 407 218 C416 183 418 142 415 105" />
+      <path id="gravel-path" class="guide-line" d="M55 395 C155 395 232 392 287 358 C345 322 386 270 399 220 C407 188 412 150 415 105" />
       <line id="gravel-velocity" class="velocity-vector" />
       <line id="gravel-heading" class="heading-vector" />
       <g id="gravel-car" class="car gravel-car">
@@ -89,7 +89,7 @@
   .line-lab__intro h2 { margin:.2rem 0 .7rem; font-size:clamp(1.8rem,4vw,3rem); line-height:1.05; }
   .line-lab__intro p { margin:0; color:var(--muted); }
   .line-lab__eyebrow { color:var(--orange)!important; font:700 .72rem/1.2 ui-monospace,monospace; letter-spacing:.14em; text-transform:uppercase; }
-  .line-lab__toolbar { display:grid; grid-template-columns:auto auto 1fr auto; gap:.8rem; align-items:center; padding:1rem; border:1px solid #ddd6cc; border-radius:16px; background:#f7f5f1; }
+  .line-lab__toolbar { display:grid; grid-template-columns:auto auto 1fr auto; gap:.8rem; align-items:center; padding:1rem; border:1px solid #ddd6cc; border-radius:16px; background:#fff; }
   .line-lab__toolbar button { border:0; border-radius:999px; padding:.7rem 1.1rem; background:var(--ink); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
   .line-lab__toolbar label { font-size:.82rem; font-weight:700; }
   .line-lab__toolbar input { width:100%; accent-color:var(--orange); }
@@ -99,15 +99,15 @@
   .line-lab__key i { width:1.6rem; height:.2rem; display:inline-block; }
   .heading-key { background:var(--orange); }
   .velocity-key { border-top:3px dashed #222; }
-  .line-lab__diagram { display:block; width:100%; height:auto; }
+  .line-lab__diagram { display:block; width:100%; height:auto; background:#fff; }
   .panel-bg { stroke:#d8d1c6; stroke-width:1.5; }
-  .tarmac-bg { fill:#ececec; }
-  .gravel-bg { fill:#ded2bf; }
+  .tarmac-bg { fill:#f4f4f2; }
+  .gravel-bg { fill:#f4efe7; }
   .road { fill:none; stroke-width:96; stroke-linecap:round; stroke-linejoin:round; }
-  .tarmac-road { stroke:#555; }
+  .tarmac-road { stroke:#666; }
   .gravel-road { stroke:url(#gravel-pattern); }
-  #gravel-pattern circle { fill:#766955; }
-  .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.62; }
+  #gravel-pattern circle { fill:#8b7d6a; }
+  .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.72; }
   .panel-title { fill:var(--ink); font:700 15px/1 ui-monospace,monospace; letter-spacing:.14em; }
   .panel-subtitle,.coach-note { fill:var(--muted); font:13px/1.2 Inter,system-ui,sans-serif; }
   .coach-note { font-weight:650; }
@@ -120,7 +120,7 @@
   #heading-arrow path { fill:var(--orange); }
   #velocity-arrow path { fill:#222; }
   .line-lab__readout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem; margin-top:.8rem; }
-  .line-lab__readout div { padding:1rem; border:1px solid #ddd6cc; border-radius:14px; }
+  .line-lab__readout div { padding:1rem; border:1px solid #ddd6cc; border-radius:14px; background:#fff; }
   .line-lab__readout span { display:block; color:var(--muted); font-size:.76rem; text-transform:uppercase; letter-spacing:.1em; }
   .line-lab__readout strong { display:block; margin-top:.2rem; }
   .line-lab__takeaway { margin:1rem 0 0; padding:1rem 1.1rem; border-left:4px solid var(--orange); background:#fff7ed; font-weight:650; }
@@ -179,7 +179,7 @@
     }
 
     function render() {
-      const value = Number(progress.value);
+      const value = progress.valueAsNumber;
       const p = value / 100;
       const roadLength = tarmacPath.getTotalLength();
       const gravelLength = gravelPath.getTotalLength();
@@ -210,8 +210,8 @@
       if (!lastTime) lastTime = time;
       const elapsed = time - lastTime;
       lastTime = time;
-      const next = Number(progress.value) + elapsed * 0.008;
-      progress.value = String(next > 100 ? 0 : next);
+      const next = progress.valueAsNumber + elapsed * 0.008;
+      progress.valueAsNumber = next > 100 ? 0 : next;
       render();
       animation = requestAnimationFrame(tick);
     }

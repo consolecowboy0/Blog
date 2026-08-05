@@ -22,11 +22,7 @@ const { src, title } = Astro.props;
 </div>
 
 <script>
-  // Resolve current parent theme so the iframe boots into the right palette
-  // (no flash). Live updates flow via postMessage from the BaseLayout toggle.
-  function currentTheme(): string {
-    return document.documentElement.getAttribute('data-theme') || 'light';
-  }
+  const interactiveTheme = 'light';
 
   document.querySelectorAll('.library-embed-container').forEach((container) => {
     const iframe = container.querySelector('iframe') as HTMLIFrameElement | null;
@@ -35,14 +31,13 @@ const { src, title } = Astro.props;
 
     const baseSrc = iframe.getAttribute('data-src') || '';
     const sep = baseSrc.includes('?') ? '&' : '?';
-    iframe.src = baseSrc + sep + 'theme=' + encodeURIComponent(currentTheme());
+    iframe.src = baseSrc + sep + 'theme=' + interactiveTheme;
 
     iframe.addEventListener('load', () => {
       loading.classList.add('loaded');
-      // Re-send in case the iframe missed the URL hint (defensive).
       try {
         iframe.contentWindow?.postMessage(
-          { type: 'parent-theme', theme: currentTheme() },
+          { type: 'parent-theme', theme: interactiveTheme },
           window.location.origin
         );
       } catch { /* cross-origin — ignore */ }
@@ -57,12 +52,15 @@ const { src, title } = Astro.props;
 
   .library-embed-container {
     position: relative;
+    background: #ffffff;
   }
 
   .library-embed iframe {
     width: 100%;
     min-height: 80vh;
-    border: 1px solid var(--border);
+    border: 1px solid #d4d4d0;
+    background: #ffffff;
+    color-scheme: light;
   }
 
   .library-loading {
@@ -71,8 +69,8 @@ const { src, title } = Astro.props;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--bg, #ffffff);
-    border: 1px solid var(--border, #d4d4d0);
+    background: #ffffff;
+    border: 1px solid #d4d4d0;
     z-index: 10;
     transition: opacity 0.4s ease;
   }
@@ -96,7 +94,7 @@ const { src, title } = Astro.props;
   .library-loading-bars span {
     display: block;
     width: 4px;
-    background: var(--fg, #1a1a1a);
+    background: #1a1a1a;
     border-radius: 2px;
     animation: loading-bar 1s ease-in-out infinite;
   }
@@ -118,6 +116,6 @@ const { src, title } = Astro.props;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--fg-muted, #555);
+    color: #555;
   }
 </style>

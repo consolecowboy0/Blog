@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import PostLayout from '../../layouts/PostLayout.astro';
+import GravelLineInteractive from '../../components/GravelLineInteractive.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -12,8 +13,10 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const showGravelLineInteractive = post.id === 'rallycross-rbr-training';
 ---
 
 <PostLayout frontmatter={post.data}>
   <Content />
+  {showGravelLineInteractive && <GravelLineInteractive />}
 </PostLayout>

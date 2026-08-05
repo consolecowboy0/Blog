@@ -24,7 +24,7 @@ const { src, title } = Astro.props;
 <script>
   const interactiveTheme = 'light';
 
-  function forceWhiteWidgetBackground(iframe: HTMLIFrameElement): void {
+  function forceWhiteWidgetTheme(iframe: HTMLIFrameElement): void {
     try {
       const doc = iframe.contentDocument;
       if (!doc) return;
@@ -33,11 +33,30 @@ const { src, title } = Astro.props;
       doc.documentElement.style.setProperty('color-scheme', 'light', 'important');
       doc.body?.style.setProperty('background', '#ffffff', 'important');
 
+      doc.querySelector('style[data-parent-white-theme]')?.remove();
       const style = doc.createElement('style');
       style.dataset.parentWhiteTheme = 'true';
       style.textContent = `
+        :root,
+        html[data-theme],
+        body {
+          --bg: #ffffff !important;
+          --background: #ffffff !important;
+          --bg-card: #f5f5f3 !important;
+          --card: #f5f5f3 !important;
+          --surface: #f5f5f3 !important;
+          --panel: #f5f5f3 !important;
+          --border: #d4d4d0 !important;
+          --text: #1a1a1a !important;
+          --foreground: #1a1a1a !important;
+          --text-secondary: #4f4f4b !important;
+          --text-muted: #73736d !important;
+          color-scheme: light !important;
+        }
+
         html, body, #root, #app, body > main, body > div:first-child {
           background-color: #ffffff !important;
+          color: #1a1a1a !important;
           color-scheme: light !important;
         }
       `;
@@ -57,14 +76,17 @@ const { src, title } = Astro.props;
     iframe.src = baseSrc + sep + 'theme=' + interactiveTheme;
 
     iframe.addEventListener('load', () => {
-      forceWhiteWidgetBackground(iframe);
-      loading.classList.add('loaded');
       try {
         iframe.contentWindow?.postMessage(
           { type: 'parent-theme', theme: interactiveTheme },
           window.location.origin
         );
       } catch { /* cross-origin — ignore */ }
+
+      forceWhiteWidgetTheme(iframe);
+      requestAnimationFrame(() => forceWhiteWidgetTheme(iframe));
+      setTimeout(() => forceWhiteWidgetTheme(iframe), 100);
+      loading.classList.add('loaded');
     });
   });
 </script>

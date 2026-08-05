@@ -1,285 +1,224 @@
 <section class="line-lab" aria-labelledby="line-lab-title">
-  <div class="line-lab__intro">
+  <header class="line-lab__intro">
     <p class="line-lab__eyebrow">Interactive driving lesson</p>
-    <h2 id="line-lab-title">The fastest line isn’t always the cleanest line</h2>
+    <h2 id="line-lab-title">Same corner. Different job.</h2>
     <p>
-      On pavement, the car mostly points where it is traveling. On gravel, the car can rotate early while its
-      center of mass keeps moving forward. Change the setup, run the corner, and watch the two ideas separate.
+      Scrub through one identical ninety-degree corner. On tarmac, the car's heading and direction of travel stay
+      nearly aligned. On gravel, the driver rotates the car earlier so it points toward the exit before its momentum
+      has fully changed direction.
     </p>
+  </header>
+
+  <div class="line-lab__toolbar">
+    <button id="line-play" type="button">Play</button>
+    <label for="line-progress">Corner progress</label>
+    <input id="line-progress" type="range" min="0" max="100" value="0" step="1" />
+    <output id="line-phase">Braking</output>
   </div>
 
-  <div class="line-lab__controls" aria-label="Gravel line controls">
-    <label>
-      <span>Surface grip <output id="grip-value">42%</output></span>
-      <input id="grip" type="range" min="25" max="70" value="42" />
-    </label>
-    <label>
-      <span>Entry speed <output id="speed-value">58 mph</output></span>
-      <input id="speed" type="range" min="38" max="72" value="58" />
-    </label>
-    <label>
-      <span>Early rotation <output id="rotation-value">70%</output></span>
-      <input id="rotation" type="range" min="0" max="100" value="70" />
-    </label>
-    <label>
-      <span>Throttle pickup <output id="throttle-value">62%</output></span>
-      <input id="throttle" type="range" min="20" max="90" value="62" />
-    </label>
-    <div class="line-lab__buttons">
-      <button type="button" id="run-corner">Run corner</button>
-      <button type="button" id="road-on-gravel" class="secondary">Road line on gravel</button>
-      <button type="button" id="rotate-early" class="secondary">Rotate early</button>
-    </div>
+  <div class="line-lab__key" aria-label="Vector legend">
+    <span><i class="heading-key"></i>Car heading</span>
+    <span><i class="velocity-key"></i>Direction of travel</span>
   </div>
 
-  <div class="line-lab__stage">
-    <svg viewBox="0 0 900 520" role="img" aria-labelledby="track-title track-desc">
-      <title id="track-title">Road and gravel racing lines through a ninety-degree corner</title>
-      <desc id="track-desc">
-        A blue car follows a smooth outside-inside-outside road line. An orange car rotates before the apex on a
-        tighter gravel line, pointing toward the exit while still sliding across the corner.
-      </desc>
-      <defs>
-        <pattern id="gravel-speckle" width="18" height="18" patternUnits="userSpaceOnUse">
-          <circle cx="3" cy="5" r="1.2" />
-          <circle cx="13" cy="12" r="1" />
-          <circle cx="8" cy="16" r="0.8" />
-        </pattern>
-        <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 Z" />
-        </marker>
-        <marker id="arrow-orange" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-          <path d="M0,0 L8,4 L0,8 Z" />
-        </marker>
-      </defs>
+  <svg class="line-lab__diagram" viewBox="0 0 1000 470" role="img" aria-labelledby="line-title line-desc">
+    <title id="line-title">Tarmac and gravel cars negotiating the same corner</title>
+    <desc id="line-desc">
+      Two synchronized cars follow the same center path through identical corners. The tarmac car remains nearly
+      aligned with its direction of travel. The gravel car rotates earlier, creating a larger angle between heading
+      and direction of travel during the middle of the corner.
+    </desc>
+    <defs>
+      <pattern id="gravel-pattern" width="14" height="14" patternUnits="userSpaceOnUse">
+        <circle cx="3" cy="4" r="1" />
+        <circle cx="10" cy="9" r="1.2" />
+      </pattern>
+      <marker id="heading-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0 0 L7 3.5 L0 7 Z" />
+      </marker>
+      <marker id="velocity-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+        <path d="M0 0 L7 3.5 L0 7 Z" />
+      </marker>
+    </defs>
 
-      <path class="track-base" d="M80 420 H455 C610 420 720 315 720 160 V75" />
-      <path class="track-edge" d="M80 474 H455 C642 474 774 347 774 160 V75" />
-      <path class="track-edge" d="M80 366 H455 C578 366 666 282 666 160 V75" />
-      <path class="gravel-texture" d="M80 420 H455 C610 420 720 315 720 160 V75" />
-
-      <g class="cones" aria-hidden="true">
-        <path d="M445 348 l8 18 h-16 z" /><path d="M625 305 l8 18 h-16 z" /><path d="M648 170 l8 18 h-16 z" />
-        <path d="M470 486 l8 18 h-16 z" /><path d="M775 340 l8 18 h-16 z" /><path d="M790 165 l8 18 h-16 z" />
+    <g>
+      <text class="panel-title" x="250" y="34" text-anchor="middle">TARMAC</text>
+      <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Maximize radius. Keep the tire working cleanly.</text>
+      <rect class="panel-bg tarmac-bg" x="18" y="72" width="464" height="370" rx="18" />
+      <path class="road tarmac-road" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <path id="tarmac-path" class="guide-line" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <line id="tarmac-velocity" class="velocity-vector" />
+      <line id="tarmac-heading" class="heading-vector" />
+      <g id="tarmac-car" class="car tarmac-car">
+        <rect x="-20" y="-10" width="40" height="20" rx="6" />
+        <path d="M-9 -10 V10 M9 -10 V10" />
       </g>
+      <text id="tarmac-note" class="coach-note" x="40" y="420">Brake in a straight line.</text>
+    </g>
 
-      <path id="road-path" class="line road-line" d="M95 445 C310 445 430 448 520 407 C640 353 693 268 695 80" />
-      <path id="gravel-path" class="line gravel-line" d="M95 430 C300 432 415 438 505 400 C565 374 613 332 655 285 C690 246 716 190 720 80" />
+    <g transform="translate(500 0)">
+      <text class="panel-title" x="250" y="34" text-anchor="middle">GRAVEL</text>
+      <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Use weight transfer to rotate, then drive out.</text>
+      <rect class="panel-bg gravel-bg" x="18" y="72" width="464" height="370" rx="18" />
+      <path class="road gravel-road" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <path id="gravel-path" class="guide-line" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <line id="gravel-velocity" class="velocity-vector" />
+      <line id="gravel-heading" class="heading-vector" />
+      <g id="gravel-car" class="car gravel-car">
+        <rect x="-20" y="-10" width="40" height="20" rx="6" />
+        <path d="M-9 -10 V10 M9 -10 V10" />
+      </g>
+      <text id="gravel-note" class="coach-note" x="40" y="420">Brake and load the front tires.</text>
+    </g>
+  </svg>
 
-      <g id="road-car" class="car road-car" transform="translate(95 445)">
-        <rect x="-18" y="-9" width="36" height="18" rx="6" />
-        <path d="M18 0 L29 0" class="heading-vector" marker-end="url(#arrow-blue)" />
-      </g>
-      <g id="gravel-car" class="car gravel-car" transform="translate(95 430)">
-        <rect x="-18" y="-9" width="36" height="18" rx="6" />
-        <path id="gravel-heading" d="M18 0 L38 0" class="heading-vector" marker-end="url(#arrow-orange)" />
-        <path id="velocity-vector" d="M0 0 L34 0" class="velocity-vector" marker-end="url(#arrow-orange)" />
-      </g>
-
-      <g class="labels" aria-hidden="true">
-        <text x="112" y="405">BRAKE</text>
-        <text x="477" y="335">ROTATE</text>
-        <text x="618" y="235">APEX</text>
-        <text x="742" y="110">THROTTLE</text>
-      </g>
-    </svg>
+  <div class="line-lab__readout" aria-live="polite">
+    <div><span>Tarmac</span><strong id="tarmac-readout">Heading follows velocity</strong></div>
+    <div><span>Gravel</span><strong id="gravel-readout">Building rotation</strong></div>
   </div>
 
-  <div class="line-lab__legend" aria-label="Line legend">
-    <span><i class="road-swatch"></i>Road: maximize radius, minimize slip</span>
-    <span><i class="gravel-swatch"></i>Gravel: rotate early, straighten the exit</span>
-  </div>
-
-  <div class="line-lab__metrics" aria-live="polite">
-    <article>
-      <span>Slip angle</span>
-      <strong id="slip-angle">14°</strong>
-      <small>Difference between where the car points and where it travels</small>
-    </article>
-    <article>
-      <span>Exit speed</span>
-      <strong id="exit-speed">46 mph</strong>
-      <small>Higher when the car is pointed down the exit sooner</small>
-    </article>
-    <article>
-      <span>Corner result</span>
-      <strong id="corner-result">Balanced rotation</strong>
-      <small id="corner-note">The rear helps the car turn without overwhelming the front tires.</small>
-    </article>
-  </div>
-
-  <p class="line-lab__takeaway" id="takeaway">
-    The gravel line looks less tidy, but it uses rotation to finish turning earlier and spend more of the exit accelerating.
+  <p class="line-lab__takeaway">
+    The gravel car is not taking a magical shortcut. The important difference is timing: it changes its heading
+    earlier, accepts controlled slip, and reaches the exit already pointed where it wants to accelerate.
   </p>
 </section>
 
 <style>
-  .line-lab {
-    --ink: #171717;
-    --muted: #666;
-    --panel: #f4f1eb;
-    --road: #2563eb;
-    --gravel: #d97706;
-    margin: 4rem 0;
-    color: var(--ink);
-  }
-  .line-lab__intro { max-width: 48rem; margin-bottom: 1.5rem; }
-  .line-lab__intro h2 { margin: .25rem 0 .75rem; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; }
-  .line-lab__intro p { margin: 0; color: var(--muted); }
-  .line-lab__eyebrow { font: 700 .72rem/1.2 ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--gravel) !important; }
-  .line-lab__controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.5rem; padding: 1.25rem; border: 1px solid #d7d1c7; border-radius: 18px; background: var(--panel); }
-  .line-lab__controls label { display: grid; gap: .45rem; font-size: .86rem; font-weight: 650; }
-  .line-lab__controls label span { display: flex; justify-content: space-between; gap: 1rem; }
-  .line-lab__controls output { color: var(--muted); font-variant-numeric: tabular-nums; }
-  .line-lab__controls input { width: 100%; accent-color: var(--gravel); }
-  .line-lab__buttons { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .65rem; }
-  .line-lab button { border: 0; border-radius: 999px; padding: .75rem 1rem; background: var(--ink); color: white; font: inherit; font-weight: 700; cursor: pointer; }
-  .line-lab button.secondary { background: white; color: var(--ink); border: 1px solid #cfc8bd; }
-  .line-lab button:hover { transform: translateY(-1px); }
-  .line-lab__stage { margin-top: 1rem; overflow: hidden; border-radius: 20px; border: 1px solid #d7d1c7; background: #ded8cc; }
-  .line-lab svg { display: block; width: 100%; height: auto; }
-  .track-base { fill: none; stroke: #b7ad9c; stroke-width: 110; stroke-linecap: square; stroke-linejoin: round; }
-  .track-edge { fill: none; stroke: #7b7265; stroke-width: 3; stroke-dasharray: 10 12; }
-  .gravel-texture { fill: none; stroke: url(#gravel-speckle); stroke-width: 104; opacity: .34; }
-  #gravel-speckle circle { fill: #6f665a; }
-  .line { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 11 11; opacity: .9; }
-  .road-line { stroke: var(--road); }
-  .gravel-line { stroke: var(--gravel); }
-  .car rect { stroke: white; stroke-width: 2; }
-  .road-car rect { fill: var(--road); }
-  .gravel-car rect { fill: var(--gravel); }
-  .heading-vector, .velocity-vector { fill: none; stroke-width: 3; }
-  .road-car .heading-vector { stroke: var(--road); }
-  .gravel-car .heading-vector { stroke: var(--gravel); }
-  .velocity-vector { stroke: #111; stroke-dasharray: 4 4; opacity: .75; }
-  #arrow-blue path { fill: var(--road); }
-  #arrow-orange path { fill: var(--gravel); }
-  .cones path { fill: #f97316; stroke: white; stroke-width: 2; }
-  .labels text { fill: #5e5549; font: 700 14px ui-monospace, monospace; letter-spacing: .12em; }
-  .line-lab__legend { display: flex; flex-wrap: wrap; gap: .75rem 1.5rem; margin: 1rem 0; font-size: .86rem; color: var(--muted); }
-  .line-lab__legend span { display: inline-flex; align-items: center; gap: .5rem; }
-  .line-lab__legend i { width: 1.5rem; height: .25rem; border-radius: 999px; }
-  .road-swatch { background: var(--road); }
-  .gravel-swatch { background: var(--gravel); }
-  .line-lab__metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
-  .line-lab__metrics article { padding: 1rem; border: 1px solid #ddd6cc; border-radius: 16px; background: #fff; }
-  .line-lab__metrics span { display: block; color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
-  .line-lab__metrics strong { display: block; margin: .25rem 0; font-size: 1.35rem; }
-  .line-lab__metrics small { display: block; color: var(--muted); line-height: 1.35; }
-  .line-lab__takeaway { margin: 1rem 0 0; padding: 1rem 1.1rem; border-left: 4px solid var(--gravel); background: #fff7ed; font-weight: 650; }
-  @media (max-width: 680px) {
-    .line-lab__controls, .line-lab__metrics { grid-template-columns: 1fr; }
-    .line-lab__buttons { grid-column: auto; }
-    .line-lab button { width: 100%; }
-    .labels { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .line-lab button:hover { transform: none; }
+  .line-lab { --ink:#171717; --muted:#686868; --orange:#c86718; margin:4rem 0; color:var(--ink); }
+  .line-lab__intro { max-width:48rem; margin-bottom:1.25rem; }
+  .line-lab__intro h2 { margin:.2rem 0 .7rem; font-size:clamp(1.8rem,4vw,3rem); line-height:1.05; }
+  .line-lab__intro p { margin:0; color:var(--muted); }
+  .line-lab__eyebrow { color:var(--orange)!important; font:700 .72rem/1.2 ui-monospace,monospace; letter-spacing:.14em; text-transform:uppercase; }
+  .line-lab__toolbar { display:grid; grid-template-columns:auto auto 1fr auto; gap:.8rem; align-items:center; padding:1rem; border:1px solid #ddd6cc; border-radius:16px; background:#f7f5f1; }
+  .line-lab__toolbar button { border:0; border-radius:999px; padding:.7rem 1.1rem; background:var(--ink); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+  .line-lab__toolbar label { font-size:.82rem; font-weight:700; }
+  .line-lab__toolbar input { width:100%; accent-color:var(--orange); }
+  .line-lab__toolbar output { min-width:6rem; font:700 .8rem/1.2 ui-monospace,monospace; text-align:right; text-transform:uppercase; }
+  .line-lab__key { display:flex; flex-wrap:wrap; gap:1rem; margin:.9rem 0; color:var(--muted); font-size:.85rem; }
+  .line-lab__key span { display:inline-flex; align-items:center; gap:.45rem; }
+  .line-lab__key i { width:1.6rem; height:.2rem; display:inline-block; }
+  .heading-key { background:var(--orange); }
+  .velocity-key { border-top:3px dashed #222; }
+  .line-lab__diagram { display:block; width:100%; height:auto; }
+  .panel-bg { stroke:#d8d1c6; stroke-width:1.5; }
+  .tarmac-bg { fill:#ececec; }
+  .gravel-bg { fill:#ded2bf; }
+  .road { fill:none; stroke-width:96; stroke-linecap:square; stroke-linejoin:round; }
+  .tarmac-road { stroke:#555; }
+  .gravel-road { stroke:url(#gravel-pattern); }
+  #gravel-pattern circle { fill:#766955; }
+  .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.55; }
+  .panel-title { fill:var(--ink); font:700 15px/1 ui-monospace,monospace; letter-spacing:.14em; }
+  .panel-subtitle,.coach-note { fill:var(--muted); font:13px/1.2 Inter,system-ui,sans-serif; }
+  .coach-note { font-weight:650; }
+  .car rect { stroke:#fff; stroke-width:2; }
+  .car path { fill:none; stroke:#fff; stroke-width:2; opacity:.75; }
+  .tarmac-car rect { fill:#2563a8; }
+  .gravel-car rect { fill:var(--orange); }
+  .heading-vector { stroke:var(--orange); stroke-width:4; marker-end:url(#heading-arrow); }
+  .velocity-vector { stroke:#222; stroke-width:3; stroke-dasharray:6 5; marker-end:url(#velocity-arrow); }
+  #heading-arrow path { fill:var(--orange); }
+  #velocity-arrow path { fill:#222; }
+  .line-lab__readout { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.8rem; margin-top:.8rem; }
+  .line-lab__readout div { padding:1rem; border:1px solid #ddd6cc; border-radius:14px; }
+  .line-lab__readout span { display:block; color:var(--muted); font-size:.76rem; text-transform:uppercase; letter-spacing:.1em; }
+  .line-lab__readout strong { display:block; margin-top:.2rem; }
+  .line-lab__takeaway { margin:1rem 0 0; padding:1rem 1.1rem; border-left:4px solid var(--orange); background:#fff7ed; font-weight:650; }
+  @media(max-width:680px){
+    .line-lab__toolbar { grid-template-columns:auto 1fr; }
+    .line-lab__toolbar label { display:none; }
+    .line-lab__toolbar output { grid-column:1/-1; text-align:left; }
+    .line-lab__readout { grid-template-columns:1fr; }
   }
 </style>
 
 <script>
   const root = document.querySelector('.line-lab');
   if (root) {
-    const roadPath = root.querySelector('#road-path');
+    const progress = root.querySelector('#line-progress');
+    const play = root.querySelector('#line-play');
+    const phase = root.querySelector('#line-phase');
+    const tarmacPath = root.querySelector('#tarmac-path');
     const gravelPath = root.querySelector('#gravel-path');
-    const roadCar = root.querySelector('#road-car');
+    const tarmacCar = root.querySelector('#tarmac-car');
     const gravelCar = root.querySelector('#gravel-car');
-    const controls = {
-      grip: root.querySelector('#grip'),
-      speed: root.querySelector('#speed'),
-      rotation: root.querySelector('#rotation'),
-      throttle: root.querySelector('#throttle'),
-    };
-    const outputs = {
-      grip: root.querySelector('#grip-value'),
-      speed: root.querySelector('#speed-value'),
-      rotation: root.querySelector('#rotation-value'),
-      throttle: root.querySelector('#throttle-value'),
-    };
-    let frame;
+    const tarmacVelocity = root.querySelector('#tarmac-velocity');
+    const gravelVelocity = root.querySelector('#gravel-velocity');
+    const tarmacHeading = root.querySelector('#tarmac-heading');
+    const gravelHeading = root.querySelector('#gravel-heading');
+    let animation = 0;
+    let playing = false;
 
-    function number(name) { return Number(controls[name].value); }
+    const phases = [
+      { max:25, name:'Braking', road:'Brake straight; keep the platform settled.', gravel:'Brake and load the front tires.' },
+      { max:55, name:'Rotation', road:'Turn once and build lateral load smoothly.', gravel:'Release the brake and rotate the car early.' },
+      { max:78, name:'Apex', road:'Heading and velocity remain almost aligned.', gravel:'The nose points toward the exit before momentum does.' },
+      { max:101, name:'Exit', road:'Unwind steering and add throttle.', gravel:'Velocity catches the heading; drive out.' },
+    ];
 
-    function updateLabels() {
-      outputs.grip.textContent = `${number('grip')}%`;
-      outputs.speed.textContent = `${number('speed')} mph`;
-      outputs.rotation.textContent = `${number('rotation')}%`;
-      outputs.throttle.textContent = `${number('throttle')}%`;
-      updateModel();
-    }
-
-    function updateModel() {
-      const grip = number('grip');
-      const speed = number('speed');
-      const rotation = number('rotation');
-      const throttle = number('throttle');
-      const slip = Math.max(2, Math.round((100 - grip) * .13 + rotation * .11 + (speed - 45) * .08));
-      const pushRisk = speed * (100 - grip) / 100 - rotation * .18;
-      const overRisk = rotation - grip - throttle * .18;
-      const exit = Math.max(24, Math.round(speed * (.61 + throttle / 330) - Math.max(0, pushRisk) * .12 - Math.max(0, overRisk) * .09));
-      const y1 = 445 - rotation * .18;
-      const y2 = 420 - rotation * .28;
-      const x2 = 535 + rotation * 1.05;
-      const x3 = 705 + (throttle - 55) * .18;
-      gravelPath.setAttribute('d', `M95 ${y1} C300 ${y1 + 2} 420 ${y2 + 20} 505 ${y2} C565 ${y2 - 24} ${x2} 330 655 285 C690 246 ${x3} 190 720 80`);
-      root.querySelector('#slip-angle').textContent = `${slip}°`;
-      root.querySelector('#exit-speed').textContent = `${exit} mph`;
-      let result = 'Balanced rotation';
-      let note = 'The rear helps the car turn without overwhelming the front tires.';
-      let takeaway = 'The gravel line looks less tidy, but it uses rotation to finish turning earlier and spend more of the exit accelerating.';
-      if (pushRisk > 22) {
-        result = 'Front tires wash wide';
-        note = 'Too much entry speed for the available grip. The car follows the road line straight toward the outside cones.';
-        takeaway = 'A clean geometric line fails when the front tires cannot generate enough lateral force. Slow down or rotate the car sooner.';
-      } else if (overRisk > 28) {
-        result = 'Too much rotation';
-        note = 'The car points toward the exit, but the rear has stepped beyond the useful slip-angle window.';
-        takeaway = 'Rotation is useful only while it remains controlled. Past that point, correction costs more time than the tighter line saves.';
-      }
-      root.querySelector('#corner-result').textContent = result;
-      root.querySelector('#corner-note').textContent = note;
-      root.querySelector('#takeaway').textContent = takeaway;
-    }
-
-    function pose(car, path, progress, extraRotation = 0) {
+    function angleAt(path, distance) {
       const length = path.getTotalLength();
-      const p = path.getPointAtLength(length * progress);
-      const q = path.getPointAtLength(Math.min(length, length * progress + 2));
-      const tangent = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
-      car.setAttribute('transform', `translate(${p.x} ${p.y}) rotate(${tangent + extraRotation})`);
+      const a = path.getPointAtLength(Math.max(0, distance - 1));
+      const b = path.getPointAtLength(Math.min(length, distance + 1));
+      return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
     }
 
-    function run() {
-      cancelAnimationFrame(frame);
-      const duration = 2500 - (number('speed') - 38) * 12;
-      const start = performance.now();
-      function tick(now) {
-        const raw = Math.min(1, (now - start) / duration);
-        const eased = raw < .5 ? 2 * raw * raw : 1 - Math.pow(-2 * raw + 2, 2) / 2;
-        pose(roadCar, roadPath, eased, 0);
-        const rotationPhase = Math.sin(Math.min(1, eased * 1.35) * Math.PI);
-        const extra = rotationPhase * number('rotation') * .22;
-        pose(gravelCar, gravelPath, eased, extra);
-        const velocity = root.querySelector('#velocity-vector');
-        velocity.setAttribute('transform', `rotate(${-extra})`);
-        if (raw < 1) frame = requestAnimationFrame(tick);
-      }
-      frame = requestAnimationFrame(tick);
+    function setVector(line, point, angle, length) {
+      const radians = angle * Math.PI / 180;
+      line.setAttribute('x1', String(point.x));
+      line.setAttribute('y1', String(point.y));
+      line.setAttribute('x2', String(point.x + Math.cos(radians) * length));
+      line.setAttribute('y2', String(point.y + Math.sin(radians) * length));
     }
 
-    Object.values(controls).forEach((control) => control.addEventListener('input', updateLabels));
-    root.querySelector('#run-corner').addEventListener('click', run);
-    root.querySelector('#road-on-gravel').addEventListener('click', () => {
-      controls.grip.value = '38'; controls.speed.value = '64'; controls.rotation.value = '10'; controls.throttle.value = '70';
-      updateLabels(); run();
+    function gravelYaw(p) {
+      if (p < .24 || p > .86) return 0;
+      const normalized = (p - .24) / .62;
+      return Math.sin(normalized * Math.PI) * 28;
+    }
+
+    function render() {
+      const value = Number(progress.value);
+      const p = value / 100;
+      const roadLength = tarmacPath.getTotalLength();
+      const gravelLength = gravelPath.getTotalLength();
+      const roadPoint = tarmacPath.getPointAtLength(roadLength * p);
+      const gravelPoint = gravelPath.getPointAtLength(gravelLength * p);
+      const roadVelocityAngle = angleAt(tarmacPath, roadLength * p);
+      const gravelVelocityAngle = angleAt(gravelPath, gravelLength * p);
+      const roadHeadingAngle = roadVelocityAngle - Math.sin(p * Math.PI) * 2.5;
+      const gravelHeadingAngle = gravelVelocityAngle - gravelYaw(p);
+
+      tarmacCar.setAttribute('transform', `translate(${roadPoint.x} ${roadPoint.y}) rotate(${roadHeadingAngle})`);
+      gravelCar.setAttribute('transform', `translate(${gravelPoint.x} ${gravelPoint.y}) rotate(${gravelHeadingAngle})`);
+      setVector(tarmacVelocity, roadPoint, roadVelocityAngle, 55);
+      setVector(gravelVelocity, gravelPoint, gravelVelocityAngle, 55);
+      setVector(tarmacHeading, roadPoint, roadHeadingAngle, 62);
+      setVector(gravelHeading, gravelPoint, gravelHeadingAngle, 62);
+
+      const current = phases.find((item) => value < item.max) || phases[3];
+      phase.textContent = current.name;
+      root.querySelector('#tarmac-note').textContent = current.road;
+      root.querySelector('#gravel-note').textContent = current.gravel;
+      root.querySelector('#tarmac-readout').textContent = value < 78 ? 'Heading closely follows velocity' : 'Steering unwinds on exit';
+      root.querySelector('#gravel-readout').textContent = value < 25 ? 'Building front load' : value < 78 ? 'Heading leads velocity' : 'Velocity catches the heading';
+    }
+
+    function tick() {
+      if (!playing) return;
+      const next = Number(progress.value) + 0.7;
+      progress.value = String(next > 100 ? 0 : next);
+      render();
+      animation = requestAnimationFrame(tick);
+    }
+
+    progress.addEventListener('input', () => { playing = false; play.textContent = 'Play'; cancelAnimationFrame(animation); render(); });
+    play.addEventListener('click', () => {
+      playing = !playing;
+      play.textContent = playing ? 'Pause' : 'Play';
+      cancelAnimationFrame(animation);
+      if (playing) tick();
     });
-    root.querySelector('#rotate-early').addEventListener('click', () => {
-      controls.grip.value = '42'; controls.speed.value = '58'; controls.rotation.value = '74'; controls.throttle.value = '64';
-      updateLabels(); run();
-    });
-    updateLabels();
-    pose(roadCar, roadPath, 0, 0);
-    pose(gravelCar, gravelPath, 0, 0);
+    render();
   }
 </script>

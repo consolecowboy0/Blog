@@ -24,6 +24,29 @@ const { src, title } = Astro.props;
 <script>
   const interactiveTheme = 'light';
 
+  function forceWhiteWidgetBackground(iframe: HTMLIFrameElement): void {
+    try {
+      const doc = iframe.contentDocument;
+      if (!doc) return;
+
+      doc.documentElement.style.setProperty('background', '#ffffff', 'important');
+      doc.documentElement.style.setProperty('color-scheme', 'light', 'important');
+      doc.body?.style.setProperty('background', '#ffffff', 'important');
+
+      const style = doc.createElement('style');
+      style.dataset.parentWhiteTheme = 'true';
+      style.textContent = `
+        html, body, #root, #app, body > main, body > div:first-child {
+          background-color: #ffffff !important;
+          color-scheme: light !important;
+        }
+      `;
+      doc.head?.appendChild(style);
+    } catch {
+      // Same-origin embeds are expected; safely ignore anything external.
+    }
+  }
+
   document.querySelectorAll('.library-embed-container').forEach((container) => {
     const iframe = container.querySelector('iframe') as HTMLIFrameElement | null;
     const loading = container.querySelector('.library-loading');
@@ -34,6 +57,7 @@ const { src, title } = Astro.props;
     iframe.src = baseSrc + sep + 'theme=' + interactiveTheme;
 
     iframe.addEventListener('load', () => {
+      forceWhiteWidgetBackground(iframe);
       loading.classList.add('loaded');
       try {
         iframe.contentWindow?.postMessage(

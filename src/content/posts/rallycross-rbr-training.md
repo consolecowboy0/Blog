@@ -2,7 +2,7 @@
 title: "Why I'm Training for Rallycross in a 22-Year-Old Simulator"
 date: "2026-08-05"
 description: "A gravel-lot slide after a beer run turned into a plan to run SCCA RallyCross. Here's why my training rig still runs Richard Burns Rally, a game from 2004 that pros like Kalle Rovanperä still practice on."
-draft: true
+draft: false
 ---
 
 Recently I found myself sliding sideways through a gravel parking lot (on purpose) after a beer run in my Subi. My first thought wasn't, "Maybe I should stop doing that." It was, "I should finally sign up for that rallycross thing I keep talking about."

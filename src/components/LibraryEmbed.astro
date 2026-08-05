@@ -24,24 +24,81 @@ const { src, title } = Astro.props;
 <script>
   const interactiveTheme = 'light';
 
-  function forceWhiteWidgetBackground(iframe: HTMLIFrameElement): void {
+  const lightVariables: Record<string, string> = {
+    '--bg': '#ffffff',
+    '--background': '#ffffff',
+    '--page-bg': '#ffffff',
+    '--app-bg': '#ffffff',
+    '--bg-card': '#f7f7f5',
+    '--card-bg': '#f7f7f5',
+    '--panel': '#f7f7f5',
+    '--panel-bg': '#f7f7f5',
+    '--surface': '#f7f7f5',
+    '--surface-1': '#f7f7f5',
+    '--surface-2': '#efefec',
+    '--card': '#f7f7f5',
+    '--border': '#d4d4d0',
+    '--border-color': '#d4d4d0',
+    '--text': '#1a1a1a',
+    '--fg': '#1a1a1a',
+    '--foreground': '#1a1a1a',
+    '--text-primary': '#1a1a1a',
+    '--text-secondary': '#555555',
+    '--text-muted': '#737373',
+    '--muted': '#737373'
+  };
+
+  function applyLightWidgetTheme(iframe: HTMLIFrameElement): void {
     try {
       const doc = iframe.contentDocument;
       if (!doc) return;
 
-      doc.documentElement.style.setProperty('background', '#ffffff', 'important');
-      doc.documentElement.style.setProperty('color-scheme', 'light', 'important');
+      const root = doc.documentElement;
+      root.setAttribute('data-theme', 'light');
+      root.style.setProperty('background', '#ffffff', 'important');
+      root.style.setProperty('color-scheme', 'light', 'important');
       doc.body?.style.setProperty('background', '#ffffff', 'important');
+      doc.body?.style.setProperty('color', '#1a1a1a', 'important');
 
+      Object.entries(lightVariables).forEach(([name, value]) => {
+        root.style.setProperty(name, value, 'important');
+      });
+
+      doc.querySelector('style[data-parent-light-theme]')?.remove();
       const style = doc.createElement('style');
-      style.dataset.parentWhiteTheme = 'true';
+      style.dataset.parentLightTheme = 'true';
       style.textContent = `
-        html, body, #root, #app, body > main, body > div:first-child {
+        html, body, #root, #app, #__next, body > main, body > div:first-child {
           background-color: #ffffff !important;
+          color: #1a1a1a !important;
           color-scheme: light !important;
+        }
+
+        .card, .panel, .stage, .verdict, .term, .controls,
+        .control-panel, .sidebar, .toolbar, .legend,
+        [class*="card"], [class*="panel"], [class*="surface"] {
+          background-color: #f7f7f5 !important;
+          border-color: #d4d4d0 !important;
+        }
+
+        input, select, textarea, button {
+          color-scheme: light !important;
+        }
+
+        canvas, svg, svg *, [class*="chart"], [class*="map"],
+        [class*="network"], [class*="visualization"] {
+          color-scheme: light;
         }
       `;
       doc.head?.appendChild(style);
+
+      // Some widgets apply their own theme after load. Reassert once those scripts settle.
+      window.setTimeout(() => {
+        Object.entries(lightVariables).forEach(([name, value]) => {
+          root.style.setProperty(name, value, 'important');
+        });
+        root.setAttribute('data-theme', 'light');
+      }, 250);
     } catch {
       // Same-origin embeds are expected; safely ignore anything external.
     }
@@ -57,7 +114,7 @@ const { src, title } = Astro.props;
     iframe.src = baseSrc + sep + 'theme=' + interactiveTheme;
 
     iframe.addEventListener('load', () => {
-      forceWhiteWidgetBackground(iframe);
+      applyLightWidgetTheme(iframe);
       loading.classList.add('loaded');
       try {
         iframe.contentWindow?.postMessage(

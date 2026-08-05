@@ -43,6 +43,7 @@
     applyTheme(localStorage.getItem('theme') || 'rainbow');
   }
   window.addEventListener('message', function(e){
+    if (e.origin !== window.location.origin) return;
     if (e && e.data && e.data.type === 'parent-theme') {
       applyTheme(e.data.theme);
     }

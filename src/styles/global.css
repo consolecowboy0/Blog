@@ -57,6 +57,16 @@ img {
     0 4px 14px rgba(8, 145, 178, 0.08);
 }
 
+img[src*="antler-mark"],
+img[src*="emblem"],
+.brand img,
+.footer-brand img,
+.journal-mark img {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
 pre {
   background: var(--code-bg);
   padding: 1.25rem;

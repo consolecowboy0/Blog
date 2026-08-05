@@ -24,7 +24,7 @@
   <svg class="line-lab__diagram" viewBox="0 0 1000 470" role="img" aria-labelledby="line-title line-desc">
     <title id="line-title">Tarmac and gravel cars negotiating the same corner</title>
     <desc id="line-desc">
-      Two synchronized cars follow the same center path through identical corners. The tarmac car remains nearly
+      Two synchronized cars follow smoothly curved paths through identical corners. The tarmac car remains nearly
       aligned with its direction of travel. The gravel car rotates earlier, creating a larger angle between heading
       and direction of travel during the middle of the corner.
     </desc>
@@ -45,8 +45,8 @@
       <text class="panel-title" x="250" y="34" text-anchor="middle">TARMAC</text>
       <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Maximize radius. Keep the tire working cleanly.</text>
       <rect class="panel-bg tarmac-bg" x="18" y="72" width="464" height="370" rx="18" />
-      <path class="road tarmac-road" d="M55 380 H225 C330 380 415 300 415 195 V105" />
-      <path id="tarmac-path" class="guide-line" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <path class="road tarmac-road" d="M55 380 H205 C330 380 415 295 415 170 V105" />
+      <path id="tarmac-path" class="guide-line" d="M55 395 C155 395 235 395 285 365 C360 320 405 265 415 190 C420 155 418 130 415 105" />
       <line id="tarmac-velocity" class="velocity-vector" />
       <line id="tarmac-heading" class="heading-vector" />
       <g id="tarmac-car" class="car tarmac-car">
@@ -60,8 +60,8 @@
       <text class="panel-title" x="250" y="34" text-anchor="middle">GRAVEL</text>
       <text class="panel-subtitle" x="250" y="56" text-anchor="middle">Use weight transfer to rotate, then drive out.</text>
       <rect class="panel-bg gravel-bg" x="18" y="72" width="464" height="370" rx="18" />
-      <path class="road gravel-road" d="M55 380 H225 C330 380 415 300 415 195 V105" />
-      <path id="gravel-path" class="guide-line" d="M55 380 H225 C330 380 415 300 415 195 V105" />
+      <path class="road gravel-road" d="M55 380 H205 C330 380 415 295 415 170 V105" />
+      <path id="gravel-path" class="guide-line" d="M55 395 C150 395 225 392 275 365 C340 330 390 280 407 218 C416 183 418 142 415 105" />
       <line id="gravel-velocity" class="velocity-vector" />
       <line id="gravel-heading" class="heading-vector" />
       <g id="gravel-car" class="car gravel-car">
@@ -103,11 +103,11 @@
   .panel-bg { stroke:#d8d1c6; stroke-width:1.5; }
   .tarmac-bg { fill:#ececec; }
   .gravel-bg { fill:#ded2bf; }
-  .road { fill:none; stroke-width:96; stroke-linecap:square; stroke-linejoin:round; }
+  .road { fill:none; stroke-width:96; stroke-linecap:round; stroke-linejoin:round; }
   .tarmac-road { stroke:#555; }
   .gravel-road { stroke:url(#gravel-pattern); }
   #gravel-pattern circle { fill:#766955; }
-  .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.55; }
+  .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.62; }
   .panel-title { fill:var(--ink); font:700 15px/1 ui-monospace,monospace; letter-spacing:.14em; }
   .panel-subtitle,.coach-note { fill:var(--muted); font:13px/1.2 Inter,system-ui,sans-serif; }
   .coach-note { font-weight:650; }
@@ -148,6 +148,7 @@
     const gravelHeading = root.querySelector('#gravel-heading');
     let animation = 0;
     let playing = false;
+    let lastTime = 0;
 
     const phases = [
       { max:25, name:'Braking', road:'Brake straight; keep the platform settled.', gravel:'Brake and load the front tires.' },
@@ -158,8 +159,8 @@
 
     function angleAt(path, distance) {
       const length = path.getTotalLength();
-      const a = path.getPointAtLength(Math.max(0, distance - 1));
-      const b = path.getPointAtLength(Math.min(length, distance + 1));
+      const a = path.getPointAtLength(Math.max(0, distance - 2));
+      const b = path.getPointAtLength(Math.min(length, distance + 2));
       return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
     }
 
@@ -172,8 +173,8 @@
     }
 
     function gravelYaw(p) {
-      if (p < .24 || p > .86) return 0;
-      const normalized = (p - .24) / .62;
+      if (p < .22 || p > .88) return 0;
+      const normalized = (p - .22) / .66;
       return Math.sin(normalized * Math.PI) * 28;
     }
 
@@ -204,20 +205,30 @@
       root.querySelector('#gravel-readout').textContent = value < 25 ? 'Building front load' : value < 78 ? 'Heading leads velocity' : 'Velocity catches the heading';
     }
 
-    function tick() {
+    function tick(time) {
       if (!playing) return;
-      const next = Number(progress.value) + 0.7;
+      if (!lastTime) lastTime = time;
+      const elapsed = time - lastTime;
+      lastTime = time;
+      const next = Number(progress.value) + elapsed * 0.008;
       progress.value = String(next > 100 ? 0 : next);
       render();
       animation = requestAnimationFrame(tick);
     }
 
-    progress.addEventListener('input', () => { playing = false; play.textContent = 'Play'; cancelAnimationFrame(animation); render(); });
+    progress.addEventListener('input', () => {
+      playing = false;
+      lastTime = 0;
+      play.textContent = 'Play';
+      cancelAnimationFrame(animation);
+      render();
+    });
     play.addEventListener('click', () => {
       playing = !playing;
+      lastTime = 0;
       play.textContent = playing ? 'Pause' : 'Play';
       cancelAnimationFrame(animation);
-      if (playing) tick();
+      if (playing) animation = requestAnimationFrame(tick);
     });
     render();
   }

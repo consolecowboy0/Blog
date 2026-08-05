@@ -53,7 +53,8 @@
         <rect x="-20" y="-10" width="40" height="20" rx="6" />
         <path d="M-9 -10 V10 M9 -10 V10" />
       </g>
-      <text id="tarmac-note" class="coach-note" x="40" y="420">Brake in a straight line.</text>
+      <rect class="coach-note-bg" x="34" y="91" width="300" height="31" rx="8" />
+      <text id="tarmac-note" class="coach-note" x="46" y="112">Brake in a straight line.</text>
     </g>
 
     <g transform="translate(500 0)">
@@ -110,6 +111,7 @@
   .guide-line { fill:none; stroke:#fff; stroke-width:2; stroke-dasharray:8 10; opacity:.72; }
   .panel-title { fill:var(--ink); font:700 15px/1 ui-monospace,monospace; letter-spacing:.14em; }
   .panel-subtitle,.coach-note { fill:var(--muted); font:13px/1.2 Inter,system-ui,sans-serif; }
+  .coach-note-bg { fill:#fff; stroke:#d8d1c6; stroke-width:1; opacity:.96; }
   .coach-note { font-weight:650; }
   .car rect { stroke:#fff; stroke-width:2; }
   .car path { fill:none; stroke:#fff; stroke-width:2; opacity:.75; }

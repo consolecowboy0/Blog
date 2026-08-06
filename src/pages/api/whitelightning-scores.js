@@ -35,10 +35,7 @@ export async function GET({ request }) {
 export async function POST({ request, clientAddress }) {
   const corsHeaders = { ...corsHeadersFor(request, 'GET, POST, OPTIONS'), 'Content-Type': 'application/json' };
 
-  const ip =
-    clientAddress ||
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    'unknown';
+  const ip = clientAddress || 'unknown';
   const rl = checkRate(`wlscore:${ip}`, 10, 60 * 1000);
   if (!rl.ok) {
     return new Response(JSON.stringify({ ok: false }), { status: 429, headers: corsHeaders });
